@@ -60,35 +60,28 @@ boundaries are not pre-filled with placeholder files.
 
 ## Current maturity
 
-**M01–M09 are complete.** The root definition artifacts exist (`README.md`,
-`architecture.yaml`, `AGENTS.md`, `CLAUDE.md`); the pnpm/TypeScript
-workspace, lint/format/test/build tooling, and CI foundation are in place;
-`.agent/` establishes the minimum agent operating system; `.project/`
-establishes the project memory/artifact system; M05 establishes the
-contract/package model — a contract is a concept (a type, interface,
-schema, API spec, or event definition, as the boundary needs), not a
-framework, and `packages/` is a reusable source boundary, not a nested
-monorepo; M06 establishes the development lifecycle — a shared
-`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD → COMPLETE`
-protocol that the feature/bugfix/refactor/review workflows reference
-instead of each restating; M07 establishes the capability model —
-instruction/workflow/skill/tool/package/agent kept explicitly distinct,
-with `validate-repository` remaining the repository's only skill; and M08
-establishes the development loop — `OBSERVE → UNDERSTAND → HYPOTHESIZE →
-PLAN → CHANGE → VERIFY → EVALUATE`, the iterative reasoning nested inside
-M06's IMPLEMENT stage, distinguishing fact/assumption/hypothesis/decision
-and evidence-based stopping from unlimited retries; and M09 establishes
-the engineering graph model — a documented vocabulary of typed
-relationships (`depends-on`, `blocks`, `affects`, `owned-by`, ...)
-distinct from the existing untyped `related:` cross-reference, with no
-graph engine or database (`.agent/instructions/engineering-graph.md`).
-No package currently exists — one is added once a capability has
-demonstrated reuse across ≥2 independent deployables (see
-`.project/decisions/ADR-008`). A clean clone can run
-`pnpm install && pnpm run validate` successfully. There are still no
-apps, servers, or deployable agents — those land in M10 onward. See
-`architecture.yaml` for the full milestone roadmap and current phase
-marker, or `.project/state/PROJECT-STATE.md` for the live status.
+**M01–M10 are complete.** The root definition artifacts, workspace
+tooling, `.agent/` (agent operating system), and `.project/` (project
+memory) are all in place. M05–M10 established, in order: the
+contract/package model (a contract is a concept, not a framework;
+`packages/` is a reusable source boundary, not a nested monorepo); the
+development lifecycle (`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE →
+REVIEW → RECORD → COMPLETE`); the capability model (instruction/
+workflow/skill/tool/package/agent kept distinct — `validate-repository`
+remains the only skill); the development loop (`OBSERVE → UNDERSTAND →
+HYPOTHESIZE → PLAN → CHANGE → VERIFY → EVALUATE`, nested inside
+IMPLEMENT); the engineering graph model (a typed relationship vocabulary
+— `depends-on`, `blocks`, `affects`, ... — distinct from the untyped
+`related:` cross-reference, no graph engine); and the package source
+model's remaining detail (`.agent/instructions/packages.md` — package
+definition, extraction criteria, workspace/TS-consumption/distribution
+conventions). **No package, app, server, or deployable agent exists
+yet** — none has met the demonstrated-reuse or concrete-need bar those
+milestones establish. A clean clone can run
+`pnpm install && pnpm run validate` successfully. See `architecture.yaml`
+for the full milestone roadmap and current phase marker, or
+`.project/state/PROJECT-STATE.md` for the live status (including a note
+on M10's roadmap-numbering correction).
 
 ## Quality gate
 

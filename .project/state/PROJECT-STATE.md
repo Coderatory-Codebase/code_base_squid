@@ -10,8 +10,16 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M10 — MCP Integration** is next, **not started**. M01–M09 are complete.
+**M11 — MCP Integration** is next, **not started**. M01–M10 are complete.
 See `../../architecture.yaml` → `roadmap` for the full milestone list.
+
+**Roadmap numbering note (M10):** the original roadmap labeled M10
+"MCP Integration" and M11 "Core Packages." The M10 work request's actual
+content (package source model) matched the original M11, not M10. Since
+neither had started, the labels were swapped rather than left
+inconsistent — `architecture.yaml`'s M10 is now "Package Source Model"
+(delivered) and M11 is "MCP Integration" (next). No completed milestone's
+record was altered.
 
 ## Completed
 
@@ -66,19 +74,29 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   precision yet (e.g. `ADR-007`/`ADR-008`'s relationship stays expressed
   via `status`/prose/`related:`). No `.project/graph/` directory, no
   graph engine/database/API/CLI.
+- **M10 — Package Source Model** — `complete`. Operationalized `ADR-008`'s
+  package model (no new ADR — nothing here changes ownership, dependency
+  direction, or distribution policy): `.agent/instructions/packages.md`
+  plus two new sections amending `SPEC-003` (package definition/boundary
+  distinction table; package-to-package consumption and the
+  "not a business-logic dumping ground" rule). Confirmed
+  `pnpm-workspace.yaml` still excludes `packages/*`. **No package
+  created** — the repository has no `apps/`/`servers/`/`agents/`/
+  `tooling/` source yet, so nothing meets the demonstrated-reuse
+  extraction bar; absence is the correct, intentional outcome.
 
 ## Currently active
 
-Nothing beyond finishing M09's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M10's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
 `ADR-001`–`ADR-006`, `ADR-008` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
-M06, M07, M08, and M09 introduced no new ADR — all four are process/
-instruction content operating within the existing architecture, not a
-change to a boundary, dependency direction, or ownership decision.
+M06 through M10 introduced no new ADR — all are process/instruction
+content operating within the existing architecture, not a change to a
+boundary, dependency direction, or ownership decision.
 
 ## Blocked
 
@@ -86,7 +104,7 @@ Nothing.
 
 ## Next
 
-M10 — MCP Integration. **Not started.** Do not begin it without explicit
+M11 — MCP Integration. **Not started.** Do not begin it without explicit
 approval — see `../../.agent/instructions/implementation.md`
 ("stay inside the current milestone").
 

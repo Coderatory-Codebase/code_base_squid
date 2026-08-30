@@ -4,13 +4,20 @@ type: spec
 title: Contract & package model — required properties (corrected)
 status: active
 created: 2026-08-30
+updated: 2026-08-30
 related: [ADR-008, SPEC-001, SPEC-002]
 ---
 
 # SPEC-003: Contract & Package Model
 
 Supersedes `SPEC-002`. Rationale: `ADR-008`. Operational guidance:
-`.agent/instructions/contracts.md`.
+`.agent/instructions/contracts.md` (contracts), `.agent/instructions/packages.md`
+(packages).
+
+> **Amended at M10** (package-source-model milestone) to add the two
+> sections marked below. This operationalizes `ADR-008` — it does not
+> reverse or change any decision already in this spec; nothing existing
+> below was edited.
 
 ## What must be true of a contract
 
@@ -76,6 +83,37 @@ Supersedes `SPEC-002`. Rationale: `ADR-008`. Operational guidance:
   exception, not the default** — add `package.json`/build/release
   configuration to that one package when that need is real, and add it to
   `pnpm-workspace.yaml`'s globs explicitly at that point.
+
+## Package definition and boundary distinction (added M10)
+
+A package is **reusable source code**, consumed by import, owned by no
+single deployable. Distinct from:
+
+| Boundary                                 | What it is                                                                                                                                                                                                             |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Application code (`apps/`)               | Owned by one user-facing app; not imported by other deployables.                                                                                                                                                       |
+| Server-owned business logic (`servers/`) | Owned by one server (`ADR-002`); stays there unless reuse is demonstrated.                                                                                                                                             |
+| Agent-owned logic (`agents/`)            | Owned by one deployable agent runtime; same rule as server-owned logic.                                                                                                                                                |
+| Tooling (`tooling/`)                     | Repository/developer tooling — operates _on_ the repo, not imported _by_ deployables at runtime.                                                                                                                       |
+| External npm dependency                  | Code this repository does not own; declared in a `package.json`, installed via `pnpm`, never placed under `packages/`.                                                                                                 |
+| Independently distributable package      | An _optional_, later evolution of one specific `packages/<name>` that has earned its own `package.json`/build/publish — not the default shape of anything under `packages/` (see "Distribution, if it happens" above). |
+
+## Package-to-package consumption (added M10)
+
+Permitted (`architecture.yaml` → `dependency_direction`: `packages →
+packages` is allowed), subject to the same rules as any other package
+dependency: no circular dependencies, and the same reuse bar — one
+package depends on another only for a genuinely shared capability, not
+merely because both happen to be under `packages/`.
+
+**A package must not become a business-logic dumping ground merely
+because multiple consumers use it.** Multiple consumers needing
+_similar_ logic is not automatically reuse — if each consumer's need is
+actually its own business rule that happens to look alike today, that
+logic stays with each owner (`ADR-002`); only the genuinely shared,
+non-business mechanism belongs in the package, the same distinction
+`contracts.md` already draws for contracts ("structural validation, not
+business validation").
 
 ## Status
 
