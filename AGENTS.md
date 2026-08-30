@@ -37,8 +37,7 @@ Before modifying anything:
 4. Plan before implementing anything non-trivial.
 5. After implementing, validate consistency: does the change contradict
    `README.md`, `architecture.yaml`, `AGENTS.md`, or `CLAUDE.md`? Do the
-   quality gates (once M02 exists: install → lint → typecheck → test →
-   build) still pass?
+   quality gates (install → lint → typecheck → test → build) still pass?
 6. Record non-trivial architectural decisions as ADRs in
    `.project/decisions/` (see `.project/ARTIFACT-TYPES.md` for the
    convention).
@@ -68,7 +67,10 @@ single pass. Pull in a layer only when the task needs it.
   that owns it (`servers/<name>/domains/*`, `apps/<name>/features/*`, etc.).
 - **`packages/` is the only reuse boundary.** Create a package for a
   concrete, currently-needed reusable capability — not because a category
-  sounds generically useful.
+  sounds generically useful. Full extraction criteria and package
+  structure: `.agent/instructions/packages.md`. Same "ownership before
+  reuse" rule applied to contracts specifically:
+  `.agent/instructions/contracts.md`.
 - **`.agent/` vs `agents/`**: `.agent/` is the engineering operating system
   (how agents work in this repo). `agents/` holds actual deployable agent
   runtimes. Do not conflate them.

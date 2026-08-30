@@ -17,7 +17,9 @@ dependency:
    `business-services`, `domain-services`.) If so, stop — the thing you're
    about to build belongs inside the owning `servers/`, `apps/`, or
    `agents/` deployable instead, or in `packages/` if it's genuinely
-   reusable across independent systems.
+   reusable across independent systems. Full extraction criteria (when
+   code actually earns a place in `packages/`, and what structure it
+   needs): `.agent/instructions/packages.md`.
 2. **Does the boundary already exist in `architecture.yaml.boundaries`?**
    If yes, use it as defined. If no, a new top-level boundary is an
    architectural decision — flag it explicitly rather than adding it

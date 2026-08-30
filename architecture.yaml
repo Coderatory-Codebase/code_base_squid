@@ -167,7 +167,7 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M11
+  current_phase: M12
   milestones:
     - id: M01
       name: Foundation Definition
@@ -245,8 +245,22 @@ roadmap:
       # No package created — nothing in the repository yet meets the
       # demonstrated-reuse extraction bar (ADR-008). Model/convention only.
     - id: M11
-      name: MCP Integration
-      status: not-started
+      name: Architecture Validation & Boundary Integrity
+      status: complete
+      deliverables:
+        [
+          .project/state/PROJECT-STATE.md (corrected),
+          architecture.yaml (corrected),
+          AGENTS.md (corrected),
+          .agent/instructions/boundaries.md (corrected),
+        ]
+      # Consolidation gate, not a new subsystem. "MCP Integration"
+      # (previously slotted here after the M10 swap) is removed from the
+      # numbered roadmap entirely: MCP has no concrete requirement in
+      # this repository and must not occupy a roadmap slot until one
+      # exists (see AGENTS.md -> "Non-goals right now", SPEC-001 ->
+      # non-goals). M12+ below is a non-binding long-range reference only
+      # — the next real milestone is decided when a concrete need exists.
     - id: M12
       name: Project Scaffolder
       status: not-started

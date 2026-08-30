@@ -10,16 +10,31 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M11 — MCP Integration** is next, **not started**. M01–M10 are complete.
+**M01–M11 are complete.** M12+ is **not yet defined** — see "Roadmap
+position" below before assuming any specific next milestone.
 See `../../architecture.yaml` → `roadmap` for the full milestone list.
 
-**Roadmap numbering note (M10):** the original roadmap labeled M10
-"MCP Integration" and M11 "Core Packages." The M10 work request's actual
-content (package source model) matched the original M11, not M10. Since
-neither had started, the labels were swapped rather than left
-inconsistent — `architecture.yaml`'s M10 is now "Package Source Model"
-(delivered) and M11 is "MCP Integration" (next). No completed milestone's
-record was altered.
+**Roadmap numbering history:** the original M01 roadmap sketch labeled
+M10 "MCP Integration" and M11 "Core Packages." The actual M10 work
+request's content (package source model) matched the original M11, not
+M10; since neither had started, the labels were swapped — `M10` became
+"Package Source Model." That left `M11` named "MCP Integration," which
+this M11 architecture-validation milestone then found to contradict its
+own explicit instruction that MCP must not occupy a roadmap slot without
+a concrete requirement. Resolved by having M11 itself become "Architecture
+Validation & Boundary Integrity" (this milestone's actual content) and
+dropping "MCP Integration" from the numbered roadmap entirely — it
+remains referenced only as a non-goal (`AGENTS.md`, `SPEC-001`), not a
+scheduled milestone. No completed milestone's record was altered at any
+point.
+
+## Roadmap position
+
+M12–M14 (as originally sketched at M01: Project Scaffolder,
+Self-Hosting, Production Hardening) remain a **non-binding long-range
+reference only** — none has a concrete current requirement. The next
+real milestone is decided when a concrete need identifies one, not by
+roadmap position alone (`.agent/instructions/implementation.md`).
 
 ## Completed
 
@@ -84,19 +99,29 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   created** — the repository has no `apps/`/`servers/`/`agents/`/
   `tooling/` source yet, so nothing meets the demonstrated-reuse
   extraction bar; absence is the correct, intentional outcome.
+- **M11 — Architecture Validation & Boundary Integrity** — `complete`. A
+  consolidation gate, not a new subsystem — inspected M01–M10 end to end
+  against the actual filesystem. Findings: 3 real, low-risk documentation
+  gaps (M11's own roadmap-label contradiction with its "no MCP
+  milestone" instruction; `AGENTS.md`/`boundaries.md` missing pointers to
+  `packages.md`/`contracts.md`; one stale "(once M02 exists...)"
+  conditional in `AGENTS.md`) — all corrected. No boundary violation, no
+  duplicated concept, no premature abstraction, and no source-code change
+  were found or made. Full findings in this milestone's report.
 
 ## Currently active
 
-Nothing beyond finishing M10's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M11's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
 `ADR-001`–`ADR-006`, `ADR-008` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
-M06 through M10 introduced no new ADR — all are process/instruction
-content operating within the existing architecture, not a change to a
-boundary, dependency direction, or ownership decision.
+M06 through M11 introduced no new ADR — all are process/instruction
+content (or, for M11, corrections to existing documentation) operating
+within the existing architecture, not a change to a boundary, dependency
+direction, or ownership decision.
 
 ## Blocked
 
@@ -104,9 +129,11 @@ Nothing.
 
 ## Next
 
-M11 — MCP Integration. **Not started.** Do not begin it without explicit
-approval — see `../../.agent/instructions/implementation.md`
-("stay inside the current milestone").
+Not yet defined — see "Roadmap position" above. Do not begin
+implementation work (a package, app, server, or agent) without a
+concrete, demonstrated need, and not without explicit approval — see
+`../../.agent/instructions/implementation.md` ("stay inside the current
+milestone").
 
 ## Open questions carried forward
 
