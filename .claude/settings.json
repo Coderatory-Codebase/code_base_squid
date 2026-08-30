@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install *)",
+      "Bash(pnpm run *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(echo \"FORMAT_EXIT:$?\")",
+      "Bash(echo \"VALIDATE_EXIT:$?\")",
+      "Bash(pnpm exec *)"
+    ]
+  }
+}

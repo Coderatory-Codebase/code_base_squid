@@ -1,0 +1,31 @@
+{
+  "name": "nut-shyll",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent-native software foundation monorepo.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "lint": "eslint . --no-error-on-unmatched-pattern",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -b",
+    "test": "vitest run --passWithNoTests",
+    "build": "tsc -b",
+    "validate": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@typescript-eslint/eslint-plugin": "8.68.0",
+    "@typescript-eslint/parser": "8.68.0",
+    "eslint": "10.9.1",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

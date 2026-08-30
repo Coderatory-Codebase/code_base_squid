@@ -1,0 +1,222 @@
+# Machine-readable architectural definition for this repository.
+# Human-facing rationale lives in README.md. Agent operating rules live in
+# AGENTS.md / CLAUDE.md. This file is the source of truth for boundaries,
+# dependency direction, and milestone state — keep it consistent with those
+# other three root documents.
+
+version: 1
+name: nut-shyll
+kind: foundation-monorepo
+
+principles:
+  - id: packages-are-the-reuse-mechanism
+    statement: >
+      There is no generic top-level `modules/` directory. Reusable
+      capability lives in packages/. Business/domain logic lives inside the
+      deployable (apps/servers/agents) that owns it, until proven reusable
+      across independent systems.
+  - id: agent-agnostic-core
+    statement: >
+      Artifacts, contracts, workflows, skills, policies, and project state
+      must remain usable by any coding agent. Agent-specific integration is
+      confined to adapter/instruction files (e.g. CLAUDE.md), never baked
+      into the core structures.
+  - id: composable-architecture
+    statement: >
+      No single architectural methodology (DDD, hexagonal, CQRS, vertical
+      slice, event-driven, modular monolith, microservices, ...) is mandated
+      repo-wide. Each deployable selects the pattern(s) it needs.
+  - id: progressive-disclosure
+    statement: >
+      Context loads on demand: CLAUDE.md -> repo orientation -> relevant
+      instruction -> relevant workflow/skill -> relevant project artifact ->
+      relevant source. CLAUDE.md stays intentionally small.
+  - id: explicit-boundaries
+    statement: >
+      Every top-level directory has one stated purpose. Directories are
+      created only when a concrete capability requires them, never
+      speculatively.
+  - id: decisions-are-recorded
+    statement: >
+      Non-trivial architectural decisions are recorded as ADRs in
+      .project/decisions/ (see .project/ARTIFACT-TYPES.md for the
+      convention). Silent architectural changes are disallowed.
+
+boundaries:
+  - path: .agent/
+    purpose: Repository-level agent operating system — how agents operate.
+    contains: [instructions, workflows, skills, templates]
+    is_runtime_code: false
+    status: created
+
+  - path: .project/
+    purpose: Persistent engineering/project memory — what the project knows.
+    contains:
+      [
+        context,
+        specs,
+        decisions,
+        plans,
+        tasks,
+        changes,
+        research,
+        reviews,
+        reports,
+        sessions,
+        state,
+      ]
+    created: [state, decisions, specs, plans, reviews]
+    # Remaining entries in `contains` are defined conventions
+    # (.project/ARTIFACT-TYPES.md) without a directory yet — created on
+    # first real need, not pre-scaffolded. See .project/README.md.
+    is_runtime_code: false
+    status: partially-created
+
+  - path: apps/
+    purpose: User-facing deployable applications.
+    examples: [web, admin, mobile]
+    status: not-yet-created
+
+  - path: servers/
+    purpose: >
+      Deployable server processes. Business/domain logic owned by a backend
+      lives here, inside the server that owns it (e.g. servers/api/domains/*).
+    examples: [api, worker, gateway]
+    status: not-yet-created
+
+  - path: agents/
+    purpose: >
+      Deployable / independently executable agent applications and runtimes.
+      Distinct from .agent/, which is the engineering operating system, not
+      a runtime.
+    status: not-yet-created
+
+  - path: packages/
+    purpose: >
+      Reusable capabilities: infrastructure, protocols, transports, platform
+      integrations, libraries, runtime primitives, shared contracts,
+      utilities. The primary reuse boundary in this repo.
+    status: not-yet-created
+
+  - path: infra/
+    purpose: Infrastructure and deployment configuration.
+    examples: [docker, kubernetes, terraform, environments]
+    status: not-yet-created
+
+  - path: tooling/
+    purpose: Repository/developer tooling.
+    examples: [generators, scripts, lint, build]
+    status: not-yet-created
+
+  - path: docs/
+    purpose: Human-facing documentation.
+    status: not-yet-created
+
+forbidden_top_level_dirs:
+  - modules
+  - services
+  - business-services
+  - domain-services
+  # Business/domain logic belongs inside the owning deployable
+  # (servers/<name>/domains/*, apps/<name>/features/*, etc.), not in a
+  # generic root-level bucket.
+
+dependency_direction:
+  statement: >
+    apps, servers, agents, and tooling may depend on packages. packages must
+    not depend on apps, servers, or agents. Circular dependencies are
+    disallowed. A package is introduced to hold a genuine reusable
+    capability, never merely to break a poorly designed dependency graph —
+    if a cycle appears, the boundary is reconsidered first.
+  allowed:
+    - from: apps
+      to: packages
+    - from: servers
+      to: packages
+    - from: agents
+      to: packages
+    - from: tooling
+      to: packages
+    - from: packages
+      to: packages
+  disallowed:
+    - from: packages
+      to: [apps, servers, agents]
+
+agent_native_lifecycle:
+  loop: [Observe, Understand, Plan, Act, Test, Verify, Record]
+  implementation_flow: [SPEC, PLAN, TASK, IMPLEMENT, TEST, REVIEW, DOCUMENT]
+  status: >
+    Structural contracts only at this stage; no orchestration engine exists
+    yet (planned M06/M08).
+
+roadmap:
+  current_phase: M05
+  milestones:
+    - id: M01
+      name: Foundation Definition
+      status: complete
+      deliverables: [README.md, architecture.yaml, AGENTS.md, CLAUDE.md]
+    - id: M02
+      name: Repository Bootstrap
+      status: complete
+      deliverables:
+        [pnpm-workspace.yaml, package.json, tsconfig.json, lint/format config, CI foundation]
+    - id: M03
+      name: Claude Agent Bootstrap
+      status: complete
+      deliverables: [.agent/instructions, .agent/workflows, .agent/skills, .agent/templates]
+    - id: M04
+      name: Project Artifact System
+      status: complete
+      deliverables:
+        [
+          .project/ARTIFACT-TYPES.md,
+          .project/state,
+          .project/decisions,
+          .project/specs,
+          .project/plans,
+          .project/reviews,
+        ]
+    - id: M05
+      name: Contract System
+      status: not-started
+    - id: M06
+      name: Workflow System
+      status: not-started
+    - id: M07
+      name: Skill System
+      status: not-started
+    - id: M08
+      name: Development Loops
+      status: not-started
+    - id: M09
+      name: Graph System
+      status: not-started
+    - id: M10
+      name: MCP Integration
+      status: not-started
+    - id: M11
+      name: Core Packages
+      status: not-started
+    - id: M12
+      name: Project Scaffolder
+      status: not-started
+    - id: M13
+      name: Self-Hosting
+      status: not-started
+    - id: M14
+      name: Production Hardening
+      status: not-started
+
+non_goals_current_phase:
+  - full agent runtime / orchestration engine
+  - MCP infrastructure
+  - populated package set
+  - project generator
+  - graph database
+  - control panel / dashboard
+  - business domain implementations
+  - authentication implementation
+  - a working web application
+  - speculative empty architectural layers

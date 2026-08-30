@@ -1,0 +1,10 @@
+# Workspace globs mirror the boundaries defined in architecture.yaml.
+# Globs are declared even though no package currently exists under them —
+# this is workspace *resolution config*, not a directory scaffold; no
+# directories are created until a real package/app/server/agent lands.
+packages:
+  - "packages/*"
+  - "apps/*"
+  - "servers/*"
+  - "agents/*"
+  - "tooling/*"
