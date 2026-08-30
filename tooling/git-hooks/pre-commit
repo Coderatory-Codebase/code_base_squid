@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 // Git pre-commit hook. Installed via `core.hooksPath` — see
-// tooling/scripts/install-git-hooks.mjs. Fast, deterministic checks only
-// — see .agent/instructions/git-governance.md -> "Pre-commit vs pre-push".
-// Calls the repository's own central commands rather than reimplementing
-// their logic (SPEC-009 -> "Avoid duplicated shell logic").
+// tooling/scripts/install-git-hooks.mjs. Fast, deterministic checks
+// scoped to staged files only — see SPEC-009 -> "Staged-file scoping
+// (M14)". Calls the repository's own central tooling rather than
+// reimplementing its logic (SPEC-009 -> "Avoid duplicated shell logic").
 //
 // Bypassable with `git commit --no-verify` — expected, not a bug. See
 // tooling/git-hooks/commit-msg for the rationale, which applies here too.
 import { execFileSync } from "node:child_process";
 
-// pnpm resolves to a .cmd/.ps1 shim on Windows, which execFileSync can't
-// exec directly without a shell — shell:true is required there, and
-// harmless on POSIX. See ADR-009 -> "Windows shell resolution".
+// pnpm/prettier resolve to a .cmd/.ps1 shim on Windows, which
+// execFileSync can't exec directly without a shell — shell:true is
+// required there, and harmless on POSIX. See ADR-009 -> "Windows shell
+// resolution".
 const useShell = process.platform === "win32";
 
 function run(command, args) {
@@ -26,19 +27,26 @@ function run(command, args) {
   }
 }
 
-function stagedFileCount() {
+function stagedFiles() {
   const out = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACM"], {
     encoding: "utf8",
   });
-  return out.split("\n").filter(Boolean).length;
+  return out.split("\n").filter(Boolean);
 }
 
-if (stagedFileCount() === 0) {
+const staged = stagedFiles();
+
+if (staged.length === 0) {
   process.exit(0); // nothing staged (e.g. an empty/amend commit) — nothing to check
 }
 
-console.log("pre-commit: format:check");
-const formatOk = run("pnpm", ["run", "--silent", "format:check"]);
+// format:check runs against staged files only — unrelated pre-existing
+// formatting issues elsewhere in the tree must never block an unrelated
+// commit (SPEC-009 -> "Staged-file scoping (M14)"). --ignore-unknown is
+// required here: unlike glob mode, prettier errors (not skips) on an
+// explicit path it has no parser for (e.g. a stray extensionless file).
+console.log("pre-commit: format:check (staged files)");
+const formatOk = run("pnpm", ["exec", "prettier", "--check", "--ignore-unknown", ...staged]);
 
 console.log("pre-commit: secrets:scan (staged files)");
 const secretsOk = run("node", ["tooling/scripts/secret-scan.mjs", "--staged"]);

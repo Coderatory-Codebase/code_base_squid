@@ -21,12 +21,11 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run typecheck
-      - run: pnpm run test
-      - run: pnpm run build
-      - run: pnpm run validate:architecture
-      - run: pnpm run secrets:scan
+      # One command, same one a developer/agent runs locally — see
+      # SPEC-009 -> "CI command reuse (M14)". Covers lint, typecheck,
+      # test, build, validate:architecture, secrets:scan, in that order;
+      # CI does not re-list each rule separately.
+      - run: pnpm run validate
       - run: pnpm run format:check
       - name: Validate commit messages (PR range)
         if: github.event_name == 'pull_request'

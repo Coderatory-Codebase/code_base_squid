@@ -174,7 +174,13 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M14
+  # M15 has no milestone entry below and none is added speculatively —
+  # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
+  # from its original placeholder names to each milestone's actual
+  # content). The next milestone is defined only once a concrete need
+  # identifies one — see .project/state/PROJECT-STATE.md -> "Roadmap
+  # position".
+  current_phase: M15
   milestones:
     - id: M01
       name: Foundation Definition
@@ -313,8 +319,27 @@ roadmap:
           .gitattributes (new),
         ]
     - id: M14
-      name: Production Hardening
-      status: not-started
+      name: Autonomous Repository Engineering Tooling
+      status: complete
+      # Renamed from the original roadmap sketch's "Production Hardening"
+      # — that label had no concrete requirement (no production system
+      # exists to harden). This milestone matured M13's implementation:
+      # staged-file-scoped pre-commit checks, CI reusing `pnpm run
+      # validate` instead of duplicating its rule list, a deliberate
+      # hook-management evaluation (native hooks vs. Husky/Lefthook,
+      # reaffirmed — see ADR-009 addendum), a real fresh-clone
+      # installation test, and tooling/README.md for onboarding. No new
+      # ADR (evaluation appended to the existing ADR-009, not a new
+      # decision). No technology-specific tooling added — none is in use
+      # yet. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-009 (amended),
+          .project/decisions/ADR-009 (amended),
+          tooling/README.md (new),
+          tooling/git-hooks/pre-commit (staged-scoped),
+          .github/workflows/ci.yaml (simplified to reuse `pnpm run validate`),
+        ]
 
 non_goals_current_phase:
   - full agent runtime / orchestration engine

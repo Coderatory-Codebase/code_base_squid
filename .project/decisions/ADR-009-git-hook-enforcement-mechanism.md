@@ -4,6 +4,7 @@ type: adr
 title: Git hook enforcement mechanism
 status: accepted
 created: 2026-08-30
+updated: 2026-08-30
 related: [SPEC-009, ADR-005]
 ---
 
@@ -69,6 +70,37 @@ files nobody had touched).
   composition once multiple technologies are adopted), that's a future
   decision revisiting this one — not assumed now.
 
+## M14 addendum: evaluated against Husky and Lefthook
+
+M14 was explicitly asked to evaluate this decision against mature
+alternatives rather than assume it — not to retroactively justify it.
+Evaluated on the criteria M14 specified:
+
+| Criterion                   | Native (`core.hooksPath`, current)                                                                              | Husky                                                                                                          | Lefthook                                                                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Installation reliability    | Verified at M14 via a real fresh `git clone` + `pnpm install`; no manual step.                                  | Same `prepare`-script pattern this repository already uses — no reliability gain.                              | Requires a separate binary download/install step per platform; one more moving part.                                                       |
+| Windows behavior            | Two real issues hit and fixed directly (CRLF shebang, `pnpm` shim spawn) — both now understood and documented.  | Designed to paper over exactly this kind of issue — but this repository no longer has the issue to paper over. | Ships a Go binary — sidesteps Node shebang/CRLF issues entirely, at the cost of a non-Node toolchain in an otherwise pure-Node repository. |
+| pnpm compatibility          | Confirmed working (`shell: true` on Windows).                                                                   | Well-trodden, widely documented with pnpm.                                                                     | Works with pnpm; less commonly documented for it than Husky.                                                                               |
+| CI behavior                 | Hooks don't run in CI by design (CI calls the same underlying `pnpm` scripts directly) — unaffected either way. | Same.                                                                                                          | Same.                                                                                                                                      |
+| Developer/agent onboarding  | One `pnpm install`; hook logic is three short, readable Node files an agent can open and reason about directly. | One `pnpm install`; hook logic lives behind Husky's own CLI/format, one more thing to learn.                   | One `pnpm install`; hook logic lives in a Lefthook YAML config plus the Go binary's own behavior.                                          |
+| Maintenance/dependency cost | Zero new dependencies — Node is already this repository's baseline.                                             | One new `devDependency`, actively maintained, small footprint.                                                 | One new `devDependency` plus a downloaded binary; heavier footprint.                                                                       |
+| Debuggability               | Direct: run the hook file with `node`, read the stack trace.                                                    | One layer of indirection through Husky's own hook shim.                                                        | Two layers: Lefthook's own runner, then the configured command.                                                                            |
+| Monorepo suitability        | Single `core.hooksPath` at the repo root; this repository has no per-package hook needs (no packages exist).    | Same suitability; no advantage here specifically.                                                              | Slightly stronger multi-language/parallel-hook story — irrelevant with zero technologies adopted.                                          |
+
+**Conclusion: unchanged.** The primary reason either alternative exists —
+solving cross-platform hook install/exec reliability — was already solved
+directly during M13's own implementation and testing (the CRLF and `pnpm`
+shim issues above), so adopting a manager now would mean rewriting
+working, tested scripts to gain a benefit this repository no longer
+lacks, while adding a real dependency (Husky) or a non-Node toolchain
+component (Lefthook) neither of which is otherwise justified
+(`SPEC-008` → "Project technology profile" — no implementation technology
+exists yet to make either a natural fit). Revisit this decision if a
+genuine multi-language hook-composition need appears once real
+technologies are adopted — that is a concrete future trigger, not a
+standing todo.
+
 ## Status
 
-Accepted at M13. Governs `tooling/git-hooks/` and its installation.
+Accepted at M13, evaluated and reaffirmed at M14. Governs
+`tooling/git-hooks/` and its installation.

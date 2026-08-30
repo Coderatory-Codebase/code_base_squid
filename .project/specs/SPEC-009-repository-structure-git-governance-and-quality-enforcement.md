@@ -4,6 +4,7 @@ type: spec
 title: Repository structure, Git governance & quality enforcement
 status: active
 created: 2026-08-30
+updated: 2026-08-30
 related: [SPEC-003, SPEC-005, SPEC-008, ADR-001, ADR-002, ADR-008, ADR-009]
 ---
 
@@ -12,6 +13,13 @@ related: [SPEC-003, SPEC-005, SPEC-008, ADR-001, ADR-002, ADR-008, ADR-009]
 Operational entry point: `.agent/instructions/git-governance.md`. This spec
 is the comprehensive, durable definition; that file is the shorter
 agent-facing pointer into it.
+
+> **M14 amendment**: M13 established this model and its first
+> implementation; M14 matured that implementation (staged-file scoping,
+> CI simplification, a conscious hook-management evaluation, onboarding
+> and troubleshooting docs) without changing the model itself. Sections
+> marked "(M14)" below are additions from that pass — everything else is
+> unchanged from M13.
 
 ## Purpose
 
@@ -152,10 +160,11 @@ commits from M13 onward.
 
 - **`commit-msg`** (fast, always): validates the commit subject against
   the convention above.
-- **`pre-commit`** (fast, staged-scope): `format:check`, then
-  `secrets:scan --staged`. Deliberately excludes `lint`/`typecheck`/
-  `test`/`build` — those run repository-wide and are not "fast" at this
-  repository's eventual scale; that's `pre-push`'s job.
+- **`pre-commit`** (fast, staged-scope): `prettier --check --ignore-unknown`
+  against the staged file list (not the whole repository — see "Staged-file
+  scoping (M14)"), then `secrets:scan --staged`. Deliberately excludes
+  `lint`/`typecheck`/`test`/`build` — those run repository-wide and are
+  not "fast" at this repository's eventual scale; that's `pre-push`'s job.
 - **`pre-push`** (broader): `pnpm run validate` (lint, typecheck, test,
   build, `validate:architecture`, `secrets:scan`) plus `format:check`.
 
@@ -368,24 +377,94 @@ its skill may add a step to `pnpm run validate` or a CI job, not a
 parallel quality system. No such extension exists yet — this spec adds
 none speculatively.
 
+## Staged-file scoping (M14)
+
+`pre-commit`'s format check runs only against the staged file list
+(`git diff --cached --name-only --diff-filter=ACM`), not `prettier --check .`
+— a pre-existing formatting issue in a file the current commit doesn't
+touch must never block it. `--ignore-unknown` is required alongside this:
+unlike prettier's glob mode, passing explicit paths makes prettier _error_
+(not silently skip) on a path it has no parser for. `secrets:scan --staged`
+was already staged-scoped since M13 and is unchanged. `pre-push` remains
+repository-wide by design — it's the broader, less frequent check.
+
+## CI command reuse (M14)
+
+`.github/workflows/ci.yaml` runs `pnpm run validate` as one step rather
+than re-listing `lint`/`typecheck`/`test`/`build`/`validate:architecture`/
+`secrets:scan` as six separate `run:` lines — the M13 version duplicated
+`validate`'s own definition inside the YAML, two places that could drift
+out of sync. `format:check` and the PR commit-range check stay separate
+steps (neither is part of `validate`, by the same pre-existing,
+intentional split noted above). This trades a small amount of per-check
+GitHub-UI granularity for one definition of "the gate" instead of two.
+
+## Hook-management evaluation (M14)
+
+M13 chose native `core.hooksPath` scripts over a third-party hook manager
+(`ADR-009`). M14 was asked to evaluate that choice deliberately rather
+than assume it, against Husky and Lefthook specifically. Conclusion:
+**unchanged — native hooks stay.** Full evaluation and reasoning recorded
+as an addendum to `ADR-009` rather than repeated here (the decision
+belongs with its ADR); summary: both alternatives exist chiefly to solve
+cross-platform install/exec reliability, which M13 had already hit
+(Windows `pnpm` shim spawning, a CRLF-broken shebang) and already fixed
+directly — adopting a manager at this point would mean rewriting working,
+tested scripts to gain a benefit the repository no longer lacks, plus a
+new dependency. Revisit if a real multi-language hook-composition need
+ever appears (`ADR-009` addendum).
+
+## Technology plug-in point (M14)
+
+`SPEC-008` → "Technology skill model" describes a technology skill
+plugging into "the repository quality layer" without saying concretely
+where. The answer: **the stable script names already are the plug-in
+point** — `package.json` → `lint`/`typecheck`/`test`/`build` are the
+contract; a technology skill's job, on adoption, is to point that script
+at the real tool (e.g. `"lint": "eslint ..."`, already true — a future
+frontend/backend technology skill would extend the ESLint config or add
+a sibling script, not invent a new orchestration layer). No plugin
+registry, discovery mechanism, or dynamic loader is built — `tooling/`
+does not try to detect "does this repository use React" today, because
+nothing does; when something does, that technology's skill updates the
+relevant script/config directly, the same way this milestone did for
+`lint` (`eslint.config.js` → Node globals for `tooling/scripts/**`).
+
+## Troubleshooting (M14)
+
+Failure modes actually hit while building/verifying this system, not a
+hypothetical list:
+
+| Symptom                                                           | Cause                                                                                         | Fix                                                                                                                           |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Hooks don't seem to run at all                                    | `core.hooksPath` unset (e.g. a very old clone from before M13)                                | `pnpm run hooks:install`                                                                                                      |
+| `git commit`/`git push` silently succeeds despite a broken rule   | `core.hooksPath` points somewhere stale, or hook file missing                                 | Check `git config core.hooksPath` == `tooling/git-hooks`; re-run `pnpm run hooks:install`                                     |
+| `pre-commit`/`pre-push` fails with "could not run pnpm"           | Windows shim not spawnable without a shell                                                    | Already handled (`shell: process.platform === "win32"`) — if seen elsewhere, apply the same fix (`ADR-009`)                   |
+| A hook's shebang doesn't resolve / hook silently no-ops           | CRLF line ending on `#!/usr/bin/env node`                                                     | `.gitattributes` forces LF for `tooling/git-hooks/*`; if a file still has CRLF, `git add --renormalize .`                     |
+| `format:check` fails on files nobody touched                      | Working-tree line endings drifted from what's committed (Windows `core.autocrlf=true`)        | Same `.gitattributes` fix as above — this was found and fixed at M13 for exactly this reason                                  |
+| `pre-commit` fails on a staged file with no real formatting issue | Missing `--ignore-unknown` when an unsupported extension is staged                            | Already fixed in the M14 `pre-commit` script — if a new unsupported-extension case appears, confirm the flag is still present |
+| Fresh clone has no hooks after `pnpm install`                     | `.git` didn't exist yet when `install-git-hooks.mjs` ran (e.g. install ran before `git init`) | Run `pnpm run hooks:install` once a `.git` directory exists                                                                   |
+
 ## Enforcement status
 
-| Layer                                     | Status                                                                                                                      |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Repository structure/hygiene rules        | Documented (this spec, `AGENTS.md`, `boundaries.md`) — no enforcement script beyond `validate:architecture`'s narrow check. |
-| Branch/commit conventions                 | Documented; commit-message shape is enforced (hook + CI), branch naming is not (advisory only).                             |
-| `commit-msg` hook                         | **Implemented and tested** — `tooling/git-hooks/commit-msg`, installed via `core.hooksPath`.                                |
-| `pre-commit` hook                         | **Implemented and tested** — format + staged-secret checks.                                                                 |
-| `pre-push` hook                           | **Implemented and tested** — full `validate` + `format:check`.                                                              |
-| Central quality commands                  | **Implemented** — `package.json` → `scripts` (see table above).                                                             |
-| Secret detection                          | **Implemented**, baseline only (see limits above).                                                                          |
-| Architecture boundary check               | **Implemented**, scoped to what's checkable without source.                                                                 |
-| CI quality gate                           | **Implemented** — `.github/workflows/ci.yaml`.                                                                              |
-| Local/CI parity                           | **Implemented** — same underlying commands both places.                                                                     |
-| Branch protection (GitHub setting)        | **Not configured** — a repository-host action; documented as a gap, not simulated as done.                                  |
-| PR template                               | **Not created** — no real PR history yet to shape one from; deferred.                                                       |
-| Dependency vulnerability scanning         | **Deferred** — no real dependency exists yet beyond dev tooling.                                                            |
-| Framework/container/IaC security scanning | **Deferred** — technology-skill-scoped, no such technology adopted yet.                                                     |
+| Layer                                     | Status                                                                                                                                           |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Repository structure/hygiene rules        | Documented (this spec, `AGENTS.md`, `boundaries.md`) — no enforcement script beyond `validate:architecture`'s narrow check.                      |
+| Branch/commit conventions                 | Documented; commit-message shape is enforced (hook + CI), branch naming is not (advisory only).                                                  |
+| `commit-msg` hook                         | **Implemented and tested** — `tooling/git-hooks/commit-msg`, installed via `core.hooksPath`.                                                     |
+| `pre-commit` hook                         | **Implemented and tested** — format + secret checks, both staged-file scoped (M14).                                                              |
+| `pre-push` hook                           | **Implemented and tested** — full `validate` + `format:check`.                                                                                   |
+| Central quality commands                  | **Implemented** — `package.json` → `scripts` (see table above).                                                                                  |
+| Secret detection                          | **Implemented**, baseline only (see limits above).                                                                                               |
+| Architecture boundary check               | **Implemented**, scoped to what's checkable without source.                                                                                      |
+| CI quality gate                           | **Implemented** — `.github/workflows/ci.yaml`, reuses `pnpm run validate` directly (M14).                                                        |
+| Local/CI parity                           | **Implemented** — same underlying commands both places.                                                                                          |
+| Fresh-clone hook installation             | **Verified (M14)** — a real `git clone` + `pnpm install` was exercised; hooks installed and correctly rejected/accepted commits, no manual step. |
+| Hook-management approach                  | **Evaluated (M14)** — native hooks confirmed over Husky/Lefthook; see `ADR-009` addendum.                                                        |
+| Branch protection (GitHub setting)        | **Not configured** — a repository-host action; documented as a gap, not simulated as done.                                                       |
+| PR template                               | **Not created** — no real PR history yet to shape one from; deferred.                                                                            |
+| Dependency vulnerability scanning         | **Deferred** — no real dependency exists yet beyond dev tooling.                                                                                 |
+| Framework/container/IaC security scanning | **Deferred** — technology-skill-scoped, no such technology adopted yet.                                                                          |
 
 ## Explicit non-goals
 

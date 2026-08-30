@@ -42,14 +42,20 @@ enforced by the `commit-msg` hook and, for PRs, by CI.
 
 ## Use the quality gate — it's real now
 
-`pnpm install` installs working Git hooks automatically (`prepare`
-script); `pnpm run hooks:install` re-verifies/reinstalls them manually.
-`pnpm run validate` now also runs `validate:architecture` and
-`secrets:scan` alongside the existing lint/typecheck/test/build
+`tooling/` is authoritative for repository automation — don't recreate a
+validation script inside an individual task; extend what's there (see
+`tooling/README.md`). `pnpm install` installs working Git hooks
+automatically (`prepare` script); `pnpm run hooks:install`
+re-verifies/reinstalls them manually. `pnpm run validate` runs
+`lint`/`typecheck`/`test`/`build`/`validate:architecture`/`secrets:scan`
 (`validation.md` still applies; `format:check` stays a separate command,
-unchanged). Never weaken a check to make it pass — fix the underlying
-issue, or raise a change to the check itself
-(`change-management.md`).
+unchanged). Prefer `pnpm run validate` (plus `format:check`) before
+completing a meaningful change; a narrower command (`pnpm run typecheck`
+alone) is fine mid-task, e.g. while debugging one type error. Never weaken
+a check to make it pass — fix the underlying issue, or raise a change to
+the check itself (`change-management.md`). Hit an unexpected hook/CI
+failure? Check `tooling/README.md` → "Troubleshooting" and
+`SPEC-009` → "Troubleshooting (M14)" before working around it.
 
 ## Hooks are fast feedback, not the boundary
 

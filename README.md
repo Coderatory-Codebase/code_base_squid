@@ -60,23 +60,26 @@ boundaries are not pre-filled with placeholder files.
 
 ## Current maturity
 
-**M01–M13 are complete.** The root definition artifacts, workspace
+**M01–M14 are complete.** The root definition artifacts, workspace
 tooling, `.agent/` (agent operating system), `.project/` (project memory),
-and `tooling/` (repository quality scripts and Git hooks — its first real
-content) are all in place. In order since M05: the contract/package model
-(a contract is a concept, not a framework; `packages/` is a reusable
-source boundary, not a nested monorepo); the development lifecycle
-(`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD → COMPLETE`);
-the capability model (instruction/workflow/skill/tool/package/agent kept
-distinct — `validate-repository` remains the only skill); the development
-loop (`OBSERVE → UNDERSTAND → HYPOTHESIZE → PLAN → CHANGE → VERIFY →
+and `tooling/` (repository quality scripts and Git hooks — see
+`tooling/README.md`) are all in place. In order since M05: the
+contract/package model (a contract is a concept, not a framework;
+`packages/` is a reusable source boundary, not a nested monorepo); the
+development lifecycle (`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE →
+REVIEW → RECORD → COMPLETE`); the capability model
+(instruction/workflow/skill/tool/package/agent kept distinct —
+`validate-repository` remains the only skill); the development loop
+(`OBSERVE → UNDERSTAND → HYPOTHESIZE → PLAN → CHANGE → VERIFY →
 EVALUATE`, nested inside IMPLEMENT); the engineering graph model (a typed
 relationship vocabulary — `depends-on`, `blocks`, `affects`, ... —
 distinct from the untyped `related:` cross-reference, no graph engine);
 the package source model's remaining detail; the engineering
 standards/design/practice model (technology-neutral principles plus the
 technology-skill mechanism — `SPEC-008`); and the Git governance/quality
-enforcement layer below (`SPEC-009`) — working hooks and CI, not only
+enforcement layer (`SPEC-009`) — implemented and, at M14, matured (staged-
+scoped commit hooks, CI reusing `pnpm run validate` directly, a
+deliberate native-hooks-vs-Husky/Lefthook evaluation), not only
 documentation. **No package, app, server, or deployable agent exists
 yet** — none has met the demonstrated-reuse or concrete-need bar those
 milestones establish; no implementation technology has been adopted. A

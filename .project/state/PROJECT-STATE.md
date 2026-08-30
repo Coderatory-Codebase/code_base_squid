@@ -10,8 +10,10 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M13 are complete.** M14+ is **not yet defined** — see "Roadmap
-position" below before assuming any specific next milestone.
+**M01–M14 are complete.** M15+ is **not yet defined** — the original M01
+roadmap sketch ended at M14, so unlike earlier "not yet defined" gaps
+there is no further placeholder entry in `architecture.yaml` at all. See
+"Roadmap position" below before assuming any specific next milestone.
 See `../../architecture.yaml` → `roadmap` for the full milestone list.
 
 **Roadmap numbering history:** the original M01 roadmap sketch labeled
@@ -30,11 +32,18 @@ point.
 
 ## Roadmap position
 
-M14 (as originally sketched at M01: Production Hardening) remains a
-**non-binding long-range reference only** — it has no concrete current
-requirement. The next real milestone is decided when a concrete need
-identifies one, not by roadmap position alone
-(`.agent/instructions/implementation.md`).
+The original M01 roadmap sketch (Foundation Definition ... Production
+Hardening) is now fully consumed — M12/M13/M14 were each renamed from
+their original placeholder label to their actual delivered content
+(`Engineering Standards...`, `Repository Structure...`, `Autonomous
+Repository Engineering Tooling`, respectively) as they were reached, same
+pattern as M10/M11 before them. Nothing beyond M14 has a sketch entry.
+The next real milestone is decided when a concrete need identifies one,
+not by roadmap position (`.agent/instructions/implementation.md`) — most
+plausibly a first real `apps/`/`servers/`/`agents/`/`packages/`
+implementation now that the foundation (architecture, agent operating
+model, project memory, engineering judgment, and Git/quality enforcement)
+is coherent and load-bearing.
 
 ## Technology profile
 
@@ -157,10 +166,34 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   no implementation technology in use yet (see "Technology profile"
   above). Branch protection remains a documented policy, not yet an
   enforced GitHub-host setting — see `SPEC-009` → "Enforcement status".
+- **M14 — Autonomous Repository Engineering Tooling** — `complete`.
+  Renamed from the original roadmap sketch's "Production Hardening" — no
+  production system exists to harden. Matured M13's implementation rather
+  than adding a new subsystem: `pre-commit`'s format/secret checks are now
+  scoped to staged files only (`prettier --check --ignore-unknown
+<staged>`, not the whole repository — a real bug was caught and fixed
+  here: prettier _errors_, not skips, on an explicit unsupported-extension
+  path); CI now runs `pnpm run validate` as one step instead of
+  re-listing six checks that duplicated `package.json`'s own definition;
+  a deliberate hook-management evaluation (native `core.hooksPath` vs.
+  Husky vs. Lefthook) was recorded as an addendum to `ADR-009` and
+  **reaffirmed** native hooks — the cross-platform issues those tools
+  solve were already found and fixed directly at M13; a real fresh
+  `git clone` + `pnpm install` was exercised end-to-end to confirm
+  hook installation actually works with no manual step, not just in the
+  already-initialized working copy; `tooling/README.md` (new) gives the
+  directory its own onboarding/troubleshooting entry point, matching the
+  `.agent/README.md`/`.project/README.md` precedent. Failure-path testing
+  (invalid commit message, an unrelated unstaged formatting change, a
+  forbidden top-level directory, a real lint error) was performed via
+  synthetic fixtures, each removed immediately after. **No new ADR** — the
+  hook-management evaluation is an addendum to the existing `ADR-009`,
+  reaffirming rather than changing its decision. **No technology-specific
+  tooling added** — none is in use yet (see "Technology profile" above).
 
 ## Currently active
 
-Nothing beyond finishing M13's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M14's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
@@ -173,7 +206,9 @@ within the existing architecture, not a change to a boundary, dependency
 direction, or ownership decision. M13 introduced one new ADR (`ADR-009`
 — the Git hook enforcement mechanism): a genuine new-tooling decision per
 `change-management.md`, not a boundary/dependency-direction/ownership
-change.
+change. M14 introduced no new ADR — it added a dated addendum to
+`ADR-009` (the hook-management evaluation), reaffirming that decision
+rather than making a new one.
 
 ## Blocked
 
