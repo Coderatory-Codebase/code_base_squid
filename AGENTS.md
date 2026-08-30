@@ -22,7 +22,10 @@ Understand → Plan → Implement → Validate → Review → Record → Complet
 Full stage definitions, proportional artifact usage, the failure-handling
 loop, and scope-control rules: `.agent/instructions/development-lifecycle.md`.
 The observe/hypothesize/verify reasoning used while implementing or
-debugging: `.agent/instructions/development-loop.md`.
+debugging: `.agent/instructions/development-loop.md`. How to design and
+implement well inside these stages — principles, reuse, decoupling,
+technology-specific guidance via skills, precedence when guidance
+conflicts: `.agent/instructions/engineering-standards.md`.
 
 Before modifying anything:
 

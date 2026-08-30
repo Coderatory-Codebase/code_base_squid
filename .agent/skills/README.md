@@ -110,6 +110,34 @@ State both in the skill body when relevant:
   say what, precisely). A skill never modifies unrelated repository state
   and never bypasses `change-management.md`.
 
+## Technology skills
+
+A technology skill is an ordinary skill — same frontmatter, same
+`.agent/skills/<name>/SKILL.md` structure, no special schema — whose
+capability is "how to apply this repository's engineering principles
+(`../../.project/specs/SPEC-008-engineering-standards-design-and-practice.md`)
+using one specific technology." It captures purpose, supported
+version context, idiomatic structure, patterns/anti-patterns,
+configuration/testing/security/performance/integration/dependency
+guidance, and references to that technology's current authoritative
+documentation — concisely, not a mirror of vendor docs.
+
+It never applies globally: an agent loads it only once a task actually
+involves that technology (a PostgreSQL skill has no bearing on a task with
+no PostgreSQL involvement; a React skill isn't a standing instruction for
+backend-only work). A universal principle stays in `SPEC-008`; a technology
+skill explains how that principle is best realized in one
+technology/version, and can change independently as the technology evolves
+without touching the universal principle.
+
+**None exist yet** — this repository has no `apps/`/`servers/`/`agents/`/
+`packages/` technology in use (`architecture.yaml` → `boundaries`;
+`.project/state/PROJECT-STATE.md` → "Technology profile"). Create the
+first one only once a real technology is actually being used, following
+the same "Creating a new skill" bar below. A nested `technologies/`
+grouping under `.agent/skills/` is optional, decided then based on how
+many technology skills actually exist — not reserved in advance.
+
 ## Creating a new skill
 
 Only when a genuine, already-demonstrated, reusable capability exists —

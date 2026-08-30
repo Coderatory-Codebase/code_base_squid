@@ -10,7 +10,7 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M11 are complete.** M12+ is **not yet defined** — see "Roadmap
+**M01–M12 are complete.** M13+ is **not yet defined** — see "Roadmap
 position" below before assuming any specific next milestone.
 See `../../architecture.yaml` → `roadmap` for the full milestone list.
 
@@ -30,11 +30,21 @@ point.
 
 ## Roadmap position
 
-M12–M14 (as originally sketched at M01: Project Scaffolder,
-Self-Hosting, Production Hardening) remain a **non-binding long-range
-reference only** — none has a concrete current requirement. The next
-real milestone is decided when a concrete need identifies one, not by
-roadmap position alone (`.agent/instructions/implementation.md`).
+M13–M14 (as originally sketched at M01: Self-Hosting, Production
+Hardening) remain a **non-binding long-range reference only** — neither
+has a concrete current requirement. The next real milestone is decided
+when a concrete need identifies one, not by roadmap position alone
+(`.agent/instructions/implementation.md`).
+
+## Technology profile
+
+No implementation technology is in use yet — no `apps/`, `servers/`,
+`agents/`, or `packages/` source exists (`architecture.yaml` →
+`boundaries`). This section is populated with real languages, frameworks,
+libraries, databases, infrastructure, testing, build, and deployment
+tooling once a deployable actually adopts one — see
+`.project/specs/SPEC-008-engineering-standards-design-and-practice.md` →
+"Project technology profile." Not inventing entries here ahead of that.
 
 ## Completed
 
@@ -108,17 +118,34 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   conditional in `AGENTS.md`) — all corrected. No boundary violation, no
   duplicated concept, no premature abstraction, and no source-code change
   were found or made. Full findings in this milestone's report.
+- **M12 — Engineering Standards, Design & Practice Model** — `complete`.
+  Renamed from the original roadmap sketch's "Project Scaffolder" — that
+  label had no concrete requirement; this milestone's actual content is
+  the technology-neutral engineering/design judgment layer that sits
+  between `architecture.yaml` (structural boundaries) and real
+  implementation. Established: universal engineering principles
+  (simplicity, cohesion, coupling, reuse/generalization, decoupling,
+  component/system design, testing, security, performance,
+  observability), a guidance-precedence order, an exception model, and
+  the technology-skill mechanism (an ordinary skill scoped to one
+  technology, loaded only when that technology is actually involved) —
+  `.project/specs/SPEC-008`, `.agent/instructions/engineering-standards.md`,
+  a "Technology skills" section added to `.agent/skills/README.md`. **No
+  technology skill created** — this repository has no implementation
+  technology in use yet (see "Technology profile" above); the mechanism
+  is documented for the first real one. No new ADR (see "Authoritative
+  decisions").
 
 ## Currently active
 
-Nothing beyond finishing M11's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M12's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
 `ADR-001`–`ADR-006`, `ADR-008` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
-M06 through M11 introduced no new ADR — all are process/instruction
+M06 through M12 introduced no new ADR — all are process/instruction
 content (or, for M11, corrections to existing documentation) operating
 within the existing architecture, not a change to a boundary, dependency
 direction, or ownership decision.

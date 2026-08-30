@@ -167,7 +167,7 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M12
+  current_phase: M13
   milestones:
     - id: M01
       name: Foundation Definition
@@ -262,8 +262,22 @@ roadmap:
       # non-goals). M12+ below is a non-binding long-range reference only
       # — the next real milestone is decided when a concrete need exists.
     - id: M12
-      name: Project Scaffolder
-      status: not-started
+      name: Engineering Standards, Design & Practice Model
+      status: complete
+      # Renamed from the original roadmap sketch's "Project Scaffolder" —
+      # that label had no concrete requirement. Establishes the
+      # technology-neutral engineering/design judgment layer between this
+      # file's structural boundaries and real implementation, plus the
+      # technology-skill mechanism (skills scoped to one technology,
+      # loaded only when that technology is actually involved). No
+      # technology skill created — no implementation technology exists in
+      # this repository yet. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-008,
+          .agent/instructions/engineering-standards.md,
+          .agent/skills/README.md (Technology skills section added),
+        ]
     - id: M13
       name: Self-Hosting
       status: not-started
