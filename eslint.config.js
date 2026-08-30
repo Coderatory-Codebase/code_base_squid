@@ -10,6 +10,18 @@ export default [
   },
   js.configs.recommended,
   {
+    // Node-executed repository tooling (git hooks, validation scripts) —
+    // not application source, but real JS this repository runs directly.
+    files: ["tooling/scripts/**/*.mjs", "tooling/git-hooks/*"],
+    languageOptions: {
+      sourceType: "module",
+      globals: {
+        console: "readonly",
+        process: "readonly",
+      },
+    },
+  },
+  {
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: tsParser,

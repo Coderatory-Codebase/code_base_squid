@@ -39,11 +39,19 @@ Before modifying anything:
    change.
 4. Plan before implementing anything non-trivial.
 5. After implementing, validate consistency: does the change contradict
-   `README.md`, `architecture.yaml`, `AGENTS.md`, or `CLAUDE.md`? Do the
-   quality gates (install → lint → typecheck → test → build) still pass?
+   `README.md`, `architecture.yaml`, `AGENTS.md`, or `CLAUDE.md`? Does
+   `pnpm run validate` (lint, typecheck, test, build, architecture
+   boundaries, secret scan) plus `pnpm run format:check` still pass?
 6. Record non-trivial architectural decisions as ADRs in
    `.project/decisions/` (see `.project/ARTIFACT-TYPES.md` for the
    convention).
+
+How change actually moves through Git — branches, commits, hooks, PRs,
+CI, what's enforced vs. only documented, agent Git safety:
+`.agent/instructions/git-governance.md`. Commit/push authorization rules
+(commit only when asked, no force-push, no bypassing checks):
+`.agent/instructions/change-management.md` — unchanged, `git-governance.md`
+extends it with the concrete enforcement machinery.
 
 ## Progressive disclosure
 

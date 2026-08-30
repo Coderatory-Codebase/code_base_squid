@@ -10,13 +10,18 @@
   },
   "packageManager": "pnpm@11.8.0",
   "scripts": {
+    "prepare": "node tooling/scripts/install-git-hooks.mjs",
+    "hooks:install": "node tooling/scripts/install-git-hooks.mjs",
     "lint": "eslint . --no-error-on-unmatched-pattern",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -b",
     "test": "vitest run --passWithNoTests",
     "build": "tsc -b",
-    "validate": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
+    "validate:architecture": "node tooling/scripts/validate-architecture-boundaries.mjs",
+    "secrets:scan": "node tooling/scripts/secret-scan.mjs",
+    "commit-msg:check": "node tooling/git-hooks/commit-msg",
+    "validate": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build && pnpm run validate:architecture && pnpm run secrets:scan"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

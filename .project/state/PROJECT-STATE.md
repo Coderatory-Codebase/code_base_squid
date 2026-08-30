@@ -10,7 +10,7 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M12 are complete.** M13+ is **not yet defined** — see "Roadmap
+**M01–M13 are complete.** M14+ is **not yet defined** — see "Roadmap
 position" below before assuming any specific next milestone.
 See `../../architecture.yaml` → `roadmap` for the full milestone list.
 
@@ -30,10 +30,10 @@ point.
 
 ## Roadmap position
 
-M13–M14 (as originally sketched at M01: Self-Hosting, Production
-Hardening) remain a **non-binding long-range reference only** — neither
-has a concrete current requirement. The next real milestone is decided
-when a concrete need identifies one, not by roadmap position alone
+M14 (as originally sketched at M01: Production Hardening) remains a
+**non-binding long-range reference only** — it has no concrete current
+requirement. The next real milestone is decided when a concrete need
+identifies one, not by roadmap position alone
 (`.agent/instructions/implementation.md`).
 
 ## Technology profile
@@ -135,20 +135,45 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   technology in use yet (see "Technology profile" above); the mechanism
   is documented for the first real one. No new ADR (see "Authoritative
   decisions").
+- **M13 — Repository Structure, Git Governance & Quality Enforcement** —
+  `complete`. Renamed from the original roadmap sketch's "Self-Hosting" —
+  that label had no concrete requirement; this milestone's actual content
+  is the Git/quality enforcement layer, **implemented, not just
+  documented**: real `commit-msg`/`pre-commit`/`pre-push` hooks installed
+  via native `core.hooksPath` (no third-party hook manager — `ADR-009`),
+  an expanded `pnpm run validate` (added `validate:architecture` and
+  `secrets:scan`), and a CI job extended with those plus `format:check`
+  and a PR commit-message-range check — `SPEC-009`,
+  `.agent/instructions/git-governance.md`. `tooling/` boundary populated
+  for the first time (`git-hooks/`, `scripts/`). Two portability issues
+  found and fixed while building/testing this: `pnpm`'s Windows shim
+  needs `shell: true` to spawn from Node, and a CRLF line ending breaks a
+  hook's shebang — both documented in `ADR-009`, and a `.gitattributes`
+  (new) now forces LF repo-wide to prevent recurrence. All three hooks
+  were verified against real `git commit` calls (accept/reject cases),
+  not just unit-tested in isolation; scratch/test commits were undone
+  with a mixed `git reset` to preserve this milestone's own working-tree
+  changes. **No technology-specific tooling added** — this repository has
+  no implementation technology in use yet (see "Technology profile"
+  above). Branch protection remains a documented policy, not yet an
+  enforced GitHub-host setting — see `SPEC-009` → "Enforcement status".
 
 ## Currently active
 
-Nothing beyond finishing M12's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M13's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
-`ADR-001`–`ADR-006`, `ADR-008` — `accepted`, in force.
+`ADR-001`–`ADR-006`, `ADR-008`, `ADR-009` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
 M06 through M12 introduced no new ADR — all are process/instruction
 content (or, for M11, corrections to existing documentation) operating
 within the existing architecture, not a change to a boundary, dependency
-direction, or ownership decision.
+direction, or ownership decision. M13 introduced one new ADR (`ADR-009`
+— the Git hook enforcement mechanism): a genuine new-tooling decision per
+`change-management.md`, not a boundary/dependency-direction/ownership
+change.
 
 ## Blocked
 

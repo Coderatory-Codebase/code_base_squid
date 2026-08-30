@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+// Git pre-push hook. Installed via `core.hooksPath` — see
+// tooling/scripts/install-git-hooks.mjs. Runs the full local quality
+// gate — broader than pre-commit, still local feedback, not the
+// authoritative gate (CI is — see SPEC-009 -> "Hooks are not the final
+// authority"). Reuses the central `validate`/`format:check` commands
+// rather than duplicating their logic.
+//
+// Bypassable with `git push --no-verify` — expected, not a bug.
+import { execFileSync } from "node:child_process";
+
+// pnpm resolves to a .cmd/.ps1 shim on Windows, which execFileSync can't
+// exec directly without a shell — shell:true is required there, and
+// harmless on POSIX. See ADR-009 -> "Windows shell resolution".
+const useShell = process.platform === "win32";
+
+function run(command, args) {
+  try {
+    execFileSync(command, args, { stdio: "inherit", shell: useShell });
+    return true;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.error(`pre-push: could not run "${command}": ${error.message}`);
+    }
+    return false;
+  }
+}
+
+console.log("pre-push: validate (lint, typecheck, test, build, architecture, secrets)");
+const validateOk = run("pnpm", ["run", "--silent", "validate"]);
+
+console.log("pre-push: format:check");
+const formatOk = run("pnpm", ["run", "--silent", "format:check"]);
+
+if (!validateOk || !formatOk) {
+  console.error(
+    '\npre-push: rejected — run "pnpm run validate" and ' +
+      '"pnpm run format:check" locally, fix what fails, then push again.\n',
+  );
+  process.exit(1);
+}
+
+process.exit(0);

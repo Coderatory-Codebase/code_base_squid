@@ -6,7 +6,17 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(echo \"FORMAT_EXIT:$?\")",
       "Bash(echo \"VALIDATE_EXIT:$?\")",
-      "Bash(pnpm exec *)"
+      "Bash(pnpm exec *)",
+      "Bash(node tooling/scripts/secret-scan.mjs)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(mkdir -p 'C:\\\\Users\\\\Adeel/AppData/Local/Temp/claude-scratch-secret-test')",
+      "Bash(printf 'const cfg = {\\\\n  api_key: \"abcdefghijklmnopqrstuvwxyz123456\"\\\\n};\\\\n')",
+      "Bash(node tooling/scripts/secret-scan.mjs --files 'C:\\\\Users\\\\Adeel/AppData/Local/Temp/claude-scratch-secret-test/fixture.js')",
+      "Bash(printf 'just a normal file\\\\n')",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(echo \"commit_exit=$?\")",
+      "Bash(git reset *)"
     ]
   }
 }

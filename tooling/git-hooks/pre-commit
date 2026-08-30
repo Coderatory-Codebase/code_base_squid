@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+// Git pre-commit hook. Installed via `core.hooksPath` — see
+// tooling/scripts/install-git-hooks.mjs. Fast, deterministic checks only
+// — see .agent/instructions/git-governance.md -> "Pre-commit vs pre-push".
+// Calls the repository's own central commands rather than reimplementing
+// their logic (SPEC-009 -> "Avoid duplicated shell logic").
+//
+// Bypassable with `git commit --no-verify` — expected, not a bug. See
+// tooling/git-hooks/commit-msg for the rationale, which applies here too.
+import { execFileSync } from "node:child_process";
+
+// pnpm resolves to a .cmd/.ps1 shim on Windows, which execFileSync can't
+// exec directly without a shell — shell:true is required there, and
+// harmless on POSIX. See ADR-009 -> "Windows shell resolution".
+const useShell = process.platform === "win32";
+
+function run(command, args) {
+  try {
+    execFileSync(command, args, { stdio: "inherit", shell: useShell });
+    return true;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.error(`pre-commit: could not run "${command}": ${error.message}`);
+    }
+    return false;
+  }
+}
+
+function stagedFileCount() {
+  const out = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACM"], {
+    encoding: "utf8",
+  });
+  return out.split("\n").filter(Boolean).length;
+}
+
+if (stagedFileCount() === 0) {
+  process.exit(0); // nothing staged (e.g. an empty/amend commit) — nothing to check
+}
+
+console.log("pre-commit: format:check");
+const formatOk = run("pnpm", ["run", "--silent", "format:check"]);
+
+console.log("pre-commit: secrets:scan (staged files)");
+const secretsOk = run("node", ["tooling/scripts/secret-scan.mjs", "--staged"]);
+
+if (!formatOk || !secretsOk) {
+  console.error(
+    "\npre-commit: rejected — fix the issue(s) above, or run " +
+      '"pnpm run format" for formatting.\n',
+  );
+  process.exit(1);
+}
+
+process.exit(0);

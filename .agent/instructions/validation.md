@@ -6,14 +6,19 @@ applies_to: before-considering-a-change-done
 
 # Testing / Validation Behavior
 
-The repository quality gate (established in M02) is:
+The repository quality gate (established in M02, extended at M13) is:
 
 ```text
-pnpm install → pnpm run lint → pnpm run typecheck → pnpm run test → pnpm run build
+pnpm install → pnpm run lint → pnpm run typecheck → pnpm run test →
+pnpm run build → pnpm run validate:architecture → pnpm run secrets:scan
 ```
 
-Run with `pnpm run validate` (chains all four); run `pnpm run format:check`
-separately.
+Run with `pnpm run validate` (chains all six); run `pnpm run format:check`
+separately. `validate:architecture` and `secrets:scan` are M13 additions —
+see `.agent/instructions/git-governance.md` and
+`.project/specs/SPEC-009-repository-structure-git-governance-and-quality-enforcement.md`.
+This is also enforced by Git hooks (`commit-msg`, `pre-commit`,
+`pre-push`) and CI, not only run by hand — same rules apply either way.
 
 - **A change isn't done until the gate passes.** Run `pnpm run validate`
   and `pnpm run format:check` after any change to config, tooling, or

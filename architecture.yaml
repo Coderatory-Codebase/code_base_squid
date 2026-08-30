@@ -113,7 +113,14 @@ boundaries:
   - path: tooling/
     purpose: Repository/developer tooling.
     examples: [generators, scripts, lint, build]
-    status: not-yet-created
+    contains: [git-hooks, scripts]
+    status: created
+    # First populated at M13: commit-msg/pre-commit/pre-push Git hooks
+    # (installed via core.hooksPath, no third-party hook manager — see
+    # ADR-009) and the validation scripts they and CI both call
+    # (validate-architecture-boundaries.mjs, secret-scan.mjs,
+    # commit-message-rules.mjs). No generator/build tooling yet — added
+    # only once a concrete need creates one.
 
   - path: docs/
     purpose: Human-facing documentation.
@@ -167,7 +174,7 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M13
+  current_phase: M14
   milestones:
     - id: M01
       name: Foundation Definition
@@ -279,8 +286,32 @@ roadmap:
           .agent/skills/README.md (Technology skills section added),
         ]
     - id: M13
-      name: Self-Hosting
-      status: not-started
+      name: Repository Structure, Git Governance & Quality Enforcement
+      status: complete
+      # Renamed from the original roadmap sketch's "Self-Hosting" — that
+      # label had no concrete requirement. Establishes and *implements*
+      # (not just documents) the Git/quality enforcement layer: real
+      # commit-msg/pre-commit/pre-push hooks (ADR-009), an expanded
+      # `pnpm run validate` (+ validate:architecture, + secrets:scan), and
+      # a CI job that runs the same commands plus a PR commit-range check.
+      # tooling/ boundary populated for the first time. No technology-
+      # specific tooling added — none is in use yet (SPEC-008 ->
+      # "Project technology profile"). See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-009,
+          .project/decisions/ADR-009,
+          .agent/instructions/git-governance.md,
+          tooling/git-hooks (commit-msg,
+          pre-commit,
+          pre-push),
+          tooling/scripts (secret-scan,
+          architecture validation,
+          commit-message rules,
+          hook installer),
+          .github/workflows/ci.yaml (extended),
+          .gitattributes (new),
+        ]
     - id: M14
       name: Production Hardening
       status: not-started

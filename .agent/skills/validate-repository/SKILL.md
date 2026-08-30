@@ -7,13 +7,23 @@ when_to_use: >
   see .agent/instructions/validation.md. Also useful standalone to check
   the repository is currently in a valid state.
 requires: [pnpm install has been run, Node >=22.13.0]
-produces: [pass/fail result for lint, typecheck, test, build, and format:check]
+produces: [
+    pass/fail result for lint,
+    typecheck,
+    test,
+    build,
+    architecture
+    boundaries,
+    secret scan,
+    and format:check,
+  ]
 ---
 
 # Validate Repository
 
-1. Run `pnpm run validate` — chains `lint → typecheck → test → build`
-   (see `package.json` scripts).
+1. Run `pnpm run validate` — chains `lint → typecheck → test → build →
+validate:architecture → secrets:scan` (see `package.json` scripts;
+   the last two were added at M13 — `.agent/instructions/git-governance.md`).
 2. Run `pnpm run format:check` separately (not part of `validate`).
 3. Report per-stage result, not just the final exit code — if something
    fails, name which stage and show the actual error output.

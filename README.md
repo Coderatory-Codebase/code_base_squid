@@ -60,38 +60,50 @@ boundaries are not pre-filled with placeholder files.
 
 ## Current maturity
 
-**M01–M10 are complete.** The root definition artifacts, workspace
-tooling, `.agent/` (agent operating system), and `.project/` (project
-memory) are all in place. M05–M10 established, in order: the
-contract/package model (a contract is a concept, not a framework;
-`packages/` is a reusable source boundary, not a nested monorepo); the
-development lifecycle (`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE →
-REVIEW → RECORD → COMPLETE`); the capability model (instruction/
-workflow/skill/tool/package/agent kept distinct — `validate-repository`
-remains the only skill); the development loop (`OBSERVE → UNDERSTAND →
-HYPOTHESIZE → PLAN → CHANGE → VERIFY → EVALUATE`, nested inside
-IMPLEMENT); the engineering graph model (a typed relationship vocabulary
-— `depends-on`, `blocks`, `affects`, ... — distinct from the untyped
-`related:` cross-reference, no graph engine); and the package source
-model's remaining detail (`.agent/instructions/packages.md` — package
-definition, extraction criteria, workspace/TS-consumption/distribution
-conventions). **No package, app, server, or deployable agent exists
+**M01–M13 are complete.** The root definition artifacts, workspace
+tooling, `.agent/` (agent operating system), `.project/` (project memory),
+and `tooling/` (repository quality scripts and Git hooks — its first real
+content) are all in place. In order since M05: the contract/package model
+(a contract is a concept, not a framework; `packages/` is a reusable
+source boundary, not a nested monorepo); the development lifecycle
+(`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD → COMPLETE`);
+the capability model (instruction/workflow/skill/tool/package/agent kept
+distinct — `validate-repository` remains the only skill); the development
+loop (`OBSERVE → UNDERSTAND → HYPOTHESIZE → PLAN → CHANGE → VERIFY →
+EVALUATE`, nested inside IMPLEMENT); the engineering graph model (a typed
+relationship vocabulary — `depends-on`, `blocks`, `affects`, ... —
+distinct from the untyped `related:` cross-reference, no graph engine);
+the package source model's remaining detail; the engineering
+standards/design/practice model (technology-neutral principles plus the
+technology-skill mechanism — `SPEC-008`); and the Git governance/quality
+enforcement layer below (`SPEC-009`) — working hooks and CI, not only
+documentation. **No package, app, server, or deployable agent exists
 yet** — none has met the demonstrated-reuse or concrete-need bar those
-milestones establish. A clean clone can run
-`pnpm install && pnpm run validate` successfully. See `architecture.yaml`
-for the full milestone roadmap and current phase marker, or
-`.project/state/PROJECT-STATE.md` for the live status (including a note
-on M10's roadmap-numbering correction).
+milestones establish; no implementation technology has been adopted. A
+clean clone can run `pnpm install && pnpm run validate` successfully. See
+`architecture.yaml` for the full milestone roadmap and current phase
+marker, or `.project/state/PROJECT-STATE.md` for the live status
+(including a note on M10's roadmap-numbering correction).
 
 ## Quality gate
 
 ```text
 pnpm install
-pnpm run lint        # ESLint (flat config, typescript-eslint, Prettier-compatible)
-pnpm run typecheck   # tsc -b, strict mode
-pnpm run test        # Vitest
-pnpm run build       # tsc -b
-pnpm run validate    # runs all four in sequence
+pnpm run lint                 # ESLint (flat config, typescript-eslint, Prettier-compatible)
+pnpm run typecheck            # tsc -b, strict mode
+pnpm run test                 # Vitest
+pnpm run build                # tsc -b
+pnpm run validate:architecture  # forbidden/undeclared top-level directories
+pnpm run secrets:scan         # baseline secret-pattern scan
+pnpm run validate             # runs all six in sequence
 ```
 
 Also available: `pnpm run format` / `pnpm run format:check` (Prettier).
+
+`pnpm install` also installs working Git hooks (`commit-msg`,
+`pre-commit`, `pre-push` — see `tooling/git-hooks/`); re-run
+`pnpm run hooks:install` to (re)verify. Hooks give fast local feedback and
+are bypassable (`--no-verify`); CI (`.github/workflows/ci.yaml`) is the
+authoritative gate. Full model:
+`.project/specs/SPEC-009-repository-structure-git-governance-and-quality-enforcement.md`,
+agent-facing entry point: `.agent/instructions/git-governance.md`.
