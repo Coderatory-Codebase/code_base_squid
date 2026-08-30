@@ -60,14 +60,23 @@ boundaries are not pre-filled with placeholder files.
 
 ## Current maturity
 
-**M01–M04 are complete.** The root definition artifacts exist (`README.md`,
+**M01–M06 are complete.** The root definition artifacts exist (`README.md`,
 `architecture.yaml`, `AGENTS.md`, `CLAUDE.md`); the pnpm/TypeScript
 workspace, lint/format/test/build tooling, and CI foundation are in place;
-`.agent/` establishes the minimum agent operating system; and `.project/`
-establishes the project memory/artifact system (current state, ADRs, a
-spec, a plan, a review — see `.project/README.md`). A clean clone can run
+`.agent/` establishes the minimum agent operating system; `.project/`
+establishes the project memory/artifact system; M05 establishes the
+contract/package model — a contract is a concept (a type, interface,
+schema, API spec, or event definition, as the boundary needs), not a
+framework, and `packages/` is a reusable source boundary, not a nested
+monorepo; and M06 establishes the development lifecycle — a shared
+`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD → COMPLETE`
+protocol (`.agent/instructions/development-lifecycle.md`) that the
+feature/bugfix/refactor/review workflows now reference instead of each
+restating. No package currently exists — one is added once a capability
+has demonstrated reuse across ≥2 independent deployables (see
+`.project/decisions/ADR-008`). A clean clone can run
 `pnpm install && pnpm run validate` successfully. There are still no
-packages, apps, servers, or agents — those land in M05 onward. See
+apps, servers, or deployable agents — those land in M07 onward. See
 `architecture.yaml` for the full milestone roadmap and current phase
 marker, or `.project/state/PROJECT-STATE.md` for the live status.
 

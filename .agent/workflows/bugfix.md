@@ -1,7 +1,7 @@
 ---
 name: bugfix
 type: workflow
-version: 1
+version: 2
 when_to_use: >
   Existing behavior is wrong relative to its own intent (a broken script,
   a contradicted document, a failing gate). Not for adding capability
@@ -10,16 +10,26 @@ when_to_use: >
 
 # Bugfix Workflow
 
-A lifecycle specification, not an executable pipeline.
+Follows the common stages in
+[`development-lifecycle.md`](../instructions/development-lifecycle.md)
+unchanged. This file covers only what's specific to a bugfix.
 
-| Stage      | What it means for a bugfix                                                                                                                                                                    |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Understand | Reproduce or otherwise confirm the defect. Identify root cause, not just the symptom.                                                                                                         |
-| Plan       | Identify the smallest correct fix. A bugfix does not carry surrounding cleanup or refactor — file that separately if it matters.                                                              |
-| Implement  | Apply the fix at the root cause. Don't add defensive handling for scenarios that can't occur.                                                                                                 |
-| Validate   | Run the quality gate (`validation.md`). If the bug was reachable by an existing test, that test should now fail-then-pass; add a regression test when there's a real test suite to add it to. |
-| Review     | Confirm the fix doesn't merely mask the symptom, and doesn't silently change unrelated behavior.                                                                                              |
-| Record     | If the bug revealed a wrong architectural assumption (not just a coding error), record that as a decision (`change-management.md`).                                                           |
+## What's different
 
-Exit criteria: defect no longer reproducible, quality gate green, no
+- **UNDERSTAND** means reproducing or otherwise confirming the defect and
+  identifying its root cause, not just its symptom.
+- **PLAN** identifies the smallest correct fix. A bugfix does not carry
+  surrounding cleanup or refactor — that's a separate change if it
+  matters (scope control in `development-lifecycle.md`).
+- **Typical chain**: `request → implementation → tests → REVIEW` (see
+  `development-lifecycle.md` → "Proportionality") — a SPEC/PLAN is rarely
+  warranted for a bugfix unless it turns out to reveal an architectural
+  problem, in which case stop and reassess rather than patch the symptom.
+- **IMPLEMENT** applies the fix at the root cause; don't add defensive
+  handling for scenarios that can't occur.
+
+## Exit criteria
+
+Work-complete as defined in `development-lifecycle.md`. A bugfix
+specifically also requires: the defect no longer reproducible, and no
 unrelated behavior changed.

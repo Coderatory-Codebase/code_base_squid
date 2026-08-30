@@ -93,9 +93,16 @@ boundaries:
 
   - path: packages/
     purpose: >
-      Reusable capabilities: infrastructure, protocols, transports, platform
-      integrations, libraries, runtime primitives, shared contracts,
-      utilities. The primary reuse boundary in this repo.
+      Reusable SOURCE capabilities: infrastructure, protocols, transports,
+      platform integrations, libraries, runtime primitives, shared
+      contracts, utilities. The primary reuse boundary in this repo — but
+      NOT a nested monorepo: a package under packages/<name>/ does not
+      require its own package.json, tsconfig.json, or build/release
+      config unless it genuinely needs independent versioning/publishing.
+      The default is direct source consumption by whatever depends on it.
+      If a package is ever built for distribution, its output lives
+      outside the package's own source directory (e.g. a repository-level
+      dist/<name>/), never inside packages/<name>/. See ADR-008.
     status: not-yet-created
 
   - path: infra/
@@ -124,10 +131,13 @@ forbidden_top_level_dirs:
 dependency_direction:
   statement: >
     apps, servers, agents, and tooling may depend on packages. packages must
-    not depend on apps, servers, or agents. Circular dependencies are
-    disallowed. A package is introduced to hold a genuine reusable
-    capability, never merely to break a poorly designed dependency graph —
-    if a cycle appears, the boundary is reconsidered first.
+    not depend on apps, servers, or agents. This is a source/import
+    direction, not a build or publish direction — packages/ is consumed
+    directly from source by default (see boundaries -> packages/, ADR-008).
+    Circular dependencies are disallowed. A package is introduced to hold a
+    genuine reusable capability, never merely to break a poorly designed
+    dependency graph — if a cycle appears, the boundary is reconsidered
+    first.
   allowed:
     - from: apps
       to: packages
@@ -147,11 +157,14 @@ agent_native_lifecycle:
   loop: [Observe, Understand, Plan, Act, Test, Verify, Record]
   implementation_flow: [SPEC, PLAN, TASK, IMPLEMENT, TEST, REVIEW, DOCUMENT]
   status: >
-    Structural contracts only at this stage; no orchestration engine exists
-    yet (planned M06/M08).
+    Realized as a documented protocol at M06 — see
+    .agent/instructions/development-lifecycle.md and SPEC-004 (stages:
+    Understand -> Plan -> Implement -> Validate -> Review -> Record ->
+    Complete). Still no orchestration/runtime engine — that remains a
+    later, optional capability (M08) if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M05
+  current_phase: M07
   milestones:
     - id: M01
       name: Foundation Definition
@@ -180,10 +193,21 @@ roadmap:
         ]
     - id: M05
       name: Contract System
-      status: not-started
+      status: complete
+      # Corrected after initial implementation: no universal Contract
+      # runtime abstraction, no centralized/independently-built
+      # packages/contracts. See ADR-007 (superseded), ADR-008, SPEC-003.
+      deliverables:
+        [.agent/instructions/contracts.md, .project/decisions/ADR-008, .project/specs/SPEC-003]
     - id: M06
       name: Workflow System
-      status: not-started
+      status: complete
+      deliverables:
+        [
+          .agent/instructions/development-lifecycle.md,
+          .project/specs/SPEC-004,
+          .agent/workflows (simplified to reference the shared lifecycle),
+        ]
     - id: M07
       name: Skill System
       status: not-started

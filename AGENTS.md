@@ -16,8 +16,11 @@ structural changes.
 For every meaningful change:
 
 ```text
-Understand → Plan → Implement → Validate → Review → Record
+Understand → Plan → Implement → Validate → Review → Record → Complete
 ```
+
+Full stage definitions, proportional artifact usage, the failure-handling
+loop, and scope-control rules: `.agent/instructions/development-lifecycle.md`.
 
 Before modifying anything:
 

@@ -56,17 +56,47 @@ renumbered.
 A type not yet instantiated still has its convention defined here so the
 first real instance follows it, rather than inventing a shape ad hoc.
 
+### When to create a TASK
+
+A TASK is a single bounded, executable unit — small enough to implement
+and validate in one pass — pulled from a PLAN step once that step is
+large enough to need tracking below the plan-step level, or when a piece
+of work spans multiple sessions and needs a persistent record of what's
+left. Minimum content: what the bounded unit is, which PLAN/SPEC it
+belongs to (`related:`), and its own `todo → in-progress → done →
+cancelled` status. Completion = the unit's own validation passes AND its
+parent PLAN step no longer needs it tracked separately.
+
+Most work does not need one: a milestone executed start-to-finish in one
+continuous pass (as M01–M06 have been) has no benefit from a TASK
+tracking what a `PLAN` step or this session's own transcript already
+covers. Create one when work is genuinely interrupted, resumed later, or
+split across contributors/sessions — not by default for every change.
+
+### When a HANDOFF is appropriate
+
+A HANDOFF is written when: work is intentionally left incomplete, a
+different agent/person must continue it, important context for
+continuing wouldn't be inferable from the repository alone, or there's a
+known blocker that isn't self-evident from the code/artifacts. It states
+what's done, what's left, why it stopped there, and what the next
+session needs to know that isn't already durable elsewhere.
+
+It is never mandatory — a change that reaches COMPLETE (see
+`.agent/instructions/development-lifecycle.md`) in the same session
+produces no HANDOFF. Writing one for every finished task would be
+ephemeral status noise treated as durable memory, which
+`ARTIFACT-TYPES.md` → "Durable vs. ephemeral memory" already rules out.
+
 ### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
 
 None currently hold real content:
 
-- **`tasks/`** — M01–M03 were each executed and reviewed as a single
-  milestone-sized unit; `plans/PLAN-001` already itemizes them. Bounded
-  sub-tasks get their own files once a milestone's work is large enough
-  that tracking it as one plan stops being useful.
-- **`research/`, `rfc/`, `reports/`, `handoffs/`** — no investigation,
-  active proposal, stakeholder report, or cross-session handoff exists
-  yet. Create the directory the first time a real one does.
+- **`tasks/`, `handoffs/`** — see the criteria above; no piece of work so
+  far has met them. Create the directory the first time a real one does.
+- **`research/`, `rfc/`, `reports/`** — no investigation, active
+  proposal, or stakeholder report exists yet. Create the directory the
+  first time a real one does.
 - **`context/`, `sessions/`** — see Durable vs. ephemeral memory below;
   these are ephemeral by default and are not being persisted yet.
 - **`changes/`** — see Relationships below: a "change" is the actual

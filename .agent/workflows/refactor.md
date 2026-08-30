@@ -1,7 +1,7 @@
 ---
 name: refactor
 type: workflow
-version: 1
+version: 2
 when_to_use: >
   Restructuring existing code/config without changing observable behavior
   (renaming, extracting, reorganizing, simplifying). Not for adding
@@ -11,16 +11,29 @@ when_to_use: >
 
 # Refactor Workflow
 
-A lifecycle specification, not an executable pipeline.
+Follows the common stages in
+[`development-lifecycle.md`](../instructions/development-lifecycle.md)
+unchanged. This file covers only what's specific to a refactor.
 
-| Stage      | What it means for a refactor                                                                                                                      |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Understand | What's structurally wrong or unclear right now, and why it's worth fixing (not refactoring for its own sake).                                     |
-| Plan       | Define the target shape and confirm observable behavior is unchanged. Check the refactor doesn't cross a boundary (`boundaries.md`) it shouldn't. |
-| Implement  | Change structure only. If a genuine behavior change becomes necessary mid-refactor, stop and re-classify the work as feature/bugfix.              |
-| Validate   | Run the quality gate (`validation.md`). Behavior must match pre-refactor state; a refactor that changes gate results has scope-crept.             |
-| Review     | Confirm nothing outside the intended scope moved, and no new abstraction was introduced beyond what the identified problem needed.                |
-| Record     | Record the "why" if the refactor reflects a boundary/architecture correction, not just tidying (`change-management.md`).                          |
+## What's different
 
-Exit criteria: quality gate green with unchanged results, no behavior
-change, scope matches what Understand identified.
+- **UNDERSTAND** means identifying what's structurally wrong or unclear
+  right now, and why it's worth fixing — not refactoring for its own
+  sake.
+- **PLAN** defines the target shape and confirms observable behavior is
+  unchanged; check the refactor doesn't cross a boundary it shouldn't
+  (`boundaries.md`).
+- **IMPLEMENT** changes structure only. If a genuine behavior change
+  becomes necessary mid-refactor, stop — re-classify the remaining work
+  as feature/bugfix rather than smuggling it into "refactor."
+- **A refactor that changes architecture** (not just structure within an
+  existing boundary) needs an ADR, same as any architectural decision
+  (`change-management.md`) — most refactors don't rise to this.
+
+## Exit criteria
+
+Work-complete as defined in `development-lifecycle.md`, with an
+unchanged-behavior constraint specific to refactors: quality-gate results
+match pre-refactor state, and scope matches what UNDERSTAND identified —
+nothing outside it moved, no new abstraction introduced beyond what the
+identified problem needed.

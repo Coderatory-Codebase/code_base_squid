@@ -1,9 +1,15 @@
-# Workspace globs mirror the boundaries defined in architecture.yaml.
-# Globs are declared even though no package currently exists under them —
-# this is workspace *resolution config*, not a directory scaffold; no
-# directories are created until a real package/app/server/agent lands.
+# Workspace globs are for genuinely independent, publishable/deployable
+# units — each needs its own package.json to be picked up here. apps/,
+# servers/, and agents/ are expected to eventually hold those.
+#
+# packages/ is deliberately NOT globbed here: it holds reusable SOURCE
+# capabilities, consumed directly (no independent package.json, build, or
+# workspace membership) unless a specific package genuinely needs
+# independent versioning/publishing — see architecture.yaml -> boundaries
+# (packages/) and .project/decisions/ADR-008. Add a scoped glob entry for
+# that one package if/when that happens; don't glob the whole directory
+# speculatively.
 packages:
-  - "packages/*"
   - "apps/*"
   - "servers/*"
   - "agents/*"

@@ -1,26 +1,36 @@
 ---
 name: review
 type: workflow
-version: 1
+version: 2
 when_to_use: >
   Evaluating a change (own or another's) for correctness, boundary
   compliance, and consistency before it's considered done — as a
-  standalone pass, or as the Review stage inside feature/bugfix/refactor.
+  standalone pass, or as the REVIEW stage inside feature/bugfix/refactor.
 ---
 
 # Review Workflow
 
-A lifecycle specification, not an executable pipeline.
+The REVIEW stage's dimensions are defined once, in
+[`development-lifecycle.md`](../instructions/development-lifecycle.md) →
+"Review dimensions" (correctness, architecture, scope, quality,
+regression, maintainability, documentation) — this file doesn't restate
+them. It covers only what's specific to running review as its own
+standalone pass.
 
-| Stage      | What it means for a review                                                                                                    |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Understand | What is the change trying to do, and under which workflow (feature/bugfix/refactor) was it made?                              |
-| Plan       | Identify what to check: correctness, boundary compliance (`boundaries.md`), consistency across root docs, gate status.        |
-| Implement  | N/A for a pure review — reviewing doesn't itself modify the change. If a fix is warranted, that's a new bugfix/refactor pass. |
-| Validate   | Run the quality gate (`validation.md`) against the change if not already confirmed green.                                     |
-| Review     | Distinguish confirmed defects from stylistic preference. Don't flag speculative "future-proofing" gaps as defects.            |
-| Record     | Report findings clearly. If the review surfaces an undocumented architectural decision, flag it (`change-management.md`).     |
+## What's different
 
-Exit criteria: findings are either resolved (via a follow-up
-feature/bugfix/refactor pass) or explicitly accepted — never silently
-dropped.
+- **UNDERSTAND** here means identifying what the change is trying to do
+  and under which workflow (feature/bugfix/refactor) it was made — a
+  standalone review has no PLAN/IMPLEMENT stage of its own; it inspects
+  someone else's.
+- **VALIDATE** means confirming the quality gate is actually green for
+  the change under review, not assuming it — run
+  `validate-repository` if not already confirmed.
+- Distinguish confirmed defects from stylistic preference. Don't flag
+  speculative "future-proofing" gaps as defects (`implementation.md`).
+
+## Exit criteria
+
+Findings are either resolved (via a follow-up bugfix/refactor pass) or
+explicitly accepted — never silently dropped. If review surfaces an
+undocumented architectural decision, flag it (`change-management.md`).

@@ -10,16 +10,19 @@ when_to_use: >
 
 # <Name> Workflow
 
-A lifecycle specification, not an executable pipeline.
+Follows the common stages in
+[`development-lifecycle.md`](../instructions/development-lifecycle.md)
+unchanged. This file covers only what's specific to this kind of change —
+don't restate the stage table or the review dimensions; reference them.
 
-| Stage      | What it means for this workflow |
-| ---------- | ------------------------------- |
-| Understand |                                 |
-| Plan       |                                 |
-| Implement  |                                 |
-| Validate   |                                 |
-| Review     |                                 |
-| Record     |                                 |
+## What's different
 
-Exit criteria: <what must be true for this workflow to be considered
-complete>.
+- <How UNDERSTAND/PLAN/IMPLEMENT differ for this kind of change, if they do>
+- <Typical artifact chain for this kind of change, referencing
+  "Proportionality" in `development-lifecycle.md` rather than inventing a
+  new rule>
+
+## Exit criteria
+
+Work-complete as defined in `development-lifecycle.md`, plus:
+<anything specific to this kind of change>.
