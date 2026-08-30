@@ -80,6 +80,10 @@ single pass. Pull in a layer only when the task needs it.
 - **Architecture is composable, not prescribed.** Don't impose one
   methodology (DDD, hexagonal, CQRS, etc.) repo-wide; each deployable picks
   what fits it.
+- **Instructions, workflows, skills, tools, packages, and agents are
+  distinct layers** — don't collapse them (a skill isn't a workflow for
+  having steps, isn't a package for being reusable). See
+  `.agent/instructions/capability-model.md`.
 
 ## Metadata / manifests
 

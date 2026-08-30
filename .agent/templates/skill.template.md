@@ -11,3 +11,7 @@ produces: [what running this skill yields]
 
 1. <Step>
 2. <Step>
+
+## Side effects (state when relevant)
+
+<read-only | validation | modifying — say precisely what changes, if anything>

@@ -1,9 +1,24 @@
-# Skill Format
+# Skills
 
-A skill is a self-contained, discoverable capability: `<skill-name>/SKILL.md`.
+**A skill is a discoverable, reusable capability that tells an agent how
+to perform a bounded kind of work**, invoked intentionally when that work
+comes up — not executable software. See
+[`../instructions/capability-model.md`](../instructions/capability-model.md)
+for how this differs from an instruction, workflow, tool, package, or
+agent; see `../../.project/specs/SPEC-005-capability-model.md` for the
+durable "must be true" version of everything below.
 
-Minimum required frontmatter — enough for an agent to decide relevance
-without reading the body:
+A skill's `SKILL.md` should let an agent answer, without executing
+anything: what capability this provides, when to use it, what it
+requires, what it produces, what its limitations/failure behavior are,
+and what side effects it has.
+
+A skill may be procedural knowledge, a repeatable analysis method, a
+repository operation, a validation capability, or a tool-assisted
+capability — whatever form the capability actually takes. It is never a
+program to run; it's instructions an agent follows.
+
+## Metadata
 
 ```yaml
 ---
@@ -16,11 +31,87 @@ produces: [what running this skill yields]
 ---
 ```
 
-Body: the actual instructions/steps. No separate manifest file — the
-frontmatter above the body is the manifest. Add fields beyond the minimum
-only when they provide a concrete discovery/validation benefit (per
-`AGENTS.md` → Metadata / manifests); don't add fields for symmetry with
-some future catalog.
+Six fields, each kept because it answers a real discovery question:
+`name`/`type` identify it without depending on file path; `description`/
+`when_to_use` let an agent decide relevance without reading the body;
+`requires`/`produces` state its conceptual inputs and outputs (see
+below). No separate manifest file — this frontmatter _is_ the manifest.
 
-New skills go in their own `<skill-name>/` directory (room for supporting
-files later) using `../templates/skill.template.md` as the starting point.
+**Deliberately not included**, absent a demonstrated need: `author`,
+`owner`, `priority`, `dependencies`, `version`, `lifecycle`,
+`permissions`, `runtime`, `implementation`, `provider`. Each would add
+ceremony (`AGENTS.md` → "Metadata / manifests") without a concrete,
+current discovery/validation benefit — e.g. `version`/`lifecycle` presume
+skills change often enough to need tracking, which hasn't happened; git
+history already covers provenance the way it does for every other file
+in this repository.
+
+## Structure
+
+```text
+.agent/skills/<skill-name>/
+└── SKILL.md
+```
+
+That's a complete, valid skill. Additional files (a script, a longer
+reference doc) are added only when the capability genuinely needs them —
+never by default. A skill is **not** required to have `manifest.yaml`,
+`config.json`, `index.ts`, `package.json`, its own `README.md`, a
+`tests/` directory, or a `scripts/` directory. Creating a new skill is
+`mkdir .agent/skills/<name>` and writing `SKILL.md` — nothing else.
+
+## Discovery
+
+Filesystem discovery only — no registry, database, or generated index.
+Skills sit in the standard progressive-disclosure chain (`AGENTS.md` →
+"Progressive disclosure"): an agent lists `.agent/skills/`, reads a
+candidate's frontmatter (`description`/`when_to_use`) to judge relevance
+without opening the body, then reads the full `SKILL.md` only once it
+looks applicable.
+
+## Selection
+
+Use a skill when the task matches its capability, it provides a real
+reusable procedure, and invoking it removes ambiguity or repeated
+reasoning. Don't use — or create — one merely because it exists, its name
+sounds relevant, or it adds ceremony to a task simple enough to do
+directly. "Run the tests" doesn't need a skill lookup when a skill
+happens to also run them as one step of something larger
+(`validate-repository` earns its place because it's the _repository
+quality gate_, not because "running commands" is skill-shaped).
+
+## Composition
+
+See `capability-model.md` → "Composition, without an engine." Skills
+reference each other in prose; nothing resolves that reference
+automatically.
+
+## Inputs and outputs are conceptual
+
+`requires`/`produces` describe a skill's inputs and outputs in prose —
+e.g. `validate-repository`'s input is "repository state," its output is
+"a pass/fail result per gate stage." This is not a typed runtime
+interface: no schema or contract formalizes it (consistent with
+`SPEC-003` — a contract is created only once a real provider/consumer
+boundary needs one; a skill's own doc reading it is not that boundary).
+
+## Failure behavior and side effects
+
+State both in the skill body when relevant:
+
+- **Failure behavior** — what the skill does when it can't complete
+  cleanly. At minimum: report what failed, don't suppress or work around
+  it, hand control back to the calling workflow's failure-handling loop
+  (`development-lifecycle.md`) rather than deciding on its own how to
+  proceed.
+- **Side effects** — classify plainly: **read-only** (inspects, reports
+  nothing changes), **validation** (reports pass/fail, doesn't modify
+  files being validated), or **modifying** (changes repository state —
+  say what, precisely). A skill never modifies unrelated repository state
+  and never bypasses `change-management.md`.
+
+## Creating a new skill
+
+Only when a genuine, already-demonstrated, reusable capability exists —
+not speculatively, and not because a category of skill "sounds useful."
+Use [`../templates/skill.template.md`](../templates/skill.template.md).

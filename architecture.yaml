@@ -164,7 +164,7 @@ agent_native_lifecycle:
     later, optional capability (M08) if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M07
+  current_phase: M08
   milestones:
     - id: M01
       name: Foundation Definition
@@ -210,7 +210,16 @@ roadmap:
         ]
     - id: M07
       name: Skill System
-      status: not-started
+      status: complete
+      deliverables:
+        [
+          .agent/instructions/capability-model.md,
+          .agent/skills/README.md (expanded),
+          .project/specs/SPEC-005,
+        ]
+      # No new skill created — validate-repository remains the only one;
+      # no genuine second capability was demonstrated. See ADR/SPEC log
+      # and .project/state/PROJECT-STATE.md.
     - id: M08
       name: Development Loops
       status: not-started

@@ -19,5 +19,15 @@ produces: [pass/fail result for lint, typecheck, test, build, and format:check]
    fails, name which stage and show the actual error output.
 4. A failure blocks the change it's validating. Fix the root cause; don't
    weaken a rule or skip a stage to reach green (`change-management.md`).
+   Hand control back to the calling workflow's failure-handling loop
+   (`development-lifecycle.md`) rather than deciding independently how to
+   proceed.
 5. Zero tests currently existing is expected, not a failure — `test` uses
    `--passWithNoTests`.
+
+## Side effects
+
+**Validation** — reports pass/fail per stage; never modifies the files it
+checks. `format:check` specifically reports formatting mismatches without
+rewriting anything (that's `pnpm run format`, a different script this
+skill does not invoke).
