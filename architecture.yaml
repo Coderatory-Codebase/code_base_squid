@@ -167,7 +167,7 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M09
+  current_phase: M10
   milestones:
     - id: M01
       name: Foundation Definition
@@ -230,7 +230,10 @@ roadmap:
       deliverables: [.agent/instructions/development-loop.md, .project/specs/SPEC-006]
     - id: M09
       name: Graph System
-      status: not-started
+      status: complete
+      # Model/semantics only, per its own brief — no graph engine,
+      # database, or .project/graph/ directory. See SPEC-007.
+      deliverables: [.agent/instructions/engineering-graph.md, .project/specs/SPEC-007]
     - id: M10
       name: MCP Integration
       status: not-started

@@ -145,6 +145,31 @@ repository doesn't have PR review tooling wired up yet (no remote), so for
 now a REVIEW may reference a working-tree state or conversation instead of
 a commit hash — note that explicitly in the review when it applies.
 
+### Typed relationships (optional)
+
+`related:` stays the default — an untyped "see also." When a relationship
+needs a specific, defined meaning (`depends-on`, `blocks`, `implements`,
+`satisfies`, `consumes`, `produces`, `owned-by`, `derived-from`,
+`supersedes`, `validated-by`, `affects` — full definitions in
+`specs/SPEC-007-engineering-graph.md`), it may be recorded as an
+additional `relations:` frontmatter list instead of, or alongside,
+`related:`:
+
+```yaml
+relations:
+  - type: supersedes
+    target: ADR-007
+```
+
+This is genuinely optional and, as of M09, unused — no existing artifact
+has been retrofitted with it (e.g. `ADR-007`/`ADR-008`'s relationship is
+already fully expressed through `status: superseded` + prose +
+`related:`, so adding `relations:` there today would add notation without
+new capability). Add it the first time a relationship actually needs
+that precision, not preemptively. See
+`.agent/instructions/engineering-graph.md` for when a typed edge is
+warranted at all.
+
 ## SPEC vs PLAN vs TASK
 
 These are not interchangeable markdown files with different filenames:

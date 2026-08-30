@@ -76,6 +76,9 @@ single pass. Pull in a layer only when the task needs it.
   depend on `packages/`. `packages/` must never depend on `apps/`,
   `servers/`, or `agents/`. If a cycle seems necessary, the boundary is
   wrong — fix the boundary, don't add a package to route around it.
+  Typed relationships between engineering entities (depends-on, blocks,
+  affects, ...) describe this, never authorize a violation of it — see
+  `.agent/instructions/engineering-graph.md`.
 - **No speculative scaffolding.** Don't create empty directories or
   placeholder files for a capability that doesn't exist yet. A directory
   earns its place when a concrete need creates it.

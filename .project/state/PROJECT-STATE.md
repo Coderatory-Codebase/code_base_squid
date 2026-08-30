@@ -10,7 +10,7 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M09 — Graph System** is next, **not started**. M01–M08 are complete.
+**M10 — MCP Integration** is next, **not started**. M01–M09 are complete.
 See `../../architecture.yaml` → `roadmap` for the full milestone list.
 
 ## Completed
@@ -52,17 +52,31 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   Protocol/documentation only, as required; no repository change existed
   to demonstrate it against, so none was manufactured (see this
   milestone's report for the explicit reasoning).
+- **M09 — Graph System** — `complete`. Defined the engineering graph
+  model: 14 node types (2 already have real instances — artifacts by
+  their existing IDs, workflows/skills by their existing `name:`), an
+  11-type relationship vocabulary (`depends-on`/`blocks`/`implements`/
+  `satisfies`/`consumes`/`produces`/`owned-by`/`derived-from`/
+  `supersedes`/`validated-by`/`affects`), and the explicit rule that a
+  `related:` reference never implies a graph edge —
+  `.agent/instructions/engineering-graph.md` + `SPEC-007`. The existing
+  `related:` mechanism (M04) is unchanged. An optional `relations:`
+  typed-edge convention was documented in `ARTIFACT-TYPES.md` but applied
+  to **zero** existing artifacts — no real case needed the extra
+  precision yet (e.g. `ADR-007`/`ADR-008`'s relationship stays expressed
+  via `status`/prose/`related:`). No `.project/graph/` directory, no
+  graph engine/database/API/CLI.
 
 ## Currently active
 
-Nothing beyond finishing M08's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M09's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
 `ADR-001`–`ADR-006`, `ADR-008` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
-M06, M07, and M08 introduced no new ADR — all three are process/
+M06, M07, M08, and M09 introduced no new ADR — all four are process/
 instruction content operating within the existing architecture, not a
 change to a boundary, dependency direction, or ownership decision.
 
@@ -72,7 +86,7 @@ Nothing.
 
 ## Next
 
-M09 — Graph System. **Not started.** Do not begin it without explicit
+M10 — MCP Integration. **Not started.** Do not begin it without explicit
 approval — see `../../.agent/instructions/implementation.md`
 ("stay inside the current milestone").
 
