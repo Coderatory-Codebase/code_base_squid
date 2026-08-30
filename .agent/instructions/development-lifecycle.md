@@ -29,7 +29,9 @@ UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD → COMPLET
 - **PLAN** — determine the implementation approach before making
   substantial changes. State it; don't silently start editing.
 - **IMPLEMENT** — make the smallest coherent change that satisfies the
-  plan. See "Scope control" below.
+  plan. See "Scope control" below. The iterative reasoning used while
+  doing this (observe, hypothesize, change, verify, evaluate) is
+  `development-loop.md` — that file zooms into this one stage.
 - **VALIDATE** — verify behavior and repository quality gates (see
   "Validation gate" below).
 - **REVIEW** — inspect correctness, architecture, scope, quality,
@@ -92,7 +94,8 @@ suppress it, weaken a rule/gate to get to green, delete a test to make it
 pass, or change unrelated code without explaining why. If a failure turns
 out to reveal an architectural problem rather than a local bug, stop and
 reassess — loop back to UNDERSTAND/PLAN — rather than patching the
-symptom repeatedly (see `validation.md`).
+symptom repeatedly (see `validation.md`). The full diagnose/hypothesize
+mechanics of this loop are in `development-loop.md`.
 
 ## Scope control
 

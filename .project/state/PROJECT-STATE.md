@@ -10,9 +10,8 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M08 — Development Loops** is next, **not started**. M01–M07 are
-complete. See `../../architecture.yaml` → `roadmap` for the full
-milestone list.
+**M09 — Graph System** is next, **not started**. M01–M08 are complete.
+See `../../architecture.yaml` → `roadmap` for the full milestone list.
 
 ## Completed
 
@@ -46,19 +45,26 @@ milestone list.
   considered and rejected as redundant with the existing
   `repository-orientation.md` instruction; no review artifact was created
   for this milestone-sized judgment call, same precedent as M04/M05/M06.
+- **M08 — Development Loops** — `complete`. Added the iterative
+  reasoning model (`OBSERVE → UNDERSTAND → HYPOTHESIZE → PLAN → CHANGE →
+VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
+  failure loop — `.agent/instructions/development-loop.md` + `SPEC-006`.
+  Protocol/documentation only, as required; no repository change existed
+  to demonstrate it against, so none was manufactured (see this
+  milestone's report for the explicit reasoning).
 
 ## Currently active
 
-Nothing beyond finishing M07's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M08's own validation pass. No open TASK/RFC/
 RESEARCH artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
 `ADR-001`–`ADR-006`, `ADR-008` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
-M06 and M07 introduced no new ADR — both are process/instruction content
-operating within the existing architecture, not a change to a boundary,
-dependency direction, or ownership decision.
+M06, M07, and M08 introduced no new ADR — all three are process/
+instruction content operating within the existing architecture, not a
+change to a boundary, dependency direction, or ownership decision.
 
 ## Blocked
 
@@ -66,8 +72,8 @@ Nothing.
 
 ## Next
 
-M08 — Development Loops. **Not started.** Do not begin it without
-explicit approval — see `../../.agent/instructions/implementation.md`
+M09 — Graph System. **Not started.** Do not begin it without explicit
+approval — see `../../.agent/instructions/implementation.md`
 ("stay inside the current milestone").
 
 ## Open questions carried forward

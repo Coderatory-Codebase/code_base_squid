@@ -60,7 +60,7 @@ boundaries are not pre-filled with placeholder files.
 
 ## Current maturity
 
-**M01–M07 are complete.** The root definition artifacts exist (`README.md`,
+**M01–M08 are complete.** The root definition artifacts exist (`README.md`,
 `architecture.yaml`, `AGENTS.md`, `CLAUDE.md`); the pnpm/TypeScript
 workspace, lint/format/test/build tooling, and CI foundation are in place;
 `.agent/` establishes the minimum agent operating system; `.project/`
@@ -71,14 +71,17 @@ framework, and `packages/` is a reusable source boundary, not a nested
 monorepo; M06 establishes the development lifecycle — a shared
 `UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD → COMPLETE`
 protocol that the feature/bugfix/refactor/review workflows reference
-instead of each restating; and M07 establishes the capability model —
-instruction/workflow/skill/tool/package/agent kept explicitly distinct
-(`.agent/instructions/capability-model.md`), with `validate-repository`
-remaining the repository's only skill. No package currently exists — one
-is added once a capability has demonstrated reuse across ≥2 independent
-deployables (see `.project/decisions/ADR-008`). A clean clone can run
-`pnpm install && pnpm run validate` successfully. There are still no
-apps, servers, or deployable agents — those land in M08 onward. See
+instead of each restating; M07 establishes the capability model —
+instruction/workflow/skill/tool/package/agent kept explicitly distinct,
+with `validate-repository` remaining the repository's only skill; and M08
+establishes the development loop — `OBSERVE → UNDERSTAND → HYPOTHESIZE →
+PLAN → CHANGE → VERIFY → EVALUATE`, the iterative reasoning nested inside
+M06's IMPLEMENT stage, distinguishing fact/assumption/hypothesis/decision
+and evidence-based stopping from unlimited retries. No package currently
+exists — one is added once a capability has demonstrated reuse across ≥2
+independent deployables (see `.project/decisions/ADR-008`). A clean clone
+can run `pnpm install && pnpm run validate` successfully. There are still
+no apps, servers, or deployable agents — those land in M09 onward. See
 `architecture.yaml` for the full milestone roadmap and current phase
 marker, or `.project/state/PROJECT-STATE.md` for the live status.
 

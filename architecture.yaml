@@ -157,14 +157,17 @@ agent_native_lifecycle:
   loop: [Observe, Understand, Plan, Act, Test, Verify, Record]
   implementation_flow: [SPEC, PLAN, TASK, IMPLEMENT, TEST, REVIEW, DOCUMENT]
   status: >
-    Realized as a documented protocol at M06 — see
-    .agent/instructions/development-lifecycle.md and SPEC-004 (stages:
-    Understand -> Plan -> Implement -> Validate -> Review -> Record ->
-    Complete). Still no orchestration/runtime engine — that remains a
-    later, optional capability (M08) if a concrete need ever justifies it.
+    Realized as a documented protocol at M06 (work-level lifecycle: see
+    .agent/instructions/development-lifecycle.md, SPEC-004) and M08
+    (iterative reasoning nested inside it: see
+    .agent/instructions/development-loop.md, SPEC-006 — Observe ->
+    Understand -> Hypothesize -> Plan -> Change -> Verify -> Evaluate).
+    Both are documentation/protocol, not a runtime. No orchestration or
+    execution engine exists or is scheduled at any specific milestone —
+    one is added only if a concrete need ever justifies it.
 
 roadmap:
-  current_phase: M08
+  current_phase: M09
   milestones:
     - id: M01
       name: Foundation Definition
@@ -222,7 +225,9 @@ roadmap:
       # and .project/state/PROJECT-STATE.md.
     - id: M08
       name: Development Loops
-      status: not-started
+      status: complete
+      # Protocol/instruction only, per its own brief — not a runtime.
+      deliverables: [.agent/instructions/development-loop.md, .project/specs/SPEC-006]
     - id: M09
       name: Graph System
       status: not-started

@@ -35,3 +35,7 @@ separately.
   for).
 - Use the [`validate-repository`](../skills/validate-repository/SKILL.md)
   skill as the concrete, discoverable form of this instruction.
+- **This is repository validation, not the only verification.** Before
+  or alongside it, verify the actual problem was solved with the
+  smallest focused check that proves it (one test, a manual check) — see
+  `development-loop.md` → "Verification."
