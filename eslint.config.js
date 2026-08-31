@@ -6,7 +6,7 @@ import prettierConfig from "eslint-config-prettier";
 
 export default [
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/*.d.ts", "**/coverage/**"],
+    ignores: ["**/dist/**", "**/node_modules/**", "**/*.d.ts", "**/coverage/**", "**/.next/**"],
   },
   js.configs.recommended,
   {
@@ -34,6 +34,30 @@ export default [
     },
     rules: {
       ...tseslint.configs.recommended.rules,
+    },
+  },
+  {
+    // servers/* — Node.js runtime source.
+    files: ["servers/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+      },
+    },
+  },
+  {
+    // apps/* — browser + Next.js server-runtime source.
+    files: ["apps/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        fetch: "readonly",
+        window: "readonly",
+        document: "readonly",
+        HTMLFormElement: "readonly",
+      },
     },
   },
   prettierConfig,

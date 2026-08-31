@@ -77,14 +77,23 @@ boundaries:
   - path: apps/
     purpose: User-facing deployable applications.
     examples: [web, admin, mobile]
-    status: not-yet-created
+    contains: [web]
+    status: created
+    # First populated with the Authentication feature (ADR-012): web is
+    # a Next.js/React app, the browser-facing side of the first real
+    # application. Talks to servers/api only through its own /api/**
+    # rewrite proxy, never imports servers/api's source directly.
 
   - path: servers/
     purpose: >
       Deployable server processes. Business/domain logic owned by a backend
       lives here, inside the server that owns it (e.g. servers/api/domains/*).
     examples: [api, worker, gateway]
-    status: not-yet-created
+    contains: [api]
+    status: created
+    # First populated with the Authentication feature (ADR-012): api is
+    # the Express/Node/MongoDB (Mongoose) server; owns auth domain logic
+    # and the auth request/response contract (servers/api/src/domains/auth/*).
 
   - path: agents/
     purpose: >
@@ -176,14 +185,15 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M21 has no milestone entry below and none is added speculatively —
+  # M23 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content); M15 through M20 were all added beyond that sketch because
-  # real gaps existed, not to keep a numbered roadmap alive. The next
-  # milestone is defined only once a concrete need identifies one — see
-  # .project/state/PROJECT-STATE.md -> "Roadmap position".
-  current_phase: M21
+  # content); M15 through M22 were all added beyond that sketch because
+  # real gaps existed or real feature work was commissioned, not to keep
+  # a numbered roadmap alive. The next milestone is defined only once a
+  # concrete need identifies one — see .project/state/PROJECT-STATE.md
+  # -> "Roadmap position".
+  current_phase: M23
   milestones:
     - id: M01
       name: Foundation Definition
@@ -487,15 +497,84 @@ roadmap:
           .project/ARTIFACT-TYPES.md (BACKLOG entry clarified),
           .project/traces/TRACE-003,
         ]
+    - id: M21
+      name: Autonomous Agent Execution & Technology Discovery
+      status: complete
+      # Not a rename — added because the user redirected before the
+      # first real application: strengthen the operating model so an
+      # agent can derive request classification, planning necessity,
+      # human-escalation points, and technology/skill handling from the
+      # repository itself, before building Authentication. A cold-start
+      # audit (same discipline as M16's, one new scenario) found most of
+      # the requested behavior already existed (feature slicing,
+      # missing-skill handling, discovery capture, progressive tracing,
+      # engineering-lens selection, Git governance) and needed only
+      # connecting, not duplicating. Four genuine gaps fixed: no request-
+      # classification step, no explicit "is planning required" gate, no
+      # single discoverable index of human-in-the-loop triggers, and no
+      # agent-agnostic statement of manual/UI verification (previously
+      # Claude-Code-specific only, a real ADR-006 gap). All four fixed as
+      # amendments to SPEC-011/development-lifecycle.md/validation.md —
+      # no new SPEC, no new ADR (same category as M16/M19/M20). TRACE-004
+      # (this milestone's own execution) includes a real, executed
+      # cold-start simulation of "Build a new authentication feature
+      # using the application's current technology stack" as its own
+      # checkpoint, confirming all 20 elements the milestone's own
+      # completion criteria named are reachable without the user naming
+      # a process. No backlog item created — no genuine, independent
+      # discovery occurred. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-011 (Request classification,
+          Human-in-the-loop,
+          scenario G added),
+          .agent/instructions/agent-operating-contract.md (updated),
+          .agent/instructions/development-lifecycle.md (planning-required gate added),
+          .agent/instructions/validation.md (manual/UI verification bullet added),
+          .project/traces/TRACE-004,
+        ]
+    - id: M22
+      name: Authentication Feature (first application)
+      status: complete
+      # The repository's first real application feature, and the first
+      # milestone to populate apps/ and servers/. MERN + Next.js, as the
+      # user explicitly requested: apps/web (Next.js/React) and
+      # servers/api (Express/Node/MongoDB via Mongoose), two independent
+      # deployables (ADR-012). JWT access+refresh tokens in httpOnly
+      # cookies, delivered same-origin via a Next.js rewrite proxy to
+      # avoid cross-origin cookie/CORS complications. Core scope only —
+      # register, login, logout, current-user, refresh, route
+      # protection; email verification, password reset, OAuth, and
+      # server-side refresh-token revocation are real backlog items
+      # (BACKLOG-001..004), not built. This milestone was itself
+      # produced by M21's operating model: classified, technology/skill-
+      # checked, planned (ADR-012 + PLAN-002), implemented, and recorded
+      # without the user re-stating any process — see TRACE-005. All
+      # PLAN-002 acceptance criteria verified by servers/api's test
+      # suite (supertest + mongodb-memory-server) and a real manual pass
+      # through both dev servers. No new ADR beyond ADR-012 itself (the
+      # one genuine architecture/technology decision this milestone
+      # made). See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          apps/web (Next.js app — login/register/dashboard,
+          auth-client.ts,
+          auth-server.ts),
+          servers/api (Express app — domains/auth/*),
+          .project/decisions/ADR-012,
+          .project/plans/PLAN-002,
+          .project/backlog/BACKLOG-001 through BACKLOG-005,
+          .project/traces/TRACE-005,
+        ]
 
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure
-  - populated package set
+  - populated package set beyond what Authentication demonstrated
   - project generator
   - graph database
   - control panel / dashboard
-  - business domain implementations
-  - authentication implementation
-  - a working web application
+  - business domain implementations beyond Authentication
+  - email verification / password reset / OAuth (BACKLOG-001..003)
+  - server-side refresh-token revocation (BACKLOG-004)
   - speculative empty architectural layers

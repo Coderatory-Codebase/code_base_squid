@@ -4,10 +4,20 @@ type: spec
 title: Agent repository operating contract
 status: active
 created: 2026-08-31
-related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010]
+updated: 2026-08-31
+related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, SPEC-013]
 ---
 
 # SPEC-011: Agent Repository Operating Contract
+
+> **M21 amendment**: M16 tied M01–M15's pieces into one bootstrap
+> sequence but never named _what kind_ of request is being handled, and
+> the repository's human-escalation triggers — already real, already
+> correct — were discoverable only by reading four separate specs in
+> full. M21 adds "Request classification" and "Human-in-the-loop" below,
+> and one new cold-start scenario to the existing table. No new rule:
+> both sections point at decisions M08/M10/M12/M15/M17/M20 already made,
+> named and consolidated for discoverability, not reinvented.
 
 Operational entry point: `.agent/instructions/agent-operating-contract.md`.
 This spec is the comprehensive, durable definition; that file is the
@@ -85,6 +95,46 @@ Git governance throughout (branch, commits, validation, PR — SPEC-009)
 Every step already exists in M01–M15. This diagram is the map, not new
 territory — each line names the file that's actually authoritative for
 it.
+
+## Request classification (added M21)
+
+Between orientation and UNDERSTAND, name what kind of request this is —
+not as a new artifact or gate, but because the category determines which
+instructions are load-bearing. A request can span more than one; identify
+the dominant execution path rather than forcing a single label:
+
+```text
+exploration / research        -> discover, inspect, report; no
+                                  implementation (see "Exploration and
+                                  analysis requests" below)
+operational / governance       -> this repository's own operating model
+                                  (.agent/, .project/, architecture.yaml)
+                                  — the category M06-M20 themselves are in
+foundation work                -> architecture.yaml boundaries,
+                                  cross-cutting repository structure
+architecture work              -> ADR/SPEC-weight decisions
+                                  (development-lifecycle.md ->
+                                  "Proportionality" -> architectural
+                                  change row)
+application implementation     -> backlog-and-feature-development.md,
+                                  engineering-standards.md, the
+                                  apps/servers/agents/packages boundaries
+bugfix                         -> development-lifecycle.md's tiny-bugfix
+                                  proportionality row
+refactor                       -> engineering-standards.md (reuse,
+                                  decoupling, no unjustified abstraction)
+technology adoption            -> technology-guidance.md, SPEC-012
+mixed                          -> identify the dominant category; apply
+                                  its instructions as primary, the
+                                  others as secondary constraints
+```
+
+This is naming, not new process — every branch above already resolves to
+an existing instruction file. E.g. "Add authentication" classifies as
+application implementation + technology adoption (dominant: application
+implementation, since the feature drives the technology choice, not the
+reverse) — both `backlog-and-feature-development.md` and
+`technology-guidance.md` apply, in that order of primacy.
 
 ## Layered discovery
 
@@ -225,6 +275,28 @@ is already the authoritative definition. As a practical checklist:
 Do not require a documentation update when nothing durable changed, and
 do not manufacture a test or artifact merely to check a box.
 
+## Human-in-the-loop (added M21)
+
+Every trigger below already exists and is already authoritative in its
+own spec — this table is a discoverability index, not a new rule. When
+none of these apply, routine implementation decisions stay autonomous.
+
+| Trigger                                                                                                                     | Governed by                                                                            |
+| --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Material ambiguity in requirements/scope/architecture/security                                                              | `SPEC-010` → "Ambiguity handling"                                                      |
+| A question or decision that warrants an RFC or SPEC                                                                         | `SPEC-010` → "RFC escalation" / "SPEC escalation"                                      |
+| Creating or materially changing a technology skill                                                                          | `SPEC-012` → "Human approval"                                                          |
+| A technology choice touching architecture, security, privacy, data ownership, infrastructure, deployment, cost, or a vendor | `SPEC-012` → "Escalation triggers"                                                     |
+| A genuine architectural disagreement with an existing ADR/SPEC                                                              | this spec → "Discovering a better approach mid-implementation", `change-management.md` |
+| Two authoritative sources genuinely conflict                                                                                | this spec → "Instruction precedence"                                                   |
+| A blocked piece of work needing a decision to unblock it                                                                    | `SPEC-010` → "Blocked work"                                                            |
+
+The agent's job at each trigger is the same shape every time: state what
+decision is needed, why it matters, the real options, their trade-offs,
+and a recommendation — then wait. It must not manufacture approval by
+proceeding anyway and recording the outcome as if it had been granted
+(`traceability.md` → "Human decisions").
+
 ## Cold-start verification
 
 This milestone traced a fresh agent's path against `CLAUDE.md`/`AGENTS.md`
@@ -259,6 +331,25 @@ completeness):
 
 Everything else already connected correctly; this spec did not invent
 work to justify a longer report.
+
+### M21 addendum — scenario G
+
+M21 re-ran this audit against one new, sharper scenario, after adding
+"Request classification" and "Human-in-the-loop" above:
+
+| Scenario                                                                                   | Expected                                                                                                                                                                                                                                                                                                                                                                                                                     | Result                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| G — "Build a new authentication feature using the application's current technology stack." | From `AGENTS.md` alone: classify (application implementation + technology adoption), check for existing coverage, plan-required gate trips (technology adoption + security-sensitive + multi-file), technology/skill check, feature-sliced plan, implement, validate (incl. the manual/UI check below), review, discovery/backlog reconciliation, trace, Git governance — with no step requiring the user to name a process. | Reachable end-to-end through `SPEC-011`'s own bootstrap sequence plus this milestone's three additions (classification, planning gate, human-in-the-loop index) and `validation.md`'s new UI bullet — confirmed by actually running this exact request as M21's own next step (see `TRACE-004` → "cold-start" checkpoint). No further gap found. |
+
+**Two more real gaps found and fixed at M21** (in addition to scenario
+G's confirmation above): no explicit request-classification step (fixed
+— "Request classification" above), and no explicit "is planning
+required" gate (fixed — `development-lifecycle.md` →
+"When planning is required"). A third, smaller gap: `validation.md` had
+no agent-agnostic statement of the manual/UI-verification expectation
+that previously existed only as a Claude-Code-specific instruction,
+which is a real `ADR-006` gap for any other agent operating this
+repository — fixed with one new bullet there.
 
 ## Enforcement vs. behavior
 

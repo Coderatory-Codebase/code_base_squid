@@ -1,6 +1,6 @@
 ---
 type: state
-updated: 2026-08-30
+updated: 2026-08-31
 ---
 
 # Project State
@@ -10,12 +10,14 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M20 are complete.** M21+ is **not yet defined** — the original M01
-roadmap sketch ended at M14; M15 through M20 are all genuinely new
+**M01–M22 are complete.** M23+ is **not yet defined** — the original M01
+roadmap sketch ended at M14; M15 through M22 are all genuinely new
 milestones added beyond it (not renames of a placeholder), and nothing
-beyond M20 has a sketch entry either. See "Roadmap position" below before
-assuming any specific next milestone. See `../../architecture.yaml` →
-`roadmap` for the full milestone list.
+beyond M22 has a sketch entry either. M22 is the repository's first real
+application feature (Authentication, MERN + Next.js) — `apps/web` and
+`servers/api` now exist with real source. See "Roadmap position" below
+before assuming any specific next milestone. See `../../architecture.yaml`
+→ `roadmap` for the full milestone list.
 
 **Roadmap numbering history:** the original M01 roadmap sketch labeled
 M10 "MCP Integration" and M11 "Core Packages." The actual M10 work
@@ -36,36 +38,54 @@ point.
 The original M01 roadmap sketch (Foundation Definition ... Production
 Hardening) was fully consumed at M14 — M12/M13/M14 were each renamed from
 their original placeholder label to their actual delivered content, same
-pattern as M10/M11 before them. **M15 through M20 all have no original
-placeholder to rename** — each was added because a real gap existed (M15:
-no work-management model for actual feature implementation; M16: the
-existing operating model wasn't connected into one discoverable bootstrap
-sequence; M17: no governance existed for how technology-specific skills
-should enter the ecosystem; M18: no durable way existed to reconstruct
-what an agent actually did on a piece of work; M19: M18's own first trace
-showed the model recorded outcomes but not how the operating model was
-actually executed step by step; M20: a discovery could be noticed in a
-trace without ever producing an explicit, actionable outcome), not
-because a roadmap slot needed filling. Nothing beyond M20 has a sketch
-entry. The next real milestone is decided when a concrete need
-identifies one, not by roadmap position
-(`.agent/instructions/implementation.md`) — most plausibly a first real
-`apps/`/`servers/`/`agents/`/`packages/` feature now that the foundation
-(architecture, agent operating model, project memory, engineering
-judgment, Git/quality enforcement, backlog/feature-development model,
-connected agent bootstrap sequence, technology-guidance governance,
-progressive execution traceability, and now continuous discovery
-capture) is coherent and load-bearing.
+pattern as M10/M11 before them. **M15 through M22 all have no original
+placeholder to rename** — each was added because a real gap existed or
+real feature work was commissioned (M15: no work-management model for
+actual feature implementation; M16: the existing operating model wasn't
+connected into one discoverable bootstrap sequence; M17: no governance
+existed for how technology-specific skills should enter the ecosystem;
+M18: no durable way existed to reconstruct what an agent actually did on
+a piece of work; M19: M18's own first trace showed the model recorded
+outcomes but not how the operating model was actually executed step by
+step; M20: a discovery could be noticed in a trace without ever
+producing an explicit, actionable outcome; M21: the user asked for the
+first real application, then redirected to strengthen the operating
+model first — no request classification, no explicit planning-required
+gate, human-escalation triggers scattered, no agent-agnostic manual/UI
+verification rule; M22: the Authentication feature itself, resumed once
+M21 was approved, with the user's "go ahead" letting the strengthened
+operating model derive its own process — classification, ADR-012,
+PLAN-002, implementation, backlog capture, validation, and recording —
+without the user re-stating any of it), not because a roadmap slot
+needed filling. Nothing beyond M22 has a sketch entry. The next real
+milestone is decided when a concrete need identifies one, not by roadmap
+position (`.agent/instructions/implementation.md`) — most plausibly the
+next feature slice (from the M22 backlog, `BACKLOG-001`..`005`, or a new
+one) now that the foundation (architecture, agent operating model,
+project memory, engineering judgment, Git/quality enforcement,
+backlog/feature-development model, connected agent bootstrap sequence
+with explicit request classification and human-in-the-loop indexing,
+technology-guidance governance, progressive execution traceability,
+continuous discovery capture, and now a real, working first application)
+is coherent and load-bearing.
 
 ## Technology profile
 
-No implementation technology is in use yet — no `apps/`, `servers/`,
-`agents/`, or `packages/` source exists (`architecture.yaml` →
-`boundaries`). This section is populated with real languages, frameworks,
-libraries, databases, infrastructure, testing, build, and deployment
-tooling once a deployable actually adopts one — see
-`.project/specs/SPEC-008-engineering-standards-design-and-practice.md` →
-"Project technology profile." Not inventing entries here ahead of that.
+Populated for the first time at M22 (`ADR-012`):
+
+- **`apps/web`**: TypeScript, Next.js 16 (App Router, Turbopack), React 19.
+- **`servers/api`**: TypeScript, Node.js, Express 5, Mongoose 9 (MongoDB),
+  `jsonwebtoken`, `bcryptjs`, `zod`, `cookie-parser`, `cors`, `helmet`.
+- **Testing**: `vitest` (repo-wide, unchanged), `supertest` +
+  `mongodb-memory-server` (`servers/api`, hermetic API tests against a
+  real, in-memory MongoDB).
+- **Dev tooling**: `tsx` (`servers/api` dev server).
+
+`agents/` and `packages/` remain `not-yet-created` — no package exists
+yet (nothing meets the demonstrated-cross-deployable-reuse bar,
+`packages.md`), and no agent runtime is in scope. See
+`.project/specs/SPEC-008-engineering-standards-design-and-practice.md`
+→ "Project technology profile."
 
 **Distinct from technology skills** (`.agent/skills/`): this section
 records what this project has actually _adopted_ — a fact about current
@@ -74,27 +94,36 @@ guidance that could apply to any project using that technology. Adopting
 something here doesn't automatically produce a skill, and a skill
 existing wouldn't mean it's adopted here — see
 `.project/specs/SPEC-012-technology-ecosystem-and-guidance-governance.md`
-→ "Relationship to the project technology profile." As of M17, both
-remain empty.
+→ "Relationship to the project technology profile." **No technology
+skill was created at M22** — none of the choices above rose to durable
+ecosystem guidance; they're this project's own implementation choices
+(`ADR-012`).
 
 ## Backlog
 
-No backlog item exists yet — `.project/backlog/` is not created (nothing
-has been implemented so far to discover or defer work from; see
-`ARTIFACT-TYPES.md` → "Why no ... `backlog/` yet"). Model and conventions:
+Five real backlog items exist (`.project/backlog/`, created for the
+first time at M22): `BACKLOG-001` (email verification), `BACKLOG-002`
+(password reset), `BACKLOG-003` (OAuth/social login), `BACKLOG-004`
+(server-side refresh-token revocation), `BACKLOG-005` (frontend
+component/E2E test coverage) — all `discovered-from` the Authentication
+feature's own scoping (`PLAN-002`/`ADR-012`), all `captured`, none
+started. Model and conventions:
 `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
-The first real backlog item is created the first time a feature's
-analysis surfaces genuine out-of-scope work.
 
 ## Traces
 
-Three real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Five real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
-and `TRACE-003` (M20's own execution — also progressive; honestly
-records zero genuine discoveries rather than manufacturing a backlog
-item). None is a retroactive trace of M01–M17, which predate the model
-and aren't traced.
+`TRACE-003` (M20's own execution — also progressive; honestly records
+zero genuine discoveries rather than manufacturing a backlog item),
+`TRACE-004` (M21's own execution — progressive, and the first to include
+a real, executed cold-start simulation as its own checkpoint rather than
+only a narrative claim), and `TRACE-005` (M22's own execution — the
+first to trace a real, multi-technology application feature rather than
+only documentation/instruction changes; records five genuine
+implementation-time discoveries, all resolved `needed now`). None is a
+retroactive trace of M01–M17, which predate the model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
 only — never a substitute for the ADR/SPEC/BACKLOG/PLAN/REVIEW that
@@ -357,11 +386,80 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   demonstrate the mechanism; `.project/backlog/` remains uncreated. **No
   new ADR** — same category as M14/M16/M19: an addition to an
   already-decided model, not a new decision between real alternatives.
+- **M21 — Autonomous Agent Execution & Technology Discovery** —
+  `complete`. Not a rename — added when the user redirected before the
+  first real application: strengthen the operating model so an agent can
+  derive request classification, planning necessity, human-escalation
+  points, and technology/skill handling from the repository alone. A
+  cold-start audit (same discipline as `M16`'s, one new scenario) found
+  most of the requested behavior already existed and needed only
+  connecting: feature slicing (`SPEC-010`), missing-skill handling
+  (`technology-guidance.md`/`SPEC-012`), continuous discovery
+  (`SPEC-010`, M20), progressive checkpoint-structured tracing
+  (`SPEC-013`), engineering-lens selection (`SPEC-008`), Git governance
+  (`SPEC-009`). **Four genuine gaps fixed**: no request-classification
+  step (fixed — `SPEC-011` → "Request classification"); no explicit
+  "is planning required" gate (fixed —
+  `development-lifecycle.md` → "When planning is required"); human-in-
+  the-loop escalation triggers discoverable only by reading four specs
+  in full (fixed — `SPEC-011` → "Human-in-the-loop", a consolidated
+  index by reference, no restatement); no agent-agnostic statement of
+  manual/UI verification — it existed only as a Claude-Code-specific
+  instruction, a real `ADR-006` gap (fixed — `validation.md`, one
+  bullet). All four are amendments — **no new SPEC, no new ADR** (same
+  category as M16/M19/M20: connective/clarifying content on
+  already-decided architecture, not a new decision between real
+  alternatives). `TRACE-004` (this milestone's own execution) is the
+  real proof, and the first trace to include an actually-executed
+  cold-start simulation ("Build a new authentication feature using the
+  application's current technology stack") as its own checkpoint,
+  confirming all 20 elements the milestone's completion criteria named
+  are reachable without the user naming a process — including a
+  correctly-surfaced human-clarification point (the technology profile
+  is still empty, so "current technology stack" doesn't resolve alone),
+  recorded as a pass, not a gap. **No backlog item created** — no
+  genuine, independent, out-of-scope discovery occurred;
+  `.project/backlog/` remains uncreated. The Authentication feature
+  itself was explicitly deferred, not built, per this milestone's own
+  constraint.
+- **M22 — Authentication Feature (first application)** — `complete`.
+  The repository's first real application feature, and the first
+  milestone with real `apps/`/`servers/` source. `apps/web` (Next.js 16
+  App Router, React 19) and `servers/api` (Express 5, Mongoose 9/
+  MongoDB) — two independent deployables (`ADR-012`), matching "MERN +
+  Next.js" as the user stated it. JWT access (~15 min) + refresh (~7
+  day) tokens in `httpOnly`/`SameSite=Lax` cookies, delivered
+  same-origin via a Next.js rewrite proxy (`/api/**` → `servers/api`) to
+  avoid cross-origin cookie/CORS complications in local dev. Core scope
+  only, per the user's own earlier confirmation: register, login,
+  logout, current-user, refresh, route protection
+  (`/dashboard` redirects unauthenticated). **One new ADR** (`ADR-012` —
+  the stack/architecture decisions: deployable split, session strategy,
+  cookie-delivery mechanism, contract placement, password hashing, and
+  the accepted no-server-side-revocation limitation) and **one new
+  PLAN** (`PLAN-002` — acceptance criteria, implementation steps). **Five
+  real backlog items** — the first this repository has had —
+  captured for genuinely deferred scope (email verification, password
+  reset, OAuth, refresh-token revocation, deeper frontend test
+  coverage), not built and not dropped. Verified by `servers/api`'s
+  `supertest`/`mongodb-memory-server` test suite (10 tests, all
+  acceptance criteria) and a real manual pass through both dev servers
+  (register → dashboard → logout → redirect, duplicate-email rejection,
+  bad-login rejection, refresh) — test data cleaned up and dev servers
+  stopped afterward. Five genuine implementation-time discoveries
+  surfaced and were resolved directly (`bcrypt`→`bcryptjs` for
+  native-build friction, pnpm 11 build-script approval, two real
+  TypeScript errors, and — notably — disabling `next dev`'s
+  auto-generated nested `AGENTS.md`/`CLAUDE.md`, which would have
+  directly conflicted with this repository's own root-level convention).
+  This milestone was itself produced by M21's strengthened operating
+  model in response to a bare "go ahead" — see `TRACE-005`.
 
 ## Currently active
 
-Nothing beyond finishing M20's own validation pass. No open TASK/RFC/
-RESEARCH/BACKLOG artifacts exist (none have been needed yet).
+Nothing beyond finishing M22's own validation pass. No open TASK/RFC/
+RESEARCH artifacts exist. Five `captured` `BACKLOG` items exist
+(`BACKLOG-001`..`005`) — none selected or in progress.
 
 ## Authoritative decisions
 
@@ -391,7 +489,15 @@ existing model (a checkpoint structure, a progressive-recording rule),
 not a new decision between real alternatives. M20 introduced no new ADR
 — same category: an addition to `SPEC-010`'s existing model (a
 discovery decision procedure, a completion check), not a new decision
-between real alternatives.
+between real alternatives. M21 introduced no new ADR — same category:
+`SPEC-011`/`development-lifecycle.md`/`validation.md` amendments
+(a classification taxonomy, a planning gate, a consolidated
+human-in-the-loop index, one agent-agnostic validation bullet), not a
+new decision between real alternatives. **M22 introduced one new ADR**
+(`ADR-012` — MERN + Next.js stack and authentication architecture): a
+genuine decision between real alternatives (deployable split, session/
+cookie strategy, contract placement), same category as
+`ADR-009`/`ADR-010`/`ADR-011`, not a restatement of an existing one.
 
 ## Blocked
 
@@ -399,9 +505,11 @@ Nothing.
 
 ## Next
 
-Not yet defined — see "Roadmap position" above. Do not begin
-implementation work (a package, app, server, or agent) without a
-concrete, demonstrated need, and not without explicit approval — see
+Not yet defined — see "Roadmap position" above. The five `BACKLOG` items
+(`BACKLOG-001`..`005`) are the most concrete known candidates for
+follow-up feature work; none is selected yet. Do not begin new
+implementation work without a concrete, demonstrated need, and not
+without explicit approval — see
 `../../.agent/instructions/implementation.md` ("stay inside the current
 milestone").
 

@@ -17,6 +17,10 @@ never restates one.
 ```text
 AGENTS.md (read in full)
   → repository-orientation.md (verify the filesystem, get your bearings)
+  → CLASSIFY the request — what kind of work is this, and does it
+      require planning before implementing?
+      (SPEC-011 -> "Request classification"; development-lifecycle.md
+      -> "When planning is required")
   → UNDERSTAND the request — does it already exist (SPEC/ADR/backlog)?
   → ANALYZE — relevant lenses, relevant technologies
       (backlog-and-feature-development.md, engineering-standards.md)
@@ -39,6 +43,12 @@ AGENTS.md (read in full)
 understand, identify constraints and ambiguity, report findings. It does
 not authorize changing the repository. Only a request that actually asks
 for implementation does.
+
+## When a decision needs a human
+
+Don't hunt across specs to know whether something needs to stop for
+approval — `SPEC-011` → "Human-in-the-loop" is the consolidated index of
+every existing escalation trigger. Not in that list → stays autonomous.
 
 ## When guidance conflicts
 

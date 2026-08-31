@@ -59,6 +59,30 @@ small the diff is. See `.project/ARTIFACT-TYPES.md` for what each
 artifact type is, and its TASK/HANDOFF sections for when those two
 specifically become worth creating.
 
+### When planning is required (added M21)
+
+This is not a request to enter any specific tool's "planning mode" — a
+repository has no control over that. It's the same PLAN stage above,
+made into an explicit gate:
+
+```text
+Any of: multiple implementation steps, multiple files/components, new
+architecture, technology adoption, security-sensitive behavior, an
+external integration, a database/schema change, a meaningful new
+dependency, genuinely unclear requirements, multiple acceptance
+criteria, or a consequential trade-off between real alternatives
+    → state the plan before implementing (SPEC-010 -> "Feature planning"
+      has the proportional element list)
+
+A trivial, single-approach change with no open question
+    → proceed directly; PLAN stays a short, undocumented mental step,
+      not a ceremony
+```
+
+Same judgment `development-lifecycle.md`'s three representative chains
+above already imply — this names the trigger conditions explicitly so
+the decision doesn't depend on remembering to infer them.
+
 ## Implementation complete vs. work complete
 
 **Implementation complete** — code/config has been written to satisfy

@@ -14,3 +14,11 @@ packages:
   - "servers/*"
   - "agents/*"
   - "tooling/*"
+
+# Build scripts this repository explicitly allows to run (pnpm no longer
+# runs a dependency's install/postinstall script by default). esbuild
+# needs its native binary; mongodb-memory-server downloads a real mongod
+# binary for hermetic API tests (servers/api).
+allowBuilds:
+  esbuild: true
+  mongodb-memory-server: true

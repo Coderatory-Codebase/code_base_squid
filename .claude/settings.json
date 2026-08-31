@@ -16,7 +16,17 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(echo \"commit_exit=$?\")",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(pnpm rebuild *)",
+      "Bash(pnpm --filter @nut-shyll/api run typecheck)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 5 https://fastdl.mongodb.org)",
+      "Bash(pnpm --filter @nut-shyll/web run build)",
+      "Bash(pnpm --filter @nut-shyll/web run typecheck)",
+      "Bash(node -e ' *)",
+      "Bash(node --input-type=module -e ' *)"
     ]
   }
 }

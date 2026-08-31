@@ -44,3 +44,11 @@ This is also enforced by Git hooks (`commit-msg`, `pre-commit`,
   or alongside it, verify the actual problem was solved with the
   smallest focused check that proves it (one test, a manual check) — see
   `development-loop.md` → "Verification."
+- **A UI/frontend change is verified by actually running it** — start
+  the relevant dev server and exercise the change (and its obvious edge
+  cases) in a real browser — before it's called done, not only by
+  `pnpm run validate` passing (added M21; this belongs here rather than
+  in any single agent's own configuration, per `ADR-006`'s
+  agent-agnostic-core principle — every agent operating this repository
+  is held to the same expectation). Passing typecheck/build verifies the
+  code compiles, not that the feature works.
