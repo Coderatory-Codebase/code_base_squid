@@ -1,0 +1,308 @@
+---
+id: SPEC-011
+type: spec
+title: Agent repository operating contract
+status: active
+created: 2026-08-31
+related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010]
+---
+
+# SPEC-011: Agent Repository Operating Contract
+
+Operational entry point: `.agent/instructions/agent-operating-contract.md`.
+This spec is the comprehensive, durable definition; that file is the
+shorter agent-facing pointer into it.
+
+## Purpose
+
+M01–M15 built a coherent operating model — architecture, lifecycle, loop,
+capability model, engineering standards, Git governance, backlog/feature
+model — but each piece was documented **in its own file**, discoverable
+only by reading forward from `AGENTS.md`. Nothing tied them into one
+**bootstrap sequence** a fresh agent could follow end-to-end, and a
+cold-start audit (done for this milestone — see "Cold-start verification"
+below) found two real, if small, discoverability gaps. This spec is the
+connective layer: it names the sequence, maps it onto the pieces that
+already exist, and records the gaps found and fixed. It adds no new rule
+that didn't already exist somewhere in M01–M15.
+
+## Core principle
+
+> **The repository is self-describing to an agent that reads it.**
+
+A developer should be able to say "Build authentication" or "Explore how
+we should implement payments" without separately explaining the
+lifecycle, the loop, engineering standards, technology-skill loading,
+backlog discovery, ambiguity handling, or Git governance — the agent
+discovers all of that from the repository itself. The human provides
+intent; the repository provides operating context.
+
+This is a **documentation/behavioral model**. It is not an agent runtime,
+orchestrator, planner, workflow engine, or discovery script — see
+"Non-goals."
+
+## Bootstrap sequence
+
+```text
+ENTER REPOSITORY
+       ↓
+CLAUDE.md / AGENTS.md (or an equivalent agent-agnostic entry point)
+       ↓
+repository-orientation.md — verify the actual filesystem against
+  README.md / architecture.yaml / PROJECT-STATE.md (don't trust
+  documentation before checking the tree)
+       ↓
+UNDERSTAND the request (development-lifecycle.md)
+       ↓
+identify existing coverage — does a SPEC/ADR/backlog item already
+  address this? (backlog-and-feature-development.md -> "check whether
+  it already exists")
+       ↓
+ANALYZE through relevant lenses; identify technologies involved
+  (SPEC-010 -> "Analysis lenses"; SPEC-008 -> "Technology skill model")
+       ↓
+ambiguity material? -> yes -> human / RFC / SPEC (SPEC-010 ->
+  "Ambiguity handling", "RFC/SPEC escalation")
+       ↓
+DEFINE SCOPE — needed now vs. discovered (SPEC-010 -> central principle)
+       ↓
+PLAN proportionally (development-lifecycle.md -> "Proportionality")
+       ↓
+IMPLEMENT — development-loop.md's reasoning inside this stage
+       ↓
+VALIDATE (validation.md, tooling/)
+       ↓
+REVIEW (development-lifecycle.md -> "Review dimensions")
+       ↓
+RECORD durable knowledge (development-lifecycle.md -> "Recording")
+       ↓
+UPDATE BACKLOG — discovered/deferred work (SPEC-010 -> "Backlog updates
+  after a feature")
+       ↓
+Git governance throughout (branch, commits, validation, PR — SPEC-009)
+```
+
+Every step already exists in M01–M15. This diagram is the map, not new
+territory — each line names the file that's actually authoritative for
+it.
+
+## Layered discovery
+
+Load only the layer the task needs — this restates
+`AGENTS.md` → "Progressive disclosure" as an explicit layer list, not a
+second, competing model:
+
+```text
+1. Entry point         CLAUDE.md / AGENTS.md
+2. Operating model      .agent/README.md, .project/README.md,
+                          PROJECT-STATE.md
+3. Applicable rules      .agent/instructions/*  (read the directory
+                          listing — filenames are self-descriptive;
+                          don't read every file for every task)
+4. Applicable workflow   .agent/workflows/*
+5. Applicable skills     .agent/skills/*  (including any technology
+                          skill relevant to the task — SPEC-008)
+6. Project knowledge     relevant SPEC / ADR / PLAN / BACKLOG item
+7. Implementation        source code, tests, tooling
+```
+
+Don't indiscriminately load every instruction/workflow/skill/SPEC/ADR —
+the same proportionality principle `development-lifecycle.md` already
+applies to artifacts applies here to _reading_.
+
+## Instruction precedence
+
+**Already defined — not reinvented here.** `SPEC-008` →
+"Guidance precedence" already establishes: hard safety/security
+constraints → explicit project architecture (`architecture.yaml`) →
+explicit project decisions/specs (ADRs/SPECs) → project-specific
+engineering standards → technology-specific guidance → library/framework
+docs → current authoritative external docs → general engineering
+principles → agent judgment. That hierarchy governs this repository in
+full; M16 adds nothing to it beyond restating the one rule most relevant
+to bootstrapping:
+
+> An agent's preference must never silently override an explicit
+> repository constraint or a recorded architectural decision.
+
+When two authoritative sources genuinely conflict: identify the conflict,
+determine whether one supersedes the other (`ARTIFACT-TYPES.md` →
+lifecycle states), and if that's unclear, surface it for human
+clarification (`SPEC-010` → "Ambiguity handling") — never guess, never
+silently pick one, never rewrite either source to make the conflict
+disappear.
+
+## Historical decisions are not silently rewritten
+
+An agent encountering an existing ADR/SPEC distinguishes current,
+historical, superseded, and deferred — the states `ARTIFACT-TYPES.md`
+already defines. A genuine architectural disagreement follows the
+existing artifact lifecycle (a new/updated ADR or SPEC, `related:` back
+to what it changes) — it never edits a `superseded`/historical artifact's
+body to make the current implementation look cleaner (`ADR-007`/`ADR-008`
+are the concrete precedent: `ADR-007` was kept intact and marked
+superseded, not rewritten, when `ADR-008` corrected it).
+
+## Discovering a better approach mid-implementation
+
+Distinguish a **local implementation correction** (fix it now, it's
+within the current feature's scope) from an **architectural change**
+(surface it; determine whether an RFC/ADR/SPEC is warranted per
+`SPEC-010` → "RFC escalation"/"SPEC escalation"; get human direction when
+material per `SPEC-010` → "Human feedback points"). Never silently
+rewrite architecture while implementing an unrelated feature — that's the
+same scope-control rule `development-lifecycle.md` and `SPEC-010` already
+state, applied to the specific case of "I think the existing approach is
+wrong."
+
+## Behavior when an instruction is missing
+
+Absence of a documented rule is not permission to invent a repository-wide
+one. In order: check existing conventions → check relevant SPECs/ADRs →
+check applicable technology-skill guidance → apply engineering judgment
+(`SPEC-008`) → record a durable decision only if the situation actually
+warrants one → ask the human when the decision is material
+(`SPEC-010` → "Human feedback points"). A gap is not, by itself, justification
+for a new framework/abstraction.
+
+## Exploration and analysis requests
+
+A request to explore, investigate, or "figure out" something is not an
+implicit authorization to implement what's found:
+
+```text
+"Explore how we should implement payments."
+    ↓
+discover -> inspect -> understand -> identify constraints -> report findings
+```
+
+Code changes require a request that actually authorizes implementation.
+This is `SPEC-010`'s scope-control principle applied at the very first
+step — before a feature is even defined, not only once it is.
+
+## Definition of ready (assembled, not new)
+
+Before implementation begins, the agent should be able to answer — using
+`development-lifecycle.md`'s UNDERSTAND/PLAN stages and `SPEC-010`'s
+feature-planning elements, not a new artifact:
+
+```text
+What are we building, and why?
+What is the smallest coherent feature (SPEC-010 -> "Feature slicing")?
+What is explicitly in scope vs. out of scope (SPEC-010 -> "'Needed now'
+  vs. discovered")?
+What constraints/architecture apply (architecture.yaml, relevant ADRs)?
+What technology guidance applies, if any (SPEC-008)?
+What uncertainty remains, and does it require human clarification
+  (SPEC-010 -> "Ambiguity handling")?
+What should be recorded as backlog work rather than built now?
+```
+
+No new artifact is required to answer these for a small feature — they're
+part of the working process, same as `development-lifecycle.md` already
+allows.
+
+## Definition of complete (assembled, not new)
+
+`development-lifecycle.md` → "Implementation complete vs. work complete"
+is already the authoritative definition. As a practical checklist:
+
+```text
+[ ] requested behavior is implemented
+[ ] existing architecture boundaries remain intact (boundaries.md)
+[ ] relevant engineering standards were applied (SPEC-008)
+[ ] relevant technology guidance was considered, where applicable
+[ ] unnecessary abstractions were not introduced
+[ ] appropriate tests exist where warranted — not manufactured for a checklist
+[ ] pnpm run validate + format:check pass (validation.md)
+[ ] security implications were considered where relevant
+[ ] discovered future work was captured when meaningful, not silently dropped
+[ ] no unrelated scope was silently implemented (SPEC-010 -> scope control)
+[ ] durable project documentation was updated only if durable knowledge changed
+[ ] Git governance was followed (git-governance.md)
+```
+
+Do not require a documentation update when nothing durable changed, and
+do not manufacture a test or artifact merely to check a box.
+
+## Cold-start verification
+
+This milestone traced a fresh agent's path against `CLAUDE.md`/`AGENTS.md`
+as they stood, and against these scenarios:
+
+| Scenario                                                                         | Expected                                                                                                                             | Result                                                                                                                                |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| A — "Add user authentication"                                                    | Feature-driven flow, engineering standards, tech skills, architecture, plan, implement, validate, backlog discovery, Git governance. | All reachable from `AGENTS.md`'s existing pointers; no gap.                                                                           |
+| B — "Explore how we should implement payments"                                   | Explore/analyze/report, no implementation.                                                                                           | Now explicit (see "Exploration and analysis requests" above) — previously implicit via `SPEC-010` only.                               |
+| C — Discovery mid-implementation ("notifications should support SMS eventually") | Not current scope; captured; current feature continues.                                                                              | Fully covered by `SPEC-010` → "Discovery capture"/"Scope control"; no gap.                                                            |
+| D — Existing ADR conflicts with agent's preferred approach                       | Respect it; don't silently override.                                                                                                 | Fully covered by `change-management.md` + this spec's "Historical decisions are not silently rewritten"; no gap.                      |
+| E — New technology, no skill yet                                                 | Identify the gap, apply engineering principles, decide whether a skill is warranted, don't invent a framework.                       | Fully covered by `SPEC-008` → "Technology skill model"; this spec's "Behavior when an instruction is missing" generalizes it; no gap. |
+| F — Git completion after implementation                                          | Validate, branch convention, commit convention, PR per policy, tooling remains the enforcement mechanism.                            | Fully covered by `SPEC-009`/`git-governance.md`; no gap.                                                                              |
+
+**Two real gaps found and fixed** (not five, not invented for
+completeness):
+
+1. `CLAUDE.md` restated a stale, drifting copy of `AGENTS.md`'s
+   "before modifying anything" checklist — including a leftover
+   conditional ("once quality gates exist (M02)") from before M02 itself
+   shipped, which M11's cleanup pass missed because it only checked
+   `AGENTS.md`'s copy, not `CLAUDE.md`'s. Fixed by trimming `CLAUDE.md`
+   to a genuine adapter (a short read-order pointer), removing the
+   duplicate checklist entirely — the exact failure mode "Instructions,
+   workflows, skills..." and this spec's own drafting both warn against
+   (duplicated instructions eventually diverge).
+2. `.agent/instructions/repository-orientation.md` — despite being
+   named and scoped (`applies_to: all-tasks`) for exactly this
+   bootstrapping purpose — was not linked from `CLAUDE.md`, `AGENTS.md`,
+   or `.agent/README.md`. Reachable only via directory listing. Fixed by
+   adding one pointer from `AGENTS.md`.
+
+Everything else already connected correctly; this spec did not invent
+work to justify a longer report.
+
+## Enforcement vs. behavior
+
+Unchanged from `SPEC-009` → "Enforcement model": instructions describe
+agent _behavior_; Git hooks give local, bypassable feedback; CI is the
+authoritative automated gate; repository settings enforce integration
+rules where configured; human review provides final judgment. This spec
+does not claim an instruction makes anything technically impossible —
+only that the repository is self-describing for an agent that reads and
+follows it.
+
+## Multiple technologies
+
+`SPEC-008` → "Technology skill model" already covers this: identify every
+technology actually involved, load only the matching skill(s), apply
+repository architecture above technology convention. Not every
+technology needs identical architectural treatment; the repository's
+general principles outrank any single technology's "best practice"
+(`SPEC-008` → "Guidance precedence"). No change needed here.
+
+## Future application structure
+
+`architecture.yaml` → `boundaries` already governs `apps/`, `servers/`,
+`agents/`, `packages/`, `infra/`, `docs/`, `tooling/`, `.agent/`,
+`.project/`. This spec adds nothing to that model and creates no
+application directory to demonstrate it — the first real feature does
+that, not this milestone.
+
+## Non-goals
+
+No agent runtime, orchestrator, planner engine, workflow engine,
+instruction engine, skill engine, discovery engine, or configuration
+registry (`agent-runtime/`, `agent-core/`, `agent-manager/`,
+`agent-orchestrator/`, `agent-planner/`, `agent-bootstrap/` as a
+directory, `agent-registry/`, `workflow-engine/`, `instruction-engine/`,
+`skill-engine/` — none of these are created). No duplicated operating
+manual — every section above points to an existing authoritative file
+rather than restating its content. No new lifecycle, development loop,
+engineering-standards content, Git-governance content, or backlog
+mechanism — M06/M08/M09/M12/M13/M14/M15 remain authoritative, unchanged.
+No application created merely to demonstrate the bootstrap sequence. No
+MCP, orchestration, or runtime of any kind.
+
+## Status
+
+`active` — governs how a fresh agent bootstraps into this repository's
+operating model, from M16 onward.

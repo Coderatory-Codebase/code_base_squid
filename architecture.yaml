@@ -175,14 +175,14 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M16 has no milestone entry below and none is added speculatively —
+  # M17 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content); M15 was added beyond that sketch because a real gap
-  # existed, not to keep a numbered roadmap alive. The next milestone is
-  # defined only once a concrete need identifies one — see
+  # content); M15 and M16 were both added beyond that sketch because real
+  # gaps existed, not to keep a numbered roadmap alive. The next
+  # milestone is defined only once a concrete need identifies one — see
   # .project/state/PROJECT-STATE.md -> "Roadmap position".
-  current_phase: M16
+  current_phase: M17
   milestones:
     - id: M01
       name: Foundation Definition
@@ -365,6 +365,29 @@ roadmap:
           .agent/instructions/backlog-and-feature-development.md,
           .project/ARTIFACT-TYPES.md (BACKLOG type added),
           .project/specs/SPEC-007 (discovered-from relationship added),
+        ]
+    - id: M16
+      name: Agent Repository Operating Contract
+      status: complete
+      # Not a rename — added because a real gap existed: the M01-M15
+      # operating model was correct but not connected into one
+      # discoverable bootstrap sequence. A cold-start audit against 6
+      # scenarios found exactly 2 real discoverability gaps (CLAUDE.md's
+      # stale, drifting duplicate of AGENTS.md's checklist; a repository-
+      # orientation.md instruction unreferenced from the entry chain) —
+      # both fixed. SPEC-011 maps the bootstrap sequence onto M01-M15's
+      # existing pieces by pointer, confirming SPEC-008's guidance-
+      # precedence hierarchy already covers what this milestone asked to
+      # define. No new lifecycle/loop/standards/Git-governance/backlog
+      # content — those remain authoritative and unchanged. No new ADR
+      # (same category as M11: consolidation, not a new decision). See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-011,
+          .agent/instructions/agent-operating-contract.md,
+          CLAUDE.md (trimmed — stale duplicate checklist removed),
+          AGENTS.md (repository-orientation.md pointer added),
         ]
 
 non_goals_current_phase:

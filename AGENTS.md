@@ -9,7 +9,12 @@ Codex, or otherwise). It is agent-agnostic; agent-specific adapters (e.g.
 An agent-native software foundation, not an application. See `README.md`
 for the philosophy and `architecture.yaml` for the machine-readable
 boundaries, dependency rules, and current milestone. Read both before making
-structural changes.
+structural changes. Step-by-step orientation checklist (including
+verifying the actual filesystem matches these documents before trusting
+them): `.agent/instructions/repository-orientation.md`. How the pieces
+below connect into one bootstrap sequence, start-to-finish — read this
+first if you have no context from a prior session:
+`.agent/instructions/agent-operating-contract.md`.
 
 ## Working method
 

@@ -10,12 +10,12 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M15 are complete.** M16+ is **not yet defined** — the original M01
-roadmap sketch ended at M14; M15 was the first genuinely new milestone
-added beyond it (not a rename of a placeholder), and nothing beyond it
-has a sketch entry either. See "Roadmap position" below before assuming
-any specific next milestone. See `../../architecture.yaml` → `roadmap`
-for the full milestone list.
+**M01–M16 are complete.** M17+ is **not yet defined** — the original M01
+roadmap sketch ended at M14; M15 and M16 are both genuinely new
+milestones added beyond it (not renames of a placeholder), and nothing
+beyond M16 has a sketch entry either. See "Roadmap position" below before
+assuming any specific next milestone. See `../../architecture.yaml` →
+`roadmap` for the full milestone list.
 
 **Roadmap numbering history:** the original M01 roadmap sketch labeled
 M10 "MCP Integration" and M11 "Core Packages." The actual M10 work
@@ -36,17 +36,18 @@ point.
 The original M01 roadmap sketch (Foundation Definition ... Production
 Hardening) was fully consumed at M14 — M12/M13/M14 were each renamed from
 their original placeholder label to their actual delivered content, same
-pattern as M10/M11 before them. **M15 is the first milestone with no
-original placeholder to rename at all** — it was added because a real
-gap existed (no work-management model for actual feature implementation),
-not because a roadmap slot needed filling. Nothing beyond M15 has a
-sketch entry. The next real milestone is decided when a concrete need
-identifies one, not by roadmap position
+pattern as M10/M11 before them. **M15 and M16 both have no original
+placeholder to rename** — each was added because a real gap existed (M15:
+no work-management model for actual feature implementation; M16: the
+existing operating model wasn't connected into one discoverable bootstrap
+sequence), not because a roadmap slot needed filling. Nothing beyond M16
+has a sketch entry. The next real milestone is decided when a concrete
+need identifies one, not by roadmap position
 (`.agent/instructions/implementation.md`) — most plausibly a first real
 `apps/`/`servers/`/`agents/`/`packages/` feature now that the foundation
 (architecture, agent operating model, project memory, engineering
-judgment, Git/quality enforcement, and now a backlog/feature-development
-model) is coherent and load-bearing.
+judgment, Git/quality enforcement, backlog/feature-development model, and
+now a connected agent bootstrap sequence) is coherent and load-bearing.
 
 ## Technology profile
 
@@ -219,10 +220,33 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   **No backlog item created** — nothing has been implemented yet to
   discover or defer work from; the model governs the first real feature
   once one exists.
+- **M16 — Agent Repository Operating Contract** — `complete`. Not a
+  rename — added because a real gap existed: M01–M15's operating model
+  was correct but not connected into one discoverable bootstrap sequence.
+  A cold-start audit (tracing a fresh agent's path through
+  `CLAUDE.md`/`AGENTS.md` against 6 concrete scenarios — new
+  feature, exploration-only, mid-implementation discovery, conflicting
+  ADR, new technology with no skill, Git completion) found **2 real
+  gaps, not invented ones**: `CLAUDE.md` carried a stale, drifting
+  duplicate of `AGENTS.md`'s checklist (including a leftover "once
+  quality gates exist (M02)" conditional M11's cleanup pass missed
+  because it only checked `AGENTS.md`'s copy) — fixed by trimming
+  `CLAUDE.md` to a genuine short adapter with no restated checklist; and
+  `.agent/instructions/repository-orientation.md` was unreferenced from
+  the entry chain despite being purpose-built for it — fixed with one
+  pointer from `AGENTS.md`. New: `SPEC-011` (the bootstrap sequence,
+  mapped onto M01–M15's existing pieces by pointer, not restatement;
+  confirms `SPEC-008`'s existing guidance-precedence hierarchy already
+  covers what this milestone asked to define, so none was reinvented)
+  and `.agent/instructions/agent-operating-contract.md` (the concise
+  entry point, read first in a fresh session). **No new ADR** — this
+  milestone connects and corrects discoverability, it makes no new
+  architectural decision (same precedent as M11). **No new
+  runtime/orchestrator/engine of any kind.**
 
 ## Currently active
 
-Nothing beyond finishing M15's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M16's own validation pass. No open TASK/RFC/
 RESEARCH/BACKLOG artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
@@ -240,7 +264,10 @@ change. M14 introduced no new ADR — it added a dated addendum to
 rather than making a new one. M15 introduced one new ADR (`ADR-010` —
 single, repository-native backlog): a genuine decision between real
 alternatives (one backlog vs. several; repository-native vs. external),
-not a restatement of an existing one.
+not a restatement of an existing one. M16 introduced no new ADR — same
+category as M11: a consolidation/connection pass with corrections to
+existing documentation, not a boundary/dependency-direction/ownership
+decision.
 
 ## Blocked
 
