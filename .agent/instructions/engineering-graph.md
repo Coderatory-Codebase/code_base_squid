@@ -16,12 +16,13 @@ any typed relationship; this file is the quick-reference entry point.
 ## The one thing to remember
 
 `related:` (existing, M04) is an **untyped cross-reference** — "see
-also." A **graph edge** is one of eleven specific, defined meanings
+also." A **graph edge** is one of twelve specific, defined meanings
 (`depends-on`, `blocks`, `implements`, `satisfies`, `consumes`,
-`produces`, `owned-by`, `derived-from`, `supersedes`, `validated-by`,
-`affects` — full definitions in `SPEC-007`). Never assume a `related:`
-entry or a markdown link is an edge; promoting one to a typed edge is a
-deliberate choice, not something inferred automatically.
+`produces`, `owned-by`, `derived-from`, `discovered-from` (added M15 —
+provenance for backlog items, see `SPEC-010`), `supersedes`,
+`validated-by`, `affects` — full definitions in `SPEC-007`). Never assume
+a `related:` entry or a markdown link is an edge; promoting one to a
+typed edge is a deliberate choice, not something inferred automatically.
 
 ## Relationship to M06 and M08
 

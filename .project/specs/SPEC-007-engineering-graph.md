@@ -4,7 +4,8 @@ type: spec
 title: Engineering graph — model and semantics
 status: active
 created: 2026-08-30
-related: [SPEC-004, SPEC-005, SPEC-006, ADR-001, ADR-002, ADR-008]
+updated: 2026-08-30
+related: [SPEC-004, SPEC-005, SPEC-006, SPEC-010, ADR-001, ADR-002, ADR-008]
 ---
 
 # SPEC-007: Engineering Graph
@@ -30,19 +31,22 @@ visualization, or automatic inference. See "Explicit non-goals" below.
 ## Node concept
 
 A **node** is an identifiable engineering entity. Node types in this
-model: `PROJECT`, `SPEC`, `PLAN`, `TASK`, `ADR`, `REVIEW`, `APPLICATION`,
-`SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`, `WORKFLOW`, `SKILL`, `TEST`.
+model: `PROJECT`, `SPEC`, `PLAN`, `TASK`, `ADR`, `REVIEW`, `BACKLOG`,
+`APPLICATION`, `SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`, `WORKFLOW`,
+`SKILL`, `TEST`.
 
 Not every type has instances yet. Today's real nodes: every `SPEC-*`,
 `PLAN-*`, `ADR-*`, `REVIEW-*` (identity = their existing artifact ID);
 every workflow under `.agent/workflows/*` and skill under
 `.agent/skills/*` (identity = their existing `name:` frontmatter field —
 these already function as stable node identities without any new
-mechanism). `APPLICATION`, `SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`,
-`TEST` have zero instances — no `apps/`, `servers/`, `agents/`, or
-`packages/` content exists yet (`architecture.yaml` → `boundaries`). The
-type list is extensible; a type gains an instance when the repository
-actually creates one, not preemptively.
+mechanism). `BACKLOG` (added M15, `ARTIFACT-TYPES.md` → `BACKLOG-<NNN>`),
+`APPLICATION`, `SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`, `TEST` have zero
+instances — no `apps/`, `servers/`, `agents/`, or `packages/` content
+exists yet (`architecture.yaml` → `boundaries`), and no backlog item has
+been captured yet (nothing has been implemented to discover or defer work
+from). The type list is extensible; a type gains an instance when the
+repository actually creates one, not preemptively.
 
 ## Relationship concept
 
@@ -68,19 +72,27 @@ Every edge uses exactly one of these. No relationship type is added
 without this list being updated first (this file, then
 `engineering-graph.md`).
 
-| Type           | Meaning                                                                                     | Example                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `depends-on`   | X cannot correctly build/operate without Y (structural reliance).                           | `SERVER-A --depends-on--> PACKAGE-X`                                                               |
-| `blocks`       | X must complete before Y can start (sequencing, not structural reliance).                   | `TASK-001 --blocks--> TASK-002`                                                                    |
-| `implements`   | X is the concrete realization of a requirement Y states.                                    | `PLAN-001 --implements--> SPEC-001`                                                                |
-| `satisfies`    | X (a completed unit) fulfills a specific stated criterion of Y.                             | `TASK-002 --satisfies--> "acceptance criterion in PLAN-001"`                                       |
-| `consumes`     | X uses Y as an input at an interface boundary.                                              | `SERVER-A --consumes--> CONTRACT-001`                                                              |
-| `produces`     | X emits/creates Y.                                                                          | `TASK-002 --produces--> "the change it implements"`                                                |
-| `owned-by`     | X's owning boundary is Y (locality — `ADR-002`, `ADR-008`).                                 | `CONTRACT-001 --owned-by--> SERVER-A`                                                              |
-| `derived-from` | X was created by extracting/adapting Y.                                                     | `PACKAGE-001 --derived-from--> "code that lived in SERVER-A"`                                      |
-| `supersedes`   | X replaces Y as the authoritative version.                                                  | `ADR-008 --supersedes--> ADR-007`                                                                  |
-| `validated-by` | X's correctness is checked by Y.                                                            | `CONTRACT-001 --validated-by--> TEST-*`, or `TASK-* --validated-by--> "validate-repository skill"` |
-| `affects`      | A change to X may require reconsidering/revalidating Y (impact, not structural dependency). | `PACKAGE-X --affects--> SERVER-A`, `PACKAGE-X --affects--> APPLICATION-B`                          |
+| Type              | Meaning                                                                                     | Example                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `depends-on`      | X cannot correctly build/operate without Y (structural reliance).                           | `SERVER-A --depends-on--> PACKAGE-X`                                                               |
+| `blocks`          | X must complete before Y can start (sequencing, not structural reliance).                   | `TASK-001 --blocks--> TASK-002`                                                                    |
+| `implements`      | X is the concrete realization of a requirement Y states.                                    | `PLAN-001 --implements--> SPEC-001`                                                                |
+| `satisfies`       | X (a completed unit) fulfills a specific stated criterion of Y.                             | `TASK-002 --satisfies--> "acceptance criterion in PLAN-001"`                                       |
+| `consumes`        | X uses Y as an input at an interface boundary.                                              | `SERVER-A --consumes--> CONTRACT-001`                                                              |
+| `produces`        | X emits/creates Y.                                                                          | `TASK-002 --produces--> "the change it implements"`                                                |
+| `owned-by`        | X's owning boundary is Y (locality — `ADR-002`, `ADR-008`).                                 | `CONTRACT-001 --owned-by--> SERVER-A`                                                              |
+| `derived-from`    | X was created by extracting/adapting Y.                                                     | `PACKAGE-001 --derived-from--> "code that lived in SERVER-A"`                                      |
+| `discovered-from` | X (typically a `BACKLOG` item) was identified while doing Y — provenance, not extraction.   | `BACKLOG-004 --discovered-from--> "the Checkout feature"` (added M15, `SPEC-010`)                  |
+| `supersedes`      | X replaces Y as the authoritative version.                                                  | `ADR-008 --supersedes--> ADR-007`                                                                  |
+| `validated-by`    | X's correctness is checked by Y.                                                            | `CONTRACT-001 --validated-by--> TEST-*`, or `TASK-* --validated-by--> "validate-repository skill"` |
+| `affects`         | A change to X may require reconsidering/revalidating Y (impact, not structural dependency). | `PACKAGE-X --affects--> SERVER-A`, `PACKAGE-X --affects--> APPLICATION-B`                          |
+
+`discovered-from` differs from `derived-from`: the latter is about code
+being extracted/adapted from a source; the former is about a piece of
+_work_ (almost always a `BACKLOG` item) being _identified_ while doing
+something else — no code is extracted, only provenance is recorded, so a
+future agent understands why the item exists (`SPEC-010` → "Discovery
+capture").
 
 ## References vs. edges
 

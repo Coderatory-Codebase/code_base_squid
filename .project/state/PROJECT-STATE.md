@@ -10,11 +10,12 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M14 are complete.** M15+ is **not yet defined** — the original M01
-roadmap sketch ended at M14, so unlike earlier "not yet defined" gaps
-there is no further placeholder entry in `architecture.yaml` at all. See
-"Roadmap position" below before assuming any specific next milestone.
-See `../../architecture.yaml` → `roadmap` for the full milestone list.
+**M01–M15 are complete.** M16+ is **not yet defined** — the original M01
+roadmap sketch ended at M14; M15 was the first genuinely new milestone
+added beyond it (not a rename of a placeholder), and nothing beyond it
+has a sketch entry either. See "Roadmap position" below before assuming
+any specific next milestone. See `../../architecture.yaml` → `roadmap`
+for the full milestone list.
 
 **Roadmap numbering history:** the original M01 roadmap sketch labeled
 M10 "MCP Integration" and M11 "Core Packages." The actual M10 work
@@ -33,17 +34,19 @@ point.
 ## Roadmap position
 
 The original M01 roadmap sketch (Foundation Definition ... Production
-Hardening) is now fully consumed — M12/M13/M14 were each renamed from
-their original placeholder label to their actual delivered content
-(`Engineering Standards...`, `Repository Structure...`, `Autonomous
-Repository Engineering Tooling`, respectively) as they were reached, same
-pattern as M10/M11 before them. Nothing beyond M14 has a sketch entry.
-The next real milestone is decided when a concrete need identifies one,
-not by roadmap position (`.agent/instructions/implementation.md`) — most
-plausibly a first real `apps/`/`servers/`/`agents/`/`packages/`
-implementation now that the foundation (architecture, agent operating
-model, project memory, engineering judgment, and Git/quality enforcement)
-is coherent and load-bearing.
+Hardening) was fully consumed at M14 — M12/M13/M14 were each renamed from
+their original placeholder label to their actual delivered content, same
+pattern as M10/M11 before them. **M15 is the first milestone with no
+original placeholder to rename at all** — it was added because a real
+gap existed (no work-management model for actual feature implementation),
+not because a roadmap slot needed filling. Nothing beyond M15 has a
+sketch entry. The next real milestone is decided when a concrete need
+identifies one, not by roadmap position
+(`.agent/instructions/implementation.md`) — most plausibly a first real
+`apps/`/`servers/`/`agents/`/`packages/` feature now that the foundation
+(architecture, agent operating model, project memory, engineering
+judgment, Git/quality enforcement, and now a backlog/feature-development
+model) is coherent and load-bearing.
 
 ## Technology profile
 
@@ -54,6 +57,15 @@ libraries, databases, infrastructure, testing, build, and deployment
 tooling once a deployable actually adopts one — see
 `.project/specs/SPEC-008-engineering-standards-design-and-practice.md` →
 "Project technology profile." Not inventing entries here ahead of that.
+
+## Backlog
+
+No backlog item exists yet — `.project/backlog/` is not created (nothing
+has been implemented so far to discover or defer work from; see
+`ARTIFACT-TYPES.md` → "Why no ... `backlog/` yet"). Model and conventions:
+`.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
+The first real backlog item is created the first time a feature's
+analysis surfaces genuine out-of-scope work.
 
 ## Completed
 
@@ -190,15 +202,32 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   hook-management evaluation is an addendum to the existing `ADR-009`,
   reaffirming rather than changing its decision. **No technology-specific
   tooling added** — none is in use yet (see "Technology profile" above).
+- **M15 — Agent Backlog & Feature-Driven Development Model** —
+  `complete`. Not a rename of a placeholder — the first milestone added
+  because a real gap existed. Establishes: a single, repository-native
+  backlog (`BACKLOG-<NNN>`, `.project/backlog/` — not yet created, zero
+  items exist) distinguished by a `kind:` field rather than split into
+  separate product/project/agent/technical backlogs (`ADR-010`); the
+  backlog/feature/task/RFC/SPEC boundary; feature-driven development as
+  the preferred implementation approach, integrated with — not
+  replacing — the existing lifecycle/loop (`SPEC-004`/`SPEC-006`); the
+  central rule that discovery does not automatically become
+  implementation scope; ambiguity/RFC/SPEC escalation criteria; and one
+  new engineering-graph relationship type, `discovered-from`
+  (`SPEC-007`, `engineering-graph.md`), for backlog-item provenance.
+  `.project/specs/SPEC-010`, `.agent/instructions/backlog-and-feature-development.md`.
+  **No backlog item created** — nothing has been implemented yet to
+  discover or defer work from; the model governs the first real feature
+  once one exists.
 
 ## Currently active
 
-Nothing beyond finishing M14's own validation pass. No open TASK/RFC/
-RESEARCH artifacts exist (none have been needed yet).
+Nothing beyond finishing M15's own validation pass. No open TASK/RFC/
+RESEARCH/BACKLOG artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
-`ADR-001`–`ADR-006`, `ADR-008`, `ADR-009` — `accepted`, in force.
+`ADR-001`–`ADR-006`, `ADR-008`, `ADR-009`, `ADR-010` — `accepted`, in force.
 `ADR-007` — `superseded` by `ADR-008` (kept as historical record).
 M06 through M12 introduced no new ADR — all are process/instruction
 content (or, for M11, corrections to existing documentation) operating
@@ -208,7 +237,10 @@ direction, or ownership decision. M13 introduced one new ADR (`ADR-009`
 `change-management.md`, not a boundary/dependency-direction/ownership
 change. M14 introduced no new ADR — it added a dated addendum to
 `ADR-009` (the hook-management evaluation), reaffirming that decision
-rather than making a new one.
+rather than making a new one. M15 introduced one new ADR (`ADR-010` —
+single, repository-native backlog): a genuine decision between real
+alternatives (one backlog vs. several; repository-native vs. external),
+not a restatement of an existing one.
 
 ## Blocked
 

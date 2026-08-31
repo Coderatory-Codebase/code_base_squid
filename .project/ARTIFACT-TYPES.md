@@ -41,17 +41,18 @@ renumbered.
 
 ## Artifact types
 
-| Type     | Prefix      | Purpose                                                          | Instantiated now?   |
-| -------- | ----------- | ---------------------------------------------------------------- | ------------------- |
-| Spec     | `SPEC-`     | What should exist / what behavior is required.                   | Yes — `specs/`      |
-| Plan     | `PLAN-`     | How we intend to accomplish a spec.                              | Yes — `plans/`      |
-| Task     | `TASK-`     | A bounded, executable unit of work.                              | Not yet — see below |
-| ADR      | `ADR-`      | An architectural decision: context, decision, consequences.      | Yes — `decisions/`  |
-| RFC      | `RFC-`      | A proposal under discussion, upstream of an ADR.                 | Not yet             |
-| Research | `RESEARCH-` | Findings from an investigation, informing a spec/ADR.            | Not yet             |
-| Review   | `REVIEW-`   | An evaluation of a completed change against its plan/spec.       | Yes — `reviews/`    |
-| Report   | `REPORT-`   | A point-in-time status summary for an audience beyond the agent. | Not yet             |
-| Handoff  | `HANDOFF-`  | Session-to-session continuity notes.                             | Not yet             |
+| Type         | Prefix      | Purpose                                                                                                                                              | Instantiated now?   |
+| ------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Spec         | `SPEC-`     | What should exist / what behavior is required.                                                                                                       | Yes — `specs/`      |
+| Plan         | `PLAN-`     | How we intend to accomplish a spec.                                                                                                                  | Yes — `plans/`      |
+| Task         | `TASK-`     | A bounded, executable unit of work.                                                                                                                  | Not yet — see below |
+| ADR          | `ADR-`      | An architectural decision: context, decision, consequences.                                                                                          | Yes — `decisions/`  |
+| RFC          | `RFC-`      | A proposal under discussion, upstream of an ADR.                                                                                                     | Not yet             |
+| Research     | `RESEARCH-` | Findings from an investigation, informing a spec/ADR.                                                                                                | Not yet             |
+| Review       | `REVIEW-`   | An evaluation of a completed change against its plan/spec.                                                                                           | Yes — `reviews/`    |
+| Report       | `REPORT-`   | A point-in-time status summary for an audience beyond the agent.                                                                                     | Not yet             |
+| Handoff      | `HANDOFF-`  | Session-to-session continuity notes.                                                                                                                 | Not yet             |
+| Backlog item | `BACKLOG-`  | Work that is known, proposed, discovered, deferred, or awaiting clarification — not necessarily current implementation scope. Added M15, `SPEC-010`. | Not yet — see below |
 
 A type not yet instantiated still has its convention defined here so the
 first real instance follows it, rather than inventing a shape ad hoc.
@@ -88,7 +89,26 @@ produces no HANDOFF. Writing one for every finished task would be
 ephemeral status noise treated as durable memory, which
 `ARTIFACT-TYPES.md` → "Durable vs. ephemeral memory" already rules out.
 
-### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
+### When to create a BACKLOG item
+
+Full model: `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
+A BACKLOG item is created when analysis or implementation surfaces work
+that is real and worth remembering but is **not** part of the current
+feature's scope: a discovered requirement, a deliberately deferred piece
+of scope, a follow-up technical improvement, a risk, or a known
+dependency on work that doesn't exist yet. Minimum content: what was
+found, why it matters, where/what triggered it (`discovered-from` —
+`engineering-graph.md`), whether it's required for anything currently
+in progress, and any known dependency. Not every passing thought earns
+one — a vague "improve this later" with no context is noise, not a
+backlog item (`SPEC-010` → "Discovery capture").
+
+**Discovery does not automatically become implementation scope** — the
+central rule `SPEC-010` establishes. Capturing something as a BACKLOG
+item is explicitly _not_ committing to build it; see
+`.agent/instructions/backlog-and-feature-development.md`.
+
+### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/`, `backlog/` yet
 
 None currently hold real content:
 
@@ -101,6 +121,11 @@ None currently hold real content:
   these are ephemeral by default and are not being persisted yet.
 - **`changes/`** — see Relationships below: a "change" is the actual
   diff/commit, not a separate filesystem artifact type.
+- **`backlog/`** — no real backlog item exists yet: nothing has been
+  implemented so far to discover or defer work from (this repository's
+  work to date has been the foundation itself, not a feature with
+  surrounding possibilities). Create the directory the first time a real
+  item does — see "When to create a BACKLOG item" above.
 
 ## Lifecycle
 
@@ -122,6 +147,10 @@ all of them.
 - **RFC**: `draft → discussion → accepted → rejected`. An accepted RFC
   typically produces an ADR.
 - **HANDOFF**: ephemeral by default (see below) — no formal lifecycle.
+- **BACKLOG** (when first used): `captured → clarifying → ready →
+selected → in-progress → review → completed`, with `deferred`,
+  `blocked`, `rejected`, and `superseded` as alternatives reachable from
+  any non-terminal state. Full definitions: `SPEC-010` → "Work states."
 
 ## Relationships
 

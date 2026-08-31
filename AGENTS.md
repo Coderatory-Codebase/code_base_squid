@@ -25,7 +25,11 @@ The observe/hypothesize/verify reasoning used while implementing or
 debugging: `.agent/instructions/development-loop.md`. How to design and
 implement well inside these stages — principles, reuse, decoupling,
 technology-specific guidance via skills, precedence when guidance
-conflicts: `.agent/instructions/engineering-standards.md`.
+conflicts: `.agent/instructions/engineering-standards.md`. How to receive
+a piece of implementation work and decide what belongs in its scope
+versus the backlog — feature slicing, discovery capture, deferred work,
+ambiguity/RFC/SPEC escalation:
+`.agent/instructions/backlog-and-feature-development.md`.
 
 Before modifying anything:
 

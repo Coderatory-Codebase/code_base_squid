@@ -18,10 +18,13 @@ side of the boundary.
 ```
 
 `tasks/`, `rfc/`, `research/`, `reports/`, `handoffs/`, `context/`,
-`sessions/`, and `changes/` are defined as artifact types/concepts in
-`ARTIFACT-TYPES.md` but don't exist as directories yet — nothing real
-belongs in them yet. Create one the first time it does; don't pre-create
-empty structure.
+`sessions/`, `changes/`, and `backlog/` are defined as artifact
+types/concepts in `ARTIFACT-TYPES.md` but don't exist as directories yet —
+nothing real belongs in them yet. Create one the first time it does;
+don't pre-create empty structure. `backlog/` (`BACKLOG-<NNN>`, added M15)
+holds work that's known, discovered, or deferred but not necessarily in
+current scope — see
+`specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
 
 ## Where to start
 

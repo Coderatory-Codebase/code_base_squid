@@ -64,6 +64,7 @@ boundaries:
         reports,
         sessions,
         state,
+        backlog,
       ]
     created: [state, decisions, specs, plans, reviews]
     # Remaining entries in `contains` are defined conventions
@@ -174,13 +175,14 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M15 has no milestone entry below and none is added speculatively —
+  # M16 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content). The next milestone is defined only once a concrete need
-  # identifies one — see .project/state/PROJECT-STATE.md -> "Roadmap
-  # position".
-  current_phase: M15
+  # content); M15 was added beyond that sketch because a real gap
+  # existed, not to keep a numbered roadmap alive. The next milestone is
+  # defined only once a concrete need identifies one — see
+  # .project/state/PROJECT-STATE.md -> "Roadmap position".
+  current_phase: M16
   milestones:
     - id: M01
       name: Foundation Definition
@@ -339,6 +341,30 @@ roadmap:
           tooling/README.md (new),
           tooling/git-hooks/pre-commit (staged-scoped),
           .github/workflows/ci.yaml (simplified to reuse `pnpm run validate`),
+        ]
+    - id: M15
+      name: Agent Backlog & Feature-Driven Development Model
+      status: complete
+      # Not a rename — the original M01 roadmap sketch ended at M14; this
+      # is the first milestone added because a real gap existed (no
+      # work-management model for actual feature implementation).
+      # Establishes a single, repository-native backlog (BACKLOG-<NNN>,
+      # not multiple audience-specific backlogs — see ADR-010), the
+      # backlog/feature/task/RFC/SPEC boundary, feature-driven
+      # development integrated with the existing lifecycle/loop (not a
+      # replacement), and the central rule that discovery does not
+      # automatically become implementation scope. Adds one engineering-
+      # graph relationship type (discovered-from, SPEC-007) for backlog
+      # provenance. No backlog item created — nothing has been
+      # implemented yet to discover or defer work from. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-010,
+          .project/decisions/ADR-010,
+          .agent/instructions/backlog-and-feature-development.md,
+          .project/ARTIFACT-TYPES.md (BACKLOG type added),
+          .project/specs/SPEC-007 (discovered-from relationship added),
         ]
 
 non_goals_current_phase:
