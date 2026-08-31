@@ -175,14 +175,14 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M17 has no milestone entry below and none is added speculatively —
+  # M18 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content); M15 and M16 were both added beyond that sketch because real
-  # gaps existed, not to keep a numbered roadmap alive. The next
+  # content); M15, M16, and M17 were all added beyond that sketch because
+  # real gaps existed, not to keep a numbered roadmap alive. The next
   # milestone is defined only once a concrete need identifies one — see
   # .project/state/PROJECT-STATE.md -> "Roadmap position".
-  current_phase: M17
+  current_phase: M18
   milestones:
     - id: M01
       name: Foundation Definition
@@ -388,6 +388,29 @@ roadmap:
           .agent/instructions/agent-operating-contract.md,
           CLAUDE.md (trimmed — stale duplicate checklist removed),
           AGENTS.md (repository-orientation.md pointer added),
+        ]
+    - id: M17
+      name: Technology Ecosystem & Guidance Governance
+      status: complete
+      # Not a rename — added because a real gap existed: M12 established
+      # what a technology skill is and how it's structured, but not who
+      # decides one should exist or when creating one needs a human.
+      # Establishes the ecosystem-vs-project boundary (a project's
+      # implementation choice never silently becomes ecosystem policy),
+      # explicit skill creation/non-creation criteria, a hard human-
+      # approval requirement for durable skill creation/change, and
+      # conflict handling — all built on SPEC-008's existing precedence
+      # and technology-skill model, not a competing hierarchy. No
+      # technology skill created — zero technologies are adopted. No new
+      # ADR (same category as M07/M12/M16). See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-012,
+          .agent/instructions/technology-guidance.md,
+          .agent/skills/README.md (SPEC-012 pointer added),
+          AGENTS.md (technology-guidance.md pointer added),
+          .project/state/PROJECT-STATE.md (Technology profile clarified),
         ]
 
 non_goals_current_phase:

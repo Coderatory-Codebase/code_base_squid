@@ -34,7 +34,11 @@ conflicts: `.agent/instructions/engineering-standards.md`. How to receive
 a piece of implementation work and decide what belongs in its scope
 versus the backlog — feature slicing, discovery capture, deferred work,
 ambiguity/RFC/SPEC escalation:
-`.agent/instructions/backlog-and-feature-development.md`.
+`.agent/instructions/backlog-and-feature-development.md`. What to do when
+a task involves a specific technology — whether a skill already exists,
+when creating/changing one is warranted, and why that always needs human
+approval before it becomes shared guidance:
+`.agent/instructions/technology-guidance.md`.
 
 Before modifying anything:
 

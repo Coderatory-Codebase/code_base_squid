@@ -138,6 +138,14 @@ the same "Creating a new skill" bar below. A nested `technologies/`
 grouping under `.agent/skills/` is optional, decided then based on how
 many technology skills actually exist — not reserved in advance.
 
+Creating or materially changing a technology skill is a durable
+operating-ecosystem change, not a routine implementation decision — it
+needs explicit human approval, and most technologies don't clear the bar
+for having one at all. Full governance (creation criteria, when _not_ to
+create one, ecosystem-vs-project boundary, approval process, conflict
+handling, maintenance): `../../.project/specs/SPEC-012-technology-ecosystem-and-guidance-governance.md`,
+agent-facing entry point: `../instructions/technology-guidance.md`.
+
 ## Creating a new skill
 
 Only when a genuine, already-demonstrated, reusable capability exists —

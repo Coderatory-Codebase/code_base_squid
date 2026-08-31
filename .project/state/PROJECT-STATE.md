@@ -10,10 +10,10 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M16 are complete.** M17+ is **not yet defined** — the original M01
-roadmap sketch ended at M14; M15 and M16 are both genuinely new
+**M01–M17 are complete.** M18+ is **not yet defined** — the original M01
+roadmap sketch ended at M14; M15, M16, and M17 are all genuinely new
 milestones added beyond it (not renames of a placeholder), and nothing
-beyond M16 has a sketch entry either. See "Roadmap position" below before
+beyond M17 has a sketch entry either. See "Roadmap position" below before
 assuming any specific next milestone. See `../../architecture.yaml` →
 `roadmap` for the full milestone list.
 
@@ -36,18 +36,20 @@ point.
 The original M01 roadmap sketch (Foundation Definition ... Production
 Hardening) was fully consumed at M14 — M12/M13/M14 were each renamed from
 their original placeholder label to their actual delivered content, same
-pattern as M10/M11 before them. **M15 and M16 both have no original
+pattern as M10/M11 before them. **M15, M16, and M17 all have no original
 placeholder to rename** — each was added because a real gap existed (M15:
 no work-management model for actual feature implementation; M16: the
 existing operating model wasn't connected into one discoverable bootstrap
-sequence), not because a roadmap slot needed filling. Nothing beyond M16
-has a sketch entry. The next real milestone is decided when a concrete
-need identifies one, not by roadmap position
+sequence; M17: no governance existed for how technology-specific skills
+should enter the ecosystem), not because a roadmap slot needed filling.
+Nothing beyond M17 has a sketch entry. The next real milestone is decided
+when a concrete need identifies one, not by roadmap position
 (`.agent/instructions/implementation.md`) — most plausibly a first real
 `apps/`/`servers/`/`agents/`/`packages/` feature now that the foundation
 (architecture, agent operating model, project memory, engineering
-judgment, Git/quality enforcement, backlog/feature-development model, and
-now a connected agent bootstrap sequence) is coherent and load-bearing.
+judgment, Git/quality enforcement, backlog/feature-development model,
+connected agent bootstrap sequence, and now technology-guidance
+governance) is coherent and load-bearing.
 
 ## Technology profile
 
@@ -58,6 +60,16 @@ libraries, databases, infrastructure, testing, build, and deployment
 tooling once a deployable actually adopts one — see
 `.project/specs/SPEC-008-engineering-standards-design-and-practice.md` →
 "Project technology profile." Not inventing entries here ahead of that.
+
+**Distinct from technology skills** (`.agent/skills/`): this section
+records what this project has actually _adopted_ — a fact about current
+repository state. A technology skill records reusable _ecosystem_
+guidance that could apply to any project using that technology. Adopting
+something here doesn't automatically produce a skill, and a skill
+existing wouldn't mean it's adopted here — see
+`.project/specs/SPEC-012-technology-ecosystem-and-guidance-governance.md`
+→ "Relationship to the project technology profile." As of M17, both
+remain empty.
 
 ## Backlog
 
@@ -243,10 +255,31 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   milestone connects and corrects discoverability, it makes no new
   architectural decision (same precedent as M11). **No new
   runtime/orchestrator/engine of any kind.**
+- **M17 — Technology Ecosystem & Guidance Governance** — `complete`. Not
+  a rename — added because a real gap existed: M12 established that
+  technology skills exist and how they're structured, but not who
+  decides one should exist or when creating one needs a human. This
+  milestone answers exactly those questions and nothing else: the
+  ecosystem-vs-project boundary (a project's implementation choice never
+  silently becomes ecosystem policy); explicit skill creation criteria
+  and non-criteria (skill proliferation is a real cost, not a formality
+  to wave through); a hard human-approval requirement before any durable
+  technology skill is created or materially changed (routine
+  implementation autonomy is unaffected — only _shared, durable_
+  guidance changes need a human); conflict handling (project decision >
+  skill > skill vs. stale-skill); and version-sensitivity/authoritative-
+  source/maintenance principles, several of which `SPEC-008` already
+  covered and are pointed to rather than restated. `.project/specs/SPEC-012`,
+  `.agent/instructions/technology-guidance.md`. **No technology skill
+  created** — zero technologies are adopted (see "Technology profile"
+  above, now clarified as distinct from what a skill represents). **No
+  new ADR** — same category as M07/M12/M16: process/instruction content
+  built on already-decided architecture, not a new boundary/dependency-
+  direction/ownership decision.
 
 ## Currently active
 
-Nothing beyond finishing M16's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M17's own validation pass. No open TASK/RFC/
 RESEARCH/BACKLOG artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
@@ -264,10 +297,10 @@ change. M14 introduced no new ADR — it added a dated addendum to
 rather than making a new one. M15 introduced one new ADR (`ADR-010` —
 single, repository-native backlog): a genuine decision between real
 alternatives (one backlog vs. several; repository-native vs. external),
-not a restatement of an existing one. M16 introduced no new ADR — same
-category as M11: a consolidation/connection pass with corrections to
-existing documentation, not a boundary/dependency-direction/ownership
-decision.
+not a restatement of an existing one. M16 and M17 introduced no new ADR —
+both are process/instruction/governance content built on already-decided
+architecture (same category as M07/M11/M12), not a boundary/dependency-
+direction/ownership decision.
 
 ## Blocked
 
