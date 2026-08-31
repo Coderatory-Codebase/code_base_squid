@@ -41,18 +41,19 @@ renumbered.
 
 ## Artifact types
 
-| Type         | Prefix      | Purpose                                                                                                                                              | Instantiated now?   |
-| ------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| Spec         | `SPEC-`     | What should exist / what behavior is required.                                                                                                       | Yes — `specs/`      |
-| Plan         | `PLAN-`     | How we intend to accomplish a spec.                                                                                                                  | Yes — `plans/`      |
-| Task         | `TASK-`     | A bounded, executable unit of work.                                                                                                                  | Not yet — see below |
-| ADR          | `ADR-`      | An architectural decision: context, decision, consequences.                                                                                          | Yes — `decisions/`  |
-| RFC          | `RFC-`      | A proposal under discussion, upstream of an ADR.                                                                                                     | Not yet             |
-| Research     | `RESEARCH-` | Findings from an investigation, informing a spec/ADR.                                                                                                | Not yet             |
-| Review       | `REVIEW-`   | An evaluation of a completed change against its plan/spec.                                                                                           | Yes — `reviews/`    |
-| Report       | `REPORT-`   | A point-in-time status summary for an audience beyond the agent.                                                                                     | Not yet             |
-| Handoff      | `HANDOFF-`  | Session-to-session continuity notes.                                                                                                                 | Not yet             |
-| Backlog item | `BACKLOG-`  | Work that is known, proposed, discovered, deferred, or awaiting clarification — not necessarily current implementation scope. Added M15, `SPEC-010`. | Not yet — see below |
+| Type         | Prefix      | Purpose                                                                                                                                                                                                                                                                                                 | Instantiated now?   |
+| ------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Spec         | `SPEC-`     | What should exist / what behavior is required.                                                                                                                                                                                                                                                          | Yes — `specs/`      |
+| Plan         | `PLAN-`     | How we intend to accomplish a spec.                                                                                                                                                                                                                                                                     | Yes — `plans/`      |
+| Task         | `TASK-`     | A bounded, executable unit of work.                                                                                                                                                                                                                                                                     | Not yet — see below |
+| ADR          | `ADR-`      | An architectural decision: context, decision, consequences.                                                                                                                                                                                                                                             | Yes — `decisions/`  |
+| RFC          | `RFC-`      | A proposal under discussion, upstream of an ADR.                                                                                                                                                                                                                                                        | Not yet             |
+| Research     | `RESEARCH-` | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                   | Not yet             |
+| Review       | `REVIEW-`   | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                              | Yes — `reviews/`    |
+| Report       | `REPORT-`   | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                        | Not yet             |
+| Handoff      | `HANDOFF-`  | Session-to-session continuity notes.                                                                                                                                                                                                                                                                    | Not yet             |
+| Backlog item | `BACKLOG-`  | Work that is known, proposed, discovered, deferred, or awaiting clarification — not necessarily current implementation scope. Added M15, `SPEC-010`.                                                                                                                                                    | Not yet — see below |
+| Trace        | `TRACE-`    | The record connecting the execution journey of one coherent unit of meaningful agent work — request, applicable guidance, decisions, scope, implementation, validation, review, Git outcome. Added M18, `SPEC-013`. Never a replacement for TASK/PLAN/RFC/SPEC/ADR/REVIEW/BACKLOG — it references them. | Yes — `traces/`     |
 
 A type not yet instantiated still has its convention defined here so the
 first real instance follows it, rather than inventing a shape ad hoc.
@@ -92,8 +93,10 @@ ephemeral status noise treated as durable memory, which
 ### When to create a BACKLOG item
 
 Full model: `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
-A BACKLOG item is created when analysis or implementation surfaces work
-that is real and worth remembering but is **not** part of the current
+A BACKLOG item is created when any stage of the work — not only analysis
+or implementation (`SPEC-010` → "Discovery capture", cross-cutting since
+M20) — surfaces work that is real and worth remembering but is **not**
+part of the current
 feature's scope: a discovered requirement, a deliberately deferred piece
 of scope, a follow-up technical improvement, a risk, or a known
 dependency on work that doesn't exist yet. Minimum content: what was
@@ -107,6 +110,21 @@ backlog item (`SPEC-010` → "Discovery capture").
 central rule `SPEC-010` establishes. Capturing something as a BACKLOG
 item is explicitly _not_ committing to build it; see
 `.agent/instructions/backlog-and-feature-development.md`.
+
+### When to create a TRACE
+
+Full model: `.project/specs/SPEC-013-agent-execution-traceability.md`.
+Proportional to the work — a question or a small clarification needs
+none; a small implementation change gets a lightweight one; a feature,
+architecture change, technology adoption, or ecosystem-guidance change
+gets a full one. A TRACE records what was requested, what applied, what
+was decided (and by whom), what was implemented/discovered/deferred,
+what validation and review occurred, and the Git/final outcome — by
+reference to the artifacts that actually hold that knowledge (ADR/SPEC/
+BACKLOG/PLAN/REVIEW/Git), never by duplicating them. Written
+progressively as checkpoints actually complete (added M19), not
+reconstructed from memory after the work is done — `SPEC-013` →
+"Checkpoint structure", "Progressive recording".
 
 ### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/`, `backlog/` yet
 
@@ -151,6 +169,12 @@ all of them.
 selected → in-progress → review → completed`, with `deferred`,
   `blocked`, `rejected`, and `superseded` as alternatives reachable from
   any non-terminal state. Full definitions: `SPEC-010` → "Work states."
+- **TRACE**: `created → oriented → understood → analyzed → scoped →
+planned → implementing → validating → reviewing → recording →
+completed` — a checklist of what a trace _may_ pass through, not a
+  mandatory sequence every trace completes (`SPEC-013` → "Trace
+  lifecycle"); side states `blocked`, `deferred`, `cancelled`, `rejected`
+  reachable from any non-terminal state.
 
 ## Relationships
 

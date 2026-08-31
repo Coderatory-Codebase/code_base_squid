@@ -65,8 +65,9 @@ boundaries:
         sessions,
         state,
         backlog,
+        traces,
       ]
-    created: [state, decisions, specs, plans, reviews]
+    created: [state, decisions, specs, plans, reviews, traces]
     # Remaining entries in `contains` are defined conventions
     # (.project/ARTIFACT-TYPES.md) without a directory yet — created on
     # first real need, not pre-scaffolded. See .project/README.md.
@@ -175,14 +176,14 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M18 has no milestone entry below and none is added speculatively —
+  # M21 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content); M15, M16, and M17 were all added beyond that sketch because
+  # content); M15 through M20 were all added beyond that sketch because
   # real gaps existed, not to keep a numbered roadmap alive. The next
   # milestone is defined only once a concrete need identifies one — see
   # .project/state/PROJECT-STATE.md -> "Roadmap position".
-  current_phase: M18
+  current_phase: M21
   milestones:
     - id: M01
       name: Foundation Definition
@@ -411,6 +412,80 @@ roadmap:
           .agent/skills/README.md (SPEC-012 pointer added),
           AGENTS.md (technology-guidance.md pointer added),
           .project/state/PROJECT-STATE.md (Technology profile clarified),
+        ]
+    - id: M18
+      name: Agent Execution Traceability & Repository Operating Record
+      status: complete
+      # Not a rename — added because a real gap existed: nothing recorded
+      # how a piece of agent work was actually done in a durable,
+      # auditable way. Establishes TRACE-<NNN> as observational, never
+      # authoritative — references ADR/SPEC/BACKLOG/PLAN/REVIEW/Git
+      # rather than duplicating them; proportional to work significance;
+      # decision provenance (human/agent/existing-rule/external-guidance/
+      # validation-result); integrity rules against claiming what didn't
+      # happen. One real trace created (TRACE-001, this milestone's own
+      # execution) — not left hypothetical, not retroactively applied to
+      # M01-M17. One new ADR (ADR-011 — repository-native persistence,
+      # same category as ADR-010). See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-013,
+          .project/decisions/ADR-011,
+          .agent/instructions/traceability.md,
+          .project/traces/TRACE-001,
+          .project/ARTIFACT-TYPES.md (TRACE type added),
+          .project/specs/SPEC-007 (TRACE node type added),
+        ]
+    - id: M19
+      name: Operating-Model Execution Traceability
+      status: complete
+      # Not a rename — added because a real gap existed: M18's TRACE-001
+      # showed a trace could name which lifecycle stage something
+      # happened in, but not how that stage actually executed (what was
+      # decided and why, what failed and how it was fixed) — and that
+      # TRACE-001 itself was assembled mostly near the end rather than
+      # written alongside the work. Adds a checkpoint field structure
+      # (SPEC-013 -> "Checkpoint structure") and a hard progressive-
+      # recording rule to the same TRACE artifact type — no second trace
+      # type, no new lifecycle. TRACE-002 (this milestone's own
+      # execution) is the first trace actually written checkpoint by
+      # checkpoint, including a real, honestly-recorded format:check
+      # failure and fix. No new ADR — an addition to SPEC-013's existing
+      # model, not a new decision between real alternatives (same
+      # category as M14's ADR-009 addendum). See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-013 (checkpoint structure + progressive recording added),
+          .agent/instructions/traceability.md (updated),
+          .project/ARTIFACT-TYPES.md (TRACE entry clarified),
+          .project/traces/TRACE-002,
+        ]
+    - id: M20
+      name: Continuous Discovery & Backlog Capture
+      status: complete
+      # Not a rename — added because a real gap existed: a trace could
+      # say a discovery happened without it producing an explicit
+      # outcome, so meaningful future work could be noticed and then
+      # forgotten. Amends SPEC-010 (already the backlog/feature-
+      # development authority) with a five-outcome "Discovery decision
+      # model" (needed now / decision required / future work / already
+      # tracked / rejected), an expanded meaningful-discovery threshold,
+      # explicit cross-cutting framing (discovery happens at any stage,
+      # not only ANALYZE/IMPLEMENT), and a completion-time reconciliation
+      # check — no new SPEC, no new backlog taxonomy, no new lifecycle
+      # stage, no ADR. TRACE-003 (this milestone's own execution)
+      # honestly records zero genuine discoveries rather than
+      # manufacturing a BACKLOG item to demonstrate the mechanism. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-010 (discovery decision model + threshold + reconciliation added),
+          .agent/instructions/backlog-and-feature-development.md (updated),
+          .agent/instructions/development-lifecycle.md (completion-criteria bullet added),
+          .project/specs/SPEC-013 (cross-reference added),
+          .project/ARTIFACT-TYPES.md (BACKLOG entry clarified),
+          .project/traces/TRACE-003,
         ]
 
 non_goals_current_phase:

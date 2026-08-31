@@ -14,7 +14,10 @@ side of the boundary.
 ├── decisions/            ADRs — accepted architectural decisions.
 ├── specs/                 What should exist / what behavior is required.
 ├── plans/                  How a spec is/was accomplished.
-└── reviews/                 Point-in-time evaluations of completed work.
+├── reviews/                 Point-in-time evaluations of completed work.
+└── traces/                   The record connecting a unit of agent work's
+                                execution journey — request, decisions,
+                                scope, implementation, validation, outcome.
 ```
 
 `tasks/`, `rfc/`, `research/`, `reports/`, `handoffs/`, `context/`,
@@ -25,6 +28,11 @@ don't pre-create empty structure. `backlog/` (`BACKLOG-<NNN>`, added M15)
 holds work that's known, discovered, or deferred but not necessarily in
 current scope — see
 `specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
+`traces/` (`TRACE-<NNN>`, added M18) is **observational, not
+authoritative** — it references decisions/artifacts, it never replaces
+the ADR/SPEC/BACKLOG/PLAN/REVIEW that actually holds one; proportional to
+work significance, not created for every interaction — see
+`specs/SPEC-013-agent-execution-traceability.md`.
 
 ## Where to start
 

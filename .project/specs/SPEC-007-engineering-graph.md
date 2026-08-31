@@ -4,8 +4,8 @@ type: spec
 title: Engineering graph — model and semantics
 status: active
 created: 2026-08-30
-updated: 2026-08-30
-related: [SPEC-004, SPEC-005, SPEC-006, SPEC-010, ADR-001, ADR-002, ADR-008]
+updated: 2026-08-31
+related: [SPEC-004, SPEC-005, SPEC-006, SPEC-010, SPEC-013, ADR-001, ADR-002, ADR-008]
 ---
 
 # SPEC-007: Engineering Graph
@@ -32,19 +32,21 @@ visualization, or automatic inference. See "Explicit non-goals" below.
 
 A **node** is an identifiable engineering entity. Node types in this
 model: `PROJECT`, `SPEC`, `PLAN`, `TASK`, `ADR`, `REVIEW`, `BACKLOG`,
-`APPLICATION`, `SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`, `WORKFLOW`,
-`SKILL`, `TEST`.
+`TRACE`, `APPLICATION`, `SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`,
+`WORKFLOW`, `SKILL`, `TEST`.
 
 Not every type has instances yet. Today's real nodes: every `SPEC-*`,
-`PLAN-*`, `ADR-*`, `REVIEW-*` (identity = their existing artifact ID);
-every workflow under `.agent/workflows/*` and skill under
+`PLAN-*`, `ADR-*`, `REVIEW-*`, `TRACE-*` (identity = their existing
+artifact ID); every workflow under `.agent/workflows/*` and skill under
 `.agent/skills/*` (identity = their existing `name:` frontmatter field —
 these already function as stable node identities without any new
-mechanism). `BACKLOG` (added M15, `ARTIFACT-TYPES.md` → `BACKLOG-<NNN>`),
-`APPLICATION`, `SERVER`, `AGENT`, `PACKAGE`, `CONTRACT`, `TEST` have zero
-instances — no `apps/`, `servers/`, `agents/`, or `packages/` content
-exists yet (`architecture.yaml` → `boundaries`), and no backlog item has
-been captured yet (nothing has been implemented to discover or defer work
+mechanism). `TRACE` (added M18, `ARTIFACT-TYPES.md` → `TRACE-<NNN>`) has
+exactly one instance (`TRACE-001`) as of M18. `BACKLOG` (added M15,
+`ARTIFACT-TYPES.md` → `BACKLOG-<NNN>`), `APPLICATION`, `SERVER`, `AGENT`,
+`PACKAGE`, `CONTRACT`, `TEST` have zero instances — no `apps/`,
+`servers/`, `agents/`, or `packages/` content exists yet
+(`architecture.yaml` → `boundaries`), and no backlog item has been
+captured yet (nothing has been implemented to discover or defer work
 from). The type list is extensible; a type gains an instance when the
 repository actually creates one, not preemptively.
 

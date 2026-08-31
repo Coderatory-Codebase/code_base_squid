@@ -72,6 +72,10 @@ the plan. This is necessary, never sufficient.
 - durable information recorded, if any was produced
 - scope matches what Understand/Plan identified — nothing unrelated
   folded in, nothing required left out
+- meaningful discoveries reconciled — each resolved to implemented /
+  already tracked / backlogged / escalated / rejected, none silently
+  dropped (`backlog-and-feature-development.md`, `SPEC-010` →
+  "Discovery decision model")
 
 Do not report a task as done because it compiles or because tests
 weren't reached yet.

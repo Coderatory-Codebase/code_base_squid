@@ -38,7 +38,10 @@ ambiguity/RFC/SPEC escalation:
 a task involves a specific technology — whether a skill already exists,
 when creating/changing one is warranted, and why that always needs human
 approval before it becomes shared guidance:
-`.agent/instructions/technology-guidance.md`.
+`.agent/instructions/technology-guidance.md`. When meaningful work
+deserves a durable record of what was requested, decided, implemented,
+and validated — proportional to the work, most interactions need none:
+`.agent/instructions/traceability.md`.
 
 Before modifying anything:
 

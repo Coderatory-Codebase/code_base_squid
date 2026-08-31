@@ -51,6 +51,31 @@ _dependency_ of the current feature, don't auto-implement it either;
 determine whether it already exists, deserves its own feature, or should
 reshape the current one (`SPEC-010` → "Dependency handling").
 
+## Discovery is continuous, not an end-of-task memory exercise
+
+Capture a meaningful discovery **when it happens** — orienting,
+understanding, planning, implementing, validating, reviewing, any stage
+— not by trying to remember everything at the end (`SPEC-010` →
+"Discovery capture"). Every meaningful discovery resolves to exactly one
+of five outcomes, immediately, not left hanging (`SPEC-010` → "Discovery
+decision model"):
+
+```text
+needed now       → implement it as part of the current feature
+decision required → resolve from existing rule/artifact, or escalate
+                     (ambiguity handling / RFC / SPEC below) — never
+                     backlog a decision to avoid asking
+future work        → a captured BACKLOG-<NNN> item
+already tracked     → reference/update the existing item — search first,
+                       don't duplicate
+rejected             → record the decision proportionally, don't just
+                       drop it
+```
+
+Not every observation is a discovery worth this — a genuinely trivial,
+non-actionable thought isn't a backlog item (`SPEC-010` → "Meaningful
+discovery threshold").
+
 ## Planning and implementing
 
 Produce a plan proportional to the feature's size
@@ -73,7 +98,9 @@ than guessing past it.
 
 Evaluate: what was completed, what remains, what was discovered, what
 was deferred, what decisions were made, what follow-up work is now known
-(`SPEC-010` → "Backlog updates after a feature"). Update
+(`SPEC-010` → "Backlog updates after a feature"). Reconcile every
+meaningful discovery against the five outcomes above — none silently
+dropped (`SPEC-010` → "Discovery/backlog reconciliation"). Update
 `.project/backlog/` accordingly — new `captured` items for real
 discoveries, status changes for anything selected/in-progress. Then
 finish `development-lifecycle.md`'s RECORD/COMPLETE as usual.

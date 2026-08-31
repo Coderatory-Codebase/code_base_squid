@@ -4,7 +4,8 @@ type: spec
 title: Agent backlog & feature-driven development model
 status: active
 created: 2026-08-30
-related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, ADR-010, ARTIFACT-TYPES.md]
+updated: 2026-08-31
+related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013, ADR-010, ARTIFACT-TYPES.md]
 ---
 
 # SPEC-010: Agent Backlog & Feature-Driven Development Model
@@ -12,6 +13,16 @@ related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, ADR-010, ARTIFACT-TY
 Operational entry point: `.agent/instructions/backlog-and-feature-development.md`.
 This spec is the comprehensive, durable definition; that file is the
 shorter agent-facing pointer into it.
+
+> **M20 amendment**: discovery was already handled by this spec, but
+> scattered across sections and framed around analysis/implementation
+> and end-of-feature. M20 made it explicitly cross-cutting (any stage,
+> captured as it happens — "Discovery capture" below), unified it into
+> one five-outcome decision procedure ("Discovery decision model"),
+> expanded the meaningful/non-meaningful threshold, and added an
+> explicit completion check ("Discovery/backlog reconciliation"). No new
+> backlog mechanism, taxonomy, or lifecycle stage — everything routes to
+> a section this spec already had.
 
 ## Purpose
 
@@ -203,9 +214,15 @@ feature quietly makes room for.
 
 ## Discovery capture
 
-While analyzing or implementing, the agent will find more than the
-feature needs. Capture what's worth remembering as a `captured` backlog
-item, recording enough that it isn't meaningless later:
+Discovery is **cross-cutting** — it can happen at any point in the
+lifecycle, not only during ANALYZE or IMPLEMENT (added M20): orienting,
+understanding the request, planning, validating, reviewing, even while
+recording. Capture what's worth remembering as soon as it surfaces,
+rather than relying on memory to reassemble it at the end of the work —
+the same "write it as you go" discipline `SPEC-013` (M19) already
+requires of a trace, applied here to backlog capture. Capture what's
+worth remembering as a `captured` backlog item, recording enough that it
+isn't meaningless later:
 
 ```text
 What was discovered?
@@ -223,6 +240,68 @@ observation with no real future value isn't a backlog item, it's a
 comment in the change itself or nothing at all. The failure mode this
 guards against either direction: silently losing a real discovery, or
 inflating the backlog with unexplained `TODO: improve this` noise.
+
+## Discovery decision model (added M20)
+
+Every meaningful discovery resolves to exactly one of five outcomes —
+**it must not simply be mentioned and then disappear**:
+
+```text
+Discovery
+    ↓
+┌─────────────────────┬──────────────────────────────────────────────┐
+│ Needed now           │ Required for the current feature's           │
+│                       │ correctness/security/completeness/          │
+│                       │ maintainability → implement it now.         │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ Decision required     │ Material ambiguity or a consequential       │
+│                       │ choice → existing rule/artifact resolves    │
+│                       │ it, or human/RFC/SPEC escalation            │
+│                       │ ("Ambiguity handling", "RFC escalation",    │
+│                       │ "SPEC escalation" below). Never silently    │
+│                       │ converted into a backlog item to avoid      │
+│                       │ asking.                                     │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ Future work           │ Real value, not required now → a `captured` │
+│                       │ BACKLOG item ("Discovery capture" above).   │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ Already tracked       │ Corresponds to an existing BACKLOG/RFC/     │
+│                       │ SPEC/ADR → reference/update it, never       │
+│                       │ duplicate it (search before creating —      │
+│                       │ same discipline `packages.md`/`contracts.md`│
+│                       │ already apply to reuse decisions).          │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ Rejected              │ Evaluated and intentionally not pursued →   │
+│                       │ record the decision at a weight proportional│
+│                       │ to its significance (a line in the relevant │
+│                       │ artifact for a small one; an ADR only if it │
+│                       │ actually reverses or forecloses an existing │
+│                       │ decision). Not backlog noise.                │
+└─────────────────────┴──────────────────────────────────────────────┘
+```
+
+This doesn't add new mechanisms — every branch routes to a section this
+spec (or `change-management.md`) already defines. It exists so an agent
+has one decision procedure to apply at the moment of discovery, instead
+of reasoning it out fresh (or, worse, defaulting to "mention it and move
+on") every time.
+
+## Meaningful discovery threshold (added M20)
+
+Not every observation is a discovery worth this process. Generally
+meaningful: a concrete enhancement or missing capability, technical
+debt, a known limitation, a security-hardening opportunity, a
+performance/scalability/reliability concern, a testing or observability
+gap, a maintainability or developer-experience improvement, a future
+integration or migration/deprecation need, an unresolved edge case not
+required now. Generally **not** meaningful — don't create backlog
+ceremony for: a passing observation with no actionable outcome, an
+implementation detail already resolved, duplicate known work, a
+speculative idea with no real value, an ordinary implementation choice,
+or every minor refactoring opportunity. Same threshold `SPEC-010`
+already stated in one line ("Not every passing thought earns one" —
+"Discovery capture" above); this section makes it concrete enough to
+apply consistently.
 
 ## Deferred work
 
@@ -557,6 +636,18 @@ follow-up work is now known — then updates the relevant backlog items
 (new `captured` items for real discoveries, status changes for anything
 that was `selected`/`in-progress`). Don't mark a feature "done" and
 silently drop what was learned while building it.
+
+### Discovery/backlog reconciliation (added M20)
+
+The concrete completion check this implies — part of `development-lifecycle.md`'s
+existing REVIEW/RECORD stages, not a new stage: for every meaningful
+discovery made during the work, confirm it resolved to one of "Discovery
+decision model"'s five outcomes — `implemented now`, `already tracked`,
+`added to backlog`, `escalated for decision`, or `explicitly
+rejected/closed`. **No meaningful discovery should be silently dropped**
+— if one can't be placed in any of these, that's itself a sign it wasn't
+actually meaningful (see "Meaningful discovery threshold") or that it
+still needs a decision.
 
 ## Engineering-standards integration
 

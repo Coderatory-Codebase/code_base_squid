@@ -10,10 +10,10 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M17 are complete.** M18+ is **not yet defined** — the original M01
-roadmap sketch ended at M14; M15, M16, and M17 are all genuinely new
+**M01–M20 are complete.** M21+ is **not yet defined** — the original M01
+roadmap sketch ended at M14; M15 through M20 are all genuinely new
 milestones added beyond it (not renames of a placeholder), and nothing
-beyond M17 has a sketch entry either. See "Roadmap position" below before
+beyond M20 has a sketch entry either. See "Roadmap position" below before
 assuming any specific next milestone. See `../../architecture.yaml` →
 `roadmap` for the full milestone list.
 
@@ -36,20 +36,26 @@ point.
 The original M01 roadmap sketch (Foundation Definition ... Production
 Hardening) was fully consumed at M14 — M12/M13/M14 were each renamed from
 their original placeholder label to their actual delivered content, same
-pattern as M10/M11 before them. **M15, M16, and M17 all have no original
+pattern as M10/M11 before them. **M15 through M20 all have no original
 placeholder to rename** — each was added because a real gap existed (M15:
 no work-management model for actual feature implementation; M16: the
 existing operating model wasn't connected into one discoverable bootstrap
 sequence; M17: no governance existed for how technology-specific skills
-should enter the ecosystem), not because a roadmap slot needed filling.
-Nothing beyond M17 has a sketch entry. The next real milestone is decided
-when a concrete need identifies one, not by roadmap position
+should enter the ecosystem; M18: no durable way existed to reconstruct
+what an agent actually did on a piece of work; M19: M18's own first trace
+showed the model recorded outcomes but not how the operating model was
+actually executed step by step; M20: a discovery could be noticed in a
+trace without ever producing an explicit, actionable outcome), not
+because a roadmap slot needed filling. Nothing beyond M20 has a sketch
+entry. The next real milestone is decided when a concrete need
+identifies one, not by roadmap position
 (`.agent/instructions/implementation.md`) — most plausibly a first real
 `apps/`/`servers/`/`agents/`/`packages/` feature now that the foundation
 (architecture, agent operating model, project memory, engineering
 judgment, Git/quality enforcement, backlog/feature-development model,
-connected agent bootstrap sequence, and now technology-guidance
-governance) is coherent and load-bearing.
+connected agent bootstrap sequence, technology-guidance governance,
+progressive execution traceability, and now continuous discovery
+capture) is coherent and load-bearing.
 
 ## Technology profile
 
@@ -79,6 +85,21 @@ has been implemented so far to discover or defer work from; see
 `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
 The first real backlog item is created the first time a feature's
 analysis surfaces genuine out-of-scope work.
+
+## Traces
+
+Three real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+execution, assembled mostly near the end), `TRACE-002` (M19's own
+execution — the first written progressively, checkpoint by checkpoint),
+and `TRACE-003` (M20's own execution — also progressive; honestly
+records zero genuine discoveries rather than manufacturing a backlog
+item). None is a retroactive trace of M01–M17, which predate the model
+and aren't traced.
+Model and conventions:
+`.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
+only — never a substitute for the ADR/SPEC/BACKLOG/PLAN/REVIEW that
+actually holds a decision, and not created for most interactions
+(proportional to work significance).
 
 ## Completed
 
@@ -276,31 +297,101 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
   new ADR** — same category as M07/M12/M16: process/instruction content
   built on already-decided architecture, not a new boundary/dependency-
   direction/ownership decision.
+- **M18 — Agent Execution Traceability & Repository Operating Record** —
+  `complete`. Not a rename — added because a real gap existed: nothing
+  recorded how a piece of agent work was actually done (what was
+  requested, decided, implemented, validated) in a durable, auditable
+  way. Establishes the `TRACE-<NNN>` artifact type — **observational,
+  never authoritative**: it references the ADR/SPEC/BACKLOG/PLAN/REVIEW/
+  Git records that actually hold a decision, never duplicates them;
+  proportional to work significance (most interactions need none);
+  decision provenance distinguishes human/agent/existing-rule/external-
+  guidance/validation-result as the source of every consequential
+  decision; integrity rules forbid claiming validation, approval, or a
+  change that didn't happen. `TRACE` joins `SPEC-007`'s graph node types
+  — no new relationship type was needed, the existing vocabulary already
+  covers "a trace references X." `.project/specs/SPEC-013`,
+  `.agent/instructions/traceability.md`. **One real trace was created,
+  not left hypothetical**: `TRACE-001` records this milestone's own
+  execution — a genuine worked example, not a retroactive trace of
+  M01–M17 (which predate the model and are explicitly not traced). **One
+  new ADR** (`ADR-011` — repository-native trace persistence, same
+  reasoning as `ADR-010`): a genuine decision between real alternatives
+  (repository-native vs. an external telemetry/observability system).
+- **M19 — Operating-Model Execution Traceability** — `complete`. Not a
+  rename — added because M18's own first trace (`TRACE-001`) exposed a
+  real limitation: it recorded _what happened overall_ but not _how_ the
+  lifecycle/loop/governance flows were actually executed step by step.
+  Adds a concrete "Checkpoint structure" (stage/status, actions,
+  observations, constraints, discoveries, decisions + source/status,
+  human input, scope impact, validation, failures/remediation, outcome,
+  references — all optional per checkpoint) and a hard "Progressive
+  recording" rule — a trace is written _while_ the work happens, not
+  reconstructed afterward — to the **same** `TRACE` artifact type;
+  no second trace type, no new lifecycle. `.project/specs/SPEC-013`
+  amended (blockquote + two new sections), `.agent/instructions/traceability.md`
+  updated. **`TRACE-002` is the real proof**: written checkpoint by
+  checkpoint during this milestone's own execution, including an
+  honestly-recorded real `format:check` failure and its fix (not
+  smoothed into a bare "passed"). **No new ADR** — an addition to
+  `SPEC-013`'s existing model, not a new decision between real
+  alternatives (same category as M14's `ADR-009` addendum).
+- **M20 — Continuous Discovery & Backlog Capture** — `complete`. Not a
+  rename — added because a real gap existed: a trace could record that a
+  discovery happened without the discovery ever producing an explicit,
+  actionable outcome — meaningful future work could be noticed and then
+  quietly forgotten. Amends `SPEC-010` (already the backlog/feature
+  authority — no new SPEC): discovery made explicitly cross-cutting
+  (any lifecycle stage, captured as it happens, not only ANALYZE/
+  IMPLEMENT or end-of-feature); a five-outcome "Discovery decision
+  model" (needed now / decision required / future work / already
+  tracked / rejected) unifying pieces that already existed scattered
+  across the spec; an expanded, itemized "Meaningful discovery
+  threshold"; an explicit "Discovery/backlog reconciliation" completion
+  check folded into `development-lifecycle.md`'s existing "Work
+  complete" criteria (one bullet, not a new stage). `SPEC-013` gained one
+  cross-reference (a checkpoint's `discoveries` field should carry the
+  five-outcome resolution). **`TRACE-003` is the real proof** — and,
+  honestly, recorded **zero genuine discoveries** during this milestone's
+  own execution rather than manufacturing a `BACKLOG-<NNN>` to
+  demonstrate the mechanism; `.project/backlog/` remains uncreated. **No
+  new ADR** — same category as M14/M16/M19: an addition to an
+  already-decided model, not a new decision between real alternatives.
 
 ## Currently active
 
-Nothing beyond finishing M17's own validation pass. No open TASK/RFC/
+Nothing beyond finishing M20's own validation pass. No open TASK/RFC/
 RESEARCH/BACKLOG artifacts exist (none have been needed yet).
 
 ## Authoritative decisions
 
-`ADR-001`–`ADR-006`, `ADR-008`, `ADR-009`, `ADR-010` — `accepted`, in force.
-`ADR-007` — `superseded` by `ADR-008` (kept as historical record).
-M06 through M12 introduced no new ADR — all are process/instruction
-content (or, for M11, corrections to existing documentation) operating
-within the existing architecture, not a change to a boundary, dependency
-direction, or ownership decision. M13 introduced one new ADR (`ADR-009`
-— the Git hook enforcement mechanism): a genuine new-tooling decision per
-`change-management.md`, not a boundary/dependency-direction/ownership
-change. M14 introduced no new ADR — it added a dated addendum to
-`ADR-009` (the hook-management evaluation), reaffirming that decision
-rather than making a new one. M15 introduced one new ADR (`ADR-010` —
-single, repository-native backlog): a genuine decision between real
-alternatives (one backlog vs. several; repository-native vs. external),
-not a restatement of an existing one. M16 and M17 introduced no new ADR —
-both are process/instruction/governance content built on already-decided
-architecture (same category as M07/M11/M12), not a boundary/dependency-
-direction/ownership decision.
+`ADR-001`–`ADR-006`, `ADR-008`, `ADR-009`, `ADR-010`, `ADR-011` —
+`accepted`, in force. `ADR-007` — `superseded` by `ADR-008` (kept as
+historical record). M06 through M12 introduced no new ADR — all are
+process/instruction content (or, for M11, corrections to existing
+documentation) operating within the existing architecture, not a change
+to a boundary, dependency direction, or ownership decision. M13
+introduced one new ADR (`ADR-009` — the Git hook enforcement mechanism):
+a genuine new-tooling decision per `change-management.md`, not a
+boundary/dependency-direction/ownership change. M14 introduced no new
+ADR — it added a dated addendum to `ADR-009` (the hook-management
+evaluation), reaffirming that decision rather than making a new one. M15
+introduced one new ADR (`ADR-010` — single, repository-native backlog):
+a genuine decision between real alternatives (one backlog vs. several;
+repository-native vs. external), not a restatement of an existing one.
+M16 and M17 introduced no new ADR — both are process/instruction/
+governance content built on already-decided architecture (same category
+as M07/M11/M12), not a boundary/dependency-direction/ownership decision.
+M18 introduced one new ADR (`ADR-011` — repository-native trace
+persistence): the same category of genuine decision as `ADR-010`,
+between real alternatives (repository-native vs. an external
+telemetry/observability system). M19 introduced no new ADR — same
+category as M14's `ADR-009` addendum: an addition to `SPEC-013`'s
+existing model (a checkpoint structure, a progressive-recording rule),
+not a new decision between real alternatives. M20 introduced no new ADR
+— same category: an addition to `SPEC-010`'s existing model (a
+discovery decision procedure, a completion check), not a new decision
+between real alternatives.
 
 ## Blocked
 
