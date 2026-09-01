@@ -128,8 +128,11 @@ agent selection). Don't add manifests by default or for symmetry.
 ## Non-goals right now
 
 Do not build, even partially: a full agent runtime, an orchestration
-engine, MCP infrastructure, a populated package set, a project generator, a
-graph database, a control panel, business domains, authentication, or a
-working web app. These are later milestones (`architecture.yaml` →
-`roadmap`). Building ahead of the current milestone is a structural error,
-not a shortcut.
+engine, MCP infrastructure, a populated package set beyond what a real
+feature has demonstrated, a project generator, a graph database, or a
+control panel. Business domains and application features are no longer a
+blanket non-goal — the Authentication feature (M22, `apps/test/web` +
+`servers/test/api`) is real, working source; further business-domain work
+follows `architecture.yaml` → `roadmap` and `.project/backlog/BACKLOG.md`
+the same way, not built ahead of an explicit request. Building ahead of
+the current milestone is a structural error, not a shortcut.

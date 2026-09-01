@@ -32,3 +32,11 @@ dependency:
 4. **Is this speculative?** If the directory/file isn't backed by a
    concrete, current need, don't create it. A milestone name in the roadmap
    is not, by itself, a concrete need until that milestone is active.
+5. **Is this a deployable going under `apps/`, `servers/`, or `agents/`?**
+   Those three are project-owned (`ADR-013`, added M23) —
+   `apps/<project>/<app>`, `servers/<project>/<server>`,
+   `agents/<project>/<agent>`, never a deployable directly under the
+   global root. If the project this deployable belongs to isn't obvious,
+   that's a material ambiguity — ask, don't guess a project name
+   (`SPEC-011` → "Human-in-the-loop"). `packages/` and `tooling/` are
+   unaffected — they stay repository-/cross-project-level.

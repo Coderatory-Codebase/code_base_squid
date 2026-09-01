@@ -1,6 +1,12 @@
 # Workspace globs are for genuinely independent, publishable/deployable
-# units — each needs its own package.json to be picked up here. apps/,
-# servers/, and agents/ are expected to eventually hold those.
+# units — each needs its own package.json to be picked up here.
+#
+# apps/, servers/, and agents/ are project-owned boundaries (ADR-013,
+# added M23): a deployable lives at apps/<project>/<app>,
+# servers/<project>/<server>, agents/<project>/<agent> — never directly
+# under the global root — so the two-level glob below is required, not
+# a convenience. tooling/ is repository-level (not project-scoped) and
+# stays one level deep.
 #
 # packages/ is deliberately NOT globbed here: it holds reusable SOURCE
 # capabilities, consumed directly (no independent package.json, build, or
@@ -10,9 +16,9 @@
 # that one package if/when that happens; don't glob the whole directory
 # speculatively.
 packages:
-  - "apps/*"
-  - "servers/*"
-  - "agents/*"
+  - "apps/*/*"
+  - "servers/*/*"
+  - "agents/*/*"
   - "tooling/*"
 
 # Build scripts this repository explicitly allows to run (pnpm no longer

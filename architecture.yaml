@@ -41,6 +41,17 @@ principles:
       Non-trivial architectural decisions are recorded as ADRs in
       .project/decisions/ (see .project/ARTIFACT-TYPES.md for the
       convention). Silent architectural changes are disallowed.
+  - id: project-ownership-boundary
+    statement: >
+      apps/, servers/, and agents/ are project-owned boundaries (ADR-013,
+      added M23): a deployable lives at apps/<project>/<app>,
+      servers/<project>/<server>, agents/<project>/<agent> — never
+      directly under the global root. This repository exists to scaffold
+      future projects (README.md); the global roots must never become a
+      dumping ground where an unrelated second project's deployables sit
+      as flat siblings of the first. packages/ and tooling/ are
+      unaffected — they remain repository-/cross-project-level boundaries
+      (ADR-008), not project-scoped.
 
 boundaries:
   - path: .agent/
@@ -75,29 +86,42 @@ boundaries:
     status: partially-created
 
   - path: apps/
-    purpose: User-facing deployable applications.
+    purpose: >
+      User-facing deployable applications. Project-owned (ADR-013,
+      principles -> project-ownership-boundary): apps/<project>/<app>,
+      never apps/<app> directly.
     examples: [web, admin, mobile]
-    contains: [web]
+    contains: [test]
     status: created
-    # First populated with the Authentication feature (ADR-012): web is
-    # a Next.js/React app, the browser-facing side of the first real
-    # application. Talks to servers/api only through its own /api/**
-    # rewrite proxy, never imports servers/api's source directly.
+    # First populated with the Authentication feature (ADR-012, M22),
+    # corrected to a project-owned path at M23 (ADR-013): apps/test/web
+    # is a Next.js/React app, the browser-facing side of the "test"
+    # project's first application. Talks to servers/test/api only
+    # through its own /api/** rewrite proxy, never imports servers/*
+    # source directly.
 
   - path: servers/
     purpose: >
       Deployable server processes. Business/domain logic owned by a backend
-      lives here, inside the server that owns it (e.g. servers/api/domains/*).
+      lives here, inside the server that owns it (e.g.
+      servers/<project>/api/domains/*). Project-owned (ADR-013,
+      principles -> project-ownership-boundary): servers/<project>/<server>,
+      never servers/<server> directly.
     examples: [api, worker, gateway]
-    contains: [api]
+    contains: [test]
     status: created
-    # First populated with the Authentication feature (ADR-012): api is
-    # the Express/Node/MongoDB (Mongoose) server; owns auth domain logic
-    # and the auth request/response contract (servers/api/src/domains/auth/*).
+    # First populated with the Authentication feature (ADR-012, M22),
+    # corrected to a project-owned path at M23 (ADR-013):
+    # servers/test/api is the "test" project's Express/Node/MongoDB
+    # (Mongoose) server; owns auth domain logic and the auth
+    # request/response contract (servers/test/api/src/domains/auth/*).
 
   - path: agents/
     purpose: >
-      Deployable / independently executable agent applications and runtimes.
+      Deployable / independently executable agent applications and
+      runtimes. Project-owned (ADR-013,
+      principles -> project-ownership-boundary): agents/<project>/<agent>,
+      never agents/<agent> directly.
       Distinct from .agent/, which is the engineering operating system, not
       a runtime.
     status: not-yet-created
@@ -185,15 +209,15 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M23 has no milestone entry below and none is added speculatively —
+  # M24 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content); M15 through M22 were all added beyond that sketch because
+  # content); M15 through M23 were all added beyond that sketch because
   # real gaps existed or real feature work was commissioned, not to keep
   # a numbered roadmap alive. The next milestone is defined only once a
   # concrete need identifies one — see .project/state/PROJECT-STATE.md
   # -> "Roadmap position".
-  current_phase: M23
+  current_phase: M24
   milestones:
     - id: M01
       name: Foundation Definition
@@ -555,26 +579,88 @@ roadmap:
       # through both dev servers. No new ADR beyond ADR-012 itself (the
       # one genuine architecture/technology decision this milestone
       # made). See .project/state/PROJECT-STATE.md.
-      deliverables:
-        [
+      deliverables: [
           apps/web (Next.js app — login/register/dashboard,
           auth-client.ts,
           auth-server.ts),
-          servers/api (Express app — domains/auth/*),
+          servers/test/api (Express app — domains/auth/*),
           .project/decisions/ADR-012,
           .project/plans/PLAN-002,
-          .project/backlog/BACKLOG-001 through BACKLOG-005,
+          .project/backlog/BACKLOG.md (BACKLOG-001 through BACKLOG-005,
+          originally
+          one file per item — corrected to a single table at M23),
           .project/traces/TRACE-005,
+        ]
+      # Paths corrected at M23 (ADR-013): apps/web -> apps/test/web,
+      # servers/api -> servers/test/api. This entry's paths reflect the
+      # corrected structure; ADR-012/PLAN-002/TRACE-005 themselves are
+      # left as an accurate historical record of what M22 actually built
+      # under the boundary model that existed then.
+    - id: M23
+      name: Foundation/Project Separation & Autonomous Feature Execution Model
+      status: complete
+      # Not a rename — added because M22 (the first real feature) exposed
+      # that the operating model, while functionally complete, had no
+      # explicit separation between the reusable repository foundation
+      # and an application/project consuming it. One genuine architectural
+      # decision: apps/, servers/, agents/ become project-owned boundaries
+      # (ADR-013) — apps/<project>/<app>, never apps/<app> directly. M22's
+      # application corrected in place: apps/web -> apps/test/web,
+      # servers/api -> servers/test/api ("test" — the user's own answer
+      # when asked, not a guessed name), pnpm-workspace.yaml globs updated
+      # to match, verified with a full validate pass. Everything else is
+      # amendment, not a new decision (same category as M16/M19/M20/M21):
+      # SPEC-010 gained "Phase determination" (feature -> phases -> tasks)
+      # and a corrected single-file backlog persistence model (five
+      # per-item files -> one table, .project/backlog/BACKLOG.md); SPEC-008
+      # gained "Use vs. build vs. adopt"; SPEC-012 gained
+      # "Implementation-area skills" (the same governance already built
+      # for technology skills, generalized); SPEC-011 gained a
+      # project/foundation boundary check and a FOUNDATION/PROJECT/BOTH
+      # trace classification; SPEC-013 gained a matching checkpoint field.
+      # A genuine corrective review of M22 (not a blind re-approval) found
+      # two real record-keeping gaps M22 itself should have caught —
+      # AGENTS.md's stale "authentication"/"web app" non-goals and
+      # ARTIFACT-TYPES.md's stale backlog/-not-yet-created language — both
+      # fixed. Three genuinely new backlog items surfaced by this review
+      # (rate limiting, audit logging, MFA/2FA/passkeys — BACKLOG-006..008),
+      # not manufactured. TRACE-006 (this milestone's own execution)
+      # includes a real 10-scenario cold-start run. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/decisions/ADR-013,
+          .project/specs/SPEC-008 (Use vs. build vs. adopt added),
+          .project/specs/SPEC-010 (Phase determination added,
+          Persistence corrected),
+          .project/specs/SPEC-011 (project/foundation boundary check + classification added),
+          .project/specs/SPEC-012 (Implementation-area skills added),
+          .project/specs/SPEC-013 (classification checkpoint field added),
+          .agent/skills/README.md (Implementation-area skills section added),
+          .agent/instructions/boundaries.md (project-ownership checklist item added),
+          .agent/instructions/agent-operating-contract.md (sequence updated),
+          .agent/instructions/backlog-and-feature-development.md (updated),
+          .agent/instructions/engineering-standards.md (updated),
+          .agent/instructions/traceability.md (updated),
+          AGENTS.md (stale non-goals corrected),
+          .project/ARTIFACT-TYPES.md (backlog persistence + staleness corrected),
+          apps/test/web + servers/test/api (migrated from apps/web + servers/api),
+          .project/backlog/BACKLOG.md (BACKLOG-006,
+          BACKLOG-007,
+          BACKLOG-008 added),
+          .project/traces/TRACE-006,
         ]
 
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure
-  - populated package set beyond what Authentication demonstrated
+  - populated package set beyond what a real feature has demonstrated
   - project generator
   - graph database
   - control panel / dashboard
-  - business domain implementations beyond Authentication
-  - email verification / password reset / OAuth (BACKLOG-001..003)
+  - a second application feature (explicitly deferred until M23 is approved)
+  - email verification / password reset / OAuth / MFA / rate limiting /
+    audit logging (BACKLOG-001..003, 006..008)
   - server-side refresh-token revocation (BACKLOG-004)
+  - speculative technology or implementation-area skills
   - speculative empty architectural layers

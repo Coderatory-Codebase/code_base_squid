@@ -52,7 +52,7 @@ renumbered.
 | Review       | `REVIEW-`   | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                              | Yes — `reviews/`    |
 | Report       | `REPORT-`   | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                        | Not yet             |
 | Handoff      | `HANDOFF-`  | Session-to-session continuity notes.                                                                                                                                                                                                                                                                    | Not yet             |
-| Backlog item | `BACKLOG-`  | Work that is known, proposed, discovered, deferred, or awaiting clarification — not necessarily current implementation scope. Added M15, `SPEC-010`.                                                                                                                                                    | Not yet — see below |
+| Backlog item | `BACKLOG-`  | Work that is known, proposed, discovered, deferred, or awaiting clarification — not necessarily current implementation scope. Added M15, `SPEC-010`. One table file (`backlog/BACKLOG.md`), not one file per item — see `SPEC-010` → "Persistence" (M23).                                               | Yes — `backlog/`    |
 | Trace        | `TRACE-`    | The record connecting the execution journey of one coherent unit of meaningful agent work — request, applicable guidance, decisions, scope, implementation, validation, review, Git outcome. Added M18, `SPEC-013`. Never a replacement for TASK/PLAN/RFC/SPEC/ADR/REVIEW/BACKLOG — it references them. | Yes — `traces/`     |
 
 A type not yet instantiated still has its convention defined here so the
@@ -126,7 +126,7 @@ progressively as checkpoints actually complete (added M19), not
 reconstructed from memory after the work is done — `SPEC-013` →
 "Checkpoint structure", "Progressive recording".
 
-### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/`, `backlog/` yet
+### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
 
 None currently hold real content:
 
@@ -139,11 +139,10 @@ None currently hold real content:
   these are ephemeral by default and are not being persisted yet.
 - **`changes/`** — see Relationships below: a "change" is the actual
   diff/commit, not a separate filesystem artifact type.
-- **`backlog/`** — no real backlog item exists yet: nothing has been
-  implemented so far to discover or defer work from (this repository's
-  work to date has been the foundation itself, not a feature with
-  surrounding possibilities). Create the directory the first time a real
-  item does — see "When to create a BACKLOG item" above.
+
+`backlog/` was created at M22 (the first real backlog items — see
+`.project/backlog/BACKLOG.md`, a single table file, not one file per
+item — `SPEC-010` → "Persistence", corrected at M23).
 
 ## Lifecycle
 
@@ -262,3 +261,11 @@ artifact — it has no `id`/`status`/lifecycle of its own. It's updated in
 place to always reflect the current phase, active work, authoritative
 decisions, and what's next. It is the one file an agent should read to
 answer "what's going on here" without loading any other artifact.
+
+## Backlog
+
+`.project/backlog/BACKLOG.md` (added M22, single-file format since M23)
+is the second singleton this repository has — see "Persistence" in
+`SPEC-010`. Individual rows carry their own `BACKLOG-<NNN>` id, `kind`,
+and `status`, same required fields as any other artifact type, just
+expressed as table columns instead of per-file frontmatter.

@@ -18,6 +18,15 @@ related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, 
 > and one new cold-start scenario to the existing table. No new rule:
 > both sections point at decisions M08/M10/M12/M15/M17/M20 already made,
 > named and consolidated for discoverability, not reinvented.
+>
+> **M23 amendment**: M22's first real feature exposed that "Request
+> classification" named _what kind of work_ a request is but not _which
+> project it belongs to_ or _whether the request touches the foundation
+> itself_ — a real gap once `ADR-013` made `apps/`/`servers/`/`agents/`
+> project-owned. Adds a project/foundation-boundary check to "Request
+> classification" and a new "Foundation vs. project classification"
+> section for traces. Both route to `ADR-013`/`SPEC-012` decisions
+> already made, not a new authority.
 
 Operational entry point: `.agent/instructions/agent-operating-contract.md`.
 This spec is the comprehensive, durable definition; that file is the
@@ -135,6 +144,55 @@ application implementation + technology adoption (dominant: application
 implementation, since the feature drives the technology choice, not the
 reverse) — both `backlog-and-feature-development.md` and
 `technology-guidance.md` apply, in that order of primacy.
+
+### Project/foundation boundary check (added M23)
+
+For application implementation specifically, one more question the
+classification above answers: **which project does this belong to, and
+does any part of it touch the foundation itself?**
+
+```text
+Which project owns this work?
+  known/obvious           -> apps/<project>/, servers/<project>/,
+                              agents/<project>/ (ADR-013)
+  not obvious              -> material ambiguity, ask (SPEC-011 ->
+                              "Human-in-the-loop") — never guess a
+                              project name
+
+Does the work also require changing .agent/, .project/, architecture.yaml,
+AGENTS.md, or CLAUDE.md?
+  no  -> pure PROJECT work
+  yes -> BOTH — see "Foundation vs. project classification" below;
+         project work and foundation changes stay clearly separated,
+         the project never silently redefines the foundation
+         (SPEC-012 -> "Ecosystem vs. project", generalized)
+```
+
+## Foundation vs. project classification (added M23)
+
+Every meaningful piece of work is one of:
+
+```text
+FOUNDATION   — changes .agent/, .project/, architecture.yaml, AGENTS.md,
+               CLAUDE.md, or any instruction/spec/skill governing how
+               agents operate. Reusable across projects by definition.
+PROJECT      — changes inside a project's own apps/<project>/,
+               servers/<project>/, agents/<project>/ (or a genuinely
+               project-owned package). Not reusable elsewhere by default.
+BOTH         — a project need surfaced a real foundation gap (M21, M23
+               are both examples of this at the repository's own
+               governance level; M22 discovering the missing project-
+               ownership boundary is the application-level example).
+```
+
+This classification is recorded in a TRACE when one exists
+(`SPEC-013` → "Checkpoint structure" → `classification`), not a new
+artifact of its own. When work is `BOTH`, the two parts stay explicitly
+separated in the record — a project implementation is never allowed to
+silently redefine foundation behavior; a genuine foundation change still
+follows its own governance (an ADR when it's a real architectural
+decision, human approval when `SPEC-012`/`SPEC-010` require it) exactly
+as if it had been requested on its own.
 
 ## Layered discovery
 

@@ -4,10 +4,23 @@ type: spec
 title: Technology ecosystem & guidance governance
 status: active
 created: 2026-08-31
-related: [SPEC-005, SPEC-008, SPEC-010, SPEC-011]
+updated: 2026-08-31
+related: [SPEC-005, SPEC-008, SPEC-010, SPEC-011, SPEC-013]
 ---
 
 # SPEC-012: Technology Ecosystem & Guidance Governance
+
+> **M23 amendment**: one new section, "Implementation-area skills" —
+> this spec's entire governance machinery (creation criteria, missing-
+> guidance flow, human approval, conflict handling, maintenance) already
+> applies word-for-word to durable guidance about _how to build things_
+> (API design, component design, testing strategy, ...), not only
+> guidance about a specific technology. M22 never needed one (nothing
+> recurring enough existed yet), but the boundary was worth naming
+> explicitly rather than leaving "is this a technology skill?" as the
+> only question an agent knows to ask. No new governance model — the
+> existing one, generalized to the shape of skill it was already
+> equipped to govern.
 
 Operational entry point: `.agent/instructions/technology-guidance.md`. This
 spec is the comprehensive, durable definition; that file is the shorter
@@ -145,6 +158,44 @@ Existing skill?
 An agent must not create a permanent skill merely because none exists —
 "no guidance yet" is the normal state for most technologies, not a gap to
 close reflexively.
+
+## Implementation-area skills (added M23)
+
+Distinct from a technology skill, but governed by exactly the same
+machinery in this spec:
+
+```text
+Technology skill          -> "how to use technology X well"
+Implementation-area skill -> "how to build a kind of thing well,"
+                              largely independent of which technology
+                              implements it (API design, component
+                              design, testing strategy, security review
+                              practice, ...)
+Project convention        -> a decision this project made, not durable
+                              ecosystem guidance (see "Ecosystem vs.
+                              project")
+Library documentation     -> the dependency's own docs, not this
+                              repository's guidance
+Tooling configuration     -> how a specific tool is configured/invoked
+                              here, not engineering judgment about how
+                              to build something
+```
+
+These are not interchangeable, and confusing one for another produces
+guidance in the wrong place: a technology skill that tries to also teach
+general API design duplicates what an implementation-area skill should
+hold instead; an implementation-area skill that hard-codes one
+technology's specifics belongs partly in a technology skill instead.
+Everything this spec already says about technology skills — "Skill
+creation criteria"/"non-creation criteria," the "Missing-guidance
+decision flow," "Human approval," "Conflict handling," "Maintenance" —
+applies to an implementation-area skill identically; nothing here is
+reproved for the second case. Structure and mechanics:
+`.agent/skills/README.md` → "Implementation-area skills." **None exist
+yet** — M22's Authentication feature didn't surface a genuinely recurring
+implementation pattern distinct from ordinary `SPEC-008` judgment; this
+section exists so the distinction is available the first time one does,
+not to manufacture one now.
 
 ## Guidance precedence
 

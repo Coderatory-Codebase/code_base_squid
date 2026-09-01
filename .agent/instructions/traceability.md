@@ -47,7 +47,9 @@ to avoid (`SPEC-013` → "Progressive recording").
 ## What to record
 
 Only what actually happened, by reference, not by restating: what was
-requested and how you classified it; which instructions/workflows/skills
+requested and how you classified it — including whether it touched the
+foundation, a project, or both (`SPEC-011` → "Foundation vs. project
+classification", added M23); which instructions/workflows/skills
 were genuinely applicable; what existing artifacts (ADR/SPEC/backlog
 item/skill) the work drew on; which analysis lenses actually mattered;
 decisions with their **source** (human / agent / existing rule / external

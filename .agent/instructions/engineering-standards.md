@@ -37,6 +37,14 @@ generalized to any code-level reuse decision (`SPEC-008` → "Reuse and
 generalization"). Don't extract because code merely looks similar; don't
 leave genuinely shared, stable behavior duplicated once it's real.
 
+## Before building something new
+
+Work down USE → ADOPT → EXTEND → BUILD before writing custom
+infrastructure/utilities/components/services (`SPEC-008` → "Use vs.
+build vs. adopt", added M23) — an existing repository capability or
+ecosystem skill first, an established library second, a small extension
+third, custom last.
+
 ## When considering abstraction or generalization
 
 Justify it against the actual, current requirement — not a hypothetical

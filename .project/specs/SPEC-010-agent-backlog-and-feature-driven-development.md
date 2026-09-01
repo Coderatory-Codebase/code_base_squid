@@ -5,7 +5,8 @@ title: Agent backlog & feature-driven development model
 status: active
 created: 2026-08-30
 updated: 2026-08-31
-related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013, ADR-010, ARTIFACT-TYPES.md]
+related:
+  [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013, ADR-010, ADR-013, ARTIFACT-TYPES.md]
 ---
 
 # SPEC-010: Agent Backlog & Feature-Driven Development Model
@@ -23,6 +24,21 @@ shorter agent-facing pointer into it.
 > explicit completion check ("Discovery/backlog reconciliation"). No new
 > backlog mechanism, taxonomy, or lifecycle stage — everything routes to
 > a section this spec already had.
+>
+> **M23 amendment**: two corrections, both from the first real feature
+> (M22) actually using this model. (1) "Persistence" changes from one
+> file per backlog item to a single table file
+> (`.project/backlog/BACKLOG.md`) — five real items created at M22
+> already showed one-file-per-item doesn't scale proportionally to how
+> small a backlog item usually is; `ADR-010`'s actual decision (one
+> backlog, not several) is unaffected, only its file representation
+> changes. (2) A new "Phase determination" section, between "Task
+> breakdown" and this spec's existing feature-development content —
+> M22 decomposed a feature straight into tasks with no explicit
+> intermediate step for deciding which engineering phases (architecture,
+> security, frontend, backend, QA, ...) a feature actually needs; this
+> makes that decision explicit rather than implicit in how the plan
+> happened to get written.
 
 ## Purpose
 
@@ -181,11 +197,13 @@ Before planning implementation, analyze the feature through the lenses
 that are actually relevant — not a mandatory checklist for every change:
 
 ```text
-Requirements · User behavior · Domain · Architecture · System design ·
-Data · API/integration · Security · Performance · Reliability ·
-Observability · Testing · UX/UI · Accessibility · Dependencies ·
-Operational impact · Migration · Compatibility · Cost · Risks ·
-Constraints · Edge cases
+Product/user value · Requirements · User behavior · Domain · Architecture ·
+Use vs. build vs. adopt · System design · Data · API/integration ·
+Security · Privacy/data handling · Performance · Reliability ·
+Observability · Testing · QA · UX/UI · Accessibility · Dependencies ·
+Operational impact · Migration · Compatibility · Cost/vendor implications ·
+Developer experience · Future extensibility · Risks · Constraints ·
+Edge cases
 ```
 
 A one-line config fix needs none of these explicitly reasoned through; a
@@ -428,6 +446,34 @@ Successful registration creates an
   active account.
 ```
 
+## Phase determination (added M23)
+
+Between feature slicing and task breakdown, decide which engineering
+_phases_ the feature actually requires — not every feature needs every
+phase, and this decision is deliberate, not implicit in whatever the
+plan happened to include:
+
+```text
+Candidate phases (use what's relevant, not a mandatory sequence):
+Discovery/requirements · Architecture · UX/UI · API/contract ·
+Data model · Backend implementation · Frontend implementation ·
+Integration · Security · Testing · QA · Performance ·
+Observability · Documentation · Deployment/release
+
+Selected from: risk · complexity · affected boundaries · security
+sensitivity · user impact · architectural impact · external
+integrations · data sensitivity · deployment implications ·
+regression risk
+```
+
+A one-line config fix needs no explicit phase list. A feature like
+Authentication (M22) genuinely spans architecture, backend, frontend,
+security, and testing — each gets its own task group below, not because
+a template says so, but because the feature's own risk/complexity
+profile puts all five in play. Skipping a phase is a decision, not an
+oversight — state briefly why it doesn't apply when it's not obvious
+(e.g. "no UX/UI phase — this is a backend-only data-migration feature").
+
 ## Task breakdown
 
 Break a feature into tasks when doing so helps execution — e.g.:
@@ -511,43 +557,43 @@ as separate backlogs.
 
 ## Persistence
 
-Repository-native, version-controlled, one file per item —
-`.project/backlog/BACKLOG-<NNN>-<slug>.md`, same convention as
-`SPEC-*`/`ADR-*`/`PLAN-*`/`REVIEW-*` (`ARTIFACT-TYPES.md`). No database,
-API, CLI, or web application (see "Non-goals") — a backlog item is
-inspected the same way every other artifact in this repository is:
-opened and read. The directory does not exist yet; created the first time
-a real item does (`ARTIFACT-TYPES.md` → "Why no ... `backlog/` yet").
+Repository-native, version-controlled, **one table file** —
+`.project/backlog/BACKLOG.md` (added M23; corrected from one file per
+item — see the M23 amendment blockquote above). No database, API, CLI,
+or web application (see "Non-goals") — the backlog is inspected the same
+way every other artifact in this repository is: opened and read. It is a
+singleton, like `PROJECT-STATE.md`, not a versioned per-item artifact —
+updated in place as items are added or change status. The directory did
+not exist before M22; the first five real items (created at M22) proved
+the one-file-per-item convention added file-count ceremony disproportionate
+to how small a backlog item actually is (`ARTIFACT-TYPES.md` → "Why no
+... `backlog/` yet").
 
-### Backlog item frontmatter
+### Backlog table columns
 
-```yaml
----
-id: BACKLOG-001
-type: backlog
-title: Short human-readable title
-kind: feature | enhancement | defect | technical | architectural |
-  investigation | dependency | risk | discovered-requirement |
-  deferred-decision
-status: captured
-created: 2026-08-30
-updated: 2026-08-30 # once it changes post-creation
-related: [SPEC-*, ADR-*, RFC-*] # when a real reference exists
-relations: # optional, only when the precision is actually needed
-  - type: discovered-from
-    target: "the Checkout feature" # or a stable ID once one exists
-  - type: depends-on
-    target: BACKLOG-004
----
+```text
+ID | Title | Kind | Status | Priority | Source (discovered-from) |
+Dependencies | Notes
 ```
 
-`id`/`type`/`title`/`status`/`created` are required, matching every other
-artifact type's convention (`ARTIFACT-TYPES.md` → "Metadata convention").
+`id` (`BACKLOG-<NNN>`, monotonically increasing, never reused/renumbered
+— same rule as every other artifact type, `ARTIFACT-TYPES.md`), `title`,
+`kind`, and `status` are required, matching every other artifact type's
+required-field convention adapted to a table row instead of frontmatter.
 `kind` is new to this type — it's how "feature vs. defect vs. technical
 work vs. risk" is expressed without inventing separate backlogs or
-artifact types for each. Body content, minimum: what was discovered/
-proposed, why it matters, current status detail (e.g. the deferral reason,
-the blocker, the clarifying question), and any known dependency.
+artifact types for each:
+`feature | enhancement | defect | technical | architectural |
+investigation | dependency | risk | discovered-requirement |
+deferred-decision`. Minimum content per row: what was discovered/
+proposed, why it matters (Notes), where it came from (Source), current
+status detail (deferral reason/blocker/clarifying question, in Notes),
+and any known dependency (Dependencies column,
+`BACKLOG-<NNN>`-referencing). "Source" records `discovered-from`
+provenance directly in the table rather than as a separate typed
+`relations:` edge — proportional to how small each row is; a typed edge
+remains available (`engineering-graph.md`) for the rare case that needs
+more precision than a table cell.
 
 ## Traceability
 

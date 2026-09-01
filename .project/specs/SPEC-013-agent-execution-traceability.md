@@ -20,6 +20,13 @@ agent-facing pointer into it.
 > not reconstructed afterward ("Progressive recording" below), after
 > `TRACE-001` showed a real gap between the two. Everything else is
 > unchanged from M18.
+>
+> **M23 amendment**: one new checkpoint field, `classification`
+> (`FOUNDATION`/`PROJECT`/`BOTH` — `SPEC-011`, added alongside `ADR-013`'s
+> project-ownership boundary) — so a trace can show not just what
+> happened but whether it touched the reusable foundation, one project's
+> own code, or both, without a project implementation's trace being
+> mistaken for a foundation decision or vice versa.
 
 ## Purpose
 
@@ -173,6 +180,7 @@ discoveries
 decisions (with source and status — see "Decision provenance")
 human input requested/received
 scope impact (needed-now / discovered / deferred — SPEC-010)
+classification (FOUNDATION / PROJECT / BOTH — SPEC-011, added M23)
 validation performed and its result
 failures and how they were diagnosed/remediated
 outcome

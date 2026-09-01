@@ -146,6 +146,30 @@ create one, ecosystem-vs-project boundary, approval process, conflict
 handling, maintenance): `../../.project/specs/SPEC-012-technology-ecosystem-and-guidance-governance.md`,
 agent-facing entry point: `../instructions/technology-guidance.md`.
 
+## Implementation-area skills (added M23)
+
+Distinct from a technology skill: guidance for **how to build a kind of
+thing well**, largely independent of which technology implements it —
+API design, component design, testing strategy, security review
+practice, and similar. Same ordinary skill structure and frontmatter as
+any other skill; same creation/approval governance as a technology
+skill, generalized in
+`../../.project/specs/SPEC-012-technology-ecosystem-and-guidance-governance.md`
+→ "Implementation-area skills." A technology skill says how to use
+Next.js well; an implementation-area skill would say how to design an
+API well, regardless of whether it's built in Express, Fastify, or
+something else — the two compose (a Next.js skill applying an API-design
+skill's principles inside Next.js's own conventions) rather than
+duplicate each other.
+
+**None exist yet.** M22's Authentication feature was this repository's
+first opportunity to need one and didn't clear the bar — its
+architecture stayed proportionally simple enough that `SPEC-008`'s
+existing technology-neutral principles were sufficient on their own.
+Create the first one only once a genuinely recurring implementation
+pattern demonstrates it's needed, following the same "Creating a new
+skill" bar below.
+
 ## Creating a new skill
 
 Only when a genuine, already-demonstrated, reusable capability exists —

@@ -80,12 +80,17 @@ discovery threshold").
 
 Produce a plan proportional to the feature's size
 (`development-lifecycle.md` → "Proportionality"; `SPEC-010` → "Feature
-planning"). Write acceptance criteria as observable behavior, not task
-lists (`SPEC-010` → "Acceptance criteria"). Then follow the existing
-lifecycle/loop unchanged: `UNDERSTAND → PLAN → IMPLEMENT → VALIDATE →
-REVIEW → RECORD → COMPLETE`, with `development-loop.md`'s reasoning inside
-IMPLEMENT. Load a technology skill only for technologies the feature
-actually involves (`engineering-standards.md`).
+planning"). For a non-trivial feature, decide which engineering phases it
+actually needs before breaking it into tasks — not every feature needs
+every phase (`SPEC-010` → "Phase determination", added M23). Write
+acceptance criteria as observable behavior, not task lists (`SPEC-010` →
+"Acceptance criteria"). Then follow the existing lifecycle/loop
+unchanged: `UNDERSTAND → PLAN → IMPLEMENT → VALIDATE → REVIEW → RECORD →
+COMPLETE`, with `development-loop.md`'s reasoning inside IMPLEMENT. Load
+a technology skill only for technologies the feature actually involves
+(`engineering-standards.md`), and prefer using/adopting over building
+when something existing already satisfies the need
+(`engineering-standards.md` → "Use vs. build vs. adopt").
 
 ## When something goes wrong or gets blocked
 

@@ -4,10 +4,18 @@ type: spec
 title: Engineering standards, design & practice model
 status: active
 created: 2026-08-30
-related: [SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, ADR-002, ADR-003, ADR-008]
+updated: 2026-08-31
+related: [SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-012, ADR-002, ADR-003, ADR-008]
 ---
 
 # SPEC-008: Engineering Standards, Design & Practice Model
+
+> **M23 amendment**: one new section, "Use vs. build vs. adopt" — an
+> explicit ordering added to the existing "Reuse and generalization"
+> judgment once M22's real implementation had to make this exact choice
+> repeatedly (bcrypt vs. bcryptjs, a hand-rolled cookie helper vs.
+> Express's own `res.cookie`, ...). No new principle — it names an order
+> this spec's existing judgment already implied.
 
 Operational entry point: `.agent/instructions/engineering-standards.md`. This
 spec is the comprehensive, durable definition; that file is the shorter
@@ -149,6 +157,42 @@ Distinguish **reuse** (a real second consumer exists) from **premature
 abstraction** (an interface/parameter built to anticipate a consumer that
 doesn't exist yet) — the latter is not reuse, it's speculative cost paid
 now for a benefit that may never arrive.
+
+## Use vs. build vs. adopt (added M23)
+
+Before creating infrastructure, a utility, a component, a service, a
+wrapper, or any other reusable-shaped capability, work down this order —
+stop at the first step that genuinely satisfies the need:
+
+```text
+USE an existing repository capability (packages/, an existing
+  module/component/service already in the owning deployable)
+   ↓ not present
+USE an existing ecosystem skill/pattern (a technology or
+  implementation-area skill already says how to do this)
+   ↓ not present
+ADOPT an established library/framework capability (prefer a
+  well-maintained dependency over recreating what it already does)
+   ↓ genuinely insufficient
+EXTEND an existing project capability (a small, local addition to
+  something that already exists)
+   ↓ genuinely insufficient
+BUILD a custom capability
+```
+
+This is the same "Reuse and generalization" judgment above, made
+explicit as an ordered check rather than left implicit — and it adds one
+thing that section doesn't cover: preferring an established library over
+hand-building equivalent functionality, when the library's own scope
+genuinely matches the need. Don't add a dependency merely for
+convenience, and don't recreate functionality the already-selected
+technology already supplies (`SPEC-012` → "Skill non-creation criteria"
+lists the mirror-image mistake — creating guidance for a technology that
+doesn't need it; this is the implementation-time version). When the
+choice has real architectural, security, cost, vendor, or maintenance
+consequences, it escalates the same way any consequential technology
+decision does (`SPEC-012` → "Escalation triggers") — most implementation
+choices inside an already-adopted technology don't.
 
 ## Decoupling
 
