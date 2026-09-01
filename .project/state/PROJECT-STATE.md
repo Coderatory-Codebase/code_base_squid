@@ -114,21 +114,25 @@ ecosystem guidance; they're this project's own implementation choices
 
 ## Backlog
 
-Eight real backlog items exist, all `captured`, none started — one
-table file since M23, `.project/backlog/BACKLOG.md` (originally one
-file per item at M22): `BACKLOG-001` (email verification), `BACKLOG-002`
-(password reset/account recovery), `BACKLOG-003` (OAuth/social login),
-`BACKLOG-004` (server-side refresh-token revocation/session management),
-`BACKLOG-005` (frontend component/E2E test coverage) — from M22's own
-scoping; `BACKLOG-006` (rate limiting/brute-force protection),
-`BACKLOG-007` (auth audit/security logging), `BACKLOG-008` (MFA/2FA/
-passkeys) — from M23's corrective review of M22. Model and conventions:
+Nine real backlog items exist — one table file,
+`.project/backlog/BACKLOG.md` (single-table format since M23,
+originally one file per item at M22): `BACKLOG-001` (email
+verification), `BACKLOG-002` (password reset/account recovery),
+`BACKLOG-003` (OAuth/social login), `BACKLOG-004` (server-side
+refresh-token revocation/session management), `BACKLOG-005` (frontend
+component/E2E test coverage) — from M22's own scoping, all `captured`;
+`BACKLOG-006` (rate limiting/brute-force protection) — `completed`,
+implemented post-M23 (`TRACE-007`); `BACKLOG-007` (auth audit/security
+logging), `BACKLOG-008` (MFA/2FA/passkeys) — from M23's corrective
+review of M22, `captured`; `BACKLOG-009` (client-IP detection behind
+the Next.js proxy, for correct rate limiting) — discovered while
+implementing `BACKLOG-006`, `captured`. Model and conventions:
 `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`
 → "Persistence" (single-table format, added M23).
 
 ## Traces
 
-Six real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Seven real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -141,7 +145,15 @@ genuine implementation-time discoveries, all resolved `needed now`), and
 `TRACE-006` (M23's own execution — the first to carry an explicit
 `FOUNDATION`/`PROJECT`/`BOTH` classification throughout, and the first
 to include a corrective review of a prior milestone's own real output,
-finding and fixing two genuine record-keeping gaps M22 left behind).
+finding and fixing two genuine record-keeping gaps M22 left behind), and
+`TRACE-007` (`BACKLOG-006`'s implementation — the first trace of a
+single selected backlog item rather than a numbered milestone;
+demonstrates the model correctly refusing to silently pick which
+backlog item counted as "the next feature," and correctly declining to
+guess a security-relevant proxy-trust setting instead of implementing it
+speculatively), and `TRACE-008` (the user profile feature — asked for
+the one genuinely ambiguous thing, what "profile" means when the `User`
+model has no fields to build one from, rather than guessing a scope).
 None is a retroactive trace of M01–M17, which predate the model and
 aren't traced.
 Model and conventions:
@@ -510,9 +522,11 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
 
 ## Currently active
 
-Nothing beyond finishing M23's own validation pass. No open TASK/RFC/
-RESEARCH artifacts exist. Eight `captured` `BACKLOG` items exist
-(`BACKLOG-001`..`008`) — none selected or in progress.
+Nothing open. `BACKLOG-006` (rate limiting) was completed post-M23 —
+see `TRACE-007`. A user profile feature (editable `displayName`,
+`/profile` page) was then built directly from a user request, not from
+the backlog — see `TRACE-008`. Eight `captured` `BACKLOG` items remain
+(`BACKLOG-001`..`005`, `007`..`009`) — none selected or in progress.
 
 ## Authoritative decisions
 

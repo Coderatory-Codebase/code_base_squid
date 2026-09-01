@@ -15,6 +15,12 @@ const userSchema = new Schema(
       required: true,
       select: false,
     },
+    displayName: {
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: 60,
+    },
   },
   { timestamps: true },
 );

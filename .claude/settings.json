@@ -26,7 +26,9 @@
       "Bash(pnpm --filter @nut-shyll/web run build)",
       "Bash(pnpm --filter @nut-shyll/web run typecheck)",
       "Bash(node -e ' *)",
-      "Bash(node --input-type=module -e ' *)"
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(pnpm --filter @nut-shyll/test-api run typecheck)",
+      "Bash(pnpm --filter @nut-shyll/test-web run typecheck)"
     ]
   }
 }

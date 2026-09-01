@@ -17,9 +17,15 @@ export const loginRequestSchema = z.object({
 });
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
+export const updateProfileRequestSchema = z.object({
+  displayName: z.string().trim().min(1).max(60),
+});
+export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
+
 export interface AuthUser {
   id: string;
   email: string;
+  displayName: string | null;
   createdAt: string;
 }
 

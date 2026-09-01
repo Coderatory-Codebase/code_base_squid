@@ -11,7 +11,10 @@ export default async function DashboardPage() {
   return (
     <main>
       <h1>Dashboard</h1>
-      <p>Signed in as {user.email}.</p>
+      <p>Signed in as {user.displayName ?? user.email}.</p>
+      <p>
+        <a href="/profile">Edit profile</a>
+      </p>
       <LogoutButton />
     </main>
   );

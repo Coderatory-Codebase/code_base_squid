@@ -81,6 +81,42 @@ describe("GET /api/auth/me", () => {
     expect(res.status).toBe(200);
     expect(res.body.user.email).toBe(credentials.email);
   });
+
+  it("has a null displayName until it is set", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    expect(registerRes.body.user.displayName).toBeNull();
+  });
+});
+
+describe("PATCH /api/auth/me", () => {
+  it("rejects an unauthenticated request", async () => {
+    const res = await request(app).patch("/api/auth/me").send({ displayName: "Nobody" });
+    expect(res.status).toBe(401);
+  });
+
+  it("updates the display name for an authenticated request", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    const res = await request(app)
+      .patch("/api/auth/me")
+      .set("Cookie", cookies)
+      .send({ displayName: "Ada Lovelace" });
+    expect(res.status).toBe(200);
+    expect(res.body.user.displayName).toBe("Ada Lovelace");
+
+    const meRes = await request(app).get("/api/auth/me").set("Cookie", cookies);
+    expect(meRes.body.user.displayName).toBe("Ada Lovelace");
+  });
+
+  it("rejects an empty display name", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    const res = await request(app)
+      .patch("/api/auth/me")
+      .set("Cookie", cookies)
+      .send({ displayName: "" });
+    expect(res.status).toBe(400);
+  });
 });
 
 describe("POST /api/auth/logout", () => {

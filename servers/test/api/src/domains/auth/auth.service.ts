@@ -28,8 +28,16 @@ export function toAuthUser(user: UserDocument): AuthUser {
   return {
     id: user.id as string,
     email: user.email,
+    displayName: user.displayName ?? null,
     createdAt: (user.createdAt as Date).toISOString(),
   };
+}
+
+export async function updateDisplayName(
+  userId: string,
+  displayName: string,
+): Promise<UserDocument | null> {
+  return User.findByIdAndUpdate(userId, { displayName }, { returnDocument: "after" });
 }
 
 export async function registerUser(email: string, password: string): Promise<UserDocument> {

@@ -1,8 +1,13 @@
 import { Router, type CookieOptions } from "express";
 import { ZodError } from "zod";
-import { isProduction } from "../../config/env.js";
-import { loginRequestSchema, registerRequestSchema } from "./auth.contracts.js";
+import { env, isProduction } from "../../config/env.js";
+import {
+  loginRequestSchema,
+  registerRequestSchema,
+  updateProfileRequestSchema,
+} from "./auth.contracts.js";
 import { requireAuth } from "./auth.middleware.js";
+import { createCredentialsRateLimit, createRefreshRateLimit } from "./auth.rate-limit.js";
 import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
@@ -10,10 +15,21 @@ import {
   signAccessToken,
   signRefreshToken,
   toAuthUser,
+  updateDisplayName,
   verifyCredentials,
   verifyRefreshToken,
 } from "./auth.service.js";
 import { User } from "./user.model.js";
+
+// Skipped under the repository's own automated test run (NODE_ENV=test,
+// vitest's default) — the integration suite below intentionally makes
+// more than the production limit's worth of register/login calls across
+// its many unrelated assertions, sharing one long-lived app instance.
+// The rate-limit middleware's actual 429 behavior is verified in
+// isolation instead — see auth.rate-limit.test.ts.
+const isTestRun = env.nodeEnv === "test";
+const credentialsRateLimit = createCredentialsRateLimit({ skip: () => isTestRun });
+const refreshRateLimit = createRefreshRateLimit({ skip: () => isTestRun });
 
 const ACCESS_COOKIE_MAX_AGE_MS = 15 * 60 * 1000;
 const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -47,7 +63,7 @@ function clearSessionCookies(res: import("express").Response): void {
 
 export const authRouter: Router = Router();
 
-authRouter.post("/register", async (req, res) => {
+authRouter.post("/register", credentialsRateLimit, async (req, res) => {
   try {
     const { email, password } = registerRequestSchema.parse(req.body);
     const user = await registerUser(email, password);
@@ -70,7 +86,7 @@ authRouter.post("/register", async (req, res) => {
   }
 });
 
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/login", credentialsRateLimit, async (req, res) => {
   try {
     const { email, password } = loginRequestSchema.parse(req.body);
     const user = await verifyCredentials(email, password);
@@ -106,7 +122,26 @@ authRouter.get("/me", requireAuth, async (req, res) => {
   res.status(200).json({ user: toAuthUser(user) });
 });
 
-authRouter.post("/refresh", async (req, res) => {
+authRouter.patch("/me", requireAuth, async (req, res) => {
+  try {
+    const { displayName } = updateProfileRequestSchema.parse(req.body);
+    const user = await updateDisplayName(req.userId as string, displayName);
+    if (!user) {
+      clearSessionCookies(res);
+      res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
+      return;
+    }
+    res.status(200).json({ user: toAuthUser(user) });
+  } catch (err) {
+    if (err instanceof ZodError) {
+      res.status(400).json({ error: { message: "Invalid profile data.", code: "INVALID_INPUT" } });
+      return;
+    }
+    throw err;
+  }
+});
+
+authRouter.post("/refresh", refreshRateLimit, async (req, res) => {
   const token = req.cookies?.refreshToken as string | undefined;
   if (!token) {
     res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
