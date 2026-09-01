@@ -132,7 +132,7 @@ implementing `BACKLOG-006`, `captured`. Model and conventions:
 
 ## Traces
 
-Seven real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Nine real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -151,11 +151,17 @@ single selected backlog item rather than a numbered milestone;
 demonstrates the model correctly refusing to silently pick which
 backlog item counted as "the next feature," and correctly declining to
 guess a security-relevant proxy-trust setting instead of implementing it
-speculatively), and `TRACE-008` (the user profile feature — asked for
-the one genuinely ambiguous thing, what "profile" means when the `User`
-model has no fields to build one from, rather than guessing a scope).
-None is a retroactive trace of M01–M17, which predate the model and
-aren't traced.
+speculatively), `TRACE-008` (the user profile feature — asked for the
+one genuinely ambiguous thing, what "profile" means when the `User`
+model has no fields to build one from, rather than guessing a scope),
+`TRACE-009` (a genuine audit trace — cold-start re-inspection of
+`TRACE-008`'s own output, refusing to assume correctness because
+validation was green; found real gaps validation couldn't catch), and
+`TRACE-010` (the approved remediation — every finding resolved via
+already-existing rules with zero human escalation needed, including one
+deliberate, reasoned decision _not_ to fix something the audit had
+flagged as borderline). None is a retroactive trace of M01–M17, which
+predate the model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
 only — never a substitute for the ADR/SPEC/BACKLOG/PLAN/REVIEW that
@@ -524,9 +530,13 @@ VERIFY → EVALUATE`) that operates _inside_ M06's IMPLEMENT stage and
 
 Nothing open. `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
-`/profile` page) was then built directly from a user request, not from
-the backlog — see `TRACE-008`. Eight `captured` `BACKLOG` items remain
-(`BACKLOG-001`..`005`, `007`..`009`) — none selected or in progress.
+`/profile` page) was then built directly from a user request — see
+`TRACE-008` — then audited (`TRACE-009`) and remediated (`TRACE-010`):
+`runValidators` defense-in-depth, deduplicated route error handling,
+`PATCH /me` rate limiting (extends `BACKLOG-006`'s completed scope,
+not a new item), `<Link>` navigation, and `aria-live` accessibility
+fixes. Eight `captured` `BACKLOG` items remain (`BACKLOG-001`..`005`,
+`007`..`009`) — none selected or in progress.
 
 ## Authoritative decisions
 

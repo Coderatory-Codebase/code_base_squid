@@ -37,7 +37,11 @@ export async function updateDisplayName(
   userId: string,
   displayName: string,
 ): Promise<UserDocument | null> {
-  return User.findByIdAndUpdate(userId, { displayName }, { returnDocument: "after" });
+  return User.findByIdAndUpdate(
+    userId,
+    { displayName },
+    { returnDocument: "after", runValidators: true },
+  );
 }
 
 export async function registerUser(email: string, password: string): Promise<UserDocument> {

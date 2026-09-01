@@ -1,4 +1,4 @@
-import { Router, type CookieOptions } from "express";
+import { Router, type CookieOptions, type Response } from "express";
 import { ZodError } from "zod";
 import { env, isProduction } from "../../config/env.js";
 import {
@@ -7,7 +7,11 @@ import {
   updateProfileRequestSchema,
 } from "./auth.contracts.js";
 import { requireAuth } from "./auth.middleware.js";
-import { createCredentialsRateLimit, createRefreshRateLimit } from "./auth.rate-limit.js";
+import {
+  createCredentialsRateLimit,
+  createProfileRateLimit,
+  createRefreshRateLimit,
+} from "./auth.rate-limit.js";
 import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
@@ -30,6 +34,7 @@ import { User } from "./user.model.js";
 const isTestRun = env.nodeEnv === "test";
 const credentialsRateLimit = createCredentialsRateLimit({ skip: () => isTestRun });
 const refreshRateLimit = createRefreshRateLimit({ skip: () => isTestRun });
+const profileRateLimit = createProfileRateLimit({ skip: () => isTestRun });
 
 const ACCESS_COOKIE_MAX_AGE_MS = 15 * 60 * 1000;
 const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -41,11 +46,7 @@ const baseCookieOptions: CookieOptions = {
   path: "/",
 };
 
-function setSessionCookies(
-  res: import("express").Response,
-  accessToken: string,
-  refreshToken: string,
-): void {
+function setSessionCookies(res: Response, accessToken: string, refreshToken: string): void {
   res.cookie("accessToken", accessToken, {
     ...baseCookieOptions,
     maxAge: ACCESS_COOKIE_MAX_AGE_MS,
@@ -56,9 +57,22 @@ function setSessionCookies(
   });
 }
 
-function clearSessionCookies(res: import("express").Response): void {
+function clearSessionCookies(res: Response): void {
   res.clearCookie("accessToken", baseCookieOptions);
   res.clearCookie("refreshToken", baseCookieOptions);
+}
+
+// Shared response shapes — the same {error:{message,code}} pattern was
+// duplicated across register/login/PATCH-me (invalid input) and
+// GET-me/PATCH-me/refresh (unauthenticated) once three real routes each
+// needed it (SPEC-008 -> "Reuse and generalization" extraction bar).
+function sendError(res: Response, status: number, code: string, message: string): void {
+  res.status(status).json({ error: { message, code } });
+}
+
+function sendUnauthenticated(res: Response): void {
+  clearSessionCookies(res);
+  sendError(res, 401, "UNAUTHENTICATED", "Not authenticated.");
 }
 
 export const authRouter: Router = Router();
@@ -73,13 +87,11 @@ authRouter.post("/register", credentialsRateLimit, async (req, res) => {
     res.status(201).json({ user: toAuthUser(user) });
   } catch (err) {
     if (err instanceof ZodError) {
-      res
-        .status(400)
-        .json({ error: { message: "Invalid registration data.", code: "INVALID_INPUT" } });
+      sendError(res, 400, "INVALID_INPUT", "Invalid registration data.");
       return;
     }
     if (err instanceof EmailAlreadyRegisteredError) {
-      res.status(409).json({ error: { message: err.message, code: "EMAIL_TAKEN" } });
+      sendError(res, 409, "EMAIL_TAKEN", err.message);
       return;
     }
     throw err;
@@ -96,11 +108,11 @@ authRouter.post("/login", credentialsRateLimit, async (req, res) => {
     res.status(200).json({ user: toAuthUser(user) });
   } catch (err) {
     if (err instanceof ZodError) {
-      res.status(400).json({ error: { message: "Invalid login data.", code: "INVALID_INPUT" } });
+      sendError(res, 400, "INVALID_INPUT", "Invalid login data.");
       return;
     }
     if (err instanceof InvalidCredentialsError) {
-      res.status(401).json({ error: { message: err.message, code: "INVALID_CREDENTIALS" } });
+      sendError(res, 401, "INVALID_CREDENTIALS", err.message);
       return;
     }
     throw err;
@@ -115,26 +127,24 @@ authRouter.post("/logout", (_req, res) => {
 authRouter.get("/me", requireAuth, async (req, res) => {
   const user = await User.findById(req.userId);
   if (!user) {
-    clearSessionCookies(res);
-    res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
+    sendUnauthenticated(res);
     return;
   }
   res.status(200).json({ user: toAuthUser(user) });
 });
 
-authRouter.patch("/me", requireAuth, async (req, res) => {
+authRouter.patch("/me", requireAuth, profileRateLimit, async (req, res) => {
   try {
     const { displayName } = updateProfileRequestSchema.parse(req.body);
     const user = await updateDisplayName(req.userId as string, displayName);
     if (!user) {
-      clearSessionCookies(res);
-      res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
+      sendUnauthenticated(res);
       return;
     }
     res.status(200).json({ user: toAuthUser(user) });
   } catch (err) {
     if (err instanceof ZodError) {
-      res.status(400).json({ error: { message: "Invalid profile data.", code: "INVALID_INPUT" } });
+      sendError(res, 400, "INVALID_INPUT", "Invalid profile data.");
       return;
     }
     throw err;
@@ -144,15 +154,14 @@ authRouter.patch("/me", requireAuth, async (req, res) => {
 authRouter.post("/refresh", refreshRateLimit, async (req, res) => {
   const token = req.cookies?.refreshToken as string | undefined;
   if (!token) {
-    res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
+    sendUnauthenticated(res);
     return;
   }
   try {
     const payload = verifyRefreshToken(token);
     const user = await User.findById(payload.sub);
     if (!user) {
-      clearSessionCookies(res);
-      res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
+      sendUnauthenticated(res);
       return;
     }
     const accessToken = signAccessToken(user.id as string);
@@ -160,7 +169,6 @@ authRouter.post("/refresh", refreshRateLimit, async (req, res) => {
     setSessionCookies(res, accessToken, refreshToken);
     res.status(200).json({ user: toAuthUser(user) });
   } catch {
-    clearSessionCookies(res);
-    res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });
+    sendUnauthenticated(res);
   }
 });

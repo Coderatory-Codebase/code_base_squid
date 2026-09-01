@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { register } from "@/lib/auth-client";
 
@@ -56,7 +57,7 @@ export default function RegisterPage() {
         </button>
       </form>
       <p>
-        Already have an account? <a href="/login">Log in</a>
+        Already have an account? <Link href="/login">Log in</Link>
       </p>
     </main>
   );

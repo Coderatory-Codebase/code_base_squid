@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../../../src/app.js";
+import { registerUser, updateDisplayName } from "../../../src/domains/auth/auth.service.js";
 
 let mongo: MongoMemoryServer;
 const app = createApp();
@@ -116,6 +117,14 @@ describe("PATCH /api/auth/me", () => {
       .set("Cookie", cookies)
       .send({ displayName: "" });
     expect(res.status).toBe(400);
+  });
+
+  it("enforces the display-name length limit at the persistence layer too, not only via the route's zod schema", async () => {
+    // Defense in depth (TRACE-009/010): a call that bypasses the route's
+    // validation entirely must still be rejected by the model's own
+    // constraints (requires updateDisplayName to pass runValidators).
+    const user = await registerUser("direct-service@example.com", "correct-horse");
+    await expect(updateDisplayName(user.id as string, "x".repeat(61))).rejects.toThrow();
   });
 });
 

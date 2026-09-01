@@ -44,8 +44,14 @@ export function ProfileForm({ user }: { user: AuthUser }) {
           }}
         />
       </label>
-      {error && <p className="error">{error}</p>}
-      {saved && <p>Saved.</p>}
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <p role="status" aria-live="polite">
+        {saved ? "Saved." : ""}
+      </p>
       <button type="submit" disabled={submitting}>
         {submitting ? "Saving…" : "Save"}
       </button>

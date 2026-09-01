@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/auth-client";
 
@@ -55,7 +56,7 @@ export default function LoginPage() {
         </button>
       </form>
       <p>
-        Need an account? <a href="/register">Register</a>
+        Need an account? <Link href="/register">Register</Link>
       </p>
     </main>
   );

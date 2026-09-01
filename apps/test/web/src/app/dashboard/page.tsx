@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-server";
 import { LogoutButton } from "./logout-button";
@@ -13,7 +14,7 @@ export default async function DashboardPage() {
       <h1>Dashboard</h1>
       <p>Signed in as {user.displayName ?? user.email}.</p>
       <p>
-        <a href="/profile">Edit profile</a>
+        <Link href="/profile">Edit profile</Link>
       </p>
       <LogoutButton />
     </main>

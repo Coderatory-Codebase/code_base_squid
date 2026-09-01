@@ -27,3 +27,10 @@ export function createCredentialsRateLimit(overrides: Partial<Options> = {}) {
 export function createRefreshRateLimit(overrides: Partial<Options> = {}) {
   return rateLimit({ windowMs: FIFTEEN_MINUTES_MS, limit: 30, ...defaults, ...overrides });
 }
+
+// Authenticated-only mutating actions (e.g. profile updates) — no
+// credential-guessing surface, but every mutating auth route gets a
+// limit for a consistent posture, not just the unauthenticated ones.
+export function createProfileRateLimit(overrides: Partial<Options> = {}) {
+  return rateLimit({ windowMs: FIFTEEN_MINUTES_MS, limit: 20, ...defaults, ...overrides });
+}
