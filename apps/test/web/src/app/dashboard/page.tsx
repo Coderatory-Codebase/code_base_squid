@@ -16,6 +16,12 @@ export default async function DashboardPage() {
       <p>
         <Link href="/profile">Edit profile</Link>
       </p>
+      <p>
+        <Link href="/settings">Security settings</Link>
+      </p>
+      <p>
+        <Link href="/notes">Notes</Link>
+      </p>
       <LogoutButton />
     </main>
   );

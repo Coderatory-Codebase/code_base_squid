@@ -209,15 +209,15 @@ agent_native_lifecycle:
     one is added only if a concrete need ever justifies it.
 
 roadmap:
-  # M24 has no milestone entry below and none is added speculatively —
+  # M26 has no milestone entry below and none is added speculatively —
   # the original M01 roadmap sketch ended at M14 (renamed at M12/M13/M14
   # from its original placeholder names to each milestone's actual
-  # content); M15 through M23 were all added beyond that sketch because
+  # content); M15 through M25 were all added beyond that sketch because
   # real gaps existed or real feature work was commissioned, not to keep
   # a numbered roadmap alive. The next milestone is defined only once a
   # concrete need identifies one — see .project/state/PROJECT-STATE.md
   # -> "Roadmap position".
-  current_phase: M24
+  current_phase: M26
   milestones:
     - id: M01
       name: Foundation Definition
@@ -650,6 +650,80 @@ roadmap:
           BACKLOG-008 added),
           .project/traces/TRACE-006,
         ]
+    - id: M24
+      name: Autonomous Engineering Operating Model
+      status: complete
+      # Not a rename — commissioned to inspect the operating model as a
+      # system (not file-by-file), using M21-M23 plus the real
+      # Authentication/Rate-Limiting/Profile work and its own audit
+      # (TRACE-009/010) as behavioral evidence, not assuming correctness
+      # because validation was green. Finding: the target request-to-
+      # completion flow was already mapped, almost line for line, onto
+      # existing sections, and demonstrably worked in practice (TRACE-007
+      # correctly refused to silently pick a backlog item; TRACE-008
+      # correctly escalated its one genuine ambiguity; TRACE-010 resolved
+      # every audit finding autonomously, including one correct decision
+      # NOT to apply a proposed fix). Four real, evidence-grounded gaps
+      # closed, none manufactured: (1) no named "conformance review"
+      # concept distinguishing "recorded a process" from "independently
+      # verified" - TRACE-009 was itself the undocumented precedent;
+      # (2) Security/Accessibility were not named REVIEW dimensions,
+      # plausibly contributing to defects TRACE-009 later caught;
+      # (3) SPEC-012's "repeated use" skill-creation criterion didn't
+      # state the cross-project bar TRACE-009/010 had to derive by
+      # judgment; (4) foundation-change authorization was demonstrated by
+      # precedent across 6+ milestones but never stated as a rule. All
+      # four are amendments to already-active SPECs (SPEC-013,
+      # development-lifecycle.md/SPEC-004, SPEC-012, SPEC-011) - no new
+      # SPEC, no new ADR (connective/clarifying content, same category as
+      # M16/M19/M20/M21/M23), no new skill (re-confirmed, not
+      # re-decided), no application code, no backlog item (no genuine
+      # out-of-scope discovery occurred). A real 20-scenario cold-start
+      # walkthrough confirmed all scenarios resolve without inventing a
+      # mechanism, with 3 scenarios specifically exercising the 4 closed
+      # gaps. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .agent/instructions/development-lifecycle.md (Security/Accessibility review dimensions,
+          Conformance review pointer,
+          added),
+          .project/specs/SPEC-013 (Conformance review section added),
+          .agent/instructions/traceability.md (Conformance review pointer added),
+          .project/specs/SPEC-012 (cross-project skill-creation bar clarified),
+          .project/specs/SPEC-011 (foundation-change authorization subsection added),
+          .project/traces/TRACE-011,
+        ]
+    - id: M25
+      name: Autonomous Engineering Operating Model Audit
+      status: complete
+      # Not a rename — a deliberately adversarial re-audit of the
+      # operating model M21/M23/M24 built, using M22-M24's real
+      # application work (Authentication, rate limiting, Profile + its
+      # remediation, Account Security Settings) as evidence against the
+      # model rather than proof of it. Investigated 20 suspected
+      # failure areas against real repository evidence; most were
+      # already fixed by M23/M24 (now evidenced working, not only
+      # documented) or were never real gaps. Two genuine, narrow gaps
+      # found and closed as connective clarifications to SPEC-012 (not
+      # new mechanisms): tooling guidance was already in scope but not
+      # said plainly; a real instance (TRACE-009's Mongoose
+      # runValidators finding) of a framework-specific factual question
+      # being mistaken for a principle-answerable one. Ran 13 genuine
+      # cold-start scenario walkthroughs (bugfix, CRUD feature, MFA,
+      # Redis adoption, UI-heavy, API-heavy, cross-project promotion,
+      # project-local convention, ambiguous tech choice, vendor
+      # replacement, backlog discovery, no-backlog, multi-lens upload)
+      # without a pre-written implementation recipe. Explicitly declined
+      # to add an "adjacent-capability scan" step despite it sounding
+      # plausible — no real gap, would have been checklist explosion.
+      # No new SPEC, no new ADR, no new skill, no backlog item. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables: [
+          .project/specs/SPEC-012 (tooling-scope clarification,
+          framework-fact vs. principle
+          distinction added),
+          .project/traces/TRACE-013,
+        ]
 
 non_goals_current_phase:
   - full agent runtime / orchestration engine
@@ -658,9 +732,8 @@ non_goals_current_phase:
   - project generator
   - graph database
   - control panel / dashboard
-  - a second application feature (explicitly deferred until M23 is approved)
-  - email verification / password reset / OAuth / MFA / rate limiting /
-    audit logging (BACKLOG-001..003, 006..008)
-  - server-side refresh-token revocation (BACKLOG-004)
+  - a second/subsequent application feature not yet requested
+  - email verification / password reset / OAuth / MFA / audit logging
+    (BACKLOG-001..003, 007, 008)
   - speculative technology or implementation-area skills
   - speculative empty architectural layers

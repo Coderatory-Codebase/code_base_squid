@@ -4,7 +4,7 @@ type: spec
 title: Agent execution traceability
 status: active
 created: 2026-08-31
-updated: 2026-08-31
+updated: 2026-09-01
 related: [SPEC-004, SPEC-006, SPEC-007, SPEC-010, SPEC-011, SPEC-012, ADR-011]
 ---
 
@@ -27,6 +27,16 @@ agent-facing pointer into it.
 > happened but whether it touched the reusable foundation, one project's
 > own code, or both, without a project implementation's trace being
 > mistaken for a foundation decision or vice versa.
+>
+> **M24 amendment**: one new section, "Conformance review" — distinct
+> from ordinary self-review, a conformance review re-inspects a prior,
+> already-completed unit of work from a cold-start posture rather than
+> trusting its own trace's narrative. `TRACE-009` (the user-profile
+> feature audit) is the real worked example this section names: it
+> found four genuine defects `pnpm run validate` and the original
+> self-review both missed. No new artifact type, no new lifecycle stage
+> — a checkpoint kind within the existing `TRACE` model, used
+> proportionally.
 
 ## Purpose
 
@@ -341,6 +351,47 @@ rewrite prior entries to make the journey look cleaner than it was. No
 cryptographic/tamper-evidence infrastructure is built for this — git
 history over the trace file itself is the integrity mechanism, same as
 every other artifact in this repository.
+
+## Conformance review (added M24)
+
+**"The agent recorded a process" and "the agent's record is
+independently confirmed" are different claims.** A trace's own
+checkpoints are the first — necessary, but self-reported, written while
+trusting the work that produced them. A conformance review is the
+second: re-inspect the actual current files/behavior the completed
+trace claims to describe, fresh, without assuming the trace's narrative
+is accurate — the same posture as approaching an unfamiliar codebase,
+applied to work the same agent (or session) already finished.
+
+```text
+Conformance review
+  ↓
+Read the actual files/behavior the trace claims — not the trace's prose
+  ↓
+Check: does the evidence actually support each claimed outcome?
+  ↓
+Findings, classified same as any discovery (SPEC-010's five outcomes)
+  ↓
+Recorded as a new trace (referencing the one reviewed), never by
+  editing the reviewed trace's own history
+```
+
+**When it's warranted** — proportional, not mandatory for every unit of
+work (`development-lifecycle.md` → "Conformance review" has the trigger
+conditions: significant, security-sensitive, or otherwise consequential
+completed work, or periodic spot-checks). Most work needs none, same
+principle as every other proportional artifact in this repository.
+
+**What it is not**: not a second authority over decisions — findings
+route through the same escalation/discovery model as anything else
+(`SPEC-010`, `SPEC-011`); a conformance review observes and classifies,
+it doesn't itself decide. Not a runtime check, not automated tooling,
+not a recurring scheduled process — an agent performs one deliberately,
+the same way it performs any other proportional piece of work.
+`TRACE-009` is the real, worked precedent: it found `TRACE-008`'s
+self-review had missed a real security gap and a real accessibility
+gap, purely by reading the actual code again instead of trusting a
+green `pnpm run validate` run.
 
 ## Exploration vs. implementation
 

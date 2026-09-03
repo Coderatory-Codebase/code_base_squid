@@ -4,7 +4,7 @@ type: spec
 title: Technology ecosystem & guidance governance
 status: active
 created: 2026-08-31
-updated: 2026-08-31
+updated: 2026-09-02
 related: [SPEC-005, SPEC-008, SPEC-010, SPEC-011, SPEC-013]
 ---
 
@@ -21,6 +21,29 @@ related: [SPEC-005, SPEC-008, SPEC-010, SPEC-011, SPEC-013]
 > only question an agent knows to ask. No new governance model — the
 > existing one, generalized to the shape of skill it was already
 > equipped to govern.
+>
+> **M24 amendment**: one clarifying sentence added to "Skill creation
+> criteria" — "repeated use" means demonstrated or clearly intended
+> reuse across ≥2 independent projects, not repetition within one
+> project. `TRACE-009`/`TRACE-010` had already applied this reading
+> when auditing the user-profile feature; this makes it explicit rather
+> than leaving it to be re-derived. No change to the conclusion for any
+> technology this repository currently uses — still none clear the bar.
+>
+> **M25 amendment**: two small clarifications, both evidence-driven, not
+> new mechanisms. (1) "Scope of `technology`" now says explicitly that
+> tooling (lint/format/typecheck/test/E2E/CI) is already inside this
+> spec's scope — the M25 kickoff independently proposed "tooling
+> guidance" as a possible third category alongside technology and
+> implementation-area guidance; inspection found it was already covered,
+> just not said plainly enough for that to be obvious on a read-through.
+> (2) "Missing-guidance decision flow" now distinguishes a
+> technology-neutral _design_ question (which a principle can answer)
+> from a _factual, framework-specific behavior_ question (which only
+> current documentation can) — `TRACE-009` found a real instance where
+> the latter was mistaken for the former (a Mongoose validator-skipping
+> default, past what any principle could have caught). Both are
+> connective — no new governance path, no new artifact.
 
 Operational entry point: `.agent/instructions/technology-guidance.md`. This
 spec is the comprehensive, durable definition; that file is the shorter
@@ -85,8 +108,14 @@ _when and how_ one comes to exist, not _what it looks like_.
 
 Applies proportionally to language, framework, library, database,
 runtime, platform, cloud service, infrastructure technology, testing
-technology, build technology, and developer tooling alike. The category
-doesn't determine whether a skill is warranted — the criteria below do.
+technology, build technology, and developer tooling alike — **this
+already covers linting/formatting/typechecking/test-runner/E2E/CI
+tooling explicitly**; there is no separate "tooling guidance" category
+with its own rules (clarified M25 — the distinction is real to name when
+thinking about what kind of guidance something is, but it does not need
+a second governance path; the same creation/non-creation criteria and
+missing-guidance flow below already apply). The category doesn't
+determine whether a skill is warranted — the criteria below do.
 **A technology's mere presence never justifies a skill**: a tiny utility
 library, a one-off dependency, trivial configuration glue, or a
 technology already fully covered by an existing higher-level skill
@@ -105,6 +134,19 @@ has real architectural/security/performance/testing considerations
 would benefit future agents from consistent guidance
 cannot be adequately expressed by SPEC-008's existing technology-neutral principles
 ```
+
+**"Repeated use" means demonstrated or clearly intended reuse across
+≥2 independent projects/repositories — not repetition within one
+project (added M24, after `TRACE-009`/`TRACE-010` had to derive this
+distinction by judgment rather than find it stated).** A pattern used
+three times inside one project's own routes/pages/components is real,
+but it's still that project's own convention until a second,
+independent project actually needs the same guidance — same "ownership
+before reuse" bar `packages.md`/`contracts.md`/`SPEC-008` → "Reuse and
+generalization" already apply to code-level reuse, generalized here to
+guidance-level reuse. This repository currently has one project
+(`apps/test/`, `servers/test/`) — nothing can clear this bar yet by
+construction, not by absence of effort.
 
 ## Skill non-creation criteria
 
@@ -158,6 +200,24 @@ Existing skill?
 An agent must not create a permanent skill merely because none exists —
 "no guidance yet" is the normal state for most technologies, not a gap to
 close reflexively.
+
+**"Principles already answer it" has a narrower failure mode worth
+naming (added M25):** a technology-neutral principle can answer a
+_design_ question ("keep state ownership explicit") but has nothing to
+say about a _factual, framework-specific behavior_ ("does this ORM
+method run schema validators by default?"). Treating the latter as
+answered by the former is how a stale-API-shape mistake gets made
+confidently rather than carelessly (real instance: `TRACE-009` found
+`findByIdAndUpdate` silently skipping schema validators, past the point
+`SPEC-008` → "Reuse and generalization" or any other principle could
+have caught it — only current library documentation could). For a
+narrow factual question about a specific call's current behavior — not
+a broader research project — check the current authoritative
+documentation for that one thing before relying on remembered API
+shape, proportional to how deep the new usage goes
+(`SPEC-008` → "Current/authoritative guidance" already states the
+underlying principle; this is that principle applied at the
+missing-guidance decision point specifically, not a new rule).
 
 ## Implementation-area skills (added M23)
 

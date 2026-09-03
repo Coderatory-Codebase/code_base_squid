@@ -4,6 +4,7 @@ import express, { type Express } from "express";
 import helmet from "helmet";
 import { env } from "./config/env.js";
 import { authRouter } from "./domains/auth/auth.routes.js";
+import { notesRouter } from "./domains/notes/notes.routes.js";
 
 export function createApp(): Express {
   const app = express();
@@ -19,6 +20,7 @@ export function createApp(): Express {
   app.use(cookieParser());
 
   app.use("/api/auth", authRouter);
+  app.use("/api/notes", notesRouter);
 
   app.get("/api/health", (_req, res) => {
     res.status(200).json({ status: "ok" });

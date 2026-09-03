@@ -20,8 +20,16 @@ export class InvalidCredentialsError extends Error {
   }
 }
 
+export class IncorrectPasswordError extends Error {
+  constructor() {
+    super("Current password is incorrect.");
+    this.name = "IncorrectPasswordError";
+  }
+}
+
 export interface AccessTokenPayload {
   sub: string;
+  sid: string;
 }
 
 export function toAuthUser(user: UserDocument): AuthUser {
@@ -65,16 +73,37 @@ export async function verifyCredentials(email: string, password: string): Promis
   return user;
 }
 
-export function signAccessToken(userId: string): string {
-  return jwt.sign({ sub: userId } satisfies AccessTokenPayload, env.accessTokenSecret, {
-    expiresIn: env.accessTokenTtl,
-  });
+export async function changePassword(
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const user = await User.findById(userId).select("+passwordHash");
+  if (!user) {
+    throw new InvalidCredentialsError();
+  }
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) {
+    throw new IncorrectPasswordError();
+  }
+  user.passwordHash = await bcrypt.hash(newPassword, PASSWORD_SALT_ROUNDS);
+  await user.save();
 }
 
-export function signRefreshToken(userId: string): string {
-  return jwt.sign({ sub: userId } satisfies AccessTokenPayload, env.refreshTokenSecret, {
-    expiresIn: env.refreshTokenTtl,
-  });
+export function signAccessToken(userId: string, sessionId: string): string {
+  return jwt.sign(
+    { sub: userId, sid: sessionId } satisfies AccessTokenPayload,
+    env.accessTokenSecret,
+    { expiresIn: env.accessTokenTtl },
+  );
+}
+
+export function signRefreshToken(userId: string, sessionId: string): string {
+  return jwt.sign(
+    { sub: userId, sid: sessionId } satisfies AccessTokenPayload,
+    env.refreshTokenSecret,
+    { expiresIn: env.refreshTokenTtl },
+  );
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {

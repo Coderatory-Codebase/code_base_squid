@@ -82,6 +82,16 @@ that didn't happen. Don't silently drop a real failure from the record.
 Append corrections rather than rewriting a trace's history — same rule
 `SPEC-011` already applies to ADRs/SPECs, applied here to trace files.
 
+## Conformance review vs. self-review (added M24)
+
+A trace's own checkpoints are self-reported while the work is fresh.
+When a completed, already-validated unit of work is significant or
+security-sensitive enough to warrant independent re-checking, perform a
+**conformance review**: re-read the actual current files/behavior, not
+the trace's own narrative, and record a new trace referencing the one
+being reviewed — never edit the original's history. Full model:
+`SPEC-013` → "Conformance review". `TRACE-009` is the real precedent.
+
 ## Closing a trace
 
 Move it to `completed` (or the appropriate side state — `blocked`,

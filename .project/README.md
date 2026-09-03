@@ -41,3 +41,7 @@ Read `state/PROJECT-STATE.md` first. It's the one file that answers
 without needing to read any other artifact. Only pull in a specific
 spec/plan/decision/review once the state file points you at it or the task
 at hand clearly needs it.
+
+For a fuller narrative — how the `.agent/`/`.project/` layers work
+together, the autonomous execution model, and what the real application
+built so far actually does — see `OPERATING-MODEL-OVERVIEW.md`.

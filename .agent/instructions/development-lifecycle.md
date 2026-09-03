@@ -152,6 +152,14 @@ Review is not "does the code look good." At minimum, check:
 - **Quality** — tests/validation are appropriate to the change, not
   padding or missing.
 - **Regression** — could this break existing behavior elsewhere.
+- **Security** — trust boundaries, validation, secrets, and defense in
+  depth held, not only the happy path (`engineering-standards.md`,
+  `SPEC-008` → "Security principles"; added M24 after `TRACE-009` found
+  real security gaps — a missing persistence-layer validator, uneven
+  rate-limit coverage — that self-review had missed without this named
+  explicitly).
+- **Accessibility** — user-facing changes remain usable without a mouse
+  or with a screen reader, where applicable (added M24, same evidence).
 - **Maintainability** — no unnecessary abstraction was introduced.
 - **Documentation** — durable decisions were actually recorded, not left
   implicit in a diff.
@@ -160,6 +168,24 @@ Review is not "does the code look good." At minimum, check:
 (evaluating someone else's completed change); the dimensions above apply
 identically when REVIEW is one stage inside a feature/bugfix/refactor
 pass on your own work.
+
+### Conformance review (added M24)
+
+Self-review above checks a change against its own stated intent while
+the work is still fresh — necessary, but not the same thing as
+independent verification. A **conformance review** re-inspects a prior,
+already-completed and already-validated unit of work from a cold-start
+posture: read the actual current files and behavior, not the trace's
+narrative, and check whether they still support what was claimed.
+`TRACE-009` is the worked example — it found four real defects
+(`TRACE-008`'s own self-review had missed) purely by refusing to trust
+"validation is green" as proof of correctness. Proportional, not
+mandatory for every change: warranted for significant, security-
+sensitive, or otherwise consequential completed work, or periodically —
+not a second REVIEW pass on everything. Distinguishes **"the agent
+recorded a process"** from **"the record is independently confirmed"**
+— see `SPEC-013` → "Conformance review" for the trace-checkpoint form
+this takes.
 
 ## Recording
 

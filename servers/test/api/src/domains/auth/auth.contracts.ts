@@ -22,11 +22,25 @@ export const updateProfileRequestSchema = z.object({
 });
 export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
 
+export const changePasswordRequestSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(128),
+});
+export type ChangePasswordRequest = z.infer<typeof changePasswordRequestSchema>;
+
 export interface AuthUser {
   id: string;
   email: string;
   displayName: string | null;
   createdAt: string;
+}
+
+export interface SessionSummary {
+  id: string;
+  userAgent: string | null;
+  createdAt: string;
+  lastUsedAt: string;
+  isCurrent: boolean;
 }
 
 export interface AuthErrorBody {

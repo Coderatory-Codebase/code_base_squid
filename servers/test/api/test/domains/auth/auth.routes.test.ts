@@ -154,4 +154,152 @@ describe("POST /api/auth/refresh", () => {
     const res = await request(app).post("/api/auth/refresh");
     expect(res.status).toBe(401);
   });
+
+  it("rejects a refresh token whose session has been revoked (logout), even though the JWT itself is still valid", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    await request(app).post("/api/auth/logout").set("Cookie", cookies);
+    // The original refresh token is still cryptographically valid and
+    // unexpired — ADR-014's whole point is that server-side session
+    // deletion still rejects it.
+    const res = await request(app).post("/api/auth/refresh").set("Cookie", cookies);
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("PATCH /api/auth/password", () => {
+  it("rejects an unauthenticated request", async () => {
+    const res = await request(app)
+      .patch("/api/auth/password")
+      .send({ currentPassword: credentials.password, newPassword: "new-password-1" });
+    expect(res.status).toBe(401);
+  });
+
+  it("changes the password given the correct current password", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    const res = await request(app)
+      .patch("/api/auth/password")
+      .set("Cookie", cookies)
+      .send({ currentPassword: credentials.password, newPassword: "new-password-1" });
+    expect(res.status).toBe(204);
+
+    // Old password no longer works; new one does.
+    const oldLogin = await request(app).post("/api/auth/login").send(credentials);
+    expect(oldLogin.status).toBe(401);
+    const newLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email: credentials.email, password: "new-password-1" });
+    expect(newLogin.status).toBe(200);
+  });
+
+  it("rejects an incorrect current password", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    const res = await request(app)
+      .patch("/api/auth/password")
+      .set("Cookie", cookies)
+      .send({ currentPassword: "incorrect-pw", newPassword: "new-password-1" });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("INCORRECT_PASSWORD");
+  });
+
+  it("revokes every other session (secure default, ADR-014)", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const deviceACookies = registerRes.headers["set-cookie"];
+    const deviceBLogin = await request(app).post("/api/auth/login").send(credentials);
+    const deviceBCookies = deviceBLogin.headers["set-cookie"];
+
+    await request(app)
+      .patch("/api/auth/password")
+      .set("Cookie", deviceACookies)
+      .send({ currentPassword: credentials.password, newPassword: "new-password-1" });
+
+    // Device A (made the change) still works.
+    const deviceAMe = await request(app).get("/api/auth/me").set("Cookie", deviceACookies);
+    expect(deviceAMe.status).toBe(200);
+    // Device B's refresh token was revoked.
+    const deviceBRefresh = await request(app)
+      .post("/api/auth/refresh")
+      .set("Cookie", deviceBCookies);
+    expect(deviceBRefresh.status).toBe(401);
+  });
+});
+
+describe("GET /api/auth/sessions", () => {
+  it("rejects an unauthenticated request", async () => {
+    const res = await request(app).get("/api/auth/sessions");
+    expect(res.status).toBe(401);
+  });
+
+  it("lists the caller's own sessions and marks the current one", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    await request(app).post("/api/auth/login").send(credentials);
+
+    const res = await request(app).get("/api/auth/sessions").set("Cookie", cookies);
+    expect(res.status).toBe(200);
+    expect(res.body.sessions).toHaveLength(2);
+    expect(res.body.sessions.filter((s: { isCurrent: boolean }) => s.isCurrent)).toHaveLength(1);
+  });
+});
+
+describe("DELETE /api/auth/sessions/:id", () => {
+  it("rejects revoking a session that does not belong to the caller", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const cookies = registerRes.headers["set-cookie"];
+    const other = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "someone-else@example.com", password: "correct-horse" });
+    const otherSessions = await request(app)
+      .get("/api/auth/sessions")
+      .set("Cookie", other.headers["set-cookie"]);
+    const otherSessionId = otherSessions.body.sessions[0].id;
+
+    const res = await request(app)
+      .delete(`/api/auth/sessions/${otherSessionId}`)
+      .set("Cookie", cookies);
+    expect(res.status).toBe(404);
+  });
+
+  it("revokes one of the caller's own sessions", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const deviceACookies = registerRes.headers["set-cookie"];
+    const deviceBLogin = await request(app).post("/api/auth/login").send(credentials);
+    const deviceBCookies = deviceBLogin.headers["set-cookie"];
+
+    const sessions = await request(app).get("/api/auth/sessions").set("Cookie", deviceACookies);
+    const deviceBSession = sessions.body.sessions.find((s: { isCurrent: boolean }) => !s.isCurrent);
+
+    const revokeRes = await request(app)
+      .delete(`/api/auth/sessions/${deviceBSession.id}`)
+      .set("Cookie", deviceACookies);
+    expect(revokeRes.status).toBe(204);
+
+    const deviceBRefresh = await request(app)
+      .post("/api/auth/refresh")
+      .set("Cookie", deviceBCookies);
+    expect(deviceBRefresh.status).toBe(401);
+  });
+});
+
+describe("POST /api/auth/sessions/revoke-others", () => {
+  it("revokes every session except the caller's own", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send(credentials);
+    const deviceACookies = registerRes.headers["set-cookie"];
+    const deviceBLogin = await request(app).post("/api/auth/login").send(credentials);
+    const deviceBCookies = deviceBLogin.headers["set-cookie"];
+
+    const res = await request(app)
+      .post("/api/auth/sessions/revoke-others")
+      .set("Cookie", deviceACookies);
+    expect(res.status).toBe(204);
+
+    const deviceAMe = await request(app).get("/api/auth/me").set("Cookie", deviceACookies);
+    expect(deviceAMe.status).toBe(200);
+    const deviceBRefresh = await request(app)
+      .post("/api/auth/refresh")
+      .set("Cookie", deviceBCookies);
+    expect(deviceBRefresh.status).toBe(401);
+  });
 });

@@ -8,6 +8,7 @@ declare global {
   namespace Express {
     interface Request {
       userId?: string;
+      sessionId?: string;
     }
   }
 }
@@ -21,6 +22,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   try {
     const payload = verifyAccessToken(token);
     req.userId = payload.sub;
+    req.sessionId = payload.sid;
     next();
   } catch {
     res.status(401).json({ error: { message: "Not authenticated.", code: "UNAUTHENTICATED" } });

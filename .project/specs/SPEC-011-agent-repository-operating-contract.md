@@ -4,7 +4,7 @@ type: spec
 title: Agent repository operating contract
 status: active
 created: 2026-08-31
-updated: 2026-08-31
+updated: 2026-09-01
 related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, SPEC-013]
 ---
 
@@ -27,6 +27,13 @@ related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, 
 > classification" and a new "Foundation vs. project classification"
 > section for traces. Both route to `ADR-013`/`SPEC-012` decisions
 > already made, not a new authority.
+>
+> **M24 amendment**: one new subsection, "What authorizes a
+> `FOUNDATION`/`BOTH` change" — every foundation change this repository
+> has ever made was authorized by explicit human commissioning, verified
+> clean via `git status` every time, but the rule itself was never
+> written down, only demonstrated. States the rule the evidence already
+> showed; changes no actual behavior.
 
 Operational entry point: `.agent/instructions/agent-operating-contract.md`.
 This spec is the comprehensive, durable definition; that file is the
@@ -193,6 +200,31 @@ silently redefine foundation behavior; a genuine foundation change still
 follows its own governance (an ADR when it's a real architectural
 decision, human approval when `SPEC-012`/`SPEC-010` require it) exactly
 as if it had been requested on its own.
+
+### What authorizes a `FOUNDATION`/`BOTH` change (added M24)
+
+Named explicitly because it had only ever been demonstrated by
+precedent, never stated: a `FOUNDATION` or `BOTH`-classified change is
+made only when one of these is true —
+
+```text
+explicitly commissioned — the human's own request is, in substance, a
+  request to change how agents operate here (a numbered governance
+  milestone is the clearest example, but any explicit "change the
+  operating model" request qualifies, not only a numbered one)
+  ↓ or
+already-governed approval path — a durable technology/implementation-
+  area skill proposal approved per SPEC-012 -> "Human approval"
+```
+
+**Project work never triggers a foundation change as a side effect.**
+Discovering that a foundation gap exists while doing project work is
+itself a discovery — route it through `SPEC-010`'s discovery decision
+model (usually: surface it, let the human decide whether/when to
+commission the foundation change) rather than silently fixing
+`.agent/`/`.project/specs/` mid-feature. Every foundation change across
+this repository's history was made this way — this section states the
+rule the evidence already showed.
 
 ## Layered discovery
 
