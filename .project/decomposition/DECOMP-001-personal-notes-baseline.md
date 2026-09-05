@@ -373,8 +373,9 @@ SPEC-018-R007 -> DECOMP-001-U007 / artifact traceability
 - Existing backlog: updated with feature-driven product hierarchy.
 - Architecture: complete in `ARCH-001`.
 - System Design for `BACKLOG-014`: complete in `SD-001`.
-- Next allowed phase for `BACKLOG-014`: Engineering Decomposition may be
-  considered, but has not been executed.
+- Engineering Decomposition for `BACKLOG-014`: complete in `ENG-001`.
+- Next allowed phase for `BACKLOG-014`: Implementation may be considered
+  if explicitly requested.
 
 ## Boundary Check
 
@@ -382,7 +383,8 @@ SPEC-018-R007 -> DECOMP-001-U007 / artifact traceability
   Decomposition.
 - System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`,
   not by Decomposition.
-- Engineering Decomposition: not created.
+- Engineering Decomposition for `BACKLOG-014`: created later by Phase 7
+  in `ENG-001`, not by Decomposition.
 - Implementation Planning: not created.
 - Implementation: not started.
 - Verification: not executed.

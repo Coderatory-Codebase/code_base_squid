@@ -17,14 +17,16 @@ development, not mainly as after-the-fact records. The active work is
 `SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`/`SPEC-016`/
 `SPEC-017`/`PLAN-013`/`TRACE-024`/`SPEC-019`/`PLAN-014`/`TRACE-025`/
 `PLAN-015`/`TRACE-026`/`SPEC-020`/`PLAN-016`/`TRACE-027`/`ARCH-001`/
-`SPEC-021`/`PLAN-017`/`TRACE-028`/`SD-001`:
+`SPEC-021`/`PLAN-017`/`TRACE-028`/`SD-001`/`SPEC-022`/`PLAN-018`/
+`TRACE-029`/`ENG-001`:
 request routing, dual operating scope, Intake, corrected Discovery,
 Specification, the Specification clarification/rework loop, and
 feature-driven Decomposition that feeds the existing backlog,
 Architecture as an evidence-backed design-decision phase, Feature-scoped
-System Design with architectural consistency checks, dual-track discovery
-and delivery, pre-implementation artifact discipline, current architecture
-in `architecture.yaml`, and the first real stack skill for MERN/Next.js
+System Design with architectural consistency checks, Feature-scoped
+Engineering Decomposition into executable work, dual-track discovery and
+delivery, pre-implementation artifact discipline, current architecture in
+`architecture.yaml`, and the first real stack skill for MERN/Next.js
 vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
@@ -749,8 +751,15 @@ baseline; creates a concrete behavioral and interaction design; performs
 an architectural consistency check; and stops before Engineering
 Decomposition. The real System Design artifact is
 `.project/system-design/SD-001-manage-owned-personal-notes.md`.
-Engineering Decomposition has not been executed, no engineering tasks were
-created, and implementation has not started.
+Its twelfth M26 slice is complete (`SPEC-022`, `PLAN-018`, `TRACE-029`,
+`ENG-001`): Phase 7 Engineering Decomposition is an agent-executed
+governed workflow that consumes exactly one approved Feature System
+Design, creates executable engineering work items, dependencies,
+affected areas, verification expectations, and readiness for
+Implementation, while stopping before source changes. The real
+Engineering Decomposition artifact is
+`.project/engineering/ENG-001-manage-owned-personal-notes.md`. No
+engineering tasks were created, and implementation has not started.
 
 Discovery is reworked and complete after clarification. Specification is
 active with readiness `ready-for-decomposition` for the clarified
@@ -769,7 +778,10 @@ boundaries.
 System Design is complete with readiness
 `ready-for-engineering-decomposition` for `SD-001` / `BACKLOG-014`.
 Architectural assessment is compatible and Architectural Impact is none.
-Engineering Decomposition has not been executed.
+
+Engineering Decomposition is complete with readiness
+`ready-for-implementation` for `ENG-001` / `SD-001` / `BACKLOG-014`.
+Implementation has not started.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -884,14 +896,13 @@ Nothing.
 
 ## Next
 
-Do not proceed to Engineering Decomposition unless explicitly requested
-and the source System Design is ready. `SD-001` is ready only for
-`BACKLOG-014` after `TRACE-028`; it does not authorize implementation,
-engineering tasks, sibling Feature design, or unrelated notes
-enhancements. The remaining M26 follow-up is broader validators for
-artifact and architecture drift (`BACKLOG-011`). Do not begin another
-application feature until it is selected from explicit user request or
-backlog.
+Do not proceed to Implementation unless explicitly requested and the
+source Engineering Decomposition is ready. `ENG-001` is ready only for
+`BACKLOG-014` after `TRACE-029`; it does not authorize engineering tasks,
+sibling Feature decomposition/design, or unrelated notes enhancements by
+itself. The remaining M26 follow-up is broader validators for artifact
+and architecture drift (`BACKLOG-011`). Do not begin another application
+feature until it is selected from explicit user request or backlog.
 
 ## Open questions carried forward
 

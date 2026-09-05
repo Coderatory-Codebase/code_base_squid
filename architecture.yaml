@@ -201,6 +201,23 @@ operating_model:
         consistency for that Feature; and stops before Engineering
         Decomposition, Implementation Planning, Implementation,
         Verification, Review, Delivery, Operate, or Feedback.
+    - id: ENGINEERING_DECOMPOSITION
+      status: governed-workflow
+      spec: .project/specs/SPEC-022-engineering-decomposition-lifecycle-phase.md
+      workflow: .agent/workflows/engineering-decomposition.md
+      artifact_type: ENG
+      artifact_path_pattern: .project/engineering/ENG-<NNN>-<slug>.md
+      behavioral_test: tooling/tests/engineering-decomposition.test.mjs
+      state_record: .project/state/PROJECT-STATE.md
+      trace_record_pattern: .project/traces/TRACE-<NNN>-<slug>.md
+      transition: system-design/ready -> engineering-decomposition/complete -> implementation
+      boundary: >
+        Engineering Decomposition consumes exactly one selected eligible
+        backlog Feature plus its complete System Design and Architecture
+        baseline; derives executable engineering work, dependencies,
+        affected areas, verification expectations, and readiness for
+        Implementation; and stops before Implementation, Verification,
+        Review, Delivery, Operate, or Feedback.
   operating_scopes:
     - id: FOUNDATION
       brain:
@@ -215,6 +232,7 @@ operating_model:
           .project/decomposition,
           .project/architecture,
           .project/system-design,
+          .project/engineering,
         ]
       backlog_scope: FOUNDATION
       owns: >
@@ -284,6 +302,7 @@ boundaries:
         decomposition,
         specs,
         decisions,
+        engineering,
         plans,
         tasks,
         changes,
@@ -311,6 +330,7 @@ boundaries:
         decomposition,
         architecture,
         system-design,
+        engineering,
         projects,
         reviews,
         reports,
@@ -437,7 +457,19 @@ dependency_direction:
 agent_native_lifecycle:
   loop: [Observe, Understand, Plan, Act, Test, Verify, Record]
   implementation_flow:
-    [SPEC, DECOMP, ARCHITECTURE, SYSTEM_DESIGN, PLAN, TASK, IMPLEMENT, TEST, REVIEW, DOCUMENT]
+    [
+      SPEC,
+      DECOMP,
+      ARCHITECTURE,
+      SYSTEM_DESIGN,
+      ENGINEERING_DECOMPOSITION,
+      PLAN,
+      TASK,
+      IMPLEMENT,
+      TEST,
+      REVIEW,
+      DOCUMENT,
+    ]
   status: >
     Realized as a documented protocol at M06 (work-level lifecycle: see
     .agent/instructions/development-lifecycle.md, SPEC-004) and M08
@@ -474,8 +506,9 @@ roadmap:
         PLAN-015,
         PLAN-016,
         PLAN-017,
+        PLAN-018,
       ]
-    trace: TRACE-028
+    trace: TRACE-029
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
@@ -501,7 +534,11 @@ roadmap:
     feature-scoped phase that consumes one eligible backlog Feature and the
     high-level Architecture baseline; `SD-001` designs only `BACKLOG-014`
     (Manage owned personal notes), marks it architecturally compatible with
-    impact none, and stops before Engineering Decomposition.
+    impact none, and stops before Engineering Decomposition. SPEC-022
+    implements Engineering Decomposition as a feature-scoped phase that
+    consumes `SD-001`; `ENG-001` decomposes only `BACKLOG-014` into
+    executable engineering work, marks it ready for Implementation, and
+    stops before source changes.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure
@@ -509,9 +546,8 @@ non_goals_current_phase:
   - project generator
   - graph database
   - control panel / dashboard
-  - Engineering Decomposition, Implementation Planning, Implementation,
-    Verification, Review, Delivery, Operate, or Feedback for REQ-001 /
-    BACKLOG-014
+  - Implementation, Verification, Review, Delivery, Operate, or Feedback
+    for REQ-001 / BACKLOG-014
   - a second/subsequent application feature not yet requested
   - email verification / password reset / OAuth / MFA / audit logging
     (BACKLOG-001..003, 007, 008)

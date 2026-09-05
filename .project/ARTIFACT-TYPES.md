@@ -53,6 +53,7 @@ renumbered.
 | Decomposition  | `DECOMP-`      | Product/system scope breakdown produced from a ready Specification before Architecture. Added M26, `SPEC-019`. One markdown file per real Decomposition artifact under `decomposition/`; not a backlog, task list, job-contract system, architecture model, or implementation plan.                                                                                  | Yes — `decomposition/` |
 | Architecture   | `ARCH-`        | Architecture phase output produced from Discovery, Specification, Decomposition, and backlog Features before Feature-scoped System Design. Added M26, `SPEC-020`. One markdown file per real Architecture artifact under `architecture/`; not an ADR replacement, implementation plan, diagram registry, engine, or task list.                                       | Yes — `architecture/`  |
 | System design  | `SD-`          | Feature-scoped System Design output produced from one selected eligible backlog Feature and a ready high-level Architecture before Engineering Decomposition. Added M26, `SPEC-021`. One markdown file per real System Design artifact under `system-design/`; not a product-wide design, feature registry, implementation plan, task list, engine, or job contract. | Yes — `system-design/` |
+| Engineering    | `ENG-`         | Feature-scoped Engineering Decomposition output produced from one approved `SD-*` artifact before Implementation. Added M26, `SPEC-022`. One markdown file per real Engineering Decomposition artifact under `engineering/`; not a product-wide decomposition, `TASK-*`, job contract, implementation plan, engine, or source-code change.                           | Yes — `engineering/`   |
 | Research       | `RESEARCH-`    | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                                                                                | Not yet                |
 | Review         | `REVIEW-`      | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                                                                                           | Yes — `reviews/`       |
 | Report         | `REPORT-`      | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                                                                                     | Yes — `reports/`       |
@@ -191,6 +192,11 @@ decomposition → DECOMP-* → architecture` when the source Specification is
   System Design. The implemented transition is `ARCH-*` + one selected
   eligible backlog Feature → `SD-*` → engineering decomposition when the
   Feature is architecturally compatible (`SPEC-021`).
+- **ENG**: `complete`, `needs-clarification`, or `blocked` for Phase 7
+  Engineering Decomposition. The implemented transition is `SD-*` + one
+  selected eligible backlog Feature → `ENG-*` → Implementation when the
+  Feature has executable work, dependency sequencing, verification
+  expectations, and intact traceability (`SPEC-022`).
 - **HANDOFF**: ephemeral by default (see below) — no formal lifecycle.
 - **BACKLOG** (when first used): `captured → clarifying → ready →
 selected → in-progress → review → completed`, with `deferred`,
@@ -440,6 +446,27 @@ the agent-facing workflow is `.agent/workflows/system-design.md`.
 Parent epics and sibling Features may be referenced only to establish
 scope, dependencies, constraints, or contradictions. They must not receive
 their own detailed design inside a selected Feature's `SD-*` artifact.
+
+## Engineering Decomposition artifact
+
+`.project/engineering/ENG-<NNN>-<slug>.md` records executable
+engineering work produced from one approved Feature-scoped System Design
+before Implementation. It preserves the selected Feature, sources,
+engineering scope, targeted code evidence, actual delta, engineering work
+items, dependencies/sequencing, affected system areas, verification
+expectations, acceptance relationship, architectural consistency,
+readiness, traceability, lifecycle state, and downstream boundary.
+
+This is not product Decomposition, a BACKLOG item, PLAN, TASK, job
+contract, implementation plan, API contract, database schema, UI
+implementation design, Architecture replacement, or traceability engine.
+It is the selected-Feature engineering work breakdown that may later feed
+Implementation when ready. The governing phase definition is `SPEC-022`;
+the agent-facing workflow is
+`.agent/workflows/engineering-decomposition.md`.
+
+Engineering work items inside `ENG-*` are not `TASK-*` artifacts. Create
+`TASK-*` later only when the ordinary task criteria above are met.
 
 ## Backlog
 

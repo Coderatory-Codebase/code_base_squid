@@ -83,13 +83,16 @@ Phase 5 Architecture consumes Discovery, Specification, Decomposition,
 and backlog Features to produce `ARCH-*` records before Feature-scoped
 System Design. Phase 6 System Design consumes one selected eligible
 Feature plus the high-level Architecture baseline to produce `SD-*`
-records before Engineering Decomposition. These are covered by
+records before Engineering Decomposition. Phase 7 Engineering
+Decomposition consumes one approved `SD-*` and produces `ENG-*` executable
+engineering work before Implementation. These are covered by
 `tooling/tests/intake.test.mjs`, `tooling/tests/discovery.test.mjs`,
 `tooling/tests/specification.test.mjs`, and
 `tooling/tests/decomposition.test.mjs`, and
 `tooling/tests/architecture.test.mjs`, and
-`tooling/tests/system-design.test.mjs`. See `architecture.yaml` for
-current architecture and active phase, and
+`tooling/tests/system-design.test.mjs`, and
+`tooling/tests/engineering-decomposition.test.mjs`. See
+`architecture.yaml` for current architecture and active phase, and
 `.project/state/PROJECT-STATE.md` for live status.
 
 ## Quality gate
@@ -102,7 +105,7 @@ pnpm run test                 # Vitest
 pnpm run build                # tsc -b
 pnpm run validate:architecture  # forbidden/undeclared top-level directories
 pnpm run secrets:scan         # baseline secret-pattern scan
-pnpm run validate             # runs all six in sequence
+pnpm run validate             # runs the full repository gate in sequence
 ```
 
 Also available: `pnpm run format` / `pnpm run format:check` (Prettier).

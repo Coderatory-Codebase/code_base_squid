@@ -48,8 +48,7 @@ function assertSystemDesignBoundary(text) {
   assert.match(text, /Product-wide System Design: not created/i);
   assert.match(text, /Sibling Feature design for `BACKLOG-015`: not created/i);
   assert.match(text, /Sibling Feature design for `BACKLOG-016`: not created/i);
-  assert.match(text, /Engineering Decomposition: not created/i);
-  assert.match(text, /Implementation Planning: not created/i);
+  assert.match(text, /Engineering Decomposition: created later by Phase 7 in `ENG-001`/i);
   assert.match(text, /Implementation: not started/i);
   assert.match(text, /Engineering tasks\/jobs: not created/i);
   assert.match(text, /Application source: not changed/i);
@@ -209,7 +208,7 @@ test("actual SD-001 is ready for Engineering Decomposition and preserves downstr
   );
   assert.match(
     markdownSection(design, "Lifecycle State"),
-    /Engineering Decomposition may be\s+considered, but has not been executed/i,
+    /Engineering Decomposition: complete with readiness\s+`ready-for-implementation` in `ENG-001`/i,
   );
   assertSystemDesignBoundary(markdownSection(design, "Boundary Check"));
 });
@@ -224,7 +223,8 @@ test("state, architecture metadata, and trace show Phase 6 complete without impl
     state,
     /System Design is complete with readiness\s+`ready-for-engineering-decomposition`/i,
   );
-  assert.match(state, /Engineering Decomposition has not been executed/i);
+  assert.match(state, /ENG-001/);
+  assert.match(state, /Implementation has not started/i);
   assert.match(repoArchitecture, /id: SYSTEM_DESIGN/);
   assert.match(repoArchitecture, /SPEC-021/);
   assert.match(repoArchitecture, /.project\/system-design\/SD-<NNN>-<slug>\.md/);

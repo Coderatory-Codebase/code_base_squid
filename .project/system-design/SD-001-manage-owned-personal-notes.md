@@ -428,16 +428,18 @@ ARCH-001 A004 -> workspace reachability remains sibling Feature scope
 - Selected Feature: `BACKLOG-014`.
 - System Design: complete with readiness
   `ready-for-engineering-decomposition`.
-- Next allowed phase for `BACKLOG-014`: Engineering Decomposition may be
-  considered, but has not been executed.
+- Engineering Decomposition: complete with readiness
+  `ready-for-implementation` in `ENG-001`.
+- Next allowed phase for `BACKLOG-014`: Implementation may be considered
+  if explicitly requested.
 
 ## Boundary Check
 
 - Product-wide System Design: not created.
 - Sibling Feature design for `BACKLOG-015`: not created.
 - Sibling Feature design for `BACKLOG-016`: not created.
-- Engineering Decomposition: not created.
-- Implementation Planning: not created.
+- Engineering Decomposition: created later by Phase 7 in `ENG-001`, not
+  by System Design.
 - Implementation: not started.
 - Engineering tasks/jobs: not created.
 - API implementation: not changed.

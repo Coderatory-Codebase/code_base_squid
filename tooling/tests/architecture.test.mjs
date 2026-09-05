@@ -181,7 +181,7 @@ test("actual ARCH-001 demonstrates reuse behavior and preserves open decisions",
   assert.match(risks, /Future search, tags, sharing/i);
 });
 
-test("actual ARCH-001 provides downstream handoff without engineering decomposition", () => {
+test("actual ARCH-001 provides downstream handoff without implementation tasks", () => {
   const architecture = readRepoFile(
     ".project",
     "architecture",
@@ -207,10 +207,7 @@ test("actual ARCH-001 preserves implementation and framework boundaries", () => 
   assert.doesNotMatch(architecture, /^## Task Breakdown$/im);
   assert.doesNotMatch(architecture, /^## API Implementation$/im);
   assert.doesNotMatch(architecture, /ArchitectureEngine|ArchitectureRegistry|ArchitectureCLI/i);
-  assert.doesNotMatch(
-    architecture,
-    /TASK-\d+|ENG-\d+|Modify .*\.tsx|Write endpoint|Create MongoDB index/i,
-  );
+  assert.doesNotMatch(architecture, /TASK-\d+|Modify .*\.tsx|Write endpoint|Create MongoDB index/i);
 });
 
 test("state and architecture metadata show Phase 5 complete and System Design handed off", () => {
@@ -221,7 +218,8 @@ test("state and architecture metadata show Phase 5 complete and System Design ha
   assert.match(state, /ARCH-001/);
   assert.match(state, /Architecture is complete with readiness for Feature-scoped System Design/i);
   assert.match(state, /SD-001/);
-  assert.match(state, /Engineering Decomposition has not been executed/i);
+  assert.match(state, /ENG-001/);
+  assert.match(state, /Implementation has not started/i);
   assert.match(repoArchitecture, /id: ARCHITECTURE/);
   assert.match(repoArchitecture, /SPEC-020/);
   assert.match(trace, /REQ-001 -> DISC-001 -> SPEC-018 -> DECOMP-001 -> ARCH-001/i);

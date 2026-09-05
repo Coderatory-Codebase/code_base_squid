@@ -21,6 +21,8 @@ side of the boundary.
 │                            Specification, Decomposition, and backlog Features.
 ├── system-design/           System Design artifacts (`SD-*`) for one selected
 │                            Feature after high-level Architecture.
+├── engineering/              Engineering Decomposition artifacts (`ENG-*`)
+│                            for one approved Feature System Design.
 ├── plans/                  How a spec is/was accomplished.
 ├── projects/               Project/product operating memory.
 ├── reviews/                 Point-in-time evaluations of completed work.
@@ -62,6 +64,13 @@ Decomposition — see
 `specs/SPEC-021-system-design-lifecycle-phase.md`. `SD-*` does not
 replace Architecture, backlog rows, engineering decomposition, plans, or
 tasks.
+`engineering/` holds `ENG-*` records created from one approved
+Feature-scoped System Design before Implementation — see
+`specs/SPEC-022-engineering-decomposition-lifecycle-phase.md`. `ENG-*`
+contains executable engineering work items, dependencies, affected areas,
+verification expectations, and readiness; it does not replace backlog
+rows, `PLAN-*`, `TASK-*`, job contracts, Architecture, System Design, or
+source implementation.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level

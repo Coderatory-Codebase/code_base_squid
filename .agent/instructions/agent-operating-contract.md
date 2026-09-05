@@ -56,6 +56,12 @@ AGENTS.md (read in full)
       architectural consistency check; stop before Engineering
       Decomposition
       (system-design.md, SPEC-021)
+  → ENGINEERING DECOMPOSITION when one approved Feature System Design is
+      selected —
+      create ENG-* with executable engineering work items,
+      dependencies/sequencing, affected areas, verification expectations,
+      acceptance relationship, and readiness; stop before Implementation
+      (engineering-decomposition.md, SPEC-022)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

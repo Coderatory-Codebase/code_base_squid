@@ -10,7 +10,8 @@ application code and not project memory.
 │                   capture, Discovery investigation, Specification
 │                   requirements, feature-driven Decomposition scope maps,
 │                   Architecture records, and System Design records
-│                   (not an engine).
+│                   plus Engineering Decomposition records (not an
+│                   engine).
 ├── skills/         Discoverable, self-describing capabilities.
 └── templates/      Authoring templates for the above.
 ```
@@ -52,7 +53,9 @@ CLAUDE.md (or another agent's entry point)
                              architecture.md converts DISC/SPEC/DECOMP/
                              backlog inputs to ARCH-* records and stops;
                              system-design.md converts one selected
-                             Feature plus ARCH-* to SD-* and stops)
+                             Feature plus ARCH-* to SD-* and stops;
+                             engineering-decomposition.md converts one
+                             approved SD-* to ENG-* work items and stops)
   → .agent/skills/*         (a concrete capability needed to do the work)
   → .project/state/PROJECT-STATE.md  (current phase, decisions, next up)
   → .project/projects/<project>/PROJECT.md  (owning project/product brain)

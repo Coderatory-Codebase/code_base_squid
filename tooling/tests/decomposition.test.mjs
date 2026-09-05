@@ -248,7 +248,8 @@ test("state, architecture, and trace show Decomposition complete and Architectur
   assert.match(state, /Decomposition is complete with readiness `ready-for-architecture`/i);
   assert.match(state, /ARCH-001/);
   assert.match(state, /SD-001/);
-  assert.match(state, /Engineering Decomposition has not been executed/i);
+  assert.match(state, /ENG-001/);
+  assert.match(state, /Implementation has not started/i);
   assert.match(trace, /REQ-001 -> DISC-001 -> SPEC-018 -> DECOMP-001 -> BACKLOG-013/i);
   assert.match(trace, /No Architecture, Implementation Planning, Implementation/i);
   assert.match(architecture, /id: DECOMPOSITION/);

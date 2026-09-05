@@ -126,6 +126,15 @@ deserves a durable record of what was requested, decided, implemented,
 and validated — proportional to the work, most interactions need none:
 `.agent/instructions/traceability.md`.
 
+When one approved Feature System Design is selected for execution, use
+`.agent/workflows/engineering-decomposition.md` to produce one
+feature-scoped `ENG-*` artifact before implementation. Engineering
+Decomposition belongs to the project/product brain for the selected
+Feature while using the foundation operating rules. It creates executable
+engineering work items and verification expectations, not `TASK-*`
+artifacts, job contracts, source edits, role frameworks, or a second
+backlog.
+
 Before modifying anything:
 
 1. Inspect the current repository state — do not assume it matches any

@@ -21,6 +21,7 @@ related:
     SPEC-019,
     SPEC-020,
     SPEC-021,
+    SPEC-022,
   ]
 ---
 
@@ -110,8 +111,8 @@ identify existing coverage — does a SPEC/ADR/backlog item already
        ↓
 use the governed lifecycle phase when the request is phase-specific:
   Intake -> Discovery -> Specification -> Decomposition -> Architecture
-  -> System Design
-  (SPEC-015, SPEC-016, SPEC-017, SPEC-019, SPEC-020, SPEC-021)
+  -> System Design -> Engineering Decomposition
+  (SPEC-015, SPEC-016, SPEC-017, SPEC-019, SPEC-020, SPEC-021, SPEC-022)
        ↓
 ANALYZE through relevant lenses; identify technologies involved
   (SPEC-010 -> "Analysis lenses"; SPEC-008 -> "Technology skill model")

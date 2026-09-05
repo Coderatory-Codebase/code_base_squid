@@ -13,6 +13,7 @@ related:
     SPEC-018,
     SPEC-019,
     SPEC-020,
+    SPEC-022,
     DECOMP-001,
     ARCH-001,
     BACKLOG-014,
@@ -213,5 +214,5 @@ Architecture, and traceability semantics.
 ## Status
 
 `active` - governs Feature-scoped System Design from M26 onward.
-Engineering Decomposition and later phases are not implemented by this
-spec.
+Engineering Decomposition is governed separately by `SPEC-022`; this spec
+still stops at the `SD-*` handoff and does not implement later phases.

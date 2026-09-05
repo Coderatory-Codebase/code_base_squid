@@ -333,15 +333,17 @@ BACKLOG-016 -> authenticated workspace + notes page reachability
 - Decomposition: complete and ready for Architecture.
 - Architecture: complete with readiness `ready-for-feature-system-design`.
 - System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`.
-- Next allowed phase for `BACKLOG-014`: Engineering Decomposition may be
-  considered, but has not been executed.
-- Engineering Decomposition: not created.
+- Engineering Decomposition for `BACKLOG-014`: created later by Phase 7
+  in `ENG-001`.
+- Next allowed phase for `BACKLOG-014`: Implementation may be considered
+  if explicitly requested.
 
 ## Boundary Check
 
 - System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`,
   not by Architecture.
-- Engineering Decomposition: not created.
+- Engineering Decomposition for `BACKLOG-014`: created later by Phase 7
+  in `ENG-001`, not by Architecture.
 - Implementation Planning: not created.
 - Implementation: not started.
 - Engineering tasks/jobs: not created.

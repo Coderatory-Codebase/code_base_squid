@@ -161,7 +161,8 @@ test("state and trace preserve Discovery boundary while later phases advance thr
   assert.match(state, /DECOMP-001/);
   assert.match(state, /ARCH-001/);
   assert.match(state, /SD-001/);
-  assert.match(state, /Engineering Decomposition has not been executed/i);
+  assert.match(state, /ENG-001/);
+  assert.match(state, /Implementation has not started/i);
   assert.match(state, /lens-based current-state,\s+gap\/capability,\s+and synthesis analysis/i);
   assert.match(
     trace,
