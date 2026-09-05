@@ -1,15 +1,13 @@
 ---
-id: M26-BEHAVIORAL-AUDIT-REPORT
+id: REPORT-001
 type: report
 title: M26 behavioral audit — personal notes feature as a live test of the operating model
-status: completed
+status: final
 created: 2026-09-03
 related:
   [
     TRACE-014,
     PLAN-004,
-    BACKLOG.md,
-    PROJECT-STATE.md,
     SPEC-008,
     SPEC-010,
     SPEC-011,
@@ -18,7 +16,7 @@ related:
   ]
 ---
 
-# M26 Behavioral Audit Report
+# REPORT-001: M26 Behavioral Audit Report
 
 This report audits whether `nut-shyll`'s own operating model (`AGENTS.md`,
 `architecture.yaml`, `.agent/instructions/*`, `.project/*`) actually

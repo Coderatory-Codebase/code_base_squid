@@ -60,33 +60,20 @@ boundaries are not pre-filled with placeholder files.
 
 ## Current maturity
 
-**M01–M14 are complete.** The root definition artifacts, workspace
-tooling, `.agent/` (agent operating system), `.project/` (project memory),
-and `tooling/` (repository quality scripts and Git hooks — see
-`tooling/README.md`) are all in place. In order since M05: the
-contract/package model (a contract is a concept, not a framework;
-`packages/` is a reusable source boundary, not a nested monorepo); the
-development lifecycle (`UNDERSTAND → PLAN → IMPLEMENT → VALIDATE →
-REVIEW → RECORD → COMPLETE`); the capability model
-(instruction/workflow/skill/tool/package/agent kept distinct —
-`validate-repository` remains the only skill); the development loop
-(`OBSERVE → UNDERSTAND → HYPOTHESIZE → PLAN → CHANGE → VERIFY →
-EVALUATE`, nested inside IMPLEMENT); the engineering graph model (a typed
-relationship vocabulary — `depends-on`, `blocks`, `affects`, ... —
-distinct from the untyped `related:` cross-reference, no graph engine);
-the package source model's remaining detail; the engineering
-standards/design/practice model (technology-neutral principles plus the
-technology-skill mechanism — `SPEC-008`); and the Git governance/quality
-enforcement layer (`SPEC-009`) — implemented and, at M14, matured (staged-
-scoped commit hooks, CI reusing `pnpm run validate` directly, a
-deliberate native-hooks-vs-Husky/Lefthook evaluation), not only
-documentation. **No package, app, server, or deployable agent exists
-yet** — none has met the demonstrated-reuse or concrete-need bar those
-milestones establish; no implementation technology has been adopted. A
-clean clone can run `pnpm install && pnpm run validate` successfully. See
-`architecture.yaml` for the full milestone roadmap and current phase
-marker, or `.project/state/PROJECT-STATE.md` for the live status
-(including a note on M10's roadmap-numbering correction).
+The foundation now includes the root definition artifacts, `.agent/`
+(agent operating system), `.project/` (project memory), `tooling/`
+(quality scripts and Git hooks), and a project-owned MERN/Next.js seed
+application under `apps/test/web` and `servers/test/api`. The seed app is
+reference/proof material for the operating layer, not the whole repo.
+
+Current operating work is M26: realigning the repo around explicit
+request routing, dual operating scope (foundation brain plus
+project/product brains), dual-track discovery/delivery,
+pre-implementation artifacts, current architecture in
+`architecture.yaml`, and the first stack skill
+(`.agent/skills/mern-nextjs-vertical-slice`). See
+`architecture.yaml` for current architecture and active phase, and
+`.project/state/PROJECT-STATE.md` for live status.
 
 ## Quality gate
 

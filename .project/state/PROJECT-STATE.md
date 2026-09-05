@@ -1,6 +1,6 @@
 ---
 type: state
-updated: 2026-09-02
+updated: 2026-09-05
 ---
 
 # Project State
@@ -10,23 +10,22 @@ going on," before opening any other artifact.
 
 ## Current phase
 
-**M01–M25 are complete.** M26+ is **not yet defined** — the original M01
-roadmap sketch ended at M14; M15 through M25 are all genuinely new
-milestones added beyond it (not renames of a placeholder), and nothing
-beyond M25 has a sketch entry either. M22 is the repository's first real
-application feature (Authentication, MERN + Next.js). M23 corrected its
-structure into a project-owned boundary — `apps/test/web` and
-`servers/test/api` (not `apps/web`/`servers/api`) — and strengthened the
-operating model with an explicit foundation/project separation. M24
-system-audited the operating model against real evidence and closed
-four genuine, evidence-grounded gaps. M25 re-audited it a second time,
-deliberately adversarially, against a larger real-evidence base
-(M22–M24 plus rate limiting, Profile's remediation, and Account
-Security Settings) — most of 20 suspected failure areas were already
-fixed or were never real gaps; two narrow, genuine ones were found and
-closed. See "Completed" below. See "Roadmap position" below before
-assuming any specific next milestone. See `../../architecture.yaml` →
-`roadmap` for the full milestone list.
+**M01-M25 are complete. M26 is active.** M26 was explicitly commissioned
+after the user clarified that the repository must behave as an
+agent-executable operating foundation for MERN/Next.js monorepo app
+development, not mainly as after-the-fact records. The active work is
+`SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`: request routing, dual
+operating scope, dual-track discovery and delivery, pre-implementation
+artifact discipline, current architecture in `architecture.yaml`, and
+the first real stack skill for MERN/Next.js vertical slices.
+
+The seed application remains `apps/test/web` + `servers/test/api`. It is
+the reference app used to prove the foundation, not the whole repository.
+Its project/product brain is `.project/projects/test/PROJECT.md`; the
+repository/foundation brain remains `AGENTS.md`, `.agent/`,
+`architecture.yaml`, and repository-level `.project/` artifacts.
+See `../../architecture.yaml` -> `current_architecture` and
+`operating_model` before reading roadmap history.
 
 **Roadmap numbering history:** the original M01 roadmap sketch labeled
 M10 "MCP Integration" and M11 "Core Packages." The actual M10 work
@@ -87,25 +86,12 @@ real, closing two narrow, genuine gaps: tooling guidance was already in
 `SPEC-012`'s scope but not stated plainly, and a real instance of a
 framework-specific factual question being mistaken for a
 principle-answerable one), not because a roadmap slot needed filling.
-Nothing beyond M25 has a sketch entry. The next real milestone is
-decided when a concrete need identifies one, not by roadmap position
-(`.agent/instructions/implementation.md`) — most plausibly the next
-feature slice (from `.project/backlog/BACKLOG.md`, seven `captured`
-items, or a new one), explicitly not started without approval per M23's
-own constraint (reaffirmed at M24 and M25), now that the foundation
-(architecture, agent operating model, project memory, engineering
-judgment, Git/quality enforcement, backlog/feature-development model
-with explicit phase determination, connected agent bootstrap sequence
-with request classification, foundation/project boundary checking and
-an explicit foundation-change-authorization rule, human-in-the-loop
-indexing, technology-guidance governance covering technology,
-implementation-area, and tooling guidance under one explicit scope with
-a cross-project skill-creation bar, progressive execution traceability
-with foundation/project classification and a named conformance-review
-mechanism, continuous discovery capture, and a real, working,
-correctly-project-scoped application with three completed features) is
-coherent, load-bearing, and now **twice** system-audited against real
-evidence rather than only individually documented.
+M26 is the current repair milestone. It does not add an application
+feature; it realigns the operating model so future features are routed,
+analyzed, planned, implemented, validated, and recorded in the intended
+order. Detailed milestone history now lives in
+`.project/roadmap/MILESTONES.yaml`; `architecture.yaml` is current
+architecture first.
 
 ## Technology profile
 
@@ -121,6 +107,10 @@ Populated for the first time at M22 (`ADR-012`); paths corrected at M23
   `mongodb-memory-server` (`servers/test/api`, hermetic API tests
   against a real, in-memory MongoDB).
 - **Dev tooling**: `tsx` (`servers/test/api` dev server).
+- **Stack skill**: `.agent/skills/mern-nextjs-vertical-slice/SKILL.md`
+  captures reusable guidance for seed-app features spanning Next.js,
+  Express, MongoDB/Mongoose, TypeScript validation/contracts, tests, and
+  manual UI verification.
 
 `agents/` and `packages/` remain `not-yet-created` — no package exists
 yet (nothing meets the demonstrated-cross-deployable-reuse bar,
@@ -142,9 +132,10 @@ ecosystem guidance; they're this project's own implementation choices
 
 ## Backlog
 
-Nine real backlog items exist — one table file,
+Twelve real backlog items exist — one table file,
 `.project/backlog/BACKLOG.md` (single-table format since M23,
-originally one file per item at M22): `BACKLOG-001` (email
+originally one file per item at M22; `Scope`/`Owner` columns added at
+M26): `BACKLOG-001` (email
 verification), `BACKLOG-002` (password reset/account recovery),
 `BACKLOG-003` (OAuth/social login), `BACKLOG-005` (frontend component/
 E2E test coverage) — from M22's own scoping, `captured`; `BACKLOG-006`
@@ -155,14 +146,17 @@ account security settings feature (`TRACE-012`/`ADR-014`); `BACKLOG-007`
 (auth audit/security logging), `BACKLOG-008` (MFA/2FA/passkeys) — from
 M23's corrective review of M22, `captured`; `BACKLOG-009` (client-IP
 detection behind the Next.js proxy, for correct rate limiting) —
-discovered while implementing `BACKLOG-006`, `captured`. Model and
+discovered while implementing `BACKLOG-006`, `captured`; `BACKLOG-010`
+is completed (roadmap history extraction), and `BACKLOG-011` through
+`BACKLOG-012` capture remaining M26 foundation follow-up work for
+operating-layer validators and multilevel backlog migration. Model and
 conventions:
 `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`
 → "Persistence" (single-table format, added M23).
 
 ## Traces
 
-Thirteen real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Seventeen real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -204,7 +198,10 @@ operating model, including a root-cause classification for every real
 M22–M24 failure and 13 genuine cold-start scenario walkthroughs; its
 most consequential finding is negative — most suspected gaps were
 already fixed or never real — stated honestly rather than manufactured
-into a longer report). None is a retroactive trace of M01–M17, which
+into a longer report), `TRACE-014` (personal notes), `TRACE-015`
+(M26 operating-model realignment), `TRACE-016` (roadmap history
+extraction), and `TRACE-017` (dual operating-scope clarification). None
+is a retroactive trace of M01–M17, which
 predate the model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
@@ -647,7 +644,19 @@ lifecycle.md`; (2) Security and Accessibility were not named `REVIEW`
 
 ## Currently active
 
-Nothing open. `BACKLOG-006` (rate limiting) was completed post-M23 —
+M26 operating-model realignment is active. Its first slice is complete
+(`SPEC-014`, `PLAN-005`, `ADR-015`, `TRACE-015`): request routing,
+dual-track discovery/delivery, pre-implementation artifact discipline,
+current architecture in `architecture.yaml`, first MERN/Next.js
+vertical-slice skill, and corrected report placement. Its second slice is
+also complete (`PLAN-006`, `TRACE-016`, `BACKLOG-010`): detailed
+milestone history moved to `.project/roadmap/MILESTONES.yaml`. Its third
+slice is complete (`ADR-016`, `PLAN-007`, `TRACE-017`): the operating
+model now has an explicit repository/foundation brain, a project/product
+brain for `test`, and `Scope`/`Owner` backlog columns. No application
+feature is currently selected.
+
+Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
 `/profile` page) was then built directly from a user request — see
 `TRACE-008` — then audited (`TRACE-009`) and remediated (`TRACE-010`):
@@ -686,10 +695,10 @@ noted there rather than duplicated; genuinely speculative adjacent
 capabilities — search, tagging, sharing, export, pagination — were
 considered and explicitly not backlogged, consistent with M20's/M25's
 precedent of not manufacturing items without a concrete signal of
-need). Seven `captured` `BACKLOG` items remain (`BACKLOG-001`..`003`,
-`005`, `007`..`009`) — none selected or in progress beyond the notes
-feature just completed. Not proceeding to another application feature
-without explicit instruction, per M25's own closing constraint.
+need). Nine `captured` `BACKLOG` items remain (`BACKLOG-001`..`003`,
+`005`, `007`..`009`, `011`, `012`) — none selected for application
+implementation. Not proceeding to another application feature without
+explicit instruction.
 
 ## Authoritative decisions
 
@@ -746,7 +755,13 @@ user had already selected, not a restatement of an existing one. **M25
 introduced no new ADR** — same category as M16/M19/M20/M21/M24: two
 connective/clarifying amendments to `SPEC-012` (tooling already in
 scope, stated plainly; a framework-fact vs. principle distinction),
-neither a new decision between real alternatives.
+neither a new decision between real alternatives. **M26 introduced two
+new ADRs**: `ADR-015` (`architecture.yaml` is current architecture first
+and milestone history second), a genuine architecture-document role
+decision discovered during the realignment; and `ADR-016` (dual
+operating scope), the explicit decision that the repository/foundation
+brain and each project/product brain are maintained separately while
+sharing one operating model.
 
 ## Blocked
 
@@ -754,15 +769,11 @@ Nothing.
 
 ## Next
 
-Not yet defined — see "Roadmap position" above. Seven `captured`
-`BACKLOG` items (`BACKLOG-001`..`003`, `005`, `007`..`009`) are the
-most concrete known candidates for follow-up feature work; none is
-selected yet. M23's, M24's, and M25's own
-kickoffs each explicitly said not to start another application feature
-without approval. Do not begin new implementation work without a
-concrete, demonstrated need, and not without explicit approval — see
-`../../.agent/instructions/implementation.md` ("stay inside the current
-milestone").
+Finish the remaining M26 follow-ups in priority order: add validators for
+artifact and architecture drift (`BACKLOG-011`), then migrate the backlog
+to explicit multilevel relationships (`BACKLOG-012`). Do not begin
+another application feature until it is selected from explicit user
+request or backlog.
 
 ## Open questions carried forward
 

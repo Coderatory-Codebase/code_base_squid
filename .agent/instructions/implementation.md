@@ -6,11 +6,11 @@ applies_to: writing-code-or-config
 
 # Implementation Behavior
 
-- **Stay inside the current milestone.** Check
-  `architecture.yaml.roadmap.current_phase` before starting. Implementing
-  ahead of it (e.g. building M06 workflow orchestration while M03 is
-  active) is a structural error, not initiative — flag the gap instead and
-  wait for explicit approval to advance the phase.
+- **Stay inside the current active work.** Check `architecture.yaml` for
+  `current_architecture`, `operating_model`, and `roadmap.current_phase`
+  before starting. Implementing outside the active route or selected
+  feature is a structural error, not initiative — flag the gap instead
+  and wait for explicit approval to expand scope.
 - **Extend before adding.** Prefer extending an existing config/tool
   already in the repo over introducing a new one. Justify any new
   dependency against what's already installed.

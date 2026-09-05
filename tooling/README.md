@@ -55,7 +55,7 @@ spawning, CRLF breaking a hook's shebang, and others).
 
 ## Non-goals
 
-Not a nested monorepo (no `package.json` per subdirectory), not a place
-for application/business logic, not a technology-specific tool
-installation (nothing here assumes React/TypeScript-beyond-tooling/
-Docker/etc. — none of that exists in this repository yet).
+Not a place for application/business logic. Tooling may support adopted
+repo technologies when a real need exists, but it should not become a
+catch-all for framework-specific application behavior. See
+`architecture.yaml` and `PROJECT-STATE.md` for the current stack.

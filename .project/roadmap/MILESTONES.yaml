@@ -1,0 +1,543 @@
+# Machine-readable milestone history for this repository.
+# Moved out of architecture.yaml during BACKLOG-010 / M26 so
+# architecture.yaml can describe current architecture first.
+
+version: 1
+name: nut-shyll
+kind: roadmap-history
+moved_from: architecture.yaml
+moved_at: 2026-09-05
+
+roadmap:
+  # Detailed milestone history moved here from architecture.yaml at M26
+  # per ADR-015/BACKLOG-010. architecture.yaml keeps current architecture,
+  # active phase, and a pointer back to this file.
+  milestones:
+    - id: M01
+      name: Foundation Definition
+      status: complete
+      deliverables: [README.md, architecture.yaml, AGENTS.md, CLAUDE.md]
+    - id: M02
+      name: Repository Bootstrap
+      status: complete
+      deliverables:
+        [pnpm-workspace.yaml, package.json, tsconfig.json, lint/format config, CI foundation]
+    - id: M03
+      name: Claude Agent Bootstrap
+      status: complete
+      deliverables: [.agent/instructions, .agent/workflows, .agent/skills, .agent/templates]
+    - id: M04
+      name: Project Artifact System
+      status: complete
+      deliverables:
+        [
+          .project/ARTIFACT-TYPES.md,
+          .project/state,
+          .project/decisions,
+          .project/specs,
+          .project/plans,
+          .project/reviews,
+        ]
+    - id: M05
+      name: Contract System
+      status: complete
+      # Corrected after initial implementation: no universal Contract
+      # runtime abstraction, no centralized/independently-built
+      # packages/contracts. See ADR-007 (superseded), ADR-008, SPEC-003.
+      deliverables:
+        [.agent/instructions/contracts.md, .project/decisions/ADR-008, .project/specs/SPEC-003]
+    - id: M06
+      name: Workflow System
+      status: complete
+      deliverables:
+        [
+          .agent/instructions/development-lifecycle.md,
+          .project/specs/SPEC-004,
+          .agent/workflows (simplified to reference the shared lifecycle),
+        ]
+    - id: M07
+      name: Skill System
+      status: complete
+      deliverables:
+        [
+          .agent/instructions/capability-model.md,
+          .agent/skills/README.md (expanded),
+          .project/specs/SPEC-005,
+        ]
+      # No new skill created — validate-repository remains the only one;
+      # no genuine second capability was demonstrated. See ADR/SPEC log
+      # and .project/state/PROJECT-STATE.md.
+    - id: M08
+      name: Development Loops
+      status: complete
+      # Protocol/instruction only, per its own brief — not a runtime.
+      deliverables: [.agent/instructions/development-loop.md, .project/specs/SPEC-006]
+    - id: M09
+      name: Graph System
+      status: complete
+      # Model/semantics only, per its own brief — no graph engine,
+      # database, or .project/graph/ directory. See SPEC-007.
+      deliverables: [.agent/instructions/engineering-graph.md, .project/specs/SPEC-007]
+    - id: M10
+      name: Package Source Model
+      status: complete
+      # Renamed from the original roadmap's "Core Packages" (M11) —
+      # swapped with "MCP Integration" since neither had started; this
+      # milestone's actual content matched the original M11, not M10.
+      # See .project/state/PROJECT-STATE.md for the swap rationale.
+      deliverables: [.agent/instructions/packages.md, .project/specs/SPEC-003 (amended)]
+      # No package created — nothing in the repository yet meets the
+      # demonstrated-reuse extraction bar (ADR-008). Model/convention only.
+    - id: M11
+      name: Architecture Validation & Boundary Integrity
+      status: complete
+      deliverables:
+        [
+          .project/state/PROJECT-STATE.md (corrected),
+          architecture.yaml (corrected),
+          AGENTS.md (corrected),
+          .agent/instructions/boundaries.md (corrected),
+        ]
+      # Consolidation gate, not a new subsystem. "MCP Integration"
+      # (previously slotted here after the M10 swap) is removed from the
+      # numbered roadmap entirely: MCP has no concrete requirement in
+      # this repository and must not occupy a roadmap slot until one
+      # exists (see AGENTS.md -> "Non-goals right now", SPEC-001 ->
+      # non-goals). M12+ below is a non-binding long-range reference only
+      # — the next real milestone is decided when a concrete need exists.
+    - id: M12
+      name: Engineering Standards, Design & Practice Model
+      status: complete
+      # Renamed from the original roadmap sketch's "Project Scaffolder" —
+      # that label had no concrete requirement. Establishes the
+      # technology-neutral engineering/design judgment layer between this
+      # file's structural boundaries and real implementation, plus the
+      # technology-skill mechanism (skills scoped to one technology,
+      # loaded only when that technology is actually involved). No
+      # technology skill created — no implementation technology exists in
+      # this repository yet. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-008,
+          .agent/instructions/engineering-standards.md,
+          .agent/skills/README.md (Technology skills section added),
+        ]
+    - id: M13
+      name: Repository Structure, Git Governance & Quality Enforcement
+      status: complete
+      # Renamed from the original roadmap sketch's "Self-Hosting" — that
+      # label had no concrete requirement. Establishes and *implements*
+      # (not just documents) the Git/quality enforcement layer: real
+      # commit-msg/pre-commit/pre-push hooks (ADR-009), an expanded
+      # `pnpm run validate` (+ validate:architecture, + secrets:scan), and
+      # a CI job that runs the same commands plus a PR commit-range check.
+      # tooling/ boundary populated for the first time. No technology-
+      # specific tooling added — none is in use yet (SPEC-008 ->
+      # "Project technology profile"). See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-009,
+          .project/decisions/ADR-009,
+          .agent/instructions/git-governance.md,
+          tooling/git-hooks (commit-msg,
+          pre-commit,
+          pre-push),
+          tooling/scripts (secret-scan,
+          architecture validation,
+          commit-message rules,
+          hook installer),
+          .github/workflows/ci.yaml (extended),
+          .gitattributes (new),
+        ]
+    - id: M14
+      name: Autonomous Repository Engineering Tooling
+      status: complete
+      # Renamed from the original roadmap sketch's "Production Hardening"
+      # — that label had no concrete requirement (no production system
+      # exists to harden). This milestone matured M13's implementation:
+      # staged-file-scoped pre-commit checks, CI reusing `pnpm run
+      # validate` instead of duplicating its rule list, a deliberate
+      # hook-management evaluation (native hooks vs. Husky/Lefthook,
+      # reaffirmed — see ADR-009 addendum), a real fresh-clone
+      # installation test, and tooling/README.md for onboarding. No new
+      # ADR (evaluation appended to the existing ADR-009, not a new
+      # decision). No technology-specific tooling added — none is in use
+      # yet. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-009 (amended),
+          .project/decisions/ADR-009 (amended),
+          tooling/README.md (new),
+          tooling/git-hooks/pre-commit (staged-scoped),
+          .github/workflows/ci.yaml (simplified to reuse `pnpm run validate`),
+        ]
+    - id: M15
+      name: Agent Backlog & Feature-Driven Development Model
+      status: complete
+      # Not a rename — the original M01 roadmap sketch ended at M14; this
+      # is the first milestone added because a real gap existed (no
+      # work-management model for actual feature implementation).
+      # Establishes a single, repository-native backlog (BACKLOG-<NNN>,
+      # not multiple audience-specific backlogs — see ADR-010), the
+      # backlog/feature/task/RFC/SPEC boundary, feature-driven
+      # development integrated with the existing lifecycle/loop (not a
+      # replacement), and the central rule that discovery does not
+      # automatically become implementation scope. Adds one engineering-
+      # graph relationship type (discovered-from, SPEC-007) for backlog
+      # provenance. No backlog item created — nothing has been
+      # implemented yet to discover or defer work from. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-010,
+          .project/decisions/ADR-010,
+          .agent/instructions/backlog-and-feature-development.md,
+          .project/ARTIFACT-TYPES.md (BACKLOG type added),
+          .project/specs/SPEC-007 (discovered-from relationship added),
+        ]
+    - id: M16
+      name: Agent Repository Operating Contract
+      status: complete
+      # Not a rename — added because a real gap existed: the M01-M15
+      # operating model was correct but not connected into one
+      # discoverable bootstrap sequence. A cold-start audit against 6
+      # scenarios found exactly 2 real discoverability gaps (CLAUDE.md's
+      # stale, drifting duplicate of AGENTS.md's checklist; a repository-
+      # orientation.md instruction unreferenced from the entry chain) —
+      # both fixed. SPEC-011 maps the bootstrap sequence onto M01-M15's
+      # existing pieces by pointer, confirming SPEC-008's guidance-
+      # precedence hierarchy already covers what this milestone asked to
+      # define. No new lifecycle/loop/standards/Git-governance/backlog
+      # content — those remain authoritative and unchanged. No new ADR
+      # (same category as M11: consolidation, not a new decision). See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-011,
+          .agent/instructions/agent-operating-contract.md,
+          CLAUDE.md (trimmed — stale duplicate checklist removed),
+          AGENTS.md (repository-orientation.md pointer added),
+        ]
+    - id: M17
+      name: Technology Ecosystem & Guidance Governance
+      status: complete
+      # Not a rename — added because a real gap existed: M12 established
+      # what a technology skill is and how it's structured, but not who
+      # decides one should exist or when creating one needs a human.
+      # Establishes the ecosystem-vs-project boundary (a project's
+      # implementation choice never silently becomes ecosystem policy),
+      # explicit skill creation/non-creation criteria, a hard human-
+      # approval requirement for durable skill creation/change, and
+      # conflict handling — all built on SPEC-008's existing precedence
+      # and technology-skill model, not a competing hierarchy. No
+      # technology skill created — zero technologies are adopted. No new
+      # ADR (same category as M07/M12/M16). See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-012,
+          .agent/instructions/technology-guidance.md,
+          .agent/skills/README.md (SPEC-012 pointer added),
+          AGENTS.md (technology-guidance.md pointer added),
+          .project/state/PROJECT-STATE.md (Technology profile clarified),
+        ]
+    - id: M18
+      name: Agent Execution Traceability & Repository Operating Record
+      status: complete
+      # Not a rename — added because a real gap existed: nothing recorded
+      # how a piece of agent work was actually done in a durable,
+      # auditable way. Establishes TRACE-<NNN> as observational, never
+      # authoritative — references ADR/SPEC/BACKLOG/PLAN/REVIEW/Git
+      # rather than duplicating them; proportional to work significance;
+      # decision provenance (human/agent/existing-rule/external-guidance/
+      # validation-result); integrity rules against claiming what didn't
+      # happen. One real trace created (TRACE-001, this milestone's own
+      # execution) — not left hypothetical, not retroactively applied to
+      # M01-M17. One new ADR (ADR-011 — repository-native persistence,
+      # same category as ADR-010). See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-013,
+          .project/decisions/ADR-011,
+          .agent/instructions/traceability.md,
+          .project/traces/TRACE-001,
+          .project/ARTIFACT-TYPES.md (TRACE type added),
+          .project/specs/SPEC-007 (TRACE node type added),
+        ]
+    - id: M19
+      name: Operating-Model Execution Traceability
+      status: complete
+      # Not a rename — added because a real gap existed: M18's TRACE-001
+      # showed a trace could name which lifecycle stage something
+      # happened in, but not how that stage actually executed (what was
+      # decided and why, what failed and how it was fixed) — and that
+      # TRACE-001 itself was assembled mostly near the end rather than
+      # written alongside the work. Adds a checkpoint field structure
+      # (SPEC-013 -> "Checkpoint structure") and a hard progressive-
+      # recording rule to the same TRACE artifact type — no second trace
+      # type, no new lifecycle. TRACE-002 (this milestone's own
+      # execution) is the first trace actually written checkpoint by
+      # checkpoint, including a real, honestly-recorded format:check
+      # failure and fix. No new ADR — an addition to SPEC-013's existing
+      # model, not a new decision between real alternatives (same
+      # category as M14's ADR-009 addendum). See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-013 (checkpoint structure + progressive recording added),
+          .agent/instructions/traceability.md (updated),
+          .project/ARTIFACT-TYPES.md (TRACE entry clarified),
+          .project/traces/TRACE-002,
+        ]
+    - id: M20
+      name: Continuous Discovery & Backlog Capture
+      status: complete
+      # Not a rename — added because a real gap existed: a trace could
+      # say a discovery happened without it producing an explicit
+      # outcome, so meaningful future work could be noticed and then
+      # forgotten. Amends SPEC-010 (already the backlog/feature-
+      # development authority) with a five-outcome "Discovery decision
+      # model" (needed now / decision required / future work / already
+      # tracked / rejected), an expanded meaningful-discovery threshold,
+      # explicit cross-cutting framing (discovery happens at any stage,
+      # not only ANALYZE/IMPLEMENT), and a completion-time reconciliation
+      # check — no new SPEC, no new backlog taxonomy, no new lifecycle
+      # stage, no ADR. TRACE-003 (this milestone's own execution)
+      # honestly records zero genuine discoveries rather than
+      # manufacturing a BACKLOG item to demonstrate the mechanism. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-010 (discovery decision model + threshold + reconciliation added),
+          .agent/instructions/backlog-and-feature-development.md (updated),
+          .agent/instructions/development-lifecycle.md (completion-criteria bullet added),
+          .project/specs/SPEC-013 (cross-reference added),
+          .project/ARTIFACT-TYPES.md (BACKLOG entry clarified),
+          .project/traces/TRACE-003,
+        ]
+    - id: M21
+      name: Autonomous Agent Execution & Technology Discovery
+      status: complete
+      # Not a rename — added because the user redirected before the
+      # first real application: strengthen the operating model so an
+      # agent can derive request classification, planning necessity,
+      # human-escalation points, and technology/skill handling from the
+      # repository itself, before building Authentication. A cold-start
+      # audit (same discipline as M16's, one new scenario) found most of
+      # the requested behavior already existed (feature slicing,
+      # missing-skill handling, discovery capture, progressive tracing,
+      # engineering-lens selection, Git governance) and needed only
+      # connecting, not duplicating. Four genuine gaps fixed: no request-
+      # classification step, no explicit "is planning required" gate, no
+      # single discoverable index of human-in-the-loop triggers, and no
+      # agent-agnostic statement of manual/UI verification (previously
+      # Claude-Code-specific only, a real ADR-006 gap). All four fixed as
+      # amendments to SPEC-011/development-lifecycle.md/validation.md —
+      # no new SPEC, no new ADR (same category as M16/M19/M20). TRACE-004
+      # (this milestone's own execution) includes a real, executed
+      # cold-start simulation of "Build a new authentication feature
+      # using the application's current technology stack" as its own
+      # checkpoint, confirming all 20 elements the milestone's own
+      # completion criteria named are reachable without the user naming
+      # a process. No backlog item created — no genuine, independent
+      # discovery occurred. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/specs/SPEC-011 (Request classification,
+          Human-in-the-loop,
+          scenario G added),
+          .agent/instructions/agent-operating-contract.md (updated),
+          .agent/instructions/development-lifecycle.md (planning-required gate added),
+          .agent/instructions/validation.md (manual/UI verification bullet added),
+          .project/traces/TRACE-004,
+        ]
+    - id: M22
+      name: Authentication Feature (first application)
+      status: complete
+      # The repository's first real application feature, and the first
+      # milestone to populate apps/ and servers/. MERN + Next.js, as the
+      # user explicitly requested: apps/web (Next.js/React) and
+      # servers/api (Express/Node/MongoDB via Mongoose), two independent
+      # deployables (ADR-012). JWT access+refresh tokens in httpOnly
+      # cookies, delivered same-origin via a Next.js rewrite proxy to
+      # avoid cross-origin cookie/CORS complications. Core scope only —
+      # register, login, logout, current-user, refresh, route
+      # protection; email verification, password reset, OAuth, and
+      # server-side refresh-token revocation are real backlog items
+      # (BACKLOG-001..004), not built. This milestone was itself
+      # produced by M21's operating model: classified, technology/skill-
+      # checked, planned (ADR-012 + PLAN-002), implemented, and recorded
+      # without the user re-stating any process — see TRACE-005. All
+      # PLAN-002 acceptance criteria verified by servers/api's test
+      # suite (supertest + mongodb-memory-server) and a real manual pass
+      # through both dev servers. No new ADR beyond ADR-012 itself (the
+      # one genuine architecture/technology decision this milestone
+      # made). See .project/state/PROJECT-STATE.md.
+      deliverables: [
+          apps/web (Next.js app — login/register/dashboard,
+          auth-client.ts,
+          auth-server.ts),
+          servers/test/api (Express app — domains/auth/*),
+          .project/decisions/ADR-012,
+          .project/plans/PLAN-002,
+          .project/backlog/BACKLOG.md (BACKLOG-001 through BACKLOG-005,
+          originally
+          one file per item — corrected to a single table at M23),
+          .project/traces/TRACE-005,
+        ]
+      # Paths corrected at M23 (ADR-013): apps/web -> apps/test/web,
+      # servers/api -> servers/test/api. This entry's paths reflect the
+      # corrected structure; ADR-012/PLAN-002/TRACE-005 themselves are
+      # left as an accurate historical record of what M22 actually built
+      # under the boundary model that existed then.
+    - id: M23
+      name: Foundation/Project Separation & Autonomous Feature Execution Model
+      status: complete
+      # Not a rename — added because M22 (the first real feature) exposed
+      # that the operating model, while functionally complete, had no
+      # explicit separation between the reusable repository foundation
+      # and an application/project consuming it. One genuine architectural
+      # decision: apps/, servers/, agents/ become project-owned boundaries
+      # (ADR-013) — apps/<project>/<app>, never apps/<app> directly. M22's
+      # application corrected in place: apps/web -> apps/test/web,
+      # servers/api -> servers/test/api ("test" — the user's own answer
+      # when asked, not a guessed name), pnpm-workspace.yaml globs updated
+      # to match, verified with a full validate pass. Everything else is
+      # amendment, not a new decision (same category as M16/M19/M20/M21):
+      # SPEC-010 gained "Phase determination" (feature -> phases -> tasks)
+      # and a corrected single-file backlog persistence model (five
+      # per-item files -> one table, .project/backlog/BACKLOG.md); SPEC-008
+      # gained "Use vs. build vs. adopt"; SPEC-012 gained
+      # "Implementation-area skills" (the same governance already built
+      # for technology skills, generalized); SPEC-011 gained a
+      # project/foundation boundary check and a FOUNDATION/PROJECT/BOTH
+      # trace classification; SPEC-013 gained a matching checkpoint field.
+      # A genuine corrective review of M22 (not a blind re-approval) found
+      # two real record-keeping gaps M22 itself should have caught —
+      # AGENTS.md's stale "authentication"/"web app" non-goals and
+      # ARTIFACT-TYPES.md's stale backlog/-not-yet-created language — both
+      # fixed. Three genuinely new backlog items surfaced by this review
+      # (rate limiting, audit logging, MFA/2FA/passkeys — BACKLOG-006..008),
+      # not manufactured. TRACE-006 (this milestone's own execution)
+      # includes a real 10-scenario cold-start run. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .project/decisions/ADR-013,
+          .project/specs/SPEC-008 (Use vs. build vs. adopt added),
+          .project/specs/SPEC-010 (Phase determination added,
+          Persistence corrected),
+          .project/specs/SPEC-011 (project/foundation boundary check + classification added),
+          .project/specs/SPEC-012 (Implementation-area skills added),
+          .project/specs/SPEC-013 (classification checkpoint field added),
+          .agent/skills/README.md (Implementation-area skills section added),
+          .agent/instructions/boundaries.md (project-ownership checklist item added),
+          .agent/instructions/agent-operating-contract.md (sequence updated),
+          .agent/instructions/backlog-and-feature-development.md (updated),
+          .agent/instructions/engineering-standards.md (updated),
+          .agent/instructions/traceability.md (updated),
+          AGENTS.md (stale non-goals corrected),
+          .project/ARTIFACT-TYPES.md (backlog persistence + staleness corrected),
+          apps/test/web + servers/test/api (migrated from apps/web + servers/api),
+          .project/backlog/BACKLOG.md (BACKLOG-006,
+          BACKLOG-007,
+          BACKLOG-008 added),
+          .project/traces/TRACE-006,
+        ]
+    - id: M24
+      name: Autonomous Engineering Operating Model
+      status: complete
+      # Not a rename — commissioned to inspect the operating model as a
+      # system (not file-by-file), using M21-M23 plus the real
+      # Authentication/Rate-Limiting/Profile work and its own audit
+      # (TRACE-009/010) as behavioral evidence, not assuming correctness
+      # because validation was green. Finding: the target request-to-
+      # completion flow was already mapped, almost line for line, onto
+      # existing sections, and demonstrably worked in practice (TRACE-007
+      # correctly refused to silently pick a backlog item; TRACE-008
+      # correctly escalated its one genuine ambiguity; TRACE-010 resolved
+      # every audit finding autonomously, including one correct decision
+      # NOT to apply a proposed fix). Four real, evidence-grounded gaps
+      # closed, none manufactured: (1) no named "conformance review"
+      # concept distinguishing "recorded a process" from "independently
+      # verified" - TRACE-009 was itself the undocumented precedent;
+      # (2) Security/Accessibility were not named REVIEW dimensions,
+      # plausibly contributing to defects TRACE-009 later caught;
+      # (3) SPEC-012's "repeated use" skill-creation criterion didn't
+      # state the cross-project bar TRACE-009/010 had to derive by
+      # judgment; (4) foundation-change authorization was demonstrated by
+      # precedent across 6+ milestones but never stated as a rule. All
+      # four are amendments to already-active SPECs (SPEC-013,
+      # development-lifecycle.md/SPEC-004, SPEC-012, SPEC-011) - no new
+      # SPEC, no new ADR (connective/clarifying content, same category as
+      # M16/M19/M20/M21/M23), no new skill (re-confirmed, not
+      # re-decided), no application code, no backlog item (no genuine
+      # out-of-scope discovery occurred). A real 20-scenario cold-start
+      # walkthrough confirmed all scenarios resolve without inventing a
+      # mechanism, with 3 scenarios specifically exercising the 4 closed
+      # gaps. See .project/state/PROJECT-STATE.md.
+      deliverables:
+        [
+          .agent/instructions/development-lifecycle.md (Security/Accessibility review dimensions,
+          Conformance review pointer,
+          added),
+          .project/specs/SPEC-013 (Conformance review section added),
+          .agent/instructions/traceability.md (Conformance review pointer added),
+          .project/specs/SPEC-012 (cross-project skill-creation bar clarified),
+          .project/specs/SPEC-011 (foundation-change authorization subsection added),
+          .project/traces/TRACE-011,
+        ]
+    - id: M25
+      name: Autonomous Engineering Operating Model Audit
+      status: complete
+      # Not a rename — a deliberately adversarial re-audit of the
+      # operating model M21/M23/M24 built, using M22-M24's real
+      # application work (Authentication, rate limiting, Profile + its
+      # remediation, Account Security Settings) as evidence against the
+      # model rather than proof of it. Investigated 20 suspected
+      # failure areas against real repository evidence; most were
+      # already fixed by M23/M24 (now evidenced working, not only
+      # documented) or were never real gaps. Two genuine, narrow gaps
+      # found and closed as connective clarifications to SPEC-012 (not
+      # new mechanisms): tooling guidance was already in scope but not
+      # said plainly; a real instance (TRACE-009's Mongoose
+      # runValidators finding) of a framework-specific factual question
+      # being mistaken for a principle-answerable one. Ran 13 genuine
+      # cold-start scenario walkthroughs (bugfix, CRUD feature, MFA,
+      # Redis adoption, UI-heavy, API-heavy, cross-project promotion,
+      # project-local convention, ambiguous tech choice, vendor
+      # replacement, backlog discovery, no-backlog, multi-lens upload)
+      # without a pre-written implementation recipe. Explicitly declined
+      # to add an "adjacent-capability scan" step despite it sounding
+      # plausible — no real gap, would have been checklist explosion.
+      # No new SPEC, no new ADR, no new skill, no backlog item. See
+      # .project/state/PROJECT-STATE.md.
+      deliverables: [
+          .project/specs/SPEC-012 (tooling-scope clarification,
+          framework-fact vs. principle
+          distinction added),
+          .project/traces/TRACE-013,
+        ]
+    - id: M26
+      name: Agent Operating Model Realignment
+      status: in-progress
+      deliverables:
+        [
+          .project/specs/SPEC-014,
+          .project/decisions/ADR-015,
+          .project/plans/PLAN-005,
+          .agent/workflows/app-analysis.md,
+          .agent/skills/mern-nextjs-vertical-slice,
+          architecture.yaml (current_architecture and operating_model sections),
+          architecture.yaml (compact roadmap pointer after BACKLOG-010),
+          .project/roadmap/MILESTONES.yaml,
+          .project/decisions/ADR-016,
+          .project/plans/PLAN-007,
+          .project/traces/TRACE-017,
+          .project/projects/test/PROJECT.md,
+          .project/backlog/BACKLOG.md (Scope/Owner columns),
+          .project/reports/REPORT-001,
+          .project/traces/TRACE-015,
+          .project/plans/PLAN-006,
+          .project/traces/TRACE-016,
+        ]

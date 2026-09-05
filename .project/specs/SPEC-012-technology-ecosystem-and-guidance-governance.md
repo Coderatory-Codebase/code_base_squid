@@ -460,16 +460,20 @@ criteria above), and a skill existing doesn't imply the technology is
 adopted here (a skill could, in principle, be approved in anticipation of
 known upcoming work — though creating one before any real use remains
 the speculative-skill anti-pattern this spec argues against by default).
-As of M17, both remain empty: no technology adopted, no technology skill.
+As of M17, both were empty. M22 adopted the MERN/Next.js seed stack as
+project technology. M26 added `mern-nextjs-vertical-slice` after the user
+explicitly confirmed that the stack and vertical-slice delivery shape are
+part of this foundation's reusable seed purpose.
 
 ## Non-goals
 
 No technology registry, skill generator, skill-discovery runtime, dynamic
 plugin system, automated version-tracking infrastructure, or skill
 staleness dashboard. No MCP, agent runtime, or orchestrator. No
-Next.js/React/TypeScript/Rust/Python/PostgreSQL/Docker/AWS/etc. skill —
-none is created by this milestone, and none should be created later
-without clearing "Skill creation criteria" and "Human approval" above.
+unapproved Next.js/React/TypeScript/Rust/Python/PostgreSQL/Docker/AWS/
+etc. skill proliferation. M26's `mern-nextjs-vertical-slice` is the
+first approved stack skill; future skills still need to clear "Skill
+creation criteria" and "Human approval" above.
 No new artifact type, ID scheme, or backlog. No change to `SPEC-005`'s
 skill definition or `SPEC-008`'s engineering principles/precedence — this
 spec governs the _process_ around technology skills, not their content or

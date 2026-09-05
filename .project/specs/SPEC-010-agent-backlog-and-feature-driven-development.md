@@ -4,9 +4,9 @@ type: spec
 title: Agent backlog & feature-driven development model
 status: active
 created: 2026-08-30
-updated: 2026-08-31
+updated: 2026-09-05
 related:
-  [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013, ADR-010, ADR-013, ARTIFACT-TYPES.md]
+  [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013, ADR-010, ADR-013, ADR-016, ARTIFACT-TYPES.md]
 ---
 
 # SPEC-010: Agent Backlog & Feature-Driven Development Model
@@ -39,6 +39,14 @@ shorter agent-facing pointer into it.
 > security, frontend, backend, QA, ...) a feature actually needs; this
 > makes that decision explicit rather than implicit in how the plan
 > happened to get written.
+>
+> **M26 amendment**: the feature model now sits inside an explicit
+> dual-track operating model (`SPEC-014`). Discovery/app analysis and
+> delivery/implementation are connected but separate tracks. A feature is
+> selected from explicit request or backlog/discovery output before
+> implementation begins. `ADR-016` adds dual operating scope: one physical
+> backlog, with explicit `Scope` and `Owner` columns, covers both the
+> foundation and projects/products without treating them as the same work.
 
 ## Purpose
 
@@ -107,6 +115,24 @@ different purposes — collapsing them loses the distinction between "work
 that might happen" (backlog), "an unresolved design question" (RFC), and
 "authoritative durable knowledge" (SPEC).
 
+### Operating scope
+
+Each backlog item belongs to one operating scope:
+
+```text
+FOUNDATION     repo/monorepo operating layer, agent rules, workflows,
+               skills, architecture, validation, artifact conventions
+
+PROJECT        product or application development inside one project;
+               Owner is the project id, such as test
+
+CROSS_CUTTING  both; plan and trace must keep foundation and project
+               portions separate
+```
+
+This keeps the single-backlog decision from `ADR-010`, while making the
+work behave differently depending on what it governs.
+
 ## Work states
 
 ```text
@@ -166,6 +192,25 @@ Understand → Analyze → Design → Implement → Test → Verify → Review �
 This is `development-lifecycle.md`'s existing stage sequence, read through
 a feature-sized lens — see "Lifecycle integration" for the exact mapping.
 Nothing here replaces it.
+
+### Dual-track flow (added M26)
+
+Feature work is fed by analysis, not guessed directly from code shape:
+
+```text
+Discovery / app analysis
+  -> backlog / spec / ADR / feature slice
+  -> selected delivery scope
+  -> vertical implementation
+  -> validation / review / record
+```
+
+The analysis track can run without implementing anything. The delivery
+track starts only once a feature slice is selected by explicit user
+request or a backlog item/status. When a request is already a clear
+feature ("add personal notes CRUD"), the agent still performs lightweight
+analysis before planning; it does not need a separate discovery artifact
+unless durable knowledge results.
 
 ## Feature slicing
 
@@ -431,6 +476,14 @@ of these explicitly written out — this extends, not replaces,
 distinguishes a tiny bugfix from a significant feature from an
 architectural change).
 
+For seed-app features that touch both `apps/<project>/<app>` and
+`servers/<project>/<server>`, the plan should be written before code
+changes and should name the vertical slice: UI, client/API helper,
+server route, contract/validation, domain service, data model/query,
+tests, manual verification when UI behavior matters, and record/backlog
+updates. Use `.agent/skills/mern-nextjs-vertical-slice/SKILL.md` for the
+stack-specific execution guidance.
+
 ## Acceptance criteria
 
 Describe observable behavior or verifiable outcomes, not implementation
@@ -572,14 +625,15 @@ to how small a backlog item actually is (`ARTIFACT-TYPES.md` → "Why no
 ### Backlog table columns
 
 ```text
-ID | Title | Kind | Status | Priority | Source (discovered-from) |
-Dependencies | Notes
+ID | Scope | Owner | Title | Kind | Status | Priority |
+Source (discovered-from) | Dependencies | Notes
 ```
 
 `id` (`BACKLOG-<NNN>`, monotonically increasing, never reused/renumbered
 — same rule as every other artifact type, `ARTIFACT-TYPES.md`), `title`,
-`kind`, and `status` are required, matching every other artifact type's
-required-field convention adapted to a table row instead of frontmatter.
+`scope`, `owner`, `kind`, and `status` are required, matching every other
+artifact type's required-field convention adapted to a table row instead
+of frontmatter.
 `kind` is new to this type — it's how "feature vs. defect vs. technical
 work vs. risk" is expressed without inventing separate backlogs or
 artifact types for each:

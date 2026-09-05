@@ -4,8 +4,8 @@ type: spec
 title: Agent execution traceability
 status: active
 created: 2026-08-31
-updated: 2026-09-01
-related: [SPEC-004, SPEC-006, SPEC-007, SPEC-010, SPEC-011, SPEC-012, ADR-011]
+updated: 2026-09-05
+related: [SPEC-004, SPEC-006, SPEC-007, SPEC-010, SPEC-011, SPEC-012, SPEC-014, ADR-011, ADR-016]
 ---
 
 # SPEC-013: Agent Execution Traceability
@@ -27,6 +27,10 @@ agent-facing pointer into it.
 > happened but whether it touched the reusable foundation, one project's
 > own code, or both, without a project implementation's trace being
 > mistaken for a foundation decision or vice versa.
+>
+> **M26 amendment**: current traces use `FOUNDATION`, `PROJECT`, or
+> `CROSS_CUTTING` (`BOTH`'s replacement label) and may name the owning
+> project/product brain from `ADR-016`.
 >
 > **M24 amendment**: one new section, "Conformance review" — distinct
 > from ordinary self-review, a conformance review re-inspects a prior,
@@ -190,7 +194,7 @@ discoveries
 decisions (with source and status — see "Decision provenance")
 human input requested/received
 scope impact (needed-now / discovered / deferred — SPEC-010)
-classification (FOUNDATION / PROJECT / BOTH — SPEC-011, added M23)
+classification (FOUNDATION / PROJECT / CROSS_CUTTING — SPEC-011/SPEC-014)
 validation performed and its result
 failures and how they were diagnosed/remediated
 outcome
@@ -272,7 +276,8 @@ Integrates `SPEC-010`: what was needed now vs. discovered vs. a
 dependency vs. deferred vs. blocked/rejected/superseded, with a deferred
 or discovered item referencing the `BACKLOG-<NNN>` it became (using the
 existing `discovered-from` relationship where the source has stable
-identity — `engineering-graph.md`) rather than restating it. A trace
+identity — `engineering-graph.md`) and its `Scope`/`Owner` when relevant,
+rather than restating it. A trace
 recording a discovery is not itself authorization to implement it — the
 same scope-control rule `SPEC-010` already states. A checkpoint's
 `discoveries` field (see "Checkpoint structure") should carry each

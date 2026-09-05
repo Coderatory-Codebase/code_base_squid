@@ -130,13 +130,15 @@ skill explains how that principle is best realized in one
 technology/version, and can change independently as the technology evolves
 without touching the universal principle.
 
-**None exist yet** — this repository has no `apps/`/`servers/`/`agents/`/
-`packages/` technology in use (`architecture.yaml` → `boundaries`;
-`.project/state/PROJECT-STATE.md` → "Technology profile"). Create the
-first one only once a real technology is actually being used, following
-the same "Creating a new skill" bar below. A nested `technologies/`
-grouping under `.agent/skills/` is optional, decided then based on how
-many technology skills actually exist — not reserved in advance.
+The first stack skill now exists:
+`mern-nextjs-vertical-slice`. It was created during the operating-model
+realignment once the user explicitly confirmed this repository's seed
+purpose: feature-driven MERN/Next.js monorepo app development. Create
+future technology skills only once a real technology is actually being
+used repeatedly enough to justify durable guidance, following the same
+"Creating a new skill" bar below. A nested `technologies/` grouping under
+`.agent/skills/` is optional, decided later based on how many technology
+skills actually exist — not reserved in advance.
 
 Creating or materially changing a technology skill is a durable
 operating-ecosystem change, not a routine implementation decision — it
@@ -162,13 +164,12 @@ something else — the two compose (a Next.js skill applying an API-design
 skill's principles inside Next.js's own conventions) rather than
 duplicate each other.
 
-**None exist yet.** M22's Authentication feature was this repository's
-first opportunity to need one and didn't clear the bar — its
-architecture stayed proportionally simple enough that `SPEC-008`'s
-existing technology-neutral principles were sufficient on their own.
-Create the first one only once a genuinely recurring implementation
-pattern demonstrates it's needed, following the same "Creating a new
-skill" bar below.
+`mern-nextjs-vertical-slice` also functions as an implementation-area
+skill for the repeated end-to-end seed-app feature shape: UI, API,
+domain, data, validation, tests, and record keeping. Create more
+implementation-area skills only once a genuinely recurring pattern
+demonstrates it is needed, following the same "Creating a new skill" bar
+below.
 
 ## Creating a new skill
 

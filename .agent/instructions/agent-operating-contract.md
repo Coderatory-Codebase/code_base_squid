@@ -17,12 +17,16 @@ never restates one.
 ```text
 AGENTS.md (read in full)
   → repository-orientation.md (verify the filesystem, get your bearings)
-  → CLASSIFY the request — what kind of work is this, which project
-      (if any) does it belong to, and does it require planning before
+  → CLASSIFY the request — FOUNDATION, SEED_APP, or CROSS_CUTTING; which
+      project (if any) owns it; and does it require planning before
       implementing?
       (SPEC-011 -> "Request classification", "Project/foundation
-      boundary check"; development-lifecycle.md -> "When planning is
-      required")
+      boundary check"; SPEC-014 -> "Required behavior";
+      development-lifecycle.md -> "When planning is required")
+  → LOAD PROJECT BRAIN when the route targets a project/product —
+      .project/projects/<project>/PROJECT.md after the foundation rules,
+      before source files or feature implementation
+      (ADR-016; SPEC-014 -> "Dual operating scope")
   → UNDERSTAND the request — does it already exist (SPEC/ADR/backlog)?
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
@@ -33,7 +37,8 @@ AGENTS.md (read in full)
       (backlog-and-feature-development.md — the central rule: discovery
       does not automatically become implementation scope)
   → PLAN proportionally — for a feature, decide which phases it actually
-      needs (backlog-and-feature-development.md -> "Phase determination")
+      needs before implementation (backlog-and-feature-development.md ->
+      "Phase determination"; feature.md; app-analysis.md)
   → IMPLEMENT (development-loop.md's reasoning applies here)
   → VALIDATE (validation.md — pnpm run validate + format:check)
   → REVIEW (development-lifecycle.md -> "Review dimensions")

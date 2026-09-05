@@ -6,15 +6,56 @@ Codex, or otherwise). It is agent-agnostic; agent-specific adapters (e.g.
 
 ## What this repository is
 
-An agent-native software foundation, not an application. See `README.md`
-for the philosophy and `architecture.yaml` for the machine-readable
-boundaries, dependency rules, and current milestone. Read both before making
-structural changes. Step-by-step orientation checklist (including
+An agent-native software foundation for building MERN/Next.js monorepo
+applications feature by feature. The application under `apps/test/web`
+and `servers/test/api` is the seed/reference project used to prove the
+foundation; it is not the whole repository. See `README.md` for the
+philosophy and `architecture.yaml` for the machine-readable current
+architecture, boundaries, dependency rules, and operating-model state.
+Read both before making structural changes. Step-by-step orientation
+checklist (including
 verifying the actual filesystem matches these documents before trusting
 them): `.agent/instructions/repository-orientation.md`. How the pieces
 below connect into one bootstrap sequence, start-to-finish — read this
 first if you have no context from a prior session:
 `.agent/instructions/agent-operating-contract.md`.
+
+## Request routing gate
+
+Before choosing files or writing code, classify the user's request:
+
+- **Foundation / operating-layer work** changes how agents operate in
+  this repo: `AGENTS.md`, `.agent/`, `.project/`, `architecture.yaml`,
+  workflow/skill/backlog/artifact/validation rules, or bootstrap
+  behavior.
+- **Seed app / product feature work** changes the MERN/Next.js seed
+  application: `apps/<project>/<app>`, `servers/<project>/<server>`,
+  app behavior, API behavior, data models, UI, tests, or product-facing
+  backlog items.
+- **Cross-cutting work** does both: a product feature also exposes a
+  real foundation gap, or a foundation change must be verified through
+  a seed-app feature.
+
+Record the classification proportionally (in a TRACE when one exists,
+otherwise in the plan/session). Do not treat app work as the whole repo,
+and do not silently rewrite the foundation while implementing an app
+feature. If the project name for app work is not obvious, ask before
+creating or moving code.
+
+The operating model has two brains that must both be respected:
+
+- **Repository/foundation brain**: `.agent/`, `architecture.yaml`,
+  `.project/state/PROJECT-STATE.md`, `.project/roadmap/`,
+  `.project/specs`, `.project/decisions`, and `FOUNDATION` backlog
+  rows.
+- **Project/product brain**: `.project/projects/<project>/` plus the
+  owning `apps/<project>/`, `servers/<project>/`, `agents/<project>/`,
+  and `PROJECT` backlog rows.
+
+For project/product work, load the foundation rules first, then the
+owning project brain. For cross-cutting work, keep the foundation and
+project portions separate in scope, plan, backlog updates, validation,
+and trace.
 
 ## Working method
 
@@ -47,13 +88,16 @@ Before modifying anything:
 
 1. Inspect the current repository state — do not assume it matches any
    prior conversation or the roadmap's target end-state.
-2. Check `architecture.yaml` (`roadmap.current_phase`) to identify the
-   active milestone. Do not implement future milestones ahead of their
-   dependencies.
+2. Check `architecture.yaml` to identify the current architecture,
+   project boundaries, operating model, and active phase. Do not let
+   historical milestone notes override the current architecture.
 3. Load only the context relevant to the task at hand (progressive
    disclosure — see below). Don't read the whole repo to make a small
    change.
-4. Plan before implementing anything non-trivial.
+4. Plan before implementing anything non-trivial. For foundation work or
+   seed-app features that span multiple boundaries, create/update the
+   relevant SPEC/ADR/PLAN before code/config edits so artifacts shape the
+   work rather than only record it afterward.
 5. After implementing, validate consistency: does the change contradict
    `README.md`, `architecture.yaml`, `AGENTS.md`, or `CLAUDE.md`? Does
    `pnpm run validate` (lint, typecheck, test, build, architecture
@@ -76,10 +120,12 @@ Load context in this order, stopping as soon as you have enough to act:
 ```text
 CLAUDE.md (or equivalent agent entry point)
   → repository orientation (README.md, architecture.yaml)
+  → request routing (foundation, project/product, or cross-cutting)
   → relevant instruction (.agent/instructions/*)
   → relevant workflow (.agent/workflows/*)
   → relevant skill (.agent/skills/*)
   → current project state (.project/state/PROJECT-STATE.md)
+  → owning project brain (.project/projects/<project>/PROJECT.md, if any)
   → relevant project artifact (.project/*)
   → relevant source code
 ```
@@ -91,7 +137,8 @@ single pass. Pull in a layer only when the task needs it.
 
 - **No top-level `modules/`, `services/`, `business-services/`, or
   `domain-services/`.** Business/domain logic lives inside the deployable
-  that owns it (`servers/<name>/domains/*`, `apps/<name>/features/*`, etc.).
+  that owns it (`servers/<project>/<server>/domains/*`,
+  `apps/<project>/<app>/features/*`, etc.).
 - **`packages/` is the only reuse boundary.** Create a package for a
   concrete, currently-needed reusable capability — not because a category
   sounds generically useful. Full extraction criteria and package

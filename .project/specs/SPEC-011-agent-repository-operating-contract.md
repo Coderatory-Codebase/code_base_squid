@@ -4,7 +4,7 @@ type: spec
 title: Agent repository operating contract
 status: active
 created: 2026-08-31
-updated: 2026-09-01
+updated: 2026-09-05
 related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, SPEC-013]
 ---
 
@@ -34,6 +34,14 @@ related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, 
 > clean via `git status` every time, but the rule itself was never
 > written down, only demonstrated. States the rule the evidence already
 > showed; changes no actual behavior.
+>
+> **M26 amendment**: the earlier classification vocabulary still let an
+> agent misread the seed application as the repository's main product.
+> M26 makes the first routing decision explicit: `FOUNDATION`, `SEED_APP`,
+> or `CROSS_CUTTING`, pointing at `SPEC-014`. `CROSS_CUTTING` replaces the
+> older `BOTH` label for current guidance and adds project/product brains
+> from `ADR-016`. This is not a new lifecycle; it is the missing intent gate
+> before choosing a workflow or reading implementation code.
 
 Operational entry point: `.agent/instructions/agent-operating-contract.md`.
 This spec is the comprehensive, durable definition; that file is the
@@ -114,10 +122,32 @@ it.
 
 ## Request classification (added M21)
 
-Between orientation and UNDERSTAND, name what kind of request this is —
-not as a new artifact or gate, but because the category determines which
-instructions are load-bearing. A request can span more than one; identify
-the dominant execution path rather than forcing a single label:
+Between orientation and UNDERSTAND, name what kind of request this is.
+The first routing decision is:
+
+```text
+FOUNDATION    how agents operate here: AGENTS.md, .agent/, .project/,
+              architecture.yaml, workflows, skills, artifact/backlog/
+              validation rules, bootstrap behavior
+
+SEED_APP      product/application behavior inside a project-owned app,
+              server, or agent boundary; current seed owner is test
+
+CROSS_CUTTING changes both; keep the foundation and app portions
+              explicit and separately justified
+```
+
+This route is not a new artifact by default, but it must be stated
+proportionally before selecting a workflow. `SPEC-014` is authoritative
+for the realignment that introduced these route names.
+
+For `SEED_APP` or other project/product work, load the owning
+`.project/projects/<project>/PROJECT.md` after the repository/foundation
+rules and before source code.
+
+Then, name the more specific work shape. A request can span more than
+one; identify the dominant execution path rather than forcing a single
+label:
 
 ```text
 exploration / research        -> discover, inspect, report; no
@@ -140,17 +170,19 @@ bugfix                         -> development-lifecycle.md's tiny-bugfix
 refactor                       -> engineering-standards.md (reuse,
                                   decoupling, no unjustified abstraction)
 technology adoption            -> technology-guidance.md, SPEC-012
-mixed                          -> identify the dominant category; apply
-                                  its instructions as primary, the
-                                  others as secondary constraints
+mixed                          -> identify the dominant category and the
+                                  FOUNDATION/SEED_APP/CROSS_CUTTING
+                                  route; apply primary instructions and
+                                  secondary constraints explicitly
 ```
 
-This is naming, not new process — every branch above already resolves to
-an existing instruction file. E.g. "Add authentication" classifies as
-application implementation + technology adoption (dominant: application
-implementation, since the feature drives the technology choice, not the
-reverse) — both `backlog-and-feature-development.md` and
-`technology-guidance.md` apply, in that order of primacy.
+This is naming, not new process — every branch above resolves to an
+instruction, workflow, or skill. E.g. "Add authentication" classifies as
+`SEED_APP` plus application implementation plus technology adoption
+(dominant: application implementation, since the feature drives the
+technology choice, not the reverse) — `feature.md`,
+`backlog-and-feature-development.md`, `technology-guidance.md`, and the
+MERN/Next.js vertical-slice skill apply, in that order of primacy.
 
 ### Project/foundation boundary check (added M23)
 
@@ -169,7 +201,7 @@ Which project owns this work?
 Does the work also require changing .agent/, .project/, architecture.yaml,
 AGENTS.md, or CLAUDE.md?
   no  -> pure PROJECT work
-  yes -> BOTH — see "Foundation vs. project classification" below;
+  yes -> CROSS_CUTTING — see "Foundation vs. project classification" below;
          project work and foundation changes stay clearly separated,
          the project never silently redefines the foundation
          (SPEC-012 -> "Ecosystem vs. project", generalized)
@@ -186,7 +218,7 @@ FOUNDATION   — changes .agent/, .project/, architecture.yaml, AGENTS.md,
 PROJECT      — changes inside a project's own apps/<project>/,
                servers/<project>/, agents/<project>/ (or a genuinely
                project-owned package). Not reusable elsewhere by default.
-BOTH         — a project need surfaced a real foundation gap (M21, M23
+CROSS_CUTTING — a project need surfaced a real foundation gap (M21, M23
                are both examples of this at the repository's own
                governance level; M22 discovering the missing project-
                ownership boundary is the application-level example).
@@ -194,17 +226,17 @@ BOTH         — a project need surfaced a real foundation gap (M21, M23
 
 This classification is recorded in a TRACE when one exists
 (`SPEC-013` → "Checkpoint structure" → `classification`), not a new
-artifact of its own. When work is `BOTH`, the two parts stay explicitly
+artifact of its own. When work is `CROSS_CUTTING`, the two parts stay explicitly
 separated in the record — a project implementation is never allowed to
 silently redefine foundation behavior; a genuine foundation change still
 follows its own governance (an ADR when it's a real architectural
 decision, human approval when `SPEC-012`/`SPEC-010` require it) exactly
 as if it had been requested on its own.
 
-### What authorizes a `FOUNDATION`/`BOTH` change (added M24)
+### What authorizes a `FOUNDATION`/`CROSS_CUTTING` change (added M24, renamed M26)
 
 Named explicitly because it had only ever been demonstrated by
-precedent, never stated: a `FOUNDATION` or `BOTH`-classified change is
+precedent, never stated: a `FOUNDATION` or `CROSS_CUTTING`-classified change is
 made only when one of these is true —
 
 ```text

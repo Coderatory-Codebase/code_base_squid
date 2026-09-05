@@ -21,6 +21,8 @@ applies_to: git-and-architectural-decisions
   let a decision's only record be a line changed in `architecture.yaml`
   with no explanation.
 - **Milestone status is part of the change.** If a change completes or
-  advances a milestone's deliverables, update `architecture.yaml.roadmap`,
-  `.project/state/PROJECT-STATE.md`, and `README.md`'s maturity section in
-  the same change — don't let those drift from actual repo state.
+  advances active milestone deliverables, update `architecture.yaml` for
+  live architecture/phase, `.project/roadmap/MILESTONES.yaml` for
+  detailed milestone history, `.project/state/PROJECT-STATE.md`, and
+  `README.md`'s maturity section in the same change — don't let those
+  drift from actual repo state.

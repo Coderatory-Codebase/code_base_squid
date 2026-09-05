@@ -50,9 +50,10 @@ renumbered.
 | RFC          | `RFC-`      | A proposal under discussion, upstream of an ADR.                                                                                                                                                                                                                                                        | Not yet             |
 | Research     | `RESEARCH-` | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                   | Not yet             |
 | Review       | `REVIEW-`   | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                              | Yes — `reviews/`    |
-| Report       | `REPORT-`   | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                        | Not yet             |
+| Report       | `REPORT-`   | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                        | Yes — `reports/`    |
 | Handoff      | `HANDOFF-`  | Session-to-session continuity notes.                                                                                                                                                                                                                                                                    | Not yet             |
 | Backlog item | `BACKLOG-`  | Work that is known, proposed, discovered, deferred, or awaiting clarification — not necessarily current implementation scope. Added M15, `SPEC-010`. One table file (`backlog/BACKLOG.md`), not one file per item — see `SPEC-010` → "Persistence" (M23).                                               | Yes — `backlog/`    |
+| Project memory | `PROJECT-<id>` | The scoped project/product operating brain for one project inside the monorepo. Added M26, `ADR-016`. One file per real project under `projects/<project>/PROJECT.md`; not a generated placeholder.                                                                                                  | Yes — `projects/`   |
 | Trace        | `TRACE-`    | The record connecting the execution journey of one coherent unit of meaningful agent work — request, applicable guidance, decisions, scope, implementation, validation, review, Git outcome. Added M18, `SPEC-013`. Never a replacement for TASK/PLAN/RFC/SPEC/ADR/REVIEW/BACKLOG — it references them. | Yes — `traces/`     |
 
 A type not yet instantiated still has its convention defined here so the
@@ -126,15 +127,14 @@ progressively as checkpoints actually complete (added M19), not
 reconstructed from memory after the work is done — `SPEC-013` →
 "Checkpoint structure", "Progressive recording".
 
-### Why no `tasks/`, `research/`, `rfc/`, `reports/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
+### Why no `tasks/`, `research/`, `rfc/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
 
 None currently hold real content:
 
 - **`tasks/`, `handoffs/`** — see the criteria above; no piece of work so
   far has met them. Create the directory the first time a real one does.
-- **`research/`, `rfc/`, `reports/`** — no investigation, active
-  proposal, or stakeholder report exists yet. Create the directory the
-  first time a real one does.
+- **`research/`, `rfc/`** — no investigation or active proposal exists
+  yet. Create the directory the first time a real one does.
 - **`context/`, `sessions/`** — see Durable vs. ephemeral memory below;
   these are ephemeral by default and are not being persisted yet.
 - **`changes/`** — see Relationships below: a "change" is the actual
@@ -149,10 +149,13 @@ item — `SPEC-010` → "Persistence", corrected at M23).
 Not every type shares the same states — don't force one state machine onto
 all of them.
 
-- **SPEC, PLAN**: `draft → active → superseded → archived`. `active` means
+- **SPEC**: `draft → active → superseded → archived`. `active` means
   currently governing work (a spec doesn't stop being true just because
   its milestone shipped); `superseded` points at the artifact that
   replaced it via `related`.
+- **PLAN**: `draft → active → complete → superseded → archived`. A plan
+  becomes `complete` when its bounded implementation effort is done, or
+  `superseded` when another plan replaces it before completion.
 - **ADR**: `proposed → accepted → superseded → deprecated` (standard ADR
   convention). An accepted ADR stays accepted even after the milestone
   that produced it ships — it's a historical record of a decision, not a
@@ -241,9 +244,8 @@ These are not interchangeable markdown files with different filenames:
 
 `.project/` holds **durable** knowledge only: decisions, specs, approved
 plans, findings, and reviews that remain true/useful after the session
-that produced them ends. All nine artifact types above are durable by
-definition — creating one is a deliberate act of recording, not a log
-entry.
+that produced them ends. Artifact types above are durable by definition
+— creating one is a deliberate act of recording, not a log entry.
 
 **Ephemeral** information — a session's working notes, an agent's
 in-progress scratch reasoning, transient observations — is _not_ written
@@ -262,10 +264,29 @@ place to always reflect the current phase, active work, authoritative
 decisions, and what's next. It is the one file an agent should read to
 answer "what's going on here" without loading any other artifact.
 
+## Project/product memory
+
+`.project/projects/<project>/PROJECT.md` records the durable operating
+memory for one real project/product inside the monorepo: its role, owned
+deployables, current capabilities, project-specific decisions, backlog
+scope, and agent entry notes. It is loaded after the repository/foundation
+brain and before source code when work targets that project.
+
+Do not create project memory speculatively. Create it when a real project
+exists or when an explicit project/product request needs a durable owner.
+
 ## Backlog
 
 `.project/backlog/BACKLOG.md` (added M22, single-file format since M23)
 is the second singleton this repository has — see "Persistence" in
-`SPEC-010`. Individual rows carry their own `BACKLOG-<NNN>` id, `kind`,
-and `status`, same required fields as any other artifact type, just
-expressed as table columns instead of per-file frontmatter.
+`SPEC-010`. Individual rows carry their own `BACKLOG-<NNN>` id, `Scope`,
+`Owner`, `kind`, and `status`, same required fields as any other artifact
+type, just expressed as table columns instead of per-file frontmatter.
+
+## Roadmap history
+
+`.project/roadmap/MILESTONES.yaml` is a singleton project-memory file,
+not a versioned artifact with its own `ROADMAP-*` id. It holds detailed
+milestone history moved out of `architecture.yaml` at M26. The current
+phase and live architecture stay in `architecture.yaml`; the chronological
+record lives here.

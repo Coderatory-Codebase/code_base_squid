@@ -41,9 +41,10 @@ speculative content does not.
 
 - A clean clone can run `pnpm install` followed by the quality gate
   (`lint → typecheck → test → build`) successfully at all times.
-- The milestone roadmap (`architecture.yaml` → `roadmap`) accurately
-  reflects which milestones are complete, and `README.md`'s maturity
-  section doesn't drift from it.
+- The active phase remains discoverable from `architecture.yaml` →
+  `roadmap`; detailed milestone history lives in
+  `.project/roadmap/MILESTONES.yaml`, and `README.md`'s maturity section
+  doesn't drift from live state.
 - No milestone is implemented ahead of its position in the roadmap without
   an explicit decision to do so.
 

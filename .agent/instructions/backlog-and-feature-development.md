@@ -26,16 +26,18 @@ don't build it (`SPEC-010` → central principle).
    guess at intent.
 2. Check whether it already exists (search the repository, `.project/`,
    and — once real items exist — `.project/backlog/`).
-3. Identify the smallest coherent feature this request actually needs
+3. Identify the operating scope and owner: `FOUNDATION`/`repo`,
+   `PROJECT`/`<project>`, or `CROSS_CUTTING` with both portions stated.
+4. Identify the smallest coherent feature this request actually needs
    (`SPEC-010` → "Feature slicing").
-4. Analyze through the lenses that are actually relevant — not all of
+5. Analyze through the lenses that are actually relevant — not all of
    them (`SPEC-010` → "Analysis lenses").
-5. Identify constraints, dependencies, and edge cases.
-6. Resolve ambiguity from existing architecture/ADRs/SPECs/convention
+6. Identify constraints, dependencies, and edge cases.
+7. Resolve ambiguity from existing architecture/ADRs/SPECs/convention
    where possible; ask the human only when it materially affects
    behavior, architecture, scope, or security (`SPEC-010` → "Ambiguity
    handling").
-7. Escalate to an RFC or SPEC only when the question or the knowledge
+8. Escalate to an RFC or SPEC only when the question or the knowledge
    genuinely warrants one (`SPEC-010` → "RFC/SPEC escalation") — most
    work doesn't.
 
@@ -45,6 +47,7 @@ Explicitly separate **needed now** from **discovered**
 (`SPEC-010` → "'Needed now' vs. discovered"). For anything discovered but
 out of scope: capture it as a `BACKLOG-<NNN>` item once
 `.project/backlog/` conventions apply (see `SPEC-010` → "Persistence"),
+including the correct `Scope` and `Owner` columns,
 don't implement it "while already here" — that's the scope-expansion
 anti-pattern `SPEC-010` names explicitly. If discovered work is a real
 _dependency_ of the current feature, don't auto-implement it either;

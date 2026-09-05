@@ -32,7 +32,8 @@ under an explicit, machine-readable architecture (`architecture.yaml`).
 Concrete apps/servers/agents/packages get added later, into a structure
 that already knows where they belong. The one real project built so far
 inside this foundation is `test` (`apps/test/web` + `servers/test/api`) —
-see §6.
+see §6. Its project/product brain is
+`.project/projects/test/PROJECT.md`.
 
 ---
 
@@ -43,8 +44,8 @@ This is the single most load-bearing structural idea in the repository
 
 | Layer          | What it is                                                                                                         | Lives in                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **FOUNDATION** | The reusable engineering operating system itself — rules, conventions, governance, the agent's own operating model | `AGENTS.md`, `CLAUDE.md`, `architecture.yaml`, `.agent/`, `.project/specs`, `.project/decisions` about the model itself, `tooling/` |
-| **PROJECT**    | A concrete application built _using_ the foundation                                                                | `apps/<project>/`, `servers/<project>/`, `agents/<project>/`                                                                        |
+| **FOUNDATION** | The reusable engineering operating system itself — rules, conventions, governance, the agent's own operating model | `AGENTS.md`, `CLAUDE.md`, `architecture.yaml`, `.agent/`, repository-level `.project/specs`, `.project/decisions`, `.project/state`, `.project/roadmap`, `tooling/`, `FOUNDATION` backlog rows |
+| **PROJECT**    | A concrete application or product built _using_ the foundation                                                     | `.project/projects/<project>/PROJECT.md`, `apps/<project>/`, `servers/<project>/`, `agents/<project>/`, `PROJECT` backlog rows       |
 
 The rule this produces: `apps/`, `servers/`, and `agents/` are
 **project-owned boundaries** — a deployable lives at
@@ -57,11 +58,17 @@ boundaries, not project-scoped.
 
 **Why this matters for an autonomous agent**: every request first gets
 classified as touching the foundation, a project, or both
-(`SPEC-011` → "Foundation vs. project classification"). Foundation
+(`SPEC-011` → "Foundation vs. project classification"; current label for
+both is `CROSS_CUTTING`). Foundation
 changes carry a genuinely high bar — see §5.4 — because they're shared,
 durable, and affect every future project scaffolded from this repository,
 not just the one currently being worked on. A project's own
 implementation choice never silently becomes foundation policy.
+
+`ADR-016` makes this a dual operating-scope model: the repository has a
+foundation brain, and each real project/product has a scoped project
+brain. A coding agent follows both when building product features: first
+the foundation, then the owning project memory, then the source.
 
 ---
 
@@ -93,6 +100,7 @@ CLAUDE.md (agent-specific entry point, kept intentionally small)
   → .agent/workflows/*     (the lifecycle for this kind of change)
   → .agent/skills/*        (a concrete capability, if one is needed)
   → .project/state/PROJECT-STATE.md  (current phase, decisions, what's next)
+  → .project/projects/<project>/PROJECT.md  (when work targets a project)
   → .project/*              (a specific spec/plan/decision/trace, if needed)
   → source code
 ```
@@ -131,9 +139,9 @@ elsewhere:
 ### 3.3 Workflows (`.agent/workflows/`)
 
 Not an execution engine — plain lifecycle specs for the common change
-shapes (`feature.md`, `bugfix.md`, `refactor.md`, `review.md`), each
-referencing `development-lifecycle.md`'s stage model rather than
-restating it.
+shapes (`app-analysis.md`, `feature.md`, `bugfix.md`, `refactor.md`,
+`review.md`), each referencing `development-lifecycle.md`'s stage model
+rather than restating it.
 
 ### 3.4 Skills (`.agent/skills/`)
 
@@ -147,13 +155,13 @@ skill creation; a skill is only warranted for genuinely reusable
 _ecosystem_ knowledge, demonstrated by repeated need across **at least
 two independent projects** (the cross-project bar made explicit at M24),
 and any durable skill creation/material change requires human approval.
-`.agent/skills/README.md` holds the full model. Today exactly **one**
-skill exists (`validate-repository`) — no technology skill has been
-created, because this repository's adopted stack (Express, Mongoose,
-Next.js, Zod, ...) hasn't cleared that cross-project bar yet; each
-project-level choice is recorded instead as project convention
-(`PROJECT-STATE.md` → "Technology profile"), which is explicitly _not_
-the same thing as a skill.
+`.agent/skills/README.md` holds the full model. Today two skills exist:
+`validate-repository` and `mern-nextjs-vertical-slice`. The latter was
+created at M26 after the user explicitly confirmed the repo's seed
+purpose as feature-driven MERN/Next.js monorepo development. Project-
+level choices still remain project convention unless they clear the
+skill bar; this skill exists because the seed stack and vertical-slice
+delivery shape are now part of the foundation itself.
 
 ### 3.5 The "capability model" — six distinct concepts, not blurred
 
@@ -370,7 +378,7 @@ distinction rather than assuming it:
   test-environment baseline caught and corrected before it could corrupt
   the run) — neither reflecting a defect in the repository's own
   operating model. Full record: `.project/traces/TRACE-014-personal-notes.md`
-  and `.project/traces/M26-BEHAVIORAL-AUDIT-REPORT.md`.
+  and `.project/reports/REPORT-001-m26-behavioral-audit.md`.
 
 The consistent, honestly-recorded finding across all of these: the
 operating model, once past its first few milestones of construction,
@@ -391,9 +399,10 @@ with. It defines:
   (`.agent/`, `.project/`, `apps/`, `servers/`, `agents/`, `packages/`,
   `infra/`, `tooling/`), each marked `created`/`not-yet-created` — empty
   boundaries are never pre-filled with placeholder files.
-- **Roadmap** — the full milestone history (M01–M26), each entry stating
-  what was actually delivered and why the milestone existed (a real gap
-  or commissioned feature, not a renamed placeholder past M14).
+- **Roadmap history** — `.project/roadmap/MILESTONES.yaml` holds the full
+  milestone history (M01–M26), each entry stating what was actually
+  delivered and why the milestone existed (a real gap or commissioned
+  feature, not a renamed placeholder past M14).
 - **`current_phase`** — the live marker for where the repository is now.
 
 `pnpm run validate:architecture` enforces the boundary declarations
