@@ -4,7 +4,8 @@ type: plan
 title: Decomposition lifecycle phase
 status: complete
 created: 2026-09-05
-related: [SPEC-019, DECOMP-001, SPEC-018, TRACE-025]
+updated: 2026-09-05
+related: [SPEC-019, DECOMP-001, SPEC-018, TRACE-025, PLAN-015, TRACE-026]
 ---
 
 # PLAN-014: Decomposition Lifecycle Phase
@@ -47,3 +48,12 @@ system scope units for Architecture.
 ## Outcome
 
 Completed in `TRACE-025`.
+
+## Post-Completion Rework
+
+`PLAN-015` / `TRACE-026` corrected this initial Phase 4 implementation.
+The original outcome proved readiness gates, requirement coverage, and
+downstream boundaries, but it stopped at generic capabilities and did not
+represent feature-driven product units in the existing backlog. The
+current authoritative Phase 4 result is the reworked `DECOMP-001` plus
+`BACKLOG-013` through `BACKLOG-016`.

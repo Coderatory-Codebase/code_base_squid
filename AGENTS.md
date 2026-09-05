@@ -77,8 +77,10 @@ or Implementation.
 If the user asks to decompose work from a ready Specification, use the
 Decomposition workflow (`.agent/workflows/decomposition.md`). It consumes
 an `active` / `ready-for-decomposition` `SPEC-*`, produces a `DECOMP-*`
-product/system scope map, and stops before Architecture, Implementation
-Planning, Implementation, or engineering tasks.
+product scope evidence artifact, creates/refines ordinary backlog rows
+for the resulting feature-driven product units, and stops before
+Architecture, Implementation Planning, Implementation, or engineering
+tasks.
 
 ## Working method
 

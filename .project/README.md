@@ -28,8 +28,8 @@ side of the boundary.
 ```
 
 `backlog/` (`BACKLOG-<NNN>`, added M15, instantiated M22) holds work
-that's known, discovered, or deferred but not necessarily in current
-scope — see
+that's known, discovered, deferred, or produced as feature-driven product
+units by Decomposition, but not necessarily in current scope — see
 `specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
 `requirements/` holds `REQ-*` Intake artifacts created before Discovery
 or downstream engineering work — see
@@ -44,7 +44,9 @@ Specification may route clarification/rework back to Intake or Discovery
 before it can become ready; this uses existing artifact updates and
 `TRACE-*`, not a separate clarification subsystem.
 `decomposition/` holds `DECOMP-*` product/system scope maps created from
-ready Specifications before Architecture — see
+ready Specifications before Architecture. `DECOMP-*` records reasoning and
+evidence; the resulting product units use the existing backlog table, not
+a second backlog — see
 `specs/SPEC-019-decomposition-lifecycle-phase.md`.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in

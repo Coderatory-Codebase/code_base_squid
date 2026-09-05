@@ -1,13 +1,27 @@
 ---
 id: DECOMP-001
 type: decomposition
-title: Personal notes baseline decomposition
+title: Personal notes baseline feature decomposition
 status: complete
 created: 2026-09-05
-related: [SPEC-018, DISC-001, REQ-001, SPEC-019, TRACE-025, PROJECT-test]
+updated: 2026-09-05
+related:
+  [
+    SPEC-018,
+    DISC-001,
+    REQ-001,
+    SPEC-019,
+    TRACE-025,
+    TRACE-026,
+    PROJECT-test,
+    BACKLOG-013,
+    BACKLOG-014,
+    BACKLOG-015,
+    BACKLOG-016,
+  ]
 ---
 
-# DECOMP-001: Personal Notes Baseline Decomposition
+# DECOMP-001: Personal Notes Baseline Feature Decomposition
 
 ## Source Specification
 
@@ -20,8 +34,33 @@ related: [SPEC-018, DISC-001, REQ-001, SPEC-019, TRACE-025, PROJECT-test]
 
 - Discovery artifact: `DISC-001`.
 - Discovery status after clarification rework: `complete`.
-- Discovery evidence establishes the existing authenticated-owner personal
-  notes baseline and excludes duplicate-system or enhancement scope.
+- Discovery evidence establishes that the seed `test` project already has
+  an authenticated-owner personal notes baseline.
+- Discovery also establishes the boundary: preserve/improve the existing
+  notes capability; do not create a duplicate notes system or select
+  unrelated enhancements.
+
+## Rework History
+
+### Initial Phase 4 Outcome
+
+The first Phase 4 implementation produced a valid `DECOMP-*` artifact but
+stopped at one outcome plus generic capabilities. It proved requirement
+coverage and downstream boundary discipline, but it did not prove
+feature-driven product decomposition or represent the resulting product
+units in the existing backlog.
+
+### Correction Applied
+
+This rework keeps the same `DECOMP-001` identity because the work item is
+unchanged. It revises the current decomposition so:
+
+- Features are the primary delivery-oriented product units.
+- The hierarchy is represented in `.project/backlog/BACKLOG.md` using the
+  existing `BACKLOG-*` mechanism.
+- `Level` / `Parent` backlog hierarchy stays separate from backlog
+  workflow `Status`.
+- Architecture remains the next phase and has not been performed.
 
 ## Outcome
 
@@ -33,199 +72,263 @@ system or selecting unrelated enhancements.
 
 `ready-for-architecture`.
 
-The active Specification requirements are clear enough to break into
-product/system scope units for Architecture. Decomposition does not create
-Architecture, Implementation Planning, Implementation, or engineering
-tasks.
+The active Specification requirements are clear enough to decompose into
+feature-driven product units for Architecture. Decomposition does not
+create Architecture, Implementation Planning, Implementation, or
+engineering tasks.
 
-## Decomposition Hierarchy
+## Product Hierarchy
 
 ```text
 DECOMP-001-U001 Personal Notes Baseline Outcome
-  -> DECOMP-001-U002 Notes Management Capability
-  -> DECOMP-001-U003 Personal Access Boundary Capability
-  -> DECOMP-001-U004 Notes Workspace Experience Capability
+  -> DECOMP-001-U002 / BACKLOG-013 Epic: Personal Notes Management
+       -> DECOMP-001-U003 / BACKLOG-014 Feature: Manage Owned Personal Notes
+       -> DECOMP-001-U004 / BACKLOG-015 Feature: Protect Personal Note Ownership
+       -> DECOMP-001-U005 / BACKLOG-016 Feature: Reach Personal Notes from the Authenticated Workspace
+  -> DECOMP-001-U006 Constraint: Existing Notes System Boundary
+  -> DECOMP-001-U007 Artifact Traceability Requirement
 ```
 
-This hierarchy intentionally uses only two levels: one outcome and three
-capability units. Further epic/story/task breakdown would be false
-precision for the clarified baseline and would drift toward implementation
-planning.
+This hierarchy uses one epic because the clarified baseline has one
+coherent product area. It stops at Features because the Features are
+bounded, understandable, traceable, and sized for Architecture. It does
+not descend into technical tasks.
 
-## Units
+## Features
+
+### DECOMP-001-U003 / BACKLOG-014 - Manage Owned Personal Notes
+
+Type: feature.
+
+Parent product unit: `DECOMP-001-U002` / `BACKLOG-013`.
+
+Product purpose/value: authenticated users can maintain their own personal
+notes as a durable part of the seed application.
+
+Source requirements: `SPEC-018-R001`, `SPEC-018-R004`.
+
+Discovery evidence: `DISC-001` identifies existing personal-note
+management, persistence, authenticated use, and backend behavior tests as
+the selected baseline.
+
+Boundaries:
+
+- In scope: create, view, edit, delete, and revisit owner-scoped personal
+  notes as baseline product behavior.
+- Out of scope: search, tags, sharing, export, pagination, rich text,
+  attachments, reminders, collaboration, migration, documentation, a
+  replacement notes model, or a duplicate notes system.
+
+Dependencies: depends on `DECOMP-001-U004` / `BACKLOG-015` because note
+management is not meaningful as personal notes without owner isolation.
+
+Feature classification: real Feature, not merely a capability, constraint,
+requirement, backlog row, or engineering task.
+
+Architecture readiness: ready for Architecture.
+
+### DECOMP-001-U004 / BACKLOG-015 - Protect Personal Note Ownership
+
+Type: feature.
+
+Parent product unit: `DECOMP-001-U002` / `BACKLOG-013`.
+
+Product purpose/value: personal notes remain private to their authenticated
+owner, preserving user trust and the meaning of "personal" in this
+product area.
+
+Source requirements: `SPEC-018-R002`; also governed by the duplicate-system
+constraint in `SPEC-018-R006`.
+
+Discovery evidence: `DISC-001` identifies authenticated-owner behavior and
+cross-user isolation as part of the selected baseline.
+
+Boundaries:
+
+- In scope: a user must not receive, edit, or delete another user's note.
+- Out of scope: shared notes, admin notes, anonymous notes, collaboration,
+  or a new access model.
+
+Dependencies: none.
+
+Feature classification: real Feature because it is an independently
+understandable product/security value slice, not an implementation task.
+
+Architecture readiness: ready for Architecture.
+
+### DECOMP-001-U005 / BACKLOG-016 - Reach Personal Notes from the Authenticated Workspace
+
+Type: feature.
+
+Parent product unit: `DECOMP-001-U002` / `BACKLOG-013`.
+
+Product purpose/value: authenticated users can discover and reach personal
+notes from their primary workspace instead of the notes baseline existing
+as hidden or disconnected functionality.
+
+Source requirements: `SPEC-018-R003`; quality-baseline constraint from
+`SPEC-018-R005`.
+
+Discovery evidence: `DISC-001` identifies dashboard-level discoverability
+and the existing route-level quality baseline as part of the selected
+current state.
+
+Boundaries:
+
+- In scope: personal notes remain reachable from the authenticated
+  workspace experience.
+- Out of scope: visual redesign, navigation redesign, interface
+  implementation detail, frontend automated testing expansion, end-to-end
+  testing expansion, accessibility expansion, or unrelated dashboard
+  features.
+
+Dependencies: related to `DECOMP-001-U003` / `BACKLOG-014`, but not
+structurally dependent on it; discoverability and management are separate
+product concerns within the same epic.
+
+Feature classification: real Feature because it is a user-visible product
+access slice, not a technical task.
+
+Architecture readiness: ready for Architecture.
+
+## Supporting Units
 
 ### DECOMP-001-U001 - Personal Notes Baseline Outcome
 
 Type: outcome.
 
-Purpose: hold the complete clarified scope from `SPEC-018` as a single
-product outcome for Architecture to reason about.
+Purpose: hold the complete clarified scope from `SPEC-018` as the product
+outcome being decomposed.
 
-Scope:
+Backlog representation: no separate backlog row; the backlog-managed
+product scope starts at epic `BACKLOG-013`.
 
-- Existing personal notes remain a coherent authenticated-user capability.
-- The baseline includes personal note management, owner-only access, and
-  discoverability from the authenticated workspace.
-- The baseline excludes duplicate-system, replacement, migration,
-  documentation, and unrelated enhancement scope.
-
-Requirement mapping: `SPEC-018-R001`, `SPEC-018-R002`,
-`SPEC-018-R003`, `SPEC-018-R004`, `SPEC-018-R005`, `SPEC-018-R006`,
+Requirement treatment: full-scope context for `SPEC-018-R001` through
 `SPEC-018-R007`.
 
-Boundary: this unit does not prescribe deployable structure, endpoint
-shape, database schema, component design, library choices, tests, or
-implementation tasks.
+### DECOMP-001-U002 / BACKLOG-013 - Personal Notes Management
 
-Relationships: parent of `DECOMP-001-U002`, `DECOMP-001-U003`, and
-`DECOMP-001-U004`.
+Type: epic.
 
-Architecture readiness: Architecture should decide how the existing system
-structure realizes the baseline without treating this outcome as a request
-for a second notes system.
+Purpose: group the clarified personal-notes baseline into a single product
+area for feature-driven delivery and Architecture handoff.
 
-### DECOMP-001-U002 - Notes Management Capability
+Backlog representation: `BACKLOG-013`, `Level: epic`, `Parent: none`,
+`Status: ready`.
 
-Type: capability.
+Requirement treatment: product ancestry for feature rows `BACKLOG-014`,
+`BACKLOG-015`, and `BACKLOG-016`.
 
-Purpose: represent the user-facing ability for an authenticated owner to
-manage their own personal notes.
+### DECOMP-001-U006 - Existing Notes System Boundary
 
-Scope:
+Type: constraint.
 
-- Create personal notes.
-- View personal notes.
-- Edit personal notes.
-- Delete personal notes.
-- Keep personal note content available across ordinary authenticated use.
+Purpose: prevent downstream work from treating `REQ-001` as authorization
+to create a second notes capability, replacement model, migration, or
+redesign.
 
-Requirement mapping: `SPEC-018-R001`, `SPEC-018-R004`.
+Backlog representation: no separate backlog row because it is a governing
+constraint across the feature rows, not a product feature by itself.
 
-Boundary: this unit does not choose routes, controller names, database
-fields, persistence technology, validation libraries, UI components, or
-test files. Search, tags, sharing, export, pagination, rich text,
-attachments, reminders, and collaboration are outside this unit.
+Requirement treatment: `SPEC-018-R006`.
 
-Relationships: child of `DECOMP-001-U001`; depends on
-`DECOMP-001-U003` for owner-only access semantics.
+### DECOMP-001-U007 - Artifact Traceability Requirement
 
-Architecture readiness: Architecture must reason about ownership,
-persistence, validation, and interaction boundaries for this capability
-without receiving an implementation task list from Decomposition.
+Type: traceability.
 
-### DECOMP-001-U003 - Personal Access Boundary Capability
+Purpose: preserve why the work moved from initially blocked intent to a
+ready baseline decomposition.
 
-Type: capability.
+Backlog representation: no separate backlog row because traceability is
+satisfied by the artifact chain, not by product scope.
 
-Purpose: represent the personal/privacy boundary around notes.
+Requirement treatment: `SPEC-018-R007`.
 
-Scope:
+## Backlog Representation
 
-- Notes belong to an authenticated owner.
-- A user must not receive another user's note.
-- A user must not edit another user's note.
-- A user must not delete another user's note.
-- The clarified baseline must not become a duplicate notes system.
+The decomposition result is represented through the existing backlog
+mechanism, not a parallel hierarchy.
 
-Requirement mapping: `SPEC-018-R002`, `SPEC-018-R006`.
+| Backlog ID  | Level   | Parent      | Status  | Kind    | Scope / Owner  | Decomposition Unit | Treatment       |
+| ----------- | ------- | ----------- | ------- | ------- | -------------- | ------------------ | --------------- |
+| BACKLOG-013 | epic    | none        | `ready` | feature | PROJECT / test | DECOMP-001-U002    | Product area    |
+| BACKLOG-014 | feature | BACKLOG-013 | `ready` | feature | PROJECT / test | DECOMP-001-U003    | Product Feature |
+| BACKLOG-015 | feature | BACKLOG-013 | `ready` | feature | PROJECT / test | DECOMP-001-U004    | Product Feature |
+| BACKLOG-016 | feature | BACKLOG-013 | `ready` | feature | PROJECT / test | DECOMP-001-U005    | Product Feature |
 
-Boundary: this unit does not select authentication middleware, session
-strategy, authorization query shape, database indexes, error response
-shape, or security libraries.
+`BACKLOG-012` is completed by this rework because the backlog table now
+has explicit `Level` and `Parent` columns.
 
-Relationships: child of `DECOMP-001-U001`; blocks safe realization of
-`DECOMP-001-U002` because note management is not meaningful as personal
-notes without the owner boundary.
+## State / Hierarchy Separation
 
-Architecture readiness: Architecture must reason about trust boundaries,
-ownership, and privacy using Discovery's existing system evidence.
+Backlog hierarchy:
 
-### DECOMP-001-U004 - Notes Workspace Experience Capability
+```text
+BACKLOG-013
+  -> BACKLOG-014
+  -> BACKLOG-015
+  -> BACKLOG-016
+```
 
-Type: capability.
+Backlog workflow state:
 
-Purpose: represent the user's ability to discover and reach personal notes
-from the authenticated application workspace.
+```text
+BACKLOG-014 Status: ready
+BACKLOG-015 Status: ready
+BACKLOG-016 Status: ready
+```
 
-Scope:
-
-- Personal notes are reachable from the authenticated dashboard/workspace
-  experience.
-- The notes experience remains coherent with the selected baseline.
-- The current quality baseline remains visible to downstream reasoning.
-
-Requirement mapping: `SPEC-018-R003`, `SPEC-018-R005`.
-
-Boundary: this unit does not choose navigation routes, page/component
-names, layout design, visual design, client state libraries, frontend test
-tools, or implementation tasks.
-
-Relationships: child of `DECOMP-001-U001`; related to
-`DECOMP-001-U002` because users must be able to reach the management
-capability.
-
-Architecture readiness: Architecture must reason about application
-boundary, navigation ownership, and validation expectations without this
-unit selecting UI design or testing implementation.
+`ready` is not a hierarchy node. It is the workflow state of each backlog
+row.
 
 ## Requirement Coverage
 
-| Specification Requirement | Coverage                                                              | Decomposition Treatment                                          |
-| ------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `SPEC-018-R001`           | `DECOMP-001-U002`                                                     | Direct management capability.                                    |
-| `SPEC-018-R002`           | `DECOMP-001-U003`                                                     | Direct personal access boundary capability.                      |
-| `SPEC-018-R003`           | `DECOMP-001-U004`                                                     | Direct workspace/discoverability capability.                     |
-| `SPEC-018-R004`           | `DECOMP-001-U002`                                                     | Inherent to notes management baseline as durable personal notes. |
-| `SPEC-018-R005`           | `DECOMP-001-U004`; also informs all units                             | Quality baseline represented as downstream readiness context.    |
-| `SPEC-018-R006`           | `DECOMP-001-U001`, `DECOMP-001-U003`, and every unit boundary         | Constraint, not a separate false capability.                     |
-| `SPEC-018-R007`           | Artifact-level traceability plus `DECOMP-001-U001` full-scope mapping | Requires no separate product unit; preserved by this artifact.   |
+| Specification Requirement | Coverage                                      | Decomposition Treatment                                           |
+| ------------------------- | --------------------------------------------- | ----------------------------------------------------------------- |
+| `SPEC-018-R001`           | `BACKLOG-014` / `DECOMP-001-U003`             | Direct product Feature: manage owned personal notes.              |
+| `SPEC-018-R002`           | `BACKLOG-015` / `DECOMP-001-U004`             | Direct product/security Feature: protect ownership.               |
+| `SPEC-018-R003`           | `BACKLOG-016` / `DECOMP-001-U005`             | Direct product Feature: reach notes from authenticated workspace. |
+| `SPEC-018-R004`           | `BACKLOG-014` / `DECOMP-001-U003`             | Data behavior included in the manage-owned-notes Feature.         |
+| `SPEC-018-R005`           | Constraint on `BACKLOG-014` and `BACKLOG-016` | Quality baseline constraint, not a separate product Feature.      |
+| `SPEC-018-R006`           | `DECOMP-001-U006`; constrains all Features    | Cross-cutting boundary against duplicate notes scope.             |
+| `SPEC-018-R007`           | `DECOMP-001-U007`; artifact chain             | Traceability requirement, not a product Feature.                  |
 
-No active requirement is orphaned.
+No active requirement is orphaned. No inactive candidate requirement
+creates product scope.
 
 ## Relationships
 
-| Relationship                                   | Type         | Meaning                                                                             |
-| ---------------------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
-| `DECOMP-001-U001 -> DECOMP-001-U002`           | parent/child | Notes management is part of the baseline outcome.                                   |
-| `DECOMP-001-U001 -> DECOMP-001-U003`           | parent/child | Personal access boundary is part of the baseline outcome.                           |
-| `DECOMP-001-U001 -> DECOMP-001-U004`           | parent/child | Workspace experience is part of the baseline outcome.                               |
-| `DECOMP-001-U002 -> DECOMP-001-U003`           | depends-on   | Personal note management depends on owner-only access semantics.                    |
-| `DECOMP-001-U004 -> DECOMP-001-U002`           | related-to   | Discoverability is related to, but not structurally dependent on, management scope. |
-| `DECOMP-001 -> SPEC-018`                       | derived-from | The decomposition is derived from the ready Specification.                          |
-| `SPEC-018-R001..R007 -> DECOMP-001-U001..U004` | satisfies    | Each active requirement is accounted for by unit mapping or rationale.              |
+| Relationship                                                        | Type         | Meaning                                                                            |
+| ------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------- |
+| `BACKLOG-013 -> BACKLOG-014`                                        | parent/child | Manage owned notes belongs to the personal-notes epic.                             |
+| `BACKLOG-013 -> BACKLOG-015`                                        | parent/child | Ownership protection belongs to the personal-notes epic.                           |
+| `BACKLOG-013 -> BACKLOG-016`                                        | parent/child | Workspace reachability belongs to the personal-notes epic.                         |
+| `BACKLOG-014 -> BACKLOG-015`                                        | depends-on   | Owned-note management depends on ownership protection.                             |
+| `BACKLOG-016 -> BACKLOG-014`                                        | related-to   | Reachability is related to management but is not a technical dependency.           |
+| `DECOMP-001 -> SPEC-018`                                            | derived-from | The decomposition is derived from the ready Specification.                         |
+| `BACKLOG-013..016 -> DECOMP-001`                                    | derived-from | Product backlog rows were created/refined by this Decomposition evidence artifact. |
+| `REQ-001 -> DISC-001 -> SPEC-018 -> DECOMP-001 -> BACKLOG-013..016` | traceability | The real lifecycle chain can be followed from request to product units.            |
 
-These relationships are semantic descriptions inside this artifact. No
-graph engine, graph database, registry, or automated dependency analyzer
-is created.
+These relationships are semantic descriptions using existing graph
+language. No graph engine, graph database, registry, or automated
+dependency analyzer is created.
 
 ## Architecture Handoff
 
-Architecture receives this scope map:
+Architecture receives this product scope map:
 
-- Personal notes baseline outcome.
-- Notes management capability.
-- Personal access boundary capability.
-- Notes workspace experience capability.
-- Requirement coverage and non-goal boundaries.
+- Epic: personal notes management (`BACKLOG-013`).
+- Feature: manage owned personal notes (`BACKLOG-014`).
+- Feature: protect personal note ownership (`BACKLOG-015`).
+- Feature: reach personal notes from the authenticated workspace
+  (`BACKLOG-016`).
+- Cross-cutting constraints: preserve current quality baseline, preserve
+  clarification traceability, and do not create a duplicate notes system.
 
-Architecture should next reason about system boundary, ownership,
-components, data, interfaces, integrations, constraints, and architectural
-decisions using `DISC-001`, `SPEC-018`, and this `DECOMP-001`. This
-artifact does not make those architecture decisions.
-
-## Assumptions
-
-- No additional enhancement beyond the clarified baseline is assumed.
-- The current project owner remains `test`, as established by `REQ-001`,
-  `DISC-001`, and `SPEC-018`.
-
-## Unresolved Questions
-
-No question blocks Architecture for the clarified baseline.
-
-Future enhancement, replacement, migration, documentation, frontend/E2E
-coverage, or expanded accessibility scope still requires its own
-Intake/Discovery/Specification support before entering Decomposition.
+Architecture should next reason about how the existing system realizes
+these product Features using `DISC-001`, `SPEC-018`, `DECOMP-001`, and
+the backlog rows. This artifact does not make those architecture
+decisions.
 
 ## Non-Goals
 
@@ -246,18 +349,19 @@ Human request
   -> DISC-001
   -> SPEC-018
   -> DECOMP-001
+  -> BACKLOG-013 / BACKLOG-014 / BACKLOG-015 / BACKLOG-016
 ```
 
-Requirement-to-unit mapping:
+Requirement-to-product-unit mapping:
 
 ```text
-SPEC-018-R001 -> DECOMP-001-U002
-SPEC-018-R002 -> DECOMP-001-U003
-SPEC-018-R003 -> DECOMP-001-U004
-SPEC-018-R004 -> DECOMP-001-U002
-SPEC-018-R005 -> DECOMP-001-U004 / all-unit quality context
-SPEC-018-R006 -> DECOMP-001-U001 / DECOMP-001-U003 / boundaries
-SPEC-018-R007 -> DECOMP-001 artifact traceability / DECOMP-001-U001
+SPEC-018-R001 -> BACKLOG-014 / DECOMP-001-U003
+SPEC-018-R002 -> BACKLOG-015 / DECOMP-001-U004
+SPEC-018-R003 -> BACKLOG-016 / DECOMP-001-U005
+SPEC-018-R004 -> BACKLOG-014 / DECOMP-001-U003
+SPEC-018-R005 -> quality constraint on BACKLOG-014 and BACKLOG-016
+SPEC-018-R006 -> DECOMP-001-U006 / all feature boundaries
+SPEC-018-R007 -> DECOMP-001-U007 / artifact traceability
 ```
 
 ## Lifecycle State
@@ -266,6 +370,7 @@ SPEC-018-R007 -> DECOMP-001 artifact traceability / DECOMP-001-U001
 - Discovery: complete.
 - Specification: active and ready.
 - Decomposition: complete with readiness `ready-for-architecture`.
+- Existing backlog: updated with feature-driven product hierarchy.
 - Next allowed phase: Architecture may be considered, but has not been
   executed.
 - Architecture: not created.

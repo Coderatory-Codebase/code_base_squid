@@ -58,6 +58,10 @@ shorter agent-facing pointer into it.
 > implementation begins. `ADR-016` adds dual operating scope: one physical
 > backlog, with explicit `Scope` and `Owner` columns, covers both the
 > foundation and projects/products without treating them as the same work.
+> Phase 4 Decomposition later completed `BACKLOG-012` by adding explicit
+> `Level` and `Parent` columns to the same backlog table. This preserves
+> one backlog while allowing product-area/epic/feature hierarchy to be
+> represented separately from workflow `Status`.
 
 ## Purpose
 
@@ -636,15 +640,15 @@ to how small a backlog item actually is (`ARTIFACT-TYPES.md` → "Why no
 ### Backlog table columns
 
 ```text
-ID | Scope | Owner | Title | Kind | Status | Priority |
-Source (discovered-from) | Dependencies | Notes
+ID | Scope | Owner | Level | Parent | Title | Kind | Status |
+Priority | Source (discovered-from) | Dependencies | Notes
 ```
 
 `id` (`BACKLOG-<NNN>`, monotonically increasing, never reused/renumbered
 — same rule as every other artifact type, `ARTIFACT-TYPES.md`), `title`,
-`scope`, `owner`, `kind`, and `status` are required, matching every other
-artifact type's required-field convention adapted to a table row instead
-of frontmatter.
+`scope`, `owner`, `level`, `parent`, `kind`, and `status` are required,
+matching every other artifact type's required-field convention adapted to
+a table row instead of frontmatter.
 `kind` is new to this type — it's how "feature vs. defect vs. technical
 work vs. risk" is expressed without inventing separate backlogs or
 artifact types for each:
@@ -659,6 +663,38 @@ provenance directly in the table rather than as a separate typed
 `relations:` edge — proportional to how small each row is; a typed edge
 remains available (`engineering-graph.md`) for the rare case that needs
 more precision than a table cell.
+
+`Level` expresses product/work hierarchy, not workflow progress. Valid
+levels are intentionally small and open only to current needs:
+`outcome | initiative | epic | feature | capability | story | task |
+discovered-issue | foundation-capability | standalone`. Use `standalone`
+when an item is real work but has no useful parent in today's backlog.
+Use `feature` for the primary delivery-oriented product unit. Use
+`capability` only when a unit supports or constrains a feature and is not
+itself an independently understandable product feature. `Parent` is either
+another existing `BACKLOG-<NNN>` row or `none`; it never points at a
+`DECOMP-*` unit, a lifecycle state, or an invented registry.
+
+This gives the existing backlog enough structure for feature-driven
+decomposition without creating `FEATURE-*`, a second backlog, or a project
+management database:
+
+```text
+BACKLOG-013  Level: epic     Parent: none        Status: ready
+BACKLOG-014  Level: feature  Parent: BACKLOG-013 Status: ready
+```
+
+Hierarchy and workflow state are separate dimensions:
+
+```text
+Feature row:
+  Level: feature
+  Parent: BACKLOG-013
+  Status: ready
+```
+
+`ready` is not a child of `feature`; it is the feature row's workflow
+state.
 
 ## Traceability
 

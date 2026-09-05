@@ -4,7 +4,8 @@ type: trace
 title: Decomposition lifecycle phase
 status: completed
 created: 2026-09-05
-related: [PLAN-014, SPEC-019, DECOMP-001, SPEC-018, DISC-001, REQ-001]
+updated: 2026-09-05
+related: [PLAN-014, SPEC-019, DECOMP-001, SPEC-018, DISC-001, REQ-001, PLAN-015, TRACE-026]
 ---
 
 # TRACE-025: Decomposition Lifecycle Phase
@@ -15,6 +16,15 @@ Implement and prove Phase 4 - Decomposition - of the lifecycle.
 Decomposition must consume a ready Specification, break its authorized
 scope into product/system units, and stop before Architecture,
 Implementation Planning, Implementation, and later phases.
+
+## Post-Completion Correction
+
+Architectural review later found this trace's implementation incomplete:
+it demonstrated product/capability classification but did not demonstrate
+feature-driven product decomposition or backlog integration. `PLAN-015` /
+`TRACE-026` is the corrective rework. The current authoritative Phase 4
+result is the reworked `DECOMP-001` plus backlog rows `BACKLOG-013`
+through `BACKLOG-016`.
 
 ## Classification
 

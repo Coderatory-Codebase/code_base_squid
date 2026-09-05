@@ -15,13 +15,14 @@ after the user clarified that the repository must behave as an
 agent-executable operating foundation for MERN/Next.js monorepo app
 development, not mainly as after-the-fact records. The active work is
 `SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`/`SPEC-016`/
-`SPEC-017`/`PLAN-013`/`TRACE-024`/`SPEC-019`/`PLAN-014`/`TRACE-025`:
+`SPEC-017`/`PLAN-013`/`TRACE-024`/`SPEC-019`/`PLAN-014`/`TRACE-025`/
+`PLAN-015`/`TRACE-026`:
 request routing, dual operating scope, Intake, corrected Discovery,
 Specification, the Specification clarification/rework loop, and
-Decomposition as the first executable lifecycle behavior, dual-track
-discovery and delivery, pre-implementation artifact discipline, current
-architecture in `architecture.yaml`, and the first real stack skill for
-MERN/Next.js vertical slices.
+feature-driven Decomposition that feeds the existing backlog,
+dual-track discovery and delivery, pre-implementation artifact
+discipline, current architecture in `architecture.yaml`, and the first
+real stack skill for MERN/Next.js vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
 the reference app used to prove the foundation, not the whole repository.
@@ -136,10 +137,10 @@ ecosystem guidance; they're this project's own implementation choices
 
 ## Backlog
 
-Twelve real backlog items exist — one table file,
+Sixteen real backlog items exist — one table file,
 `.project/backlog/BACKLOG.md` (single-table format since M23,
 originally one file per item at M22; `Scope`/`Owner` columns added at
-M26): `BACKLOG-001` (email
+M26, `Level`/`Parent` columns added by `TRACE-026`): `BACKLOG-001` (email
 verification), `BACKLOG-002` (password reset/account recovery),
 `BACKLOG-003` (OAuth/social login), `BACKLOG-005` (frontend component/
 E2E test coverage) — from M22's own scoping, `captured`; `BACKLOG-006`
@@ -151,16 +152,18 @@ account security settings feature (`TRACE-012`/`ADR-014`); `BACKLOG-007`
 M23's corrective review of M22, `captured`; `BACKLOG-009` (client-IP
 detection behind the Next.js proxy, for correct rate limiting) —
 discovered while implementing `BACKLOG-006`, `captured`; `BACKLOG-010`
-is completed (roadmap history extraction), and `BACKLOG-011` through
-`BACKLOG-012` capture remaining M26 foundation follow-up work for
-operating-layer validators and multilevel backlog migration. Model and
+is completed (roadmap history extraction); `BACKLOG-011` remains captured
+for operating-layer validators; `BACKLOG-012` is completed (explicit
+multilevel backlog table migration); and `BACKLOG-013` through
+`BACKLOG-016` are ready project/product rows produced by `DECOMP-001`:
+one personal-notes epic and three personal-notes Features. Model and
 conventions:
 `.project/specs/SPEC-010-agent-backlog-and-feature-driven-development.md`
 → "Persistence" (single-table format, added M23).
 
 ## Traces
 
-Twenty-five real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Twenty-six real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -216,10 +219,13 @@ implementation and real draft Specification execution producing
 `SPEC-018`), and `TRACE-024` (Specification clarification/rework
 correction, preserving the initial blocked `SPEC-018`, reworking
 `DISC-001` first after clarification, and revising `SPEC-018` to
-`ready-for-decomposition` for the clarified baseline), and `TRACE-025`
-(Decomposition lifecycle phase, producing `DECOMP-001` from ready
+`ready-for-decomposition` for the clarified baseline), `TRACE-025`
+(initial Decomposition lifecycle phase, producing `DECOMP-001` from ready
 `SPEC-018` while stopping before Architecture and implementation
-planning). None is a retroactive trace of M01-M17, which predate the
+planning), and `TRACE-026` (Phase 4 feature-driven Decomposition rework,
+completing `BACKLOG-012` and representing `DECOMP-001` output as
+`BACKLOG-013` through `BACKLOG-016`). None is a retroactive trace of
+M01-M17, which predate the
 model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
@@ -710,8 +716,11 @@ Discovery, reworks `DISC-001` first, and then revises `SPEC-018` to
 baseline. Its eighth M26 slice is complete (`SPEC-019`, `PLAN-014`,
 `TRACE-025`): Phase 4 Decomposition is an agent-executed governed workflow
 that consumes a ready `SPEC-*`, creates a `DECOMP-*` product/system scope
-map, accounts for active requirements, and stops before Architecture. The
-real Decomposition artifact is
+map, accounts for active requirements, and stops before Architecture. Its
+ninth M26 slice is complete (`PLAN-015`, `TRACE-026`): Phase 4 was
+reworked to be feature-driven, complete `BACKLOG-012`, and represent the
+real `SPEC-018` decomposition through existing backlog rows `BACKLOG-013`
+through `BACKLOG-016`. The real Decomposition artifact is
 `.project/decomposition/DECOMP-001-personal-notes-baseline.md`.
 Architecture/Phase 5 has not been executed, no implementation plan was
 created, and implementation has not started.
@@ -720,7 +729,9 @@ Discovery is reworked and complete after clarification. Specification is
 active with readiness `ready-for-decomposition` for the clarified
 baseline only.
 Decomposition is complete with readiness `ready-for-architecture` for
-`DECOMP-001`.
+`DECOMP-001`. The resulting project/product backlog hierarchy is
+`BACKLOG-013` (epic) with `BACKLOG-014`, `BACKLOG-015`, and `BACKLOG-016`
+as ready Features.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -837,13 +848,12 @@ Nothing.
 
 Do not proceed to Architecture/Phase 5 unless explicitly requested and the
 source Decomposition is ready. `DECOMP-001` is ready only for the
-clarified baseline scope after `TRACE-025`; it does not authorize
+clarified baseline scope after `TRACE-026`; it does not authorize
 implementation, architecture decisions, engineering tasks, or unrelated
-notes enhancements. Other remaining M26 follow-ups still exist: add
-broader validators for artifact and architecture drift
-(`BACKLOG-011`), then migrate the backlog to explicit multilevel
-relationships (`BACKLOG-012`). Do not begin another application feature
-until it is selected from explicit user request or backlog.
+notes enhancements. The remaining M26 follow-up is broader validators for
+artifact and architecture drift (`BACKLOG-011`). `BACKLOG-012` is complete.
+Do not begin another application feature until it is selected from
+explicit user request or backlog.
 
 ## Open questions carried forward
 

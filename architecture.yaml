@@ -160,10 +160,12 @@ operating_model:
       transition: specification/ready -> decomposition/complete -> architecture
       boundary: >
         Decomposition consumes an active, ready Specification, breaks the
-        authorized outcome into coherent product/system scope units,
-        accounts for every active requirement, preserves traceability, and
-        stops before Architecture, Implementation Planning, Implementation,
-        Verification, Review, Delivery, Operate, or Feedback.
+        authorized outcome into coherent feature-driven product scope units,
+        represents the resulting epic/feature hierarchy in the existing
+        backlog, accounts for every active requirement, preserves
+        traceability, and stops before Architecture, Implementation
+        Planning, Implementation, Verification, Review, Delivery, Operate,
+        or Feedback.
   operating_scopes:
     - id: FOUNDATION
       brain:
@@ -217,12 +219,17 @@ operating_model:
   backlog_model:
     file: .project/backlog/BACKLOG.md
     physical_model: single_backlog
-    required_scope_columns: [Scope, Owner]
+    required_columns:
+      [ID, Scope, Owner, Level, Parent, Title, Kind, Status, Priority, Source, Dependencies, Notes]
     scope_values: [FOUNDATION, PROJECT, CROSS_CUTTING]
     owner_values: [repo, project-id]
+    hierarchy_columns: [Level, Parent]
+    state_column: Status
     rule: >
       One physical backlog remains discoverable, but every item states
       whether it maintains the foundation, a project/product, or both.
+      Hierarchy is represented with Level and Parent. Workflow progress is
+      represented separately with Status.
 
 boundaries:
   - path: .agent/
@@ -404,7 +411,6 @@ roadmap:
   history_file: .project/roadmap/MILESTONES.yaml
   active_work:
     - BACKLOG-011
-    - BACKLOG-012
   current_milestone:
     id: M26
     name: Agent Operating Model Realignment
@@ -423,8 +429,9 @@ roadmap:
         PLAN-012,
         PLAN-013,
         PLAN-014,
+        PLAN-015,
       ]
-    trace: TRACE-025
+    trace: TRACE-026
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
@@ -436,8 +443,12 @@ roadmap:
     the appropriate upstream phase, and Discovery-level clarification is
     recorded in Discovery before Specification is revised. architecture.yaml
     is current architecture first; roadmap history is project memory.
-    SPEC-019 implements Decomposition as a product/system scope map from a
-    ready Specification, not Architecture or implementation planning.
+    SPEC-019 implements Decomposition as a feature-driven product scope map
+    from a ready Specification. The current Phase 4 proof is a
+    feature-driven product hierarchy: `DECOMP-*` is the reasoning/evidence
+    artifact; resulting product units are represented in the existing
+    backlog with explicit `Level` and `Parent` hierarchy separate from
+    workflow `Status`. It is not Architecture or implementation planning.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure

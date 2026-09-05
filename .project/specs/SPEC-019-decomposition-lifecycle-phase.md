@@ -4,6 +4,7 @@ type: spec
 title: Decomposition lifecycle phase
 status: active
 created: 2026-09-05
+updated: 2026-09-05
 related: [SPEC-007, SPEC-010, SPEC-013, SPEC-017, SPEC-018, ADR-016]
 ---
 
@@ -24,10 +25,19 @@ SPEC-* artifact
 ```
 
 Decomposition transforms a ready Specification into coherent,
-progressively decomposed product/system scope units. It establishes what
-scope Architecture must later reason about. It does not perform
-Architecture, Implementation Planning, Implementation, Verification,
-Review, Delivery, or Operate.
+progressively decomposed product scope units. Features are the primary
+delivery-oriented units in this model: they are the product/value slices
+that flow toward Architecture and eventual engineering execution. It
+establishes what scope Architecture must later reason about. It does not
+perform Architecture, Implementation Planning, Implementation,
+Verification, Review, Delivery, or Operate.
+
+`DECOMP-*` is the reasoning/evidence artifact for the phase. The product
+units produced by Decomposition are represented in the existing single
+backlog (`.project/backlog/BACKLOG.md`) using its `Level`, `Parent`,
+`Kind`, `Status`, `Scope`, and `Owner` columns. Decomposition must not
+create a second backlog, a `FEATURE-*` registry, or a work-management
+state machine.
 
 ## Input Gate
 
@@ -60,8 +70,10 @@ Source Specification      SPEC-### reference and readiness
 Source Discovery          DISC-### reference when relevant
 Outcome                   specified outcome being decomposed
 Decomposition Readiness   ready-for-architecture, needs-clarification, or blocked
-Hierarchy                 only meaningful levels and units
-Units                     unit ID, type, purpose, scope, boundaries
+Product Hierarchy         only meaningful levels and product units
+Backlog Representation    BACKLOG rows created/refined by decomposition
+Features                  feature rows with purpose/value/evidence/boundaries
+Supporting Units          non-feature capability/constraint/context units
 Requirement Coverage      every active SPEC requirement accounted for
 Relationships             parent/child, depends-on, related-to where meaningful
 Architecture Handoff      what Architecture must reason about later
@@ -84,20 +96,73 @@ Each unit has:
 
 - stable identity inside the artifact, e.g. `DECOMP-001-U001`;
 - type, chosen only when useful: `outcome`, `initiative`, `epic`,
-  `feature`, `capability`, or `story`;
+  `feature`, `capability`, `story`, or `constraint`;
+- backlog row mapping when the unit represents backlog-managed product
+  work;
 - purpose;
+- product value;
 - in-scope boundaries;
 - out-of-scope boundaries;
 - Specification requirement mappings;
+- relevant Discovery evidence;
 - relationship semantics, when meaningful;
 - readiness notes for Architecture.
 
-Use only as many levels as the work needs. The stopping rule is:
+Use only as many levels as the work needs. The preferred shape is:
 
 ```text
-Stop decomposing when the resulting units are coherent, bounded,
-understandable, and independently reasoned about enough for Architecture.
+PRODUCT OUTCOME
+  -> EPIC / PRODUCT AREA
+  -> FEATURE
+  -> optional capability/story/requirement refinement
 ```
+
+Do not equate `capability = feature`, `requirement = feature`, `backlog
+item = feature`, or `engineering task = feature`. A backlog row may carry
+`Level: feature`, but the row is still the repository's existing backlog
+mechanism, not a new feature artifact type.
+
+The stopping rule is:
+
+```text
+Stop when each resulting unit is coherent, bounded, understandable,
+traceable to product intent, independently reasoned about, appropriately
+sized for Architecture, and not merely a technical implementation task.
+```
+
+A decomposition that stops at generic capabilities when feature-level
+product slices are justified is incomplete.
+
+## Backlog Integration
+
+Decomposition creates or refines ordinary rows in
+`.project/backlog/BACKLOG.md`. It reuses the backlog model from
+`SPEC-010`; it does not define a replacement model.
+
+The backlog stores separate dimensions:
+
+```text
+Level   = hierarchy/sizing, such as epic or feature
+Parent  = hierarchy/ancestry, such as BACKLOG-013
+Status  = workflow state, such as captured or ready
+Kind    = work kind, such as feature or technical
+Scope   = FOUNDATION / PROJECT / CROSS_CUTTING
+Owner   = repo or project id
+```
+
+Therefore this is valid:
+
+```text
+BACKLOG-014 | PROJECT | test | feature | BACKLOG-013 | ... | `ready`
+```
+
+and this is invalid:
+
+```text
+Feature -> ready -> in-progress -> review -> completed
+```
+
+because it confuses hierarchy with workflow state.
 
 ## Requirement Coverage
 
@@ -112,6 +177,11 @@ requirement, Decomposition records whether it:
 Every decomposition unit must be justified by at least one active
 Specification requirement. Candidate requirements and non-goals may define
 boundaries, but they do not create units by themselves.
+
+Not every requirement becomes a Feature. A requirement may deliberately
+map to a Feature, an epic/product area, a capability, a constraint, a
+cross-cutting concern, or artifact-level traceability. The mapping must be
+explicit; no active requirement may silently disappear.
 
 ## Relationship Semantics
 
@@ -130,7 +200,7 @@ into typed graph edges unless a real semantic edge is needed.
 Product decomposition answers:
 
 ```text
-What coherent capabilities/scope make up the requested outcome?
+What user/product value units and Features make up the requested outcome?
 ```
 
 Engineering decomposition answers:
@@ -194,9 +264,10 @@ Decomposition must not create:
 
 `node --test tooling/tests/decomposition.test.mjs` checks the actual
 Decomposition workflow, artifact convention, `DECOMP-001` execution from
-`SPEC-018`, readiness gates, requirement coverage, orphan-unit detection,
-architecture and implementation leakage, hierarchy validity, traceability,
-and upstream blocking behavior.
+`SPEC-018`, readiness gates, requirement coverage, feature presence,
+existing-backlog integration, state/hierarchy separation, orphan-unit
+detection, architecture and implementation leakage, hierarchy validity,
+traceability, and upstream blocking behavior.
 
 ## Status
 
