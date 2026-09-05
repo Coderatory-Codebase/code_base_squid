@@ -16,13 +16,14 @@ agent-executable operating foundation for MERN/Next.js monorepo app
 development, not mainly as after-the-fact records. The active work is
 `SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`/`SPEC-016`/
 `SPEC-017`/`PLAN-013`/`TRACE-024`/`SPEC-019`/`PLAN-014`/`TRACE-025`/
-`PLAN-015`/`TRACE-026`:
+`PLAN-015`/`TRACE-026`/`SPEC-020`/`PLAN-016`/`TRACE-027`/`ARCH-001`:
 request routing, dual operating scope, Intake, corrected Discovery,
 Specification, the Specification clarification/rework loop, and
 feature-driven Decomposition that feeds the existing backlog,
-dual-track discovery and delivery, pre-implementation artifact
-discipline, current architecture in `architecture.yaml`, and the first
-real stack skill for MERN/Next.js vertical slices.
+Architecture as an evidence-backed design-decision phase, dual-track
+discovery and delivery, pre-implementation artifact discipline, current
+architecture in `architecture.yaml`, and the first real stack skill for
+MERN/Next.js vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
 the reference app used to prove the foundation, not the whole repository.
@@ -163,7 +164,7 @@ conventions:
 
 ## Traces
 
-Twenty-six real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Twenty-seven real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -224,8 +225,11 @@ correction, preserving the initial blocked `SPEC-018`, reworking
 `SPEC-018` while stopping before Architecture and implementation
 planning), and `TRACE-026` (Phase 4 feature-driven Decomposition rework,
 completing `BACKLOG-012` and representing `DECOMP-001` output as
-`BACKLOG-013` through `BACKLOG-016`). None is a retroactive trace of
-M01-M17, which predate the
+`BACKLOG-013` through `BACKLOG-016`), and `TRACE-027` (Phase 5
+Architecture, producing `ARCH-001` from `DISC-001`, `SPEC-018`,
+`DECOMP-001`, and backlog Features while selecting reuse of the existing
+personal-notes architecture and stopping before Implementation Planning).
+None is a retroactive trace of M01-M17, which predate the
 model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
@@ -685,8 +689,9 @@ before Discovery. The real demonstration artifact is
 `.project/requirements/REQ-001-add-personal-notes-functionality-to-the-test-application.md`,
 with trace `TRACE-019`. It has since been consumed by Discovery in
 `DISC-001`, then by Specification in `SPEC-018`, then decomposed in
-`DECOMP-001`; no architecture was created for that request, and
-implementation has not started. No application feature is currently selected. This Intake
+`DECOMP-001`, then architected in `ARCH-001`; Implementation Planning has
+not been executed and implementation has not started. No application
+feature is currently selected. This Intake
 demonstration is separate from the historical personal-notes feature
 implementation recorded under `TRACE-014`/`PLAN-004`; it does not
 authorize or imply any new app work. Its fifth slice is corrected and
@@ -722,7 +727,16 @@ reworked to be feature-driven, complete `BACKLOG-012`, and represent the
 real `SPEC-018` decomposition through existing backlog rows `BACKLOG-013`
 through `BACKLOG-016`. The real Decomposition artifact is
 `.project/decomposition/DECOMP-001-personal-notes-baseline.md`.
-Architecture/Phase 5 has not been executed, no implementation plan was
+Its tenth M26 slice is complete (`SPEC-020`, `PLAN-016`, `TRACE-027`,
+`ARCH-001`): Phase 5 Architecture is an agent-executed governed workflow
+that consumes Discovery evidence, an approved Specification, a ready
+Decomposition, and backlog Feature rows; distinguishes current technical
+state from target architecture; maps Features to architectural
+responsibilities; records evidence-backed decisions, trade-offs, and open
+decisions; and stops before Implementation Planning. The real
+Architecture artifact is
+`.project/architecture/ARCH-001-personal-notes-baseline.md`.
+Implementation Planning has not been executed, no engineering tasks were
 created, and implementation has not started.
 
 Discovery is reworked and complete after clarification. Specification is
@@ -732,6 +746,12 @@ Decomposition is complete with readiness `ready-for-architecture` for
 `DECOMP-001`. The resulting project/product backlog hierarchy is
 `BACKLOG-013` (epic) with `BACKLOG-014`, `BACKLOG-015`, and `BACKLOG-016`
 as ready Features.
+
+Architecture is complete with readiness
+`ready-for-implementation-planning` for `ARCH-001`. The selected target
+architecture reuses the existing `test` project-owned web/API, notes
+domain, auth/session, owner-scoped data-access, and persistence
+boundaries. Implementation Planning has not been executed.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -772,8 +792,8 @@ noted there rather than duplicated; genuinely speculative adjacent
 capabilities — search, tagging, sharing, export, pagination — were
 considered and explicitly not backlogged, consistent with M20's/M25's
 precedent of not manufacturing items without a concrete signal of
-need). Nine `captured` `BACKLOG` items remain (`BACKLOG-001`..`003`,
-`005`, `007`..`009`, `011`, `012`) — none selected for application
+need). Eight `captured` `BACKLOG` items remain (`BACKLOG-001`..`003`,
+`005`, `007`..`009`, `011`) — none selected for application
 implementation. Not proceeding to another application feature without
 explicit instruction.
 
@@ -846,14 +866,13 @@ Nothing.
 
 ## Next
 
-Do not proceed to Architecture/Phase 5 unless explicitly requested and the
-source Decomposition is ready. `DECOMP-001` is ready only for the
-clarified baseline scope after `TRACE-026`; it does not authorize
-implementation, architecture decisions, engineering tasks, or unrelated
-notes enhancements. The remaining M26 follow-up is broader validators for
-artifact and architecture drift (`BACKLOG-011`). `BACKLOG-012` is complete.
-Do not begin another application feature until it is selected from
-explicit user request or backlog.
+Do not proceed to Implementation Planning unless explicitly requested and
+the source Architecture is ready. `ARCH-001` is ready only for the
+clarified baseline scope after `TRACE-027`; it does not authorize
+implementation, engineering tasks, or unrelated notes enhancements. The
+remaining M26 follow-up is broader validators for artifact and
+architecture drift (`BACKLOG-011`). Do not begin another application
+feature until it is selected from explicit user request or backlog.
 
 ## Open questions carried forward
 

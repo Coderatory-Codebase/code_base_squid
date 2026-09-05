@@ -5,7 +5,22 @@ title: Agent repository operating contract
 status: active
 created: 2026-08-31
 updated: 2026-09-05
-related: [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-012, SPEC-013]
+related:
+  [
+    SPEC-004,
+    SPEC-006,
+    SPEC-007,
+    SPEC-008,
+    SPEC-009,
+    SPEC-010,
+    SPEC-012,
+    SPEC-013,
+    SPEC-015,
+    SPEC-016,
+    SPEC-017,
+    SPEC-019,
+    SPEC-020,
+  ]
 ---
 
 # SPEC-011: Agent Repository Operating Contract
@@ -91,6 +106,10 @@ UNDERSTAND the request (development-lifecycle.md)
 identify existing coverage — does a SPEC/ADR/backlog item already
   address this? (backlog-and-feature-development.md -> "check whether
   it already exists")
+       ↓
+use the governed lifecycle phase when the request is phase-specific:
+  Intake -> Discovery -> Specification -> Decomposition -> Architecture
+  (SPEC-015, SPEC-016, SPEC-017, SPEC-019, SPEC-020)
        ↓
 ANALYZE through relevant lenses; identify technologies involved
   (SPEC-010 -> "Analysis lenses"; SPEC-008 -> "Technology skill model")

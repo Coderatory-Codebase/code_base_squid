@@ -371,13 +371,14 @@ SPEC-018-R007 -> DECOMP-001-U007 / artifact traceability
 - Specification: active and ready.
 - Decomposition: complete with readiness `ready-for-architecture`.
 - Existing backlog: updated with feature-driven product hierarchy.
-- Next allowed phase: Architecture may be considered, but has not been
-  executed.
-- Architecture: not created.
+- Architecture: complete in `ARCH-001`.
+- Next allowed phase: Implementation Planning may be considered, but has
+  not been executed.
 
 ## Boundary Check
 
-- Architecture: not created.
+- Architecture: created later by Phase 5 in `ARCH-001`, not by
+  Decomposition.
 - Implementation Planning: not created.
 - Implementation: not started.
 - Verification: not executed.

@@ -145,7 +145,7 @@ test("actual DISC-001 preserves initial uncertainty and records clarification re
   assert.doesNotMatch(discovery, /^## Implementation Plan$/im);
 });
 
-test("state and trace preserve Discovery boundary while later phases advance through Decomposition", () => {
+test("state and trace preserve Discovery boundary while later phases advance through Architecture", () => {
   const state = readRepoFile(".project", "state", "PROJECT-STATE.md");
   const trace = [
     readRepoFile(".project", "traces", "TRACE-021-discovery-phase.md"),
@@ -159,7 +159,8 @@ test("state and trace preserve Discovery boundary while later phases advance thr
   assert.match(state, /Discovery is reworked and complete after clarification/i);
   assert.match(state, /SPEC-018/);
   assert.match(state, /DECOMP-001/);
-  assert.match(state, /Architecture\/Phase 5 has not been executed/i);
+  assert.match(state, /ARCH-001/);
+  assert.match(state, /Implementation Planning has not been executed/i);
   assert.match(state, /lens-based current-state,\s+gap\/capability,\s+and synthesis analysis/i);
   assert.match(
     trace,

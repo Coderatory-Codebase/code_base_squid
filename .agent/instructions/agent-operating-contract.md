@@ -41,9 +41,14 @@ AGENTS.md (read in full)
       blockers; stop before Decomposition
       (specification.md, SPEC-017)
   → DECOMPOSITION when an active SPEC-* is ready —
-      create DECOMP-* with coherent product/system scope units and
+      create DECOMP-* evidence and existing backlog Feature rows with
       requirement coverage; stop before Architecture
       (decomposition.md, SPEC-019)
+  → ARCHITECTURE when a DECOMP-* is ready —
+      create ARCH-* with current state, target architecture, boundaries,
+      Feature mapping, decisions, trade-offs, risks, and handoff; stop
+      before Implementation Planning
+      (architecture.md, SPEC-020)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

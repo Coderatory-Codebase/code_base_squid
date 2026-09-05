@@ -17,6 +17,8 @@ side of the boundary.
 ├── discovery/             Discovery artifacts (`DISC-*`) from Intake.
 ├── decomposition/          Decomposition artifacts (`DECOMP-*`) from ready
 │                            Specifications.
+├── architecture/            Architecture artifacts (`ARCH-*`) from Discovery,
+│                            Specification, Decomposition, and backlog Features.
 ├── plans/                  How a spec is/was accomplished.
 ├── projects/               Project/product operating memory.
 ├── reviews/                 Point-in-time evaluations of completed work.
@@ -48,6 +50,10 @@ ready Specifications before Architecture. `DECOMP-*` records reasoning and
 evidence; the resulting product units use the existing backlog table, not
 a second backlog — see
 `specs/SPEC-019-decomposition-lifecycle-phase.md`.
+`architecture/` holds `ARCH-*` architecture records created from Discovery,
+Specification, Decomposition, and backlog Features before Implementation
+Planning — see `specs/SPEC-020-architecture-lifecycle-phase.md`. `ARCH-*`
+does not replace `architecture.yaml` or ADRs.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level

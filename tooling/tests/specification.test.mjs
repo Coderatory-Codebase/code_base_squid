@@ -17,7 +17,8 @@ function markdownSection(text, heading) {
 
 function assertSpecificationBoundary(text) {
   assert.match(text, /Decomposition: created later by Phase 4/i);
-  assert.match(text, /Architecture: not created/i);
+  assert.match(text, /Architecture: created later by Phase 5/i);
+  assert.match(text, /Implementation Planning: not created/i);
   assert.match(text, /Implementation: not started/i);
   assert.match(text, /Tasks: not created/i);
 }
@@ -166,7 +167,8 @@ test("state and trace record the clarification/rework loop and readiness gate", 
   assert.match(state, /TRACE-024/);
   assert.match(state, /Specification is\s+active with readiness `ready-for-decomposition`/i);
   assert.match(state, /DECOMP-001/);
-  assert.match(state, /Architecture\/Phase 5 has not been executed/i);
+  assert.match(state, /ARCH-001/);
+  assert.match(state, /Implementation Planning has not been executed/i);
   assert.match(trace, /DISC-001 initial needs-clarification/i);
   assert.match(trace, /DISC-001 reworked \/ complete/i);
   assert.match(trace, /SPEC-018 revised \/ ready-for-decomposition/i);

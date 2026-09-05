@@ -300,14 +300,17 @@ Human request
 - Discovery: reworked and complete after clarification.
 - Specification: active with readiness `ready-for-decomposition`.
 - Decomposition: complete in `DECOMP-001`.
-- Next allowed phase: Architecture may be considered, but has not been
-  executed.
+- Architecture: complete in `ARCH-001`.
+- Next allowed phase: Implementation Planning may be considered, but has
+  not been executed.
 
 ## Boundary Check
 
 - Decomposition: created later by Phase 4 in `DECOMP-001`, not by
   Specification.
-- Architecture: not created.
+- Architecture: created later by Phase 5 in `ARCH-001`, not by
+  Specification.
+- Implementation Planning: not created.
 - Implementation: not started.
 - Verification: not executed.
 - Review: not executed.

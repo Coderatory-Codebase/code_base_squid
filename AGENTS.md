@@ -82,6 +82,14 @@ for the resulting feature-driven product units, and stops before
 Architecture, Implementation Planning, Implementation, or engineering
 tasks.
 
+If the user asks to architect work from a ready Decomposition, use the
+Architecture workflow (`.agent/workflows/architecture.md`). It consumes the
+relevant Discovery evidence, approved Specification, ready
+`DECOMP-*`, and backlog Feature rows; produces an `ARCH-*` architecture
+record; reuses ADRs/`architecture.yaml` where they already govern; and
+stops before Implementation Planning, Implementation, or engineering
+tasks.
+
 ## Working method
 
 For every meaningful change:

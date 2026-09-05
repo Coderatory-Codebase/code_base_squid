@@ -51,6 +51,7 @@ renumbered.
 | Requirement    | `REQ-`         | Raw business/product input captured by the Intake phase before Discovery. Added M26, `SPEC-015`. One markdown file per real Intake artifact under `requirements/`; authored by the agent using existing artifact, state, and trace conventions.                                                                                                       | Yes — `requirements/`  |
 | Discovery      | `DISC-`        | Evidence-backed understanding produced from a completed Intake artifact before Specification. Added M26, `SPEC-016`. One markdown file per real Discovery artifact under `discovery/`; authored by the agent using existing artifact, state, trace, source, and project-memory conventions.                                                           | Yes — `discovery/`     |
 | Decomposition  | `DECOMP-`      | Product/system scope breakdown produced from a ready Specification before Architecture. Added M26, `SPEC-019`. One markdown file per real Decomposition artifact under `decomposition/`; not a backlog, task list, job-contract system, architecture model, or implementation plan.                                                                   | Yes — `decomposition/` |
+| Architecture   | `ARCH-`        | Architecture phase output produced from Discovery, Specification, Decomposition, and backlog Features before Implementation Planning. Added M26, `SPEC-020`. One markdown file per real Architecture artifact under `architecture/`; not an ADR replacement, implementation plan, diagram registry, engine, or task list.                             | Yes — `architecture/`  |
 | Research       | `RESEARCH-`    | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                                                                 | Not yet                |
 | Review         | `REVIEW-`      | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                                                                            | Yes — `reviews/`       |
 | Report         | `REPORT-`      | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                                                                      | Yes — `reports/`       |
@@ -181,6 +182,10 @@ specification` (`SPEC-016`).
   Decomposition. The implemented transition is `SPEC-* →
 decomposition → DECOMP-* → architecture` when the source Specification is
   active and ready (`SPEC-019`).
+- **ARCH**: `complete`, `needs-clarification`, or `blocked` for Phase 5
+  Architecture. The implemented transition is `DISC-*` + `SPEC-*` +
+  `DECOMP-*` + backlog Features → `ARCH-*` → implementation planning when
+  upstream readiness gates pass (`SPEC-020`).
 - **HANDOFF**: ephemeral by default (see below) — no formal lifecycle.
 - **BACKLOG** (when first used): `captured → clarifying → ready →
 selected → in-progress → review → completed`, with `deferred`,
@@ -387,6 +392,27 @@ rationale, or explicitly blocked. Every decomposition unit must be
 justified by an active Specification requirement. Candidate requirements
 and non-goals can constrain boundaries but cannot create units by
 themselves.
+
+## Architecture artifact
+
+`.project/architecture/ARCH-<NNN>-<slug>.md` records the Architecture
+phase output produced from Discovery evidence, an approved Specification,
+a ready Decomposition, and relevant backlog Feature rows. It preserves the
+inputs, current technical state, target architectural state, boundaries,
+Feature mapping, evidence-backed decisions, trade-offs, constraints,
+risks/open decisions, downstream handoff, traceability, lifecycle state,
+and boundary check.
+
+This is not an ADR replacement, `architecture.yaml` replacement, BACKLOG
+item, PLAN, TASK, API contract, database schema, UI design, job contract,
+or implementation plan. It is the work-item architecture record that may
+later feed Implementation Planning when ready. The governing phase
+definition is `SPEC-020`; the agent-facing workflow is
+`.agent/workflows/architecture.md`.
+
+Create ADRs only when Architecture makes a material durable decision
+between real alternatives that should govern beyond the current work item.
+Do not create ADRs mechanically for every architectural observation.
 
 ## Backlog
 
