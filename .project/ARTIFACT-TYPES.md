@@ -41,24 +41,25 @@ renumbered.
 
 ## Artifact types
 
-| Type           | Prefix         | Purpose                                                                                                                                                                                                                                                                                                                                               | Instantiated now?      |
-| -------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| Spec           | `SPEC-`        | What should exist / what behavior is required. Also used by Phase 3 Specification outputs; no second requirement/specification artifact prefix exists.                                                                                                                                                                                                | Yes — `specs/`         |
-| Plan           | `PLAN-`        | How we intend to accomplish a spec.                                                                                                                                                                                                                                                                                                                   | Yes — `plans/`         |
-| Task           | `TASK-`        | A bounded, executable unit of work.                                                                                                                                                                                                                                                                                                                   | Not yet — see below    |
-| ADR            | `ADR-`         | An architectural decision: context, decision, consequences.                                                                                                                                                                                                                                                                                           | Yes — `decisions/`     |
-| RFC            | `RFC-`         | A proposal under discussion, upstream of an ADR.                                                                                                                                                                                                                                                                                                      | Not yet                |
-| Requirement    | `REQ-`         | Raw business/product input captured by the Intake phase before Discovery. Added M26, `SPEC-015`. One markdown file per real Intake artifact under `requirements/`; authored by the agent using existing artifact, state, and trace conventions.                                                                                                       | Yes — `requirements/`  |
-| Discovery      | `DISC-`        | Evidence-backed understanding produced from a completed Intake artifact before Specification. Added M26, `SPEC-016`. One markdown file per real Discovery artifact under `discovery/`; authored by the agent using existing artifact, state, trace, source, and project-memory conventions.                                                           | Yes — `discovery/`     |
-| Decomposition  | `DECOMP-`      | Product/system scope breakdown produced from a ready Specification before Architecture. Added M26, `SPEC-019`. One markdown file per real Decomposition artifact under `decomposition/`; not a backlog, task list, job-contract system, architecture model, or implementation plan.                                                                   | Yes — `decomposition/` |
-| Architecture   | `ARCH-`        | Architecture phase output produced from Discovery, Specification, Decomposition, and backlog Features before Implementation Planning. Added M26, `SPEC-020`. One markdown file per real Architecture artifact under `architecture/`; not an ADR replacement, implementation plan, diagram registry, engine, or task list.                             | Yes — `architecture/`  |
-| Research       | `RESEARCH-`    | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                                                                 | Not yet                |
-| Review         | `REVIEW-`      | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                                                                            | Yes — `reviews/`       |
-| Report         | `REPORT-`      | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                                                                      | Yes — `reports/`       |
-| Handoff        | `HANDOFF-`     | Session-to-session continuity notes.                                                                                                                                                                                                                                                                                                                  | Not yet                |
-| Backlog item   | `BACKLOG-`     | Work that is known, proposed, discovered, deferred, awaiting clarification, or produced as feature-driven product units by Decomposition — not necessarily current implementation scope. Added M15, `SPEC-010`. One table file (`backlog/BACKLOG.md`), not one file per item; rows include `Scope`, `Owner`, `Level`, `Parent`, `Kind`, and `Status`. | Yes — `backlog/`       |
-| Project memory | `PROJECT-<id>` | The scoped project/product operating brain for one project inside the monorepo. Added M26, `ADR-016`. One file per real project under `projects/<project>/PROJECT.md`; not a generated placeholder.                                                                                                                                                   | Yes — `projects/`      |
-| Trace          | `TRACE-`       | The record connecting the execution journey of one coherent unit of meaningful agent work — request, applicable guidance, decisions, scope, implementation, validation, review, Git outcome. Added M18, `SPEC-013`. Never a replacement for TASK/PLAN/RFC/SPEC/ADR/REVIEW/BACKLOG — it references them.                                               | Yes — `traces/`        |
+| Type           | Prefix         | Purpose                                                                                                                                                                                                                                                                                                                                                              | Instantiated now?      |
+| -------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| Spec           | `SPEC-`        | What should exist / what behavior is required. Also used by Phase 3 Specification outputs; no second requirement/specification artifact prefix exists.                                                                                                                                                                                                               | Yes — `specs/`         |
+| Plan           | `PLAN-`        | How we intend to accomplish a spec.                                                                                                                                                                                                                                                                                                                                  | Yes — `plans/`         |
+| Task           | `TASK-`        | A bounded, executable unit of work.                                                                                                                                                                                                                                                                                                                                  | Not yet — see below    |
+| ADR            | `ADR-`         | An architectural decision: context, decision, consequences.                                                                                                                                                                                                                                                                                                          | Yes — `decisions/`     |
+| RFC            | `RFC-`         | A proposal under discussion, upstream of an ADR.                                                                                                                                                                                                                                                                                                                     | Not yet                |
+| Requirement    | `REQ-`         | Raw business/product input captured by the Intake phase before Discovery. Added M26, `SPEC-015`. One markdown file per real Intake artifact under `requirements/`; authored by the agent using existing artifact, state, and trace conventions.                                                                                                                      | Yes — `requirements/`  |
+| Discovery      | `DISC-`        | Evidence-backed understanding produced from a completed Intake artifact before Specification. Added M26, `SPEC-016`. One markdown file per real Discovery artifact under `discovery/`; authored by the agent using existing artifact, state, trace, source, and project-memory conventions.                                                                          | Yes — `discovery/`     |
+| Decomposition  | `DECOMP-`      | Product/system scope breakdown produced from a ready Specification before Architecture. Added M26, `SPEC-019`. One markdown file per real Decomposition artifact under `decomposition/`; not a backlog, task list, job-contract system, architecture model, or implementation plan.                                                                                  | Yes — `decomposition/` |
+| Architecture   | `ARCH-`        | Architecture phase output produced from Discovery, Specification, Decomposition, and backlog Features before Feature-scoped System Design. Added M26, `SPEC-020`. One markdown file per real Architecture artifact under `architecture/`; not an ADR replacement, implementation plan, diagram registry, engine, or task list.                                       | Yes — `architecture/`  |
+| System design  | `SD-`          | Feature-scoped System Design output produced from one selected eligible backlog Feature and a ready high-level Architecture before Engineering Decomposition. Added M26, `SPEC-021`. One markdown file per real System Design artifact under `system-design/`; not a product-wide design, feature registry, implementation plan, task list, engine, or job contract. | Yes — `system-design/` |
+| Research       | `RESEARCH-`    | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                                                                                | Not yet                |
+| Review         | `REVIEW-`      | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                                                                                           | Yes — `reviews/`       |
+| Report         | `REPORT-`      | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                                                                                     | Yes — `reports/`       |
+| Handoff        | `HANDOFF-`     | Session-to-session continuity notes.                                                                                                                                                                                                                                                                                                                                 | Not yet                |
+| Backlog item   | `BACKLOG-`     | Work that is known, proposed, discovered, deferred, awaiting clarification, or produced as feature-driven product units by Decomposition — not necessarily current implementation scope. Added M15, `SPEC-010`. One table file (`backlog/BACKLOG.md`), not one file per item; rows include `Scope`, `Owner`, `Level`, `Parent`, `Kind`, and `Status`.                | Yes — `backlog/`       |
+| Project memory | `PROJECT-<id>` | The scoped project/product operating brain for one project inside the monorepo. Added M26, `ADR-016`. One file per real project under `projects/<project>/PROJECT.md`; not a generated placeholder.                                                                                                                                                                  | Yes — `projects/`      |
+| Trace          | `TRACE-`       | The record connecting the execution journey of one coherent unit of meaningful agent work — request, applicable guidance, decisions, scope, implementation, validation, review, Git outcome. Added M18, `SPEC-013`. Never a replacement for TASK/PLAN/RFC/SPEC/ADR/REVIEW/BACKLOG — it references them.                                                              | Yes — `traces/`        |
 
 A type not yet instantiated still has its convention defined here so the
 first real instance follows it, rather than inventing a shape ad hoc.
@@ -184,8 +185,12 @@ decomposition → DECOMP-* → architecture` when the source Specification is
   active and ready (`SPEC-019`).
 - **ARCH**: `complete`, `needs-clarification`, or `blocked` for Phase 5
   Architecture. The implemented transition is `DISC-*` + `SPEC-*` +
-  `DECOMP-*` + backlog Features → `ARCH-*` → implementation planning when
-  upstream readiness gates pass (`SPEC-020`).
+  `DECOMP-*` + backlog Features → `ARCH-*` → selected Feature System
+  Design when upstream readiness gates pass (`SPEC-020`).
+- **SD**: `complete`, `needs-clarification`, or `blocked` for Phase 6
+  System Design. The implemented transition is `ARCH-*` + one selected
+  eligible backlog Feature → `SD-*` → engineering decomposition when the
+  Feature is architecturally compatible (`SPEC-021`).
 - **HANDOFF**: ephemeral by default (see below) — no formal lifecycle.
 - **BACKLOG** (when first used): `captured → clarifying → ready →
 selected → in-progress → review → completed`, with `deferred`,
@@ -406,13 +411,35 @@ and boundary check.
 This is not an ADR replacement, `architecture.yaml` replacement, BACKLOG
 item, PLAN, TASK, API contract, database schema, UI design, job contract,
 or implementation plan. It is the work-item architecture record that may
-later feed Implementation Planning when ready. The governing phase
+later feed selected Feature System Design when ready. The governing phase
 definition is `SPEC-020`; the agent-facing workflow is
 `.agent/workflows/architecture.md`.
 
 Create ADRs only when Architecture makes a material durable decision
 between real alternatives that should govern beyond the current work item.
 Do not create ADRs mechanically for every architectural observation.
+
+## System Design artifact
+
+`.project/system-design/SD-<NNN>-<slug>.md` records one Feature-scoped
+System Design produced from a selected eligible backlog Feature and a
+ready high-level Architecture baseline. It preserves the selected Feature,
+sources, eligibility, scope, sibling Feature boundaries, actors, behavior,
+interaction flows, responsibilities, data flow, authorization/ownership,
+validation/error behavior, testability expectations, architectural
+consistency result, architectural impact, unresolved questions, readiness,
+traceability, lifecycle state, and downstream boundary.
+
+This is not a product-wide design, Feature registry, BACKLOG item, PLAN,
+TASK, job contract, implementation plan, API contract, database schema, UI
+implementation design, Architecture replacement, or traceability engine.
+It is the selected-Feature design that may later feed Engineering
+Decomposition when ready. The governing phase definition is `SPEC-021`;
+the agent-facing workflow is `.agent/workflows/system-design.md`.
+
+Parent epics and sibling Features may be referenced only to establish
+scope, dependencies, constraints, or contradictions. They must not receive
+their own detailed design inside a selected Feature's `SD-*` artifact.
 
 ## Backlog
 

@@ -175,14 +175,32 @@ operating_model:
       behavioral_test: tooling/tests/architecture.test.mjs
       state_record: .project/state/PROJECT-STATE.md
       trace_record_pattern: .project/traces/TRACE-<NNN>-<slug>.md
-      transition: decomposition/ready -> architecture/complete -> implementation-planning
+      transition: decomposition/ready -> architecture/complete -> selected-feature-system-design
       boundary: >
         Architecture consumes Discovery evidence, an approved Specification,
         a ready Decomposition, and backlog Feature rows; distinguishes
         current technical state from target architecture; maps Features to
         architectural responsibilities and decisions; and stops before
-        Implementation Planning, Implementation, Verification, Review,
+        Feature-scoped System Design, Implementation, Verification, Review,
         Delivery, Operate, or Feedback.
+    - id: SYSTEM_DESIGN
+      status: governed-workflow
+      spec: .project/specs/SPEC-021-system-design-lifecycle-phase.md
+      workflow: .agent/workflows/system-design.md
+      artifact_type: SD
+      artifact_path_pattern: .project/system-design/SD-<NNN>-<slug>.md
+      behavioral_test: tooling/tests/system-design.test.mjs
+      state_record: .project/state/PROJECT-STATE.md
+      trace_record_pattern: .project/traces/TRACE-<NNN>-<slug>.md
+      transition: architecture/ready + selected-feature -> system-design/complete -> engineering-decomposition
+      boundary: >
+        System Design consumes exactly one selected eligible backlog Feature
+        plus the relevant Specification, Decomposition, and high-level
+        Architecture baseline; designs concrete behavior, interactions,
+        responsibilities, data/auth/validation behavior, and architectural
+        consistency for that Feature; and stops before Engineering
+        Decomposition, Implementation Planning, Implementation,
+        Verification, Review, Delivery, Operate, or Feedback.
   operating_scopes:
     - id: FOUNDATION
       brain:
@@ -196,6 +214,7 @@ operating_model:
           .project/decisions,
           .project/decomposition,
           .project/architecture,
+          .project/system-design,
         ]
       backlog_scope: FOUNDATION
       owns: >
@@ -272,6 +291,7 @@ boundaries:
         requirements,
         projects,
         architecture,
+        system-design,
         reviews,
         reports,
         roadmap,
@@ -290,6 +310,7 @@ boundaries:
         discovery,
         decomposition,
         architecture,
+        system-design,
         projects,
         reviews,
         reports,
@@ -415,7 +436,8 @@ dependency_direction:
 
 agent_native_lifecycle:
   loop: [Observe, Understand, Plan, Act, Test, Verify, Record]
-  implementation_flow: [SPEC, DECOMP, ARCHITECTURE, PLAN, TASK, IMPLEMENT, TEST, REVIEW, DOCUMENT]
+  implementation_flow:
+    [SPEC, DECOMP, ARCHITECTURE, SYSTEM_DESIGN, PLAN, TASK, IMPLEMENT, TEST, REVIEW, DOCUMENT]
   status: >
     Realized as a documented protocol at M06 (work-level lifecycle: see
     .agent/instructions/development-lifecycle.md, SPEC-004) and M08
@@ -451,8 +473,9 @@ roadmap:
         PLAN-014,
         PLAN-015,
         PLAN-016,
+        PLAN-017,
       ]
-    trace: TRACE-027
+    trace: TRACE-028
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
@@ -473,8 +496,12 @@ roadmap:
     SPEC-020 implements Architecture as an evidence-backed phase that
     consumes Discovery, Specification, Decomposition, and backlog Features;
     `ARCH-001` selects reuse of the existing project-owned personal-notes
-    architecture for the clarified baseline and stops before Implementation
-    Planning.
+    architecture for the clarified baseline and stops before selected
+    Feature System Design. SPEC-021 implements System Design as a
+    feature-scoped phase that consumes one eligible backlog Feature and the
+    high-level Architecture baseline; `SD-001` designs only `BACKLOG-014`
+    (Manage owned personal notes), marks it architecturally compatible with
+    impact none, and stops before Engineering Decomposition.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure
@@ -482,8 +509,9 @@ non_goals_current_phase:
   - project generator
   - graph database
   - control panel / dashboard
-  - Implementation Planning, Implementation, Verification, Review,
-    Delivery, Operate, or Feedback for REQ-001
+  - Engineering Decomposition, Implementation Planning, Implementation,
+    Verification, Review, Delivery, Operate, or Feedback for REQ-001 /
+    BACKLOG-014
   - a second/subsequent application feature not yet requested
   - email verification / password reset / OAuth / MFA / audit logging
     (BACKLOG-001..003, 007, 008)

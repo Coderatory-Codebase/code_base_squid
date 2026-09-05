@@ -36,13 +36,13 @@ DISC-* evidence
   + DECOMP-* product Features
   -> ARCHITECTURE
   -> ARCH-* artifact
-  -> IMPLEMENTATION PLANNING
+  -> FEATURE-SCOPED SYSTEM DESIGN
 ```
 
 Architecture decides how the system should realize approved product
 Features given discovered technical reality and existing repository
 boundaries. It is a design-decision phase, not a blank-page rediscovery
-phase and not implementation planning.
+phase and not Feature-scoped System Design or implementation planning.
 
 ## Input Gate
 
@@ -77,7 +77,7 @@ title                      non-empty title
 status                     complete, blocked, or needs-clarification
 created                    YYYY-MM-DD
 Inputs                     DISC/SPEC/DECOMP/backlog inputs consumed
-Architecture Readiness     ready-for-implementation-planning, blocked, or needs-clarification
+Architecture Readiness     ready-for-feature-system-design, blocked, or needs-clarification
 Context                    product outcome and Features being architected
 Current State              existing technical architecture and evidence
 Target State               selected architectural structure
@@ -87,7 +87,7 @@ Decisions                  meaningful architecture decisions with evidence/ratio
 Trade-Offs                 relevant trade-offs, not generic boilerplate
 Constraints                requirements and boundaries the architecture preserves
 Risks / Open Decisions     unresolved matters kept explicit
-Downstream Handoff         information available to Implementation Planning
+Downstream Handoff         information available to Feature-scoped System Design
 Traceability               DISC -> SPEC -> DECOMP -> ARCH
 Lifecycle State            architecture status and next allowed phase
 Boundary Check             downstream work explicitly not performed
@@ -189,8 +189,8 @@ Architecture must not create:
 
 Architecture may end in:
 
-- `complete` / `ready-for-implementation-planning` when architecture is
-  established enough for the next phase;
+- `complete` / `ready-for-feature-system-design` when architecture is
+  established enough for selected Feature System Design;
 - `needs-clarification` when a material architectural ambiguity prevents
   responsible handoff;
 - `blocked` when required upstream inputs or evidence cannot be inspected.
@@ -209,5 +209,6 @@ decision handling, downstream handoff, and implementation boundary.
 
 ## Status
 
-`active` - governs Architecture from M26 onward. Implementation Planning
-and later phases are not implemented by this spec.
+`active` - governs Architecture from M26 onward. System Design is governed
+by `SPEC-021`; Engineering Decomposition and later phases are not
+implemented by this spec.

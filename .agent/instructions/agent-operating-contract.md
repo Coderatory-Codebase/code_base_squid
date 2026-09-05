@@ -47,8 +47,15 @@ AGENTS.md (read in full)
   → ARCHITECTURE when a DECOMP-* is ready —
       create ARCH-* with current state, target architecture, boundaries,
       Feature mapping, decisions, trade-offs, risks, and handoff; stop
-      before Implementation Planning
+      before Feature-scoped System Design
       (architecture.md, SPEC-020)
+  → SYSTEM DESIGN when one eligible backlog Feature is selected after
+      Architecture —
+      create SD-* with concrete behavior, interaction flows,
+      responsibilities, data/auth/validation behavior, and an
+      architectural consistency check; stop before Engineering
+      Decomposition
+      (system-design.md, SPEC-021)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

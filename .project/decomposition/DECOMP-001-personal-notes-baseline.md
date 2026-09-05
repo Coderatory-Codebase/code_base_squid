@@ -372,13 +372,17 @@ SPEC-018-R007 -> DECOMP-001-U007 / artifact traceability
 - Decomposition: complete with readiness `ready-for-architecture`.
 - Existing backlog: updated with feature-driven product hierarchy.
 - Architecture: complete in `ARCH-001`.
-- Next allowed phase: Implementation Planning may be considered, but has
-  not been executed.
+- System Design for `BACKLOG-014`: complete in `SD-001`.
+- Next allowed phase for `BACKLOG-014`: Engineering Decomposition may be
+  considered, but has not been executed.
 
 ## Boundary Check
 
 - Architecture: created later by Phase 5 in `ARCH-001`, not by
   Decomposition.
+- System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`,
+  not by Decomposition.
+- Engineering Decomposition: not created.
 - Implementation Planning: not created.
 - Implementation: not started.
 - Verification: not executed.

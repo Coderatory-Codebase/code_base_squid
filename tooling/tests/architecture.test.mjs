@@ -189,9 +189,9 @@ test("actual ARCH-001 provides downstream handoff without engineering decomposit
   );
   const handoff = markdownSection(architecture, "Downstream Handoff");
 
-  assert.match(handoff, /Implementation Planning may use this information/i);
+  assert.match(handoff, /Feature-scoped System Design may use this information/i);
   assert.match(handoff, /existing `test` project-owned web\/API boundaries/i);
-  assert.match(handoff, /This is not an implementation plan/i);
+  assert.match(handoff, /This is not a System Design artifact, implementation plan/i);
   assert.doesNotMatch(handoff, /Task \d+|TASK-\d+|modify .*\.ts|create .* endpoint|write .* test/i);
 });
 
@@ -213,17 +213,15 @@ test("actual ARCH-001 preserves implementation and framework boundaries", () => 
   );
 });
 
-test("state and architecture metadata show Phase 5 complete and Implementation Planning not started", () => {
+test("state and architecture metadata show Phase 5 complete and System Design handed off", () => {
   const state = readRepoFile(".project", "state", "PROJECT-STATE.md");
   const repoArchitecture = readRepoFile("architecture.yaml");
   const trace = readRepoFile(".project", "traces", "TRACE-027-architecture-phase.md");
 
   assert.match(state, /ARCH-001/);
-  assert.match(
-    state,
-    /Architecture is complete with readiness\s+`ready-for-implementation-planning`/i,
-  );
-  assert.match(state, /Implementation Planning has not been executed/i);
+  assert.match(state, /Architecture is complete with readiness for Feature-scoped System Design/i);
+  assert.match(state, /SD-001/);
+  assert.match(state, /Engineering Decomposition has not been executed/i);
   assert.match(repoArchitecture, /id: ARCHITECTURE/);
   assert.match(repoArchitecture, /SPEC-020/);
   assert.match(trace, /REQ-001 -> DISC-001 -> SPEC-018 -> DECOMP-001 -> ARCH-001/i);
@@ -287,7 +285,7 @@ function architectFixture({ discovery, specification, decomposition, backlogRows
 
   return {
     status: "complete",
-    readiness: "ready-for-implementation-planning",
+    readiness: "ready-for-system-design",
     next: "implementation-planning",
   };
 }

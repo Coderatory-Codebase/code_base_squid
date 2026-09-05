@@ -57,7 +57,8 @@ new skill, graph engine, duplicate ADR system, or duplicate backlog.
     status outside the specific Architecture artifact.
 12. Update the relevant `TRACE-*`, `.project/state/PROJECT-STATE.md`,
     `architecture.yaml`, and roadmap memory proportionally.
-13. Stop before Implementation Planning, Implementation, engineering task
+13. Stop before Feature-scoped System Design, Engineering Decomposition,
+    Implementation Planning, Implementation, engineering task
     decomposition, Verification, Review, Delivery, or Operate.
 
 ## Boundary
@@ -95,4 +96,4 @@ Specification, Decomposition, and backlog Features; maps every decomposed
 Feature to architectural treatment; distinguishes product structure from
 technical boundaries; records evidence-backed decisions and open
 questions; demonstrates reuse where evidence supports it; and states that
-Implementation Planning and later phases have not started.
+Feature-scoped System Design and later phases have not started.

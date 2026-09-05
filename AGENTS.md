@@ -87,7 +87,16 @@ Architecture workflow (`.agent/workflows/architecture.md`). It consumes the
 relevant Discovery evidence, approved Specification, ready
 `DECOMP-*`, and backlog Feature rows; produces an `ARCH-*` architecture
 record; reuses ADRs/`architecture.yaml` where they already govern; and
-stops before Implementation Planning, Implementation, or engineering
+stops before Feature-scoped System Design, Implementation, or engineering
+tasks.
+
+If the user asks to design one selected Feature after high-level
+Architecture, use the System Design workflow
+(`.agent/workflows/system-design.md`). It consumes exactly one eligible
+backlog Feature plus the relevant Specification, Decomposition, and
+`ARCH-*` baseline; produces an `SD-*` Feature-scoped System Design with an
+architectural consistency check; and stops before Engineering
+Decomposition, Implementation Planning, Implementation, or engineering
 tasks.
 
 ## Working method

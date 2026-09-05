@@ -168,7 +168,8 @@ test("state and trace record the clarification/rework loop and readiness gate", 
   assert.match(state, /Specification is\s+active with readiness `ready-for-decomposition`/i);
   assert.match(state, /DECOMP-001/);
   assert.match(state, /ARCH-001/);
-  assert.match(state, /Implementation Planning has not been executed/i);
+  assert.match(state, /SD-001/);
+  assert.match(state, /Engineering Decomposition has not been executed/i);
   assert.match(trace, /DISC-001 initial needs-clarification/i);
   assert.match(trace, /DISC-001 reworked \/ complete/i);
   assert.match(trace, /SPEC-018 revised \/ ready-for-decomposition/i);

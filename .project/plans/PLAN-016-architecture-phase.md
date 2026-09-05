@@ -13,7 +13,7 @@ related: [SPEC-020, ARCH-001, DECOMP-001, SPEC-018, DISC-001, TRACE-027]
 
 Implement Phase 5 - Architecture - as a bounded, agent-executed lifecycle
 phase that consumes Discovery, Specification, Decomposition, and backlog
-Features before Implementation Planning.
+Features before Feature-scoped System Design.
 
 ## Scope
 

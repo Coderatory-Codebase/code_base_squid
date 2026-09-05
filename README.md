@@ -80,14 +80,17 @@ clarification/rework path for blocked specifications. Phase 4
 Decomposition now consumes ready Specifications and produces `DECOMP-*`
 product/system scope maps plus backlog Feature rows before Architecture.
 Phase 5 Architecture consumes Discovery, Specification, Decomposition,
-and backlog Features to produce `ARCH-*` records before Implementation
-Planning. These are covered by
+and backlog Features to produce `ARCH-*` records before Feature-scoped
+System Design. Phase 6 System Design consumes one selected eligible
+Feature plus the high-level Architecture baseline to produce `SD-*`
+records before Engineering Decomposition. These are covered by
 `tooling/tests/intake.test.mjs`, `tooling/tests/discovery.test.mjs`,
 `tooling/tests/specification.test.mjs`, and
 `tooling/tests/decomposition.test.mjs`, and
-`tooling/tests/architecture.test.mjs`. See `architecture.yaml` for current
-architecture and active phase, and `.project/state/PROJECT-STATE.md` for
-live status.
+`tooling/tests/architecture.test.mjs`, and
+`tooling/tests/system-design.test.mjs`. See `architecture.yaml` for
+current architecture and active phase, and
+`.project/state/PROJECT-STATE.md` for live status.
 
 ## Quality gate
 

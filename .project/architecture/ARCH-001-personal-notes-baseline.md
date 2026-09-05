@@ -47,10 +47,11 @@ REQ-001
 
 ## Architecture Readiness
 
-`ready-for-implementation-planning`.
+`ready-for-feature-system-design`.
 
-The approved Feature structure has enough architectural treatment for the
-next phase. This does not authorize implementation, engineering tasks, or
+The approved Feature structure has enough high-level architectural
+treatment for one selected Feature to enter System Design. This does not
+authorize Engineering Decomposition, implementation, engineering tasks, or
 application source changes.
 
 ## Context
@@ -156,9 +157,9 @@ Rationale: the existing architecture already supports the approved
 Features; new boundaries would duplicate scope and contradict
 `SPEC-018-R006`.
 
-Consequences: Implementation Planning, if requested later, should plan
-against existing project-owned boundaries rather than a new service or
-package.
+Consequences: Feature-scoped System Design, if requested later, should
+design against existing project-owned boundaries rather than a new service
+or package.
 
 Affected Features: `BACKLOG-014`, `BACKLOG-015`, `BACKLOG-016`.
 
@@ -188,8 +189,8 @@ Selected approach: preserve the current boundary.
 Rationale: the approved scope is private personal notes, not shared notes,
 admin notes, or a new access model.
 
-Consequences: Later implementation planning must preserve owner-scoped
-access as a baseline invariant.
+Consequences: Later System Design and Engineering Decomposition must
+preserve owner-scoped access as a baseline invariant.
 
 Affected Features: `BACKLOG-014`, `BACKLOG-015`.
 
@@ -220,8 +221,8 @@ Selected approach: reuse existing persistence.
 Rationale: no approved requirement needs a new persistence architecture;
 replacement or migration is explicitly outside the clarified scope.
 
-Consequences: Implementation Planning should preserve data ownership and
-durability without introducing a new store.
+Consequences: Later System Design and Engineering Decomposition should
+preserve data ownership and durability without introducing a new store.
 
 Affected Features: `BACKLOG-014`, `BACKLOG-015`.
 
@@ -251,7 +252,7 @@ Selected approach: reuse existing web boundary.
 Rationale: reachability is already supported; no visual redesign or new
 front-end architecture is required by the Specification.
 
-Consequences: Later implementation planning, if any, should preserve the
+Consequences: Later System Design, if any, should preserve the
 authenticated workspace entry rather than inventing a new surface.
 
 Affected Features: `BACKLOG-016`.
@@ -292,13 +293,13 @@ bars remain separate future scope unless selected.
   attachments, reminders, collaboration, migration, documentation,
   retention, or admin access would require a new lifecycle pass.
 
-No open architectural decision blocks Implementation Planning for the
+No open architectural decision blocks Feature-scoped System Design for the
 clarified baseline.
 
 ## Downstream Handoff
 
-Implementation Planning may use this information if explicitly requested
-later:
+Feature-scoped System Design may use this information if explicitly
+requested later:
 
 - work against the existing `test` project-owned web/API boundaries;
 - preserve the notes domain and persistence ownership model;
@@ -307,7 +308,8 @@ later:
 - avoid duplicate notes systems, new packages, new services, and
   unselected enhancements.
 
-This is not an implementation plan and does not decompose work into tasks.
+This is not a System Design artifact, implementation plan, or task
+decomposition.
 
 ## Traceability
 
@@ -329,14 +331,17 @@ BACKLOG-016 -> authenticated workspace + notes page reachability
 - Discovery: complete.
 - Specification: active and ready.
 - Decomposition: complete and ready for Architecture.
-- Architecture: complete with readiness
-  `ready-for-implementation-planning`.
-- Next allowed phase: Implementation Planning may be considered, but has
-  not been executed.
-- Implementation Planning: not created.
+- Architecture: complete with readiness `ready-for-feature-system-design`.
+- System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`.
+- Next allowed phase for `BACKLOG-014`: Engineering Decomposition may be
+  considered, but has not been executed.
+- Engineering Decomposition: not created.
 
 ## Boundary Check
 
+- System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`,
+  not by Architecture.
+- Engineering Decomposition: not created.
 - Implementation Planning: not created.
 - Implementation: not started.
 - Engineering tasks/jobs: not created.

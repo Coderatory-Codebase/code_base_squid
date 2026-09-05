@@ -16,14 +16,16 @@ agent-executable operating foundation for MERN/Next.js monorepo app
 development, not mainly as after-the-fact records. The active work is
 `SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`/`SPEC-016`/
 `SPEC-017`/`PLAN-013`/`TRACE-024`/`SPEC-019`/`PLAN-014`/`TRACE-025`/
-`PLAN-015`/`TRACE-026`/`SPEC-020`/`PLAN-016`/`TRACE-027`/`ARCH-001`:
+`PLAN-015`/`TRACE-026`/`SPEC-020`/`PLAN-016`/`TRACE-027`/`ARCH-001`/
+`SPEC-021`/`PLAN-017`/`TRACE-028`/`SD-001`:
 request routing, dual operating scope, Intake, corrected Discovery,
 Specification, the Specification clarification/rework loop, and
 feature-driven Decomposition that feeds the existing backlog,
-Architecture as an evidence-backed design-decision phase, dual-track
-discovery and delivery, pre-implementation artifact discipline, current
-architecture in `architecture.yaml`, and the first real stack skill for
-MERN/Next.js vertical slices.
+Architecture as an evidence-backed design-decision phase, Feature-scoped
+System Design with architectural consistency checks, dual-track discovery
+and delivery, pre-implementation artifact discipline, current architecture
+in `architecture.yaml`, and the first real stack skill for MERN/Next.js
+vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
 the reference app used to prove the foundation, not the whole repository.
@@ -164,7 +166,7 @@ conventions:
 
 ## Traces
 
-Twenty-seven real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Twenty-eight real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -225,10 +227,13 @@ correction, preserving the initial blocked `SPEC-018`, reworking
 `SPEC-018` while stopping before Architecture and implementation
 planning), and `TRACE-026` (Phase 4 feature-driven Decomposition rework,
 completing `BACKLOG-012` and representing `DECOMP-001` output as
-`BACKLOG-013` through `BACKLOG-016`), and `TRACE-027` (Phase 5
+`BACKLOG-013` through `BACKLOG-016`), `TRACE-027` (Phase 5
 Architecture, producing `ARCH-001` from `DISC-001`, `SPEC-018`,
 `DECOMP-001`, and backlog Features while selecting reuse of the existing
-personal-notes architecture and stopping before Implementation Planning).
+personal-notes architecture and stopping before Feature-scoped System
+Design), and `TRACE-028` (Phase 6 Feature-scoped System Design, producing
+`SD-001` for exactly `BACKLOG-014` while stopping before Engineering
+Decomposition).
 None is a retroactive trace of M01-M17, which predate the
 model and aren't traced.
 Model and conventions:
@@ -733,10 +738,18 @@ that consumes Discovery evidence, an approved Specification, a ready
 Decomposition, and backlog Feature rows; distinguishes current technical
 state from target architecture; maps Features to architectural
 responsibilities; records evidence-backed decisions, trade-offs, and open
-decisions; and stops before Implementation Planning. The real
+decisions; and stops before Feature-scoped System Design. The real
 Architecture artifact is
 `.project/architecture/ARCH-001-personal-notes-baseline.md`.
-Implementation Planning has not been executed, no engineering tasks were
+Its eleventh M26 slice is complete (`SPEC-021`, `PLAN-017`, `TRACE-028`,
+`SD-001`): Phase 6 System Design is an agent-executed governed workflow
+that consumes exactly one selected eligible backlog Feature plus the
+relevant Specification, Decomposition, and high-level Architecture
+baseline; creates a concrete behavioral and interaction design; performs
+an architectural consistency check; and stops before Engineering
+Decomposition. The real System Design artifact is
+`.project/system-design/SD-001-manage-owned-personal-notes.md`.
+Engineering Decomposition has not been executed, no engineering tasks were
 created, and implementation has not started.
 
 Discovery is reworked and complete after clarification. Specification is
@@ -747,11 +760,16 @@ Decomposition is complete with readiness `ready-for-architecture` for
 `BACKLOG-013` (epic) with `BACKLOG-014`, `BACKLOG-015`, and `BACKLOG-016`
 as ready Features.
 
-Architecture is complete with readiness
-`ready-for-implementation-planning` for `ARCH-001`. The selected target
+Architecture is complete with readiness for Feature-scoped System Design
+for `ARCH-001`. The selected target
 architecture reuses the existing `test` project-owned web/API, notes
 domain, auth/session, owner-scoped data-access, and persistence
-boundaries. Implementation Planning has not been executed.
+boundaries.
+
+System Design is complete with readiness
+`ready-for-engineering-decomposition` for `SD-001` / `BACKLOG-014`.
+Architectural assessment is compatible and Architectural Impact is none.
+Engineering Decomposition has not been executed.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -866,13 +884,14 @@ Nothing.
 
 ## Next
 
-Do not proceed to Implementation Planning unless explicitly requested and
-the source Architecture is ready. `ARCH-001` is ready only for the
-clarified baseline scope after `TRACE-027`; it does not authorize
-implementation, engineering tasks, or unrelated notes enhancements. The
-remaining M26 follow-up is broader validators for artifact and
-architecture drift (`BACKLOG-011`). Do not begin another application
-feature until it is selected from explicit user request or backlog.
+Do not proceed to Engineering Decomposition unless explicitly requested
+and the source System Design is ready. `SD-001` is ready only for
+`BACKLOG-014` after `TRACE-028`; it does not authorize implementation,
+engineering tasks, sibling Feature design, or unrelated notes
+enhancements. The remaining M26 follow-up is broader validators for
+artifact and architecture drift (`BACKLOG-011`). Do not begin another
+application feature until it is selected from explicit user request or
+backlog.
 
 ## Open questions carried forward
 

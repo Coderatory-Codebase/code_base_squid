@@ -301,8 +301,9 @@ Human request
 - Specification: active with readiness `ready-for-decomposition`.
 - Decomposition: complete in `DECOMP-001`.
 - Architecture: complete in `ARCH-001`.
-- Next allowed phase: Implementation Planning may be considered, but has
-  not been executed.
+- System Design for `BACKLOG-014`: complete in `SD-001`.
+- Next allowed phase for `BACKLOG-014`: Engineering Decomposition may be
+  considered, but has not been executed.
 
 ## Boundary Check
 
@@ -310,6 +311,9 @@ Human request
   Specification.
 - Architecture: created later by Phase 5 in `ARCH-001`, not by
   Specification.
+- System Design for `BACKLOG-014`: created later by Phase 6 in `SD-001`,
+  not by Specification.
+- Engineering Decomposition: not created.
 - Implementation Planning: not created.
 - Implementation: not started.
 - Verification: not executed.
