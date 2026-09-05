@@ -23,6 +23,7 @@ SELECTED FEATURE
   + SPECIFICATION / DECOMPOSITION traceability
   -> ENGINEERING DECOMPOSITION
   -> ENG-* artifact
+  -> TASK-* artifacts
   -> IMPLEMENTATION
 ```
 
@@ -65,16 +66,26 @@ contract system, or duplicate traceability system.
    target area, responsibility, intended change or preservation
    requirement, relevant existing boundary, dependencies, expected
    outcome, verification expectation, and traceability back to `SD-*`.
-9. Record dependencies and sequencing without inventing unnecessary
-   serialization.
-10. Check architectural consistency. If work requires a new boundary,
+9. Derive executable `TASK-*` artifacts from the work packages when they
+   are needed for implementation readiness. Each task must identify its
+   objective, bounded scope, source/design basis, relevant repository
+   boundary, dependencies, expected outcome, verification expectation,
+   acceptance criteria, and status.
+10. Record dependencies and sequencing without inventing unnecessary
+    serialization.
+11. Check architectural consistency. If work or a task requires a new boundary,
     store, service, package, contract placement, ownership model, or other
     Architecture change not approved upstream, mark the decomposition
     blocked and route to Architecture/System Design rework.
-11. Create one ordinary `ENG-*` artifact under `.project/engineering/`.
-12. Update the relevant `TRACE-*`, `.project/state/PROJECT-STATE.md`,
+12. Create or update one ordinary `ENG-*` artifact under
+    `.project/engineering/`, with a Work Package to Task mapping.
+13. Create concise `TASK-*` artifacts under `.project/tasks/` using the
+    existing Task convention. Do not use backlog rows as task execution
+    state.
+14. Update the relevant `TRACE-*`, `.project/state/PROJECT-STATE.md`,
     `architecture.yaml`, roadmap memory, and docs proportionally.
-13. Stop before Implementation, Verification, Review, Delivery, or Operate.
+15. Stop before executing the Tasks, Implementation, Verification, Review,
+    Delivery, or Operate.
 
 ## Boundary
 
@@ -82,6 +93,7 @@ Engineering Decomposition may state:
 
 - executable engineering work items;
 - responsibility-level implementation areas;
+- executable `TASK-*` artifacts derived from work packages;
 - existing files or boundaries when needed for execution context;
 - dependency and sequencing relationships;
 - expected implementation outcomes;
@@ -92,8 +104,8 @@ Engineering Decomposition must not create:
 
 - product-wide engineering decomposition;
 - sibling Feature decomposition;
-- `TASK-*`, jobs, or role-specific agent assignments;
-- implementation plans separate from the `ENG-*` artifact;
+- jobs, job contracts, or role-specific agent assignments;
+- source-code procedures or implementation results inside tasks;
 - source-code changes;
 - API/database/UI implementation changes;
 - new architecture decisions or silent architecture mutations;
@@ -111,6 +123,6 @@ node --test tooling/tests/engineering-decomposition.test.mjs
 
 The valid exit state is an `ENG-*` artifact scoped to exactly one eligible
 Feature, traceable to Specification, Decomposition, Architecture, and
-System Design, with executable work items, dependency ordering,
-verification expectations, readiness for Implementation, and no
-implementation or framework leakage.
+System Design, with Work Packages, executable `TASK-*` artifacts,
+dependency ordering, verification expectations, readiness for
+Implementation, and no implementation or framework leakage.

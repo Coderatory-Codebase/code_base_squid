@@ -48,7 +48,7 @@ function assertDecompositionBoundary(text) {
   assert.match(text, /Architecture: created later by Phase 5/i);
   assert.match(text, /Implementation Planning: not created/i);
   assert.match(text, /Implementation: not started/i);
-  assert.match(text, /Tasks: not created/i);
+  assert.match(text, /Tasks: created later by Phase 7 rework/i);
   assert.match(text, /Application source: not changed/i);
 }
 

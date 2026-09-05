@@ -130,10 +130,10 @@ When one approved Feature System Design is selected for execution, use
 `.agent/workflows/engineering-decomposition.md` to produce one
 feature-scoped `ENG-*` artifact before implementation. Engineering
 Decomposition belongs to the project/product brain for the selected
-Feature while using the foundation operating rules. It creates executable
-engineering work items and verification expectations, not `TASK-*`
-artifacts, job contracts, source edits, role frameworks, or a second
-backlog.
+Feature while using the foundation operating rules. It creates
+Engineering Work Packages plus existing-convention `TASK-*` artifacts and
+verification expectations, not job contracts, source edits, role
+frameworks, or a second backlog.
 
 Before modifying anything:
 

@@ -419,4 +419,5 @@ intent is now represented upstream.
 - Decomposition: not created.
 - Architecture: not created.
 - Implementation: not started.
-- Tasks: not created.
+- Tasks: created later by Phase 7 rework as `TASK-001` through
+  `TASK-005`, not by Discovery.

@@ -4,7 +4,7 @@ type: plan
 title: Feature-scoped engineering decomposition phase
 status: complete
 created: 2026-09-05
-related: [SPEC-022, ENG-001, SD-001, ARCH-001, BACKLOG-014, TRACE-029]
+related: [SPEC-022, ENG-001, SD-001, ARCH-001, BACKLOG-014, TRACE-029, PLAN-019, TRACE-030]
 ---
 
 # PLAN-018: Feature-Scoped Engineering Decomposition Phase
@@ -41,4 +41,6 @@ Feature-scoped System Design and before Implementation.
 
 ## Result
 
-Completed in `TRACE-029`.
+Completed in `TRACE-029`; corrected by `PLAN-019` / `TRACE-030` to add
+the missing executable `TASK-*` layer required before
+`ready-for-implementation`.

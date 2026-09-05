@@ -84,8 +84,9 @@ and backlog Features to produce `ARCH-*` records before Feature-scoped
 System Design. Phase 6 System Design consumes one selected eligible
 Feature plus the high-level Architecture baseline to produce `SD-*`
 records before Engineering Decomposition. Phase 7 Engineering
-Decomposition consumes one approved `SD-*` and produces `ENG-*` executable
-engineering work before Implementation. These are covered by
+Decomposition consumes one approved `SD-*` and produces `ENG-*` Work
+Packages plus executable `TASK-*` artifacts before Implementation. These
+are covered by
 `tooling/tests/intake.test.mjs`, `tooling/tests/discovery.test.mjs`,
 `tooling/tests/specification.test.mjs`, and
 `tooling/tests/decomposition.test.mjs`, and

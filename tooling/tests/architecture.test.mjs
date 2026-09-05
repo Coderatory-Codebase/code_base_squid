@@ -18,7 +18,7 @@ function markdownSection(text, heading) {
 function assertArchitectureBoundary(text) {
   assert.match(text, /Implementation Planning: not created/i);
   assert.match(text, /Implementation: not started/i);
-  assert.match(text, /Engineering tasks\/jobs: not created/i);
+  assert.match(text, /Jobs\/job contracts: not created/i);
   assert.match(text, /API implementation: not created/i);
   assert.match(text, /Database implementation: not created/i);
   assert.match(text, /UI implementation: not created/i);
@@ -28,6 +28,7 @@ function assertArchitectureBoundary(text) {
     text,
     /Duplicate architecture\/backlog\/state\/contract\/traceability framework:\s+not created/i,
   );
+  assert.doesNotMatch(text, /TASK-\d+|Engineering tasks:/i);
 }
 
 test("Architecture workflow is agent-operated and not a standalone subsystem", () => {

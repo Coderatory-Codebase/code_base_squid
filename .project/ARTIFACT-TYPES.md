@@ -45,7 +45,7 @@ renumbered.
 | -------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
 | Spec           | `SPEC-`        | What should exist / what behavior is required. Also used by Phase 3 Specification outputs; no second requirement/specification artifact prefix exists.                                                                                                                                                                                                               | Yes — `specs/`         |
 | Plan           | `PLAN-`        | How we intend to accomplish a spec.                                                                                                                                                                                                                                                                                                                                  | Yes — `plans/`         |
-| Task           | `TASK-`        | A bounded, executable unit of work.                                                                                                                                                                                                                                                                                                                                  | Not yet — see below    |
+| Task           | `TASK-`        | A bounded, executable unit of work. Instantiated by Phase 7 rework when `ENG-001` needed executable tasks before Implementation. One markdown file per real Task under `tasks/`; not a backlog row, job contract, task database, runtime, implementation result, or line-by-line coding procedure.                                                                   | Yes — `tasks/`         |
 | ADR            | `ADR-`         | An architectural decision: context, decision, consequences.                                                                                                                                                                                                                                                                                                          | Yes — `decisions/`     |
 | RFC            | `RFC-`         | A proposal under discussion, upstream of an ADR.                                                                                                                                                                                                                                                                                                                     | Not yet                |
 | Requirement    | `REQ-`         | Raw business/product input captured by the Intake phase before Discovery. Added M26, `SPEC-015`. One markdown file per real Intake artifact under `requirements/`; authored by the agent using existing artifact, state, and trace conventions.                                                                                                                      | Yes — `requirements/`  |
@@ -68,19 +68,23 @@ first real instance follows it, rather than inventing a shape ad hoc.
 ### When to create a TASK
 
 A TASK is a single bounded, executable unit — small enough to implement
-and validate in one pass — pulled from a PLAN step once that step is
-large enough to need tracking below the plan-step level, or when a piece
-of work spans multiple sessions and needs a persistent record of what's
-left. Minimum content: what the bounded unit is, which PLAN/SPEC it
-belongs to (`related:`), and its own `todo → in-progress → done →
-cancelled` status. Completion = the unit's own validation passes AND its
-parent PLAN step no longer needs it tracked separately.
+and validate in one pass — pulled from a PLAN step once that step is large
+enough to need tracking below the plan-step level, from an `ENG-*` Work
+Package when Engineering Decomposition needs executable task readiness, or
+when a piece of work spans multiple sessions and needs a persistent record
+of what's left. Minimum content: what the bounded unit is, which
+PLAN/SPEC/ENG it belongs to (`related:`), and its own `todo →
+in-progress → done → cancelled` status. Completion = the unit's own
+validation passes AND its parent PLAN step or ENG Work Package no longer
+needs it tracked separately.
 
 Most work does not need one: a milestone executed start-to-finish in one
-continuous pass (as M01–M06 have been) has no benefit from a TASK
-tracking what a `PLAN` step or this session's own transcript already
-covers. Create one when work is genuinely interrupted, resumed later, or
-split across contributors/sessions — not by default for every change.
+continuous pass (as M01–M06 have been) has no benefit from a TASK tracking
+what a `PLAN` step or this session's own transcript already covers. Create
+one when work is genuinely interrupted, resumed later, split across
+contributors/sessions, or when Engineering Decomposition must hand an
+implementation agent bounded executable units — not by default for every
+change.
 
 ### When a HANDOFF is appropriate
 
@@ -135,18 +139,23 @@ progressively as checkpoints actually complete (added M19), not
 reconstructed from memory after the work is done — `SPEC-013` →
 "Checkpoint structure", "Progressive recording".
 
-### Why no `tasks/`, `research/`, `rfc/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
+### Why no `research/`, `rfc/`, `handoffs/`, `context/`, `changes/`, `sessions/` yet
 
-None currently hold real content:
+These defined concepts still hold no real content:
 
-- **`tasks/`, `handoffs/`** — see the criteria above; no piece of work so
-  far has met them. Create the directory the first time a real one does.
+- **`handoffs/`** — see the criteria above; no piece of work so far has
+  met them. Create the directory the first time a real one does.
 - **`research/`, `rfc/`** — no investigation or active proposal exists
   yet. Create the directory the first time a real one does.
 - **`context/`, `sessions/`** — see Durable vs. ephemeral memory below;
   these are ephemeral by default and are not being persisted yet.
 - **`changes/`** — see Relationships below: a "change" is the actual
   diff/commit, not a separate filesystem artifact type.
+
+`tasks/` was created by the Phase 7 rework because `ENG-001` needed real
+executable tasks before `BACKLOG-014` could be ready for Implementation.
+The first tasks are `TASK-001` through `TASK-005`, all `todo`, all derived
+from `ENG-001` Work Packages.
 
 `backlog/` was created at M22 (the first real backlog items — see
 `.project/backlog/BACKLOG.md`, a single table file, not one file per
@@ -461,12 +470,14 @@ This is not product Decomposition, a BACKLOG item, PLAN, TASK, job
 contract, implementation plan, API contract, database schema, UI
 implementation design, Architecture replacement, or traceability engine.
 It is the selected-Feature engineering work breakdown that may later feed
-Implementation when ready. The governing phase definition is `SPEC-022`;
-the agent-facing workflow is
+Implementation when ready. Readiness requires both Work Packages and
+executable `TASK-*` artifacts. The governing phase definition is
+`SPEC-022`; the agent-facing workflow is
 `.agent/workflows/engineering-decomposition.md`.
 
-Engineering work items inside `ENG-*` are not `TASK-*` artifacts. Create
-`TASK-*` later only when the ordinary task criteria above are met.
+Engineering Work Packages inside `ENG-*` are not `TASK-*` artifacts.
+Create `TASK-*` only when the ordinary task criteria above are met; Phase
+7 rework met that bar for `BACKLOG-014`.
 
 ## Backlog
 

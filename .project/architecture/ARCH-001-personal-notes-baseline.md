@@ -346,7 +346,7 @@ BACKLOG-016 -> authenticated workspace + notes page reachability
   in `ENG-001`, not by Architecture.
 - Implementation Planning: not created.
 - Implementation: not started.
-- Engineering tasks/jobs: not created.
+- Jobs/job contracts: not created.
 - API implementation: not created.
 - Database implementation: not created.
 - UI implementation: not created.

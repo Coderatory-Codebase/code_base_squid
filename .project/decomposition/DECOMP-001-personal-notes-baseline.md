@@ -391,5 +391,6 @@ SPEC-018-R007 -> DECOMP-001-U007 / artifact traceability
 - Review: not executed.
 - Delivery: not executed.
 - Operate: not executed.
-- Tasks: not created.
+- Tasks: created later by Phase 7 rework as `TASK-001` through
+  `TASK-005`, not by Decomposition.
 - Application source: not changed.

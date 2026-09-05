@@ -441,7 +441,7 @@ ARCH-001 A004 -> workspace reachability remains sibling Feature scope
 - Engineering Decomposition: created later by Phase 7 in `ENG-001`, not
   by System Design.
 - Implementation: not started.
-- Engineering tasks/jobs: not created.
+- Jobs/job contracts: not created.
 - API implementation: not changed.
 - Database implementation: not changed.
 - UI implementation: not changed.

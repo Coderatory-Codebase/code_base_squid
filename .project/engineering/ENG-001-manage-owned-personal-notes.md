@@ -21,6 +21,13 @@ related:
     ADR-014,
     ADR-016,
     TRACE-029,
+    PLAN-019,
+    TRACE-030,
+    TASK-001,
+    TASK-002,
+    TASK-003,
+    TASK-004,
+    TASK-005,
   ]
 ---
 
@@ -118,13 +125,12 @@ from-scratch build:
 The current implementation already realizes the approved baseline. No
 mandatory source-code delta is identified by Engineering Decomposition.
 
-Implementation may still execute the work by inspecting the target
+Implementation may still execute the tasks below by inspecting the target
 boundaries, preserving the existing behavior, correcting any drift found
-against `SD-001`, and adding or confirming verification. If a later
-implementation pass discovers missing behavior, it should make only the
-smallest change inside the existing `apps/test/web` and
-`servers/test/api` boundaries needed to satisfy the corresponding work
-item.
+against `SD-001`, and adding or confirming verification. If a task
+discovers missing behavior, it should make only the smallest change inside
+the existing `apps/test/web` and `servers/test/api` boundaries needed to
+satisfy the corresponding task.
 
 No architecture change, new package, new store, new service, or duplicate
 notes system is required.
@@ -166,6 +172,51 @@ Dependent work:
 
 No contradictory dependency cycle exists.
 
+## Executable Tasks
+
+The work packages above are coherent engineering responsibilities. The
+executable tasks below are bounded units an implementation agent can pick
+up without rediscovering the entire Feature.
+
+```text
+ENG-001-W01 Web entry and notes experience
+  -> TASK-001
+
+ENG-001-W02 Web/API client integration
+  -> TASK-002
+
+ENG-001-W03 Notes API behavior
+  -> TASK-003
+
+ENG-001-W04 Domain/service ownership
+  -> TASK-004
+
+ENG-001-W05 Notes persistence
+  -> TASK-004
+
+ENG-001-W06 Feature verification coverage
+  -> TASK-005
+
+ENG-001-W07 Integration and final readiness
+  -> TASK-005
+```
+
+| Task     | Work package coverage    | Objective                                                                                 | Dependencies       | Verification / acceptance basis                                         | Status |
+| -------- | ------------------------ | ----------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------- | ------ |
+| TASK-001 | ENG-001-W01              | Verify and preserve the authenticated notes page and browser notes experience.            | none               | `SD-001` page-gate, create/list/edit/delete, state, and error behavior. | todo   |
+| TASK-002 | ENG-001-W02              | Verify and preserve same-origin notes client integration and local consumed types.        | TASK-001, TASK-003 | `SD-001` data flow, client error behavior, and `ADR-012` contract rule. | todo   |
+| TASK-003 | ENG-001-W03              | Verify and preserve notes API route behavior, validation, errors, and mutation limiting.  | TASK-004           | `SD-001` API flows and validation/error behavior.                       | todo   |
+| TASK-004 | ENG-001-W04, ENG-001-W05 | Verify and preserve owner-scoped service behavior and durable note persistence.           | none               | `SD-001` ownership, data flow, persistence, and validation behavior.    | todo   |
+| TASK-005 | ENG-001-W06, ENG-001-W07 | Verify coverage, lifecycle records, and final implementation readiness for `BACKLOG-014`. | TASK-001..TASK-004 | `SD-001` observability/testability plus `ARCH-001` boundary checks.     | todo   |
+
+Task artifacts:
+
+- `.project/tasks/TASK-001-web-notes-experience.md`
+- `.project/tasks/TASK-002-notes-client-integration.md`
+- `.project/tasks/TASK-003-notes-api-behavior.md`
+- `.project/tasks/TASK-004-notes-domain-persistence-ownership.md`
+- `.project/tasks/TASK-005-notes-verification-readiness.md`
+
 ## Affected System Areas
 
 - `apps/test/web` notes page and notes client.
@@ -197,12 +248,12 @@ orchestration area is affected.
 implementable responsibility required by `SD-001` for `BACKLOG-014`:
 
 ```text
-SPEC-018-R001 -> SD-001 CRUD behavior -> ENG-001-W01/W02/W03/W04
-SPEC-018-R002 -> SD-001 ownership invariant -> ENG-001-W04/W07
-SPEC-018-R004 -> SD-001 durability/data flow -> ENG-001-W03/W05
-SPEC-018-R005 -> SD-001 testability expectations -> ENG-001-W06/W07
-SPEC-018-R006 -> SD-001 duplicate-system boundary -> ENG-001-W02/W07
-SPEC-018-R007 -> SD-001 traceability -> ENG-001-W06/W07
+SPEC-018-R001 -> SD-001 CRUD behavior -> ENG-001-W01/W02/W03/W04 -> TASK-001/TASK-002/TASK-003/TASK-004
+SPEC-018-R002 -> SD-001 ownership invariant -> ENG-001-W04/W07 -> TASK-004/TASK-005
+SPEC-018-R004 -> SD-001 durability/data flow -> ENG-001-W03/W05 -> TASK-003/TASK-004
+SPEC-018-R005 -> SD-001 testability expectations -> ENG-001-W06/W07 -> TASK-005
+SPEC-018-R006 -> SD-001 duplicate-system boundary -> ENG-001-W02/W07 -> TASK-002/TASK-005
+SPEC-018-R007 -> SD-001 traceability -> ENG-001-W06/W07 -> TASK-005
 ```
 
 `SPEC-018-R003` belongs to sibling Feature `BACKLOG-016`; it constrains
@@ -235,9 +286,10 @@ Implementation for `BACKLOG-014`.
 `ready-for-implementation`.
 
 The selected Feature is valid, System Design is complete, architectural
-impact is resolved as none, executable engineering work items cover the
-approved responsibilities, dependencies are explicit, verification
-expectations are represented, and traceability is intact.
+impact is resolved as none, Engineering Work Packages cover the approved
+responsibilities, executable `TASK-*` artifacts exist, task dependencies
+are explicit, verification expectations are represented, and traceability
+is intact.
 
 ## Traceability
 
@@ -248,14 +300,14 @@ REQ-001 -> DISC-001 -> SPEC-018 -> DECOMP-001 -> BACKLOG-014 -> ARCH-001 -> SD-0
 System Design to Engineering Work:
 
 ```text
-SD-001 Feature Behavior -> ENG-001-W01/W02/W03/W04/W05
-SD-001 Interaction Flows -> ENG-001-W01/W02/W03/W04
-SD-001 System Responsibilities -> ENG-001-W01/W02/W03/W04/W05
-SD-001 Data Flow -> ENG-001-W02/W03/W05
-SD-001 Authorization / Ownership -> ENG-001-W03/W04/W07
-SD-001 Validation / Error Behavior -> ENG-001-W01/W03/W05/W06
-SD-001 Observability / Testability -> ENG-001-W06/W07
-SD-001 Architecture Consistency Check -> ENG-001-W07
+SD-001 Feature Behavior -> ENG-001-W01/W02/W03/W04/W05 -> TASK-001/TASK-002/TASK-003/TASK-004
+SD-001 Interaction Flows -> ENG-001-W01/W02/W03/W04 -> TASK-001/TASK-002/TASK-003/TASK-004
+SD-001 System Responsibilities -> ENG-001-W01/W02/W03/W04/W05 -> TASK-001/TASK-002/TASK-003/TASK-004
+SD-001 Data Flow -> ENG-001-W02/W03/W05 -> TASK-002/TASK-003/TASK-004
+SD-001 Authorization / Ownership -> ENG-001-W03/W04/W07 -> TASK-003/TASK-004/TASK-005
+SD-001 Validation / Error Behavior -> ENG-001-W01/W03/W05/W06 -> TASK-001/TASK-003/TASK-004/TASK-005
+SD-001 Observability / Testability -> ENG-001-W06/W07 -> TASK-005
+SD-001 Architecture Consistency Check -> ENG-001-W07 -> TASK-005
 ```
 
 ## Lifecycle State
@@ -270,6 +322,7 @@ SD-001 Architecture Consistency Check -> ENG-001-W07
   `ready-for-engineering-decomposition`.
 - Engineering Decomposition: complete with readiness
   `ready-for-implementation`.
+- Executable Tasks: created in `TASK-001` through `TASK-005`.
 - Next allowed phase for `BACKLOG-014`: Implementation may be considered
   if explicitly requested.
 
@@ -282,8 +335,9 @@ SD-001 Architecture Consistency Check -> ENG-001-W07
 - Verification: not executed.
 - Review: not executed.
 - Delivery: not executed.
-- Engineering tasks/jobs: not created.
-- `TASK-*`: not created.
+- Engineering tasks: created as `TASK-001` through `TASK-005`, but not
+  executed.
+- Jobs/job contracts: not created.
 - API implementation: not changed.
 - Database implementation: not changed.
 - UI implementation: not changed.

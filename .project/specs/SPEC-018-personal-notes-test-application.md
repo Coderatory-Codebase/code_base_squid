@@ -323,4 +323,5 @@ Human request
 - Delivery: not executed.
 - Operate: not executed.
 - Feedback: not executed.
-- Tasks: not created.
+- Tasks: created later by Phase 7 rework as `TASK-001` through
+  `TASK-005`, not by Specification.

@@ -20,7 +20,7 @@ function assertDiscoveryBoundary(text) {
   assert.match(text, /Decomposition: not created/i);
   assert.match(text, /Architecture: not created/i);
   assert.match(text, /Implementation: not started/i);
-  assert.match(text, /Tasks: not created/i);
+  assert.match(text, /Tasks: created later by Phase 7 rework/i);
 }
 
 test("Discovery workflow is agent-operated, not a standalone CLI or engine", () => {

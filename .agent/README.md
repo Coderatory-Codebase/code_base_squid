@@ -55,7 +55,8 @@ CLAUDE.md (or another agent's entry point)
                              system-design.md converts one selected
                              Feature plus ARCH-* to SD-* and stops;
                              engineering-decomposition.md converts one
-                             approved SD-* to ENG-* work items and stops)
+                             approved SD-* to ENG-* Work Packages plus
+                             TASK-* artifacts and stops)
   → .agent/skills/*         (a concrete capability needed to do the work)
   → .project/state/PROJECT-STATE.md  (current phase, decisions, next up)
   → .project/projects/<project>/PROJECT.md  (owning project/product brain)

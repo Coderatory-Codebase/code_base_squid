@@ -50,12 +50,13 @@ function assertSystemDesignBoundary(text) {
   assert.match(text, /Sibling Feature design for `BACKLOG-016`: not created/i);
   assert.match(text, /Engineering Decomposition: created later by Phase 7 in `ENG-001`/i);
   assert.match(text, /Implementation: not started/i);
-  assert.match(text, /Engineering tasks\/jobs: not created/i);
+  assert.match(text, /Jobs\/job contracts: not created/i);
   assert.match(text, /Application source: not changed/i);
   assert.match(
     text,
     /Feature registry \/ duplicate backlog \/ duplicate traceability system:\s+not created/i,
   );
+  assert.doesNotMatch(text, /TASK-\d+|Engineering tasks:/i);
 }
 
 test("System Design workflow is agent-operated and not a standalone subsystem", () => {

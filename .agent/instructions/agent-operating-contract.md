@@ -58,9 +58,10 @@ AGENTS.md (read in full)
       (system-design.md, SPEC-021)
   → ENGINEERING DECOMPOSITION when one approved Feature System Design is
       selected —
-      create ENG-* with executable engineering work items,
+      create ENG-* with Engineering Work Packages plus TASK-* artifacts,
       dependencies/sequencing, affected areas, verification expectations,
-      acceptance relationship, and readiness; stop before Implementation
+      acceptance relationship, and readiness; stop before executing tasks
+      or Implementation
       (engineering-decomposition.md, SPEC-022)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new

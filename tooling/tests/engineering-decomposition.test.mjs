@@ -49,8 +49,11 @@ function assertEngineeringBoundary(text) {
   assert.match(text, /Sibling Feature decomposition for `BACKLOG-015`: not created/i);
   assert.match(text, /Sibling Feature decomposition for `BACKLOG-016`: not created/i);
   assert.match(text, /Implementation: not started/i);
-  assert.match(text, /Engineering tasks\/jobs: not created/i);
-  assert.match(text, /`TASK-\*`: not created/i);
+  assert.match(
+    text,
+    /Engineering tasks: created as `TASK-001` through `TASK-005`, but not\s+executed/i,
+  );
+  assert.match(text, /Jobs\/job contracts: not created/i);
   assert.match(text, /Application source: not changed/i);
   assert.match(text, /Architecture: not silently changed/i);
   assert.match(
@@ -73,9 +76,12 @@ test("Engineering Decomposition workflow is agent-operated and not a standalone 
   assert.match(workflow, /agent performs Engineering Decomposition directly/i);
   assert.match(workflow, /exactly one selected backlog Feature/i);
   assert.match(workflow, /architectural consistency/i);
-  assert.match(spec, /Work Item Rule/i);
+  assert.match(workflow, /TASK-\* artifacts/i);
+  assert.match(spec, /Work Package Rule/i);
+  assert.match(spec, /Task Rule/i);
   assert.match(spec, /Feature Scope Rule/i);
   assert.match(artifactTypes, /Engineering\s+\|\s+`ENG-`/i);
+  assert.match(artifactTypes, /Task\s+\|\s+`TASK-`[\s\S]*Yes\s+—\s+`tasks\/`/i);
   assert.match(packageJson, /"test:engineering-decomposition"/);
   assert.doesNotMatch(
     workflow + spec,
@@ -187,6 +193,56 @@ test("actual ENG-001 derives executable work items from SD-001 and targeted sour
   assert.match(work, /Feature verification coverage/i);
 });
 
+test("actual ENG-001 maps Work Packages to executable Tasks", () => {
+  const engineering = readRepoFile(
+    ".project",
+    "engineering",
+    "ENG-001-manage-owned-personal-notes.md",
+  );
+  const tasks = markdownSection(engineering, "Executable Tasks");
+
+  assert.match(tasks, /ENG-001-W01[\s\S]*TASK-001/i);
+  assert.match(tasks, /ENG-001-W02[\s\S]*TASK-002/i);
+  assert.match(tasks, /ENG-001-W03[\s\S]*TASK-003/i);
+  assert.match(tasks, /ENG-001-W04[\s\S]*TASK-004/i);
+  assert.match(tasks, /ENG-001-W05[\s\S]*TASK-004/i);
+  assert.match(tasks, /ENG-001-W06[\s\S]*TASK-005/i);
+  assert.match(tasks, /ENG-001-W07[\s\S]*TASK-005/i);
+  assert.match(
+    tasks,
+    /Task[\s\S]*Work package coverage[\s\S]*Objective[\s\S]*Dependencies[\s\S]*Status/i,
+  );
+});
+
+test("actual TASK-001 through TASK-005 are executable task artifacts", () => {
+  const taskFiles = [
+    ["TASK-001", "TASK-001-web-notes-experience.md", "ENG-001-W01"],
+    ["TASK-002", "TASK-002-notes-client-integration.md", "ENG-001-W02"],
+    ["TASK-003", "TASK-003-notes-api-behavior.md", "ENG-001-W03"],
+    ["TASK-004", "TASK-004-notes-domain-persistence-ownership.md", "ENG-001-W04"],
+    ["TASK-005", "TASK-005-notes-verification-readiness.md", "ENG-001-W06"],
+  ];
+
+  for (const [taskId, fileName, workPackage] of taskFiles) {
+    const taskArtifact = readRepoFile(".project", "tasks", fileName);
+
+    assert.match(taskArtifact, new RegExp(`^id: ${taskId}`, "m"));
+    assert.match(taskArtifact, /^type: task/m);
+    assert.match(taskArtifact, /^status: todo/m);
+    assert.match(markdownSection(taskArtifact, "Work Package"), new RegExp(workPackage));
+    assert.match(markdownSection(taskArtifact, "Feature"), /BACKLOG-014/);
+    assert.match(markdownSection(taskArtifact, "Objective"), /\S/);
+    assert.match(markdownSection(taskArtifact, "Scope"), /\S/);
+    assert.match(markdownSection(taskArtifact, "Source Design"), /SD-001/);
+    assert.match(markdownSection(taskArtifact, "Relevant Repository Boundary"), /\S/);
+    assert.match(markdownSection(taskArtifact, "Expected Outcome"), /\S/);
+    assert.match(markdownSection(taskArtifact, "Verification"), /\S/);
+    assert.match(markdownSection(taskArtifact, "Acceptance Criteria"), /traceable to `SD-001`/i);
+    assert.match(markdownSection(taskArtifact, "Status"), /todo/i);
+    assert.doesNotMatch(taskArtifact, /function\s+\w+\(|git commit|open file|add import|line \d+/i);
+  }
+});
+
 test("actual ENG-001 preserves actual delta instead of inventing from-scratch implementation", () => {
   const engineering = readRepoFile(
     ".project",
@@ -256,11 +312,13 @@ test("actual ENG-001 is ready for Implementation and preserves downstream bounda
   );
 
   assert.match(markdownSection(engineering, "Readiness"), /ready-for-implementation/i);
+  assert.match(markdownSection(engineering, "Readiness"), /executable `TASK-\*` artifacts exist/i);
   assert.match(markdownSection(engineering, "Lifecycle State"), /Selected Feature: `BACKLOG-014`/);
   assert.match(
     markdownSection(engineering, "Lifecycle State"),
     /Engineering Decomposition: complete with readiness\s+`ready-for-implementation`/i,
   );
+  assert.match(markdownSection(engineering, "Lifecycle State"), /TASK-001` through `TASK-005/i);
   assert.match(
     markdownSection(engineering, "Lifecycle State"),
     /Implementation may be considered/i,
@@ -272,8 +330,14 @@ test("state, architecture metadata, and trace show Phase 7 complete without impl
   const state = readRepoFile(".project", "state", "PROJECT-STATE.md");
   const repoArchitecture = readRepoFile("architecture.yaml");
   const trace = readRepoFile(".project", "traces", "TRACE-029-engineering-decomposition-phase.md");
+  const correctionTrace = readRepoFile(
+    ".project",
+    "traces",
+    "TRACE-030-engineering-decomposition-task-layer-rework.md",
+  );
 
   assert.match(state, /ENG-001/);
+  assert.match(state, /TASK-001`(?:\.\.| through\s+)`TASK-005/i);
   assert.match(
     state,
     /Engineering Decomposition is complete with readiness\s+`ready-for-implementation`/i,
@@ -282,11 +346,14 @@ test("state, architecture metadata, and trace show Phase 7 complete without impl
   assert.match(repoArchitecture, /id: ENGINEERING_DECOMPOSITION/);
   assert.match(repoArchitecture, /SPEC-022/);
   assert.match(repoArchitecture, /.project\/engineering\/ENG-<NNN>-<slug>\.md/);
+  assert.match(repoArchitecture, /TASK-001` through `TASK-005/i);
   assert.match(
     trace,
     /REQ-001 -> DISC-001 -> SPEC-018 -> DECOMP-001 -> BACKLOG-014 -> ARCH-001 -> SD-001 -> ENG-001/i,
   );
-  assert.match(trace, /Readiness: `ready-for-implementation`/i);
+  assert.match(trace, /corrects this initial Phase 7 outcome/i);
+  assert.match(correctionTrace, /Readiness|ready-for-implementation/i);
+  assert.match(correctionTrace, /TASK-001[\s\S]*TASK-005/i);
   assert.match(trace, /No product-wide Engineering Decomposition/i);
 });
 
@@ -321,10 +388,15 @@ test("Engineering Decomposition behavior rejects invalid upstream chains and mis
       },
     ],
     workItems: validWorkItems(),
+    tasks: validTasks(),
   };
 
   assert.equal(engineeringFixture(validContext).status, "complete");
   assert.equal(engineeringFixture(validContext).readiness, "ready-for-implementation");
+  assert.equal(
+    engineeringFixture({ ...validContext, tasks: [] }).reason,
+    "executable Tasks are missing",
+  );
   assert.equal(
     engineeringFixture({
       ...validContext,
@@ -382,6 +454,7 @@ test("Engineering Decomposition behavior rejects leakage, orphan work, invalid d
       },
     ],
     workItems: validWorkItems(["create", "list", "owner-scope"]),
+    tasks: validTasks(["create", "list", "owner-scope"]),
   };
 
   assert.equal(
@@ -396,79 +469,86 @@ test("Engineering Decomposition behavior rejects leakage, orphan work, invalid d
           verifies: ["owner-scope"],
         },
       ],
+      tasks: validTasks(["create", "list", "owner-scope"]),
     }).reason,
     "Engineering Decomposition must identify exactly one Feature",
   );
   assert.equal(
     engineeringFixture({
       ...validContext,
-      workItems: [
-        ...validContext.workItems,
-        { id: "orphan", featureId: "BACKLOG-014", tracesTo: [], verifies: [] },
+      tasks: [
+        ...validContext.tasks,
+        completeTask({ id: "TASK-X", workPackages: [], tracesTo: [] }),
       ],
     }).reason,
-    "engineering work item has no System Design traceability",
+    "Task has no valid Work Package/System Design basis",
   );
   assert.equal(
     engineeringFixture({
       ...validContext,
-      workItems: [
-        ...validContext.workItems,
-        {
-          id: "leak",
-          featureId: "BACKLOG-014",
-          tracesTo: ["create"],
-          verifies: ["create"],
+      tasks: [
+        ...validContext.tasks,
+        completeTask({
+          id: "TASK-X",
           instruction: "write function updateNote() in notes.service.ts",
-        },
+        }),
       ],
     }).reason,
-    "engineering work item leaks implementation instructions",
+    "Task leaks implementation instructions",
   );
   assert.equal(
     engineeringFixture({
       ...validContext,
-      workItems: [
-        ...validContext.workItems,
-        {
-          id: "bad-boundary",
-          featureId: "BACKLOG-014",
-          tracesTo: ["create"],
-          verifies: ["create"],
-          boundary: "new-notes-service",
-        },
-      ],
+      tasks: [...validContext.tasks, completeTask({ id: "TASK-X", boundary: "new-notes-service" })],
     }).reason,
-    "engineering work silently introduces architectural change",
+    "Task silently introduces architectural change",
   );
   assert.equal(
     engineeringFixture({
       ...validContext,
-      workItems: [
-        {
-          id: "A",
-          featureId: "BACKLOG-014",
-          tracesTo: ["create"],
-          verifies: ["create"],
-          dependsOn: ["B"],
-        },
-        {
-          id: "B",
-          featureId: "BACKLOG-014",
-          tracesTo: ["list"],
-          verifies: ["list"],
-          dependsOn: ["A"],
-        },
+      tasks: [
+        completeTask({ id: "TASK-A", dependencies: ["TASK-B"] }),
+        completeTask({ id: "TASK-B", dependencies: ["TASK-A"] }),
       ],
     }).reason,
-    "engineering dependencies contain a cycle",
+    "Task dependencies contain a cycle",
   );
   assert.equal(
     engineeringFixture({
       ...validContext,
-      workItems: validWorkItems(["create", "list"]),
+      tasks: validTasks(["create", "list", "owner-scope"]).map((taskItem) =>
+        taskItem.id === "TASK-003" ? { ...taskItem, verifies: ["list"] } : taskItem,
+      ),
     }).reason,
     "System Design behavior has no verification expectation",
+  );
+  assert.equal(
+    engineeringFixture({
+      ...validContext,
+      tasks: [...validContext.tasks, completeTask({ id: "TASK-X", featureId: "BACKLOG-015" })],
+    }).reason,
+    "Task belongs to a sibling Feature",
+  );
+  assert.equal(
+    engineeringFixture({
+      ...validContext,
+      tasks: [...validContext.tasks, completeTask({ id: "TASK-X", objective: "" })],
+    }).reason,
+    "Task is missing required execution information",
+  );
+  assert.equal(
+    engineeringFixture({
+      ...validContext,
+      tasks: [completeTask({ id: "TASK-X", dependencies: ["TASK-404"] })],
+    }).reason,
+    "Task depends on a nonexistent Task",
+  );
+  assert.equal(
+    engineeringFixture({
+      ...validContext,
+      tasks: [...validContext.tasks, completeTask({ id: "TASK-X", redesignsSystemDesign: true })],
+    }).reason,
+    "Task silently redesigns System Design",
   );
 });
 
@@ -491,13 +571,46 @@ test("engineering directory exists only because ENG-001 is real and app source w
 
 function validWorkItems(behaviors = ["create", "list", "read", "update", "delete", "owner-scope"]) {
   return behaviors.map((behavior, index) => ({
-    id: `W${index + 1}`,
+    id: `ENG-001-W0${index + 1}`,
     featureId: "BACKLOG-014",
     tracesTo: [behavior],
     verifies: [behavior],
     boundary: index % 2 === 0 ? "apps/test/web" : "servers/test/api",
-    dependsOn: index === 0 ? [] : [`W${index}`],
+    dependsOn: index === 0 ? [] : [`ENG-001-W0${index}`],
   }));
+}
+
+function validTasks(behaviors = ["create", "list", "read", "update", "delete", "owner-scope"]) {
+  return behaviors.map((behavior, index) =>
+    completeTask({
+      id: `TASK-${String(index + 1).padStart(3, "0")}`,
+      workPackages: [`ENG-001-W0${index + 1}`],
+      tracesTo: [behavior],
+      verifies: [behavior],
+      dependencies: index === 0 ? [] : [`TASK-${String(index).padStart(3, "0")}`],
+      boundary: index % 2 === 0 ? "apps/test/web" : "servers/test/api",
+    }),
+  );
+}
+
+function completeTask(overrides = {}) {
+  return {
+    id: "TASK-X",
+    featureId: "BACKLOG-014",
+    workPackages: ["ENG-001-W01"],
+    objective: "Verify and preserve selected behavior.",
+    scope: "Bounded behavior only.",
+    sourceDesign: "SD-001",
+    boundary: "apps/test/web",
+    dependencies: [],
+    expectedOutcome: "Behavior remains aligned.",
+    verification: "Verification evidence exists.",
+    acceptanceCriteria: ["traceable to SD-001"],
+    status: "todo",
+    tracesTo: ["create"],
+    verifies: ["create"],
+    ...overrides,
+  };
 }
 
 function engineeringFixture(input) {
@@ -509,6 +622,7 @@ function engineeringFixture(input) {
     systemDesign,
     backlogRows: rows,
     workItems,
+    tasks,
   } = input;
   const row = rows.find((candidate) => candidate.id === selectedFeatureId);
 
@@ -563,6 +677,8 @@ function engineeringFixture(input) {
     };
   }
 
+  const workPackageIds = new Set(workItems.map((item) => item.id));
+
   for (const item of workItems) {
     if (item.featureId !== selectedFeatureId || item.tracesTo.length === 0) {
       return {
@@ -592,12 +708,85 @@ function engineeringFixture(input) {
     return { status: "blocked", reason: "engineering dependencies contain a cycle" };
   }
 
-  const verified = new Set(workItems.flatMap((item) => item.verifies));
+  if (tasks.length === 0) {
+    return { status: "blocked", reason: "executable Tasks are missing" };
+  }
+
+  for (const taskItem of tasks) {
+    if (taskItem.featureId !== selectedFeatureId) {
+      return { status: "blocked", reason: "Task belongs to a sibling Feature" };
+    }
+
+    if (!hasRequiredTaskFields(taskItem)) {
+      return { status: "blocked", reason: "Task is missing required execution information" };
+    }
+
+    if (
+      taskItem.workPackages.length === 0 ||
+      taskItem.tracesTo.length === 0 ||
+      taskItem.workPackages.some((workPackage) => !workPackageIds.has(workPackage))
+    ) {
+      return {
+        status: "blocked",
+        reason: "Task has no valid Work Package/System Design basis",
+      };
+    }
+
+    if (
+      /function\s+\w+\(|write function|source-code edit|line \d+|run command|git commit|open file|add import|save file/i.test(
+        taskItem.instruction ?? "",
+      )
+    ) {
+      return { status: "blocked", reason: "Task leaks implementation instructions" };
+    }
+
+    if (taskItem.boundary && !architecture.boundaries.includes(taskItem.boundary)) {
+      return { status: "blocked", reason: "Task silently introduces architectural change" };
+    }
+
+    if (taskItem.redesignsSystemDesign) {
+      return { status: "blocked", reason: "Task silently redesigns System Design" };
+    }
+  }
+
+  const taskIds = new Set(tasks.map((taskItem) => taskItem.id));
+  for (const taskItem of tasks) {
+    for (const dependency of taskItem.dependencies) {
+      if (!taskIds.has(dependency)) {
+        return { status: "blocked", reason: "Task depends on a nonexistent Task" };
+      }
+    }
+  }
+
+  if (hasTaskDependencyCycle(tasks)) {
+    return { status: "blocked", reason: "Task dependencies contain a cycle" };
+  }
+
+  const coveredWorkPackages = new Set(tasks.flatMap((taskItem) => taskItem.workPackages));
+  if (workItems.some((item) => !coveredWorkPackages.has(item.id))) {
+    return { status: "blocked", reason: "Work Package has no executable Task coverage" };
+  }
+
+  const verified = new Set(tasks.flatMap((taskItem) => taskItem.verifies));
   if (systemDesign.behaviors.some((behavior) => !verified.has(behavior))) {
     return { status: "blocked", reason: "System Design behavior has no verification expectation" };
   }
 
   return { status: "complete", readiness: "ready-for-implementation" };
+}
+
+function hasRequiredTaskFields(taskItem) {
+  return [
+    taskItem.id,
+    taskItem.featureId,
+    taskItem.objective,
+    taskItem.scope,
+    taskItem.sourceDesign,
+    taskItem.boundary,
+    taskItem.expectedOutcome,
+    taskItem.verification,
+    taskItem.status,
+  ].every(Boolean);
 }
 
 function hasDependencyCycle(workItems) {
@@ -626,4 +815,32 @@ function hasDependencyCycle(workItems) {
   }
 
   return workItems.some((item) => visit(item.id));
+}
+
+function hasTaskDependencyCycle(tasks) {
+  const byId = new Map(tasks.map((taskItem) => [taskItem.id, taskItem]));
+  const visiting = new Set();
+  const visited = new Set();
+
+  function visit(id) {
+    if (visiting.has(id)) {
+      return true;
+    }
+
+    if (visited.has(id)) {
+      return false;
+    }
+
+    visiting.add(id);
+    for (const dependency of byId.get(id)?.dependencies ?? []) {
+      if (byId.has(dependency) && visit(dependency)) {
+        return true;
+      }
+    }
+    visiting.delete(id);
+    visited.add(id);
+    return false;
+  }
+
+  return tasks.some((taskItem) => visit(taskItem.id));
 }

@@ -23,6 +23,8 @@ side of the boundary.
 │                            Feature after high-level Architecture.
 ├── engineering/              Engineering Decomposition artifacts (`ENG-*`)
 │                            for one approved Feature System Design.
+├── tasks/                    Executable Task artifacts (`TASK-*`) for
+│                            bounded implementation units.
 ├── plans/                  How a spec is/was accomplished.
 ├── projects/               Project/product operating memory.
 ├── reviews/                 Point-in-time evaluations of completed work.
@@ -71,6 +73,11 @@ contains executable engineering work items, dependencies, affected areas,
 verification expectations, and readiness; it does not replace backlog
 rows, `PLAN-*`, `TASK-*`, job contracts, Architecture, System Design, or
 source implementation.
+`tasks/` holds `TASK-*` records once a real bounded implementation unit
+needs durable execution state. It was first instantiated by the Phase 7
+rework for `TASK-001` through `TASK-005`, derived from `ENG-001` Work
+Packages. Tasks are not backlog rows, a task database, job contracts, or
+line-by-line coding procedures.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level
@@ -78,7 +85,7 @@ specific project inside the monorepo. The foundation brain stays in
 `roadmap/` holds milestone history moved out of `architecture.yaml` at
 M26 so `architecture.yaml` can stay focused on current architecture.
 `reports/` is instantiated by `REPORT-001`, the M26 behavioral audit.
-`tasks/`, `rfc/`, `research/`, `handoffs/`, `context/`, `sessions/`, and
+`rfc/`, `research/`, `handoffs/`, `context/`, `sessions/`, and
 `changes/` remain defined artifact types/concepts in
 `ARTIFACT-TYPES.md` without directories until real work needs them.
 `traces/` (`TRACE-<NNN>`, added M18) is **observational, not

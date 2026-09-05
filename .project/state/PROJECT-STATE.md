@@ -18,15 +18,16 @@ development, not mainly as after-the-fact records. The active work is
 `SPEC-017`/`PLAN-013`/`TRACE-024`/`SPEC-019`/`PLAN-014`/`TRACE-025`/
 `PLAN-015`/`TRACE-026`/`SPEC-020`/`PLAN-016`/`TRACE-027`/`ARCH-001`/
 `SPEC-021`/`PLAN-017`/`TRACE-028`/`SD-001`/`SPEC-022`/`PLAN-018`/
-`TRACE-029`/`ENG-001`:
+`TRACE-029`/`ENG-001`/`PLAN-019`/`TRACE-030`/`TASK-001`..`TASK-005`:
 request routing, dual operating scope, Intake, corrected Discovery,
 Specification, the Specification clarification/rework loop, and
 feature-driven Decomposition that feeds the existing backlog,
 Architecture as an evidence-backed design-decision phase, Feature-scoped
 System Design with architectural consistency checks, Feature-scoped
-Engineering Decomposition into executable work, dual-track discovery and
-delivery, pre-implementation artifact discipline, current architecture in
-`architecture.yaml`, and the first real stack skill for MERN/Next.js
+Engineering Decomposition into Work Packages plus executable Tasks,
+dual-track discovery and delivery, pre-implementation artifact
+discipline, current architecture in `architecture.yaml`, and the first
+real stack skill for MERN/Next.js
 vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
@@ -751,15 +752,18 @@ baseline; creates a concrete behavioral and interaction design; performs
 an architectural consistency check; and stops before Engineering
 Decomposition. The real System Design artifact is
 `.project/system-design/SD-001-manage-owned-personal-notes.md`.
-Its twelfth M26 slice is complete (`SPEC-022`, `PLAN-018`, `TRACE-029`,
-`ENG-001`): Phase 7 Engineering Decomposition is an agent-executed
-governed workflow that consumes exactly one approved Feature System
-Design, creates executable engineering work items, dependencies,
-affected areas, verification expectations, and readiness for
+Its twelfth M26 slice is complete and corrected (`SPEC-022`, `PLAN-018`,
+`TRACE-029`, `ENG-001`, corrected by `PLAN-019`/`TRACE-030`): Phase 7
+Engineering Decomposition is an agent-executed governed workflow that
+consumes exactly one approved Feature System Design, creates Engineering
+Work Packages, derives executable `TASK-*` artifacts, records
+dependencies, affected areas, verification expectations, and readiness for
 Implementation, while stopping before source changes. The real
 Engineering Decomposition artifact is
-`.project/engineering/ENG-001-manage-owned-personal-notes.md`. No
-engineering tasks were created, and implementation has not started.
+`.project/engineering/ENG-001-manage-owned-personal-notes.md`; executable
+Tasks are `.project/tasks/TASK-001-web-notes-experience.md` through
+`.project/tasks/TASK-005-notes-verification-readiness.md`. Tasks are
+created but not executed, and implementation has not started.
 
 Discovery is reworked and complete after clarification. Specification is
 active with readiness `ready-for-decomposition` for the clarified
@@ -781,7 +785,8 @@ Architectural assessment is compatible and Architectural Impact is none.
 
 Engineering Decomposition is complete with readiness
 `ready-for-implementation` for `ENG-001` / `SD-001` / `BACKLOG-014`.
-Implementation has not started.
+The readiness is valid only after the executable Task layer
+`TASK-001`..`TASK-005`; implementation has not started.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -898,10 +903,11 @@ Nothing.
 
 Do not proceed to Implementation unless explicitly requested and the
 source Engineering Decomposition is ready. `ENG-001` is ready only for
-`BACKLOG-014` after `TRACE-029`; it does not authorize engineering tasks,
+`BACKLOG-014` after `TRACE-030` and its executable Tasks
+`TASK-001`..`TASK-005`; it does not authorize executing those Tasks,
 sibling Feature decomposition/design, or unrelated notes enhancements by
-itself. The remaining M26 follow-up is broader validators for artifact
-and architecture drift (`BACKLOG-011`). Do not begin another application
+itself. The remaining M26 follow-up is broader validators for artifact and
+architecture drift (`BACKLOG-011`). Do not begin another application
 feature until it is selected from explicit user request or backlog.
 
 ## Open questions carried forward

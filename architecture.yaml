@@ -214,10 +214,11 @@ operating_model:
       boundary: >
         Engineering Decomposition consumes exactly one selected eligible
         backlog Feature plus its complete System Design and Architecture
-        baseline; derives executable engineering work, dependencies,
-        affected areas, verification expectations, and readiness for
-        Implementation; and stops before Implementation, Verification,
-        Review, Delivery, Operate, or Feedback.
+        baseline; derives Engineering Work Packages, executable TASK
+        artifacts, dependencies, affected areas, verification
+        expectations, and readiness for Implementation; and stops before
+        executing tasks, Implementation, Verification, Review, Delivery,
+        Operate, or Feedback.
   operating_scopes:
     - id: FOUNDATION
       brain:
@@ -233,6 +234,7 @@ operating_model:
           .project/architecture,
           .project/system-design,
           .project/engineering,
+          .project/tasks,
         ]
       backlog_scope: FOUNDATION
       owns: >
@@ -331,6 +333,7 @@ boundaries:
         architecture,
         system-design,
         engineering,
+        tasks,
         projects,
         reviews,
         reports,
@@ -507,8 +510,9 @@ roadmap:
         PLAN-016,
         PLAN-017,
         PLAN-018,
+        PLAN-019,
       ]
-    trace: TRACE-029
+    trace: TRACE-030
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
@@ -537,8 +541,9 @@ roadmap:
     impact none, and stops before Engineering Decomposition. SPEC-022
     implements Engineering Decomposition as a feature-scoped phase that
     consumes `SD-001`; `ENG-001` decomposes only `BACKLOG-014` into
-    executable engineering work, marks it ready for Implementation, and
-    stops before source changes.
+    Engineering Work Packages and `TASK-001` through `TASK-005`, marks it
+    ready for Implementation only after that executable Task layer exists,
+    and stops before source changes.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure

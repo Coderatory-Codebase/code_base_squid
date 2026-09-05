@@ -36,13 +36,15 @@ SD-* approved Feature System Design
   + Architecture baseline
   -> ENGINEERING DECOMPOSITION
   -> ENG-* artifact
+  -> TASK-* artifacts
   -> IMPLEMENTATION
 ```
 
 Engineering Decomposition turns one approved Feature System Design into
-concrete, executable engineering work. It preserves enough context for an
-implementation agent to begin without rediscovering the design, while
-stopping before code changes and runtime execution.
+concrete Engineering Work Packages and executable Tasks. It preserves
+enough context for an implementation agent to pick up one bounded task
+without rediscovering the design, while stopping before code changes and
+runtime execution.
 
 ## Scope
 
@@ -52,6 +54,7 @@ Engineering Decomposition may describe:
 - responsibility-level work items;
 - affected existing source boundaries when needed for execution context;
 - dependency and sequencing relationships;
+- executable Task artifacts derived from the Work Packages;
 - actual implementation delta implied by the current codebase;
 - verification expectations derived from System Design behavior;
 - acceptance relationship to the source Specification and System Design;
@@ -89,9 +92,12 @@ implementation plan to proceed.
 ## Artifact Model
 
 Engineering Decomposition produces one `ENG-*` markdown artifact under
-`.project/engineering/`. The prefix exists because this phase needs a
-durable, implementation-ready engineering work breakdown distinct from
-product Decomposition, System Design, `PLAN-*`, and `TASK-*`.
+`.project/engineering/` and, when implementation readiness is claimed,
+one or more `TASK-*` artifacts under `.project/tasks/`. The `ENG-*`
+prefix exists because this phase needs a durable engineering decomposition
+distinct from product Decomposition and System Design. The `TASK-*`
+artifacts reuse the existing Task convention; they are not a second
+backlog, task database, job contract model, or task runtime.
 
 Required content:
 
@@ -107,6 +113,7 @@ Engineering Scope               in/out engineering boundaries
 Existing Code Evidence          targeted source facts used
 Actual Delta                    change or preservation work implied
 Engineering Work Items          executable work units with traceability
+Executable Tasks                TASK-* artifacts derived from Work Packages
 Dependencies / Sequencing       parallel and ordered relationships
 Affected System Areas           existing project-owned boundaries
 Verification Expectations       expected proof for future verification
@@ -119,24 +126,52 @@ Boundary Check                  implementation and duplicate-system exclusions
 Do not fill categories mechanically. Empty categories are named only when
 their absence matters to readiness.
 
-## Work Item Rule
+## Work Package Rule
 
-An engineering work item is not a `TASK-*` artifact and not a backlog row.
-It is an item inside one `ENG-*` artifact. Each item must identify:
+An Engineering Work Package is not a backlog row and not a task execution
+record. It is a coherent engineering responsibility inside one `ENG-*`
+artifact. Each Work Package must identify:
 
 - target area;
 - responsibility;
 - intended change or preservation requirement;
 - relevant existing boundary or file set when useful;
-- dependencies;
+- package-level dependencies;
 - expected outcome;
 - verification expectation;
 - traceability to source System Design behavior/responsibility.
 
-Items are too vague if they only say "implement notes", "update backend",
-"fix frontend", or "add tests". Items are too detailed if they prescribe
-individual code statements, line edits, commands, or implementation
-syntax that belongs to the implementation agent.
+Packages are too vague if they only say "implement notes", "update
+backend", "fix frontend", or "add tests". Packages are too detailed if
+they prescribe individual code statements, line edits, commands, or
+implementation syntax that belongs to the implementation agent.
+
+## Task Rule
+
+A Task is a bounded implementation unit derived from a Work Package. It
+uses the existing `TASK-*` artifact type and lifecycle from
+`.project/ARTIFACT-TYPES.md`.
+
+Each executable Task must identify:
+
+- Task ID;
+- parent Work Package;
+- Feature;
+- objective;
+- bounded scope;
+- source/design basis;
+- relevant repository boundary;
+- dependencies;
+- expected outcome;
+- verification expectation;
+- acceptance criteria;
+- status.
+
+Tasks are not line-by-line coding instructions, source snippets,
+commands, commits, or implementation results. A Task that cannot be
+traced through `Feature -> SD-* -> ENG-* Work Package` is invalid. A
+Feature cannot be `ready-for-implementation` until sufficient executable
+Tasks exist and cover the approved engineering responsibilities.
 
 ## Relationship to Adjacent Phases
 
@@ -146,12 +181,13 @@ Feature hierarchy.
 System Design (`SD-*`) decides how one Feature should behave inside the
 approved Architecture.
 
-Engineering Decomposition (`ENG-*`) decides what executable engineering
-work is required to make that one approved design real.
+Engineering Decomposition (`ENG-*`) decides what Engineering Work
+Packages and executable Tasks are required to make that one approved
+design real.
 
-Implementation writes the code and executes the engineering work. `TASK-*`
-artifacts remain optional and are created only when existing
-`ARTIFACT-TYPES.md` criteria are met.
+Implementation writes the code and executes the Tasks. `TASK-*` artifacts
+remain the existing task mechanism; this phase instantiates them only when
+the selected Feature needs them to be ready for implementation.
 
 ## Feature Scope Rule
 
@@ -177,9 +213,9 @@ Human Request
   -> ENG-*
 ```
 
-Every engineering work item must trace to an approved System Design
+Every Work Package and Task must trace to an approved System Design
 behavior or responsibility and through that to active Specification
-requirements. Orphan engineering work is invalid.
+requirements. Orphan work or orphan Tasks are invalid.
 
 ## Architectural Feedback Control
 
@@ -187,8 +223,10 @@ Engineering Decomposition cannot silently make Architecture decisions. If
 work requires a new boundary, store, service, package, contract placement,
 ownership model, runtime, integration pattern, or other Architecture
 change not approved by `ARCH-*` and `SD-*`, the decomposition is blocked.
-The next step is controlled Architecture/System Design rework, followed
-by re-evaluating the Engineering Decomposition.
+If a Task requires a design change, route back to System Design rather
+than silently redesigning `SD-*`. The next step is controlled
+Architecture/System Design rework, followed by re-evaluating the
+Engineering Decomposition.
 
 ## Boundary
 
@@ -199,8 +237,9 @@ Engineering Decomposition must not create:
 - implementation code;
 - source-code changes;
 - implementation commits;
-- `TASK-*`, job contracts, role-specific agent assignments, or execution
-  jobs;
+- job contracts, role-specific agent assignments, or execution jobs;
+- task procedures that prescribe line-by-line edits, source snippets,
+  commands, commits, or implementation results;
 - new backlog, task, contract, state-machine, registry, or traceability
   systems;
 - agent runtimes, role frameworks, orchestration engines, CLIs, managers,
@@ -211,25 +250,27 @@ Engineering Decomposition must not create:
 Engineering Decomposition may end in:
 
 - `complete` / `ready-for-implementation` when one selected Feature is
-  fully decomposed into executable work, traceability is intact,
-  dependencies are understood, and architectural impact is resolved;
+  fully decomposed into Work Packages and executable Tasks, task
+  traceability is intact, dependencies are understood, verification
+  expectations exist, and architectural/design impact is resolved;
 - `needs-clarification` when a material product or design question blocks
   responsible decomposition;
 - `blocked` when upstream artifacts, Feature eligibility, requirement
-  coverage, System Design readiness, Architecture compatibility, work-item
-  traceability, dependency correctness, or verification coverage cannot be
-  validated.
+  coverage, System Design readiness, Architecture compatibility,
+  Work-Package/Task traceability, dependency correctness, task
+  completeness, or verification coverage cannot be validated.
 
 ## Validation
 
 `node --test tooling/tests/engineering-decomposition.test.mjs` checks the
 workflow, artifact convention, real `ENG-001` execution for
-`BACKLOG-014`, upstream readiness, feature isolation, work-item
-traceability, requirement coverage, orphan-work detection, architectural
-consistency, dependency correctness, granularity, verification
-expectations, downstream boundary preservation, and compatibility with
-the existing backlog, state, Architecture, System Design, and
-traceability models.
+`BACKLOG-014`, upstream readiness, feature isolation, Work Package to Task
+derivation, task completeness, task traceability, requirement coverage,
+orphan-work detection, sibling-task detection, architectural consistency,
+design-boundary protection, dependency correctness, granularity,
+verification expectations, downstream boundary preservation, and
+compatibility with the existing backlog, state, Architecture, System
+Design, Task, and traceability models.
 
 ## Status
 
