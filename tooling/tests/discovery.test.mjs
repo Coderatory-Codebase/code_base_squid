@@ -53,6 +53,7 @@ test("actual DISC-001 consumes REQ-001 and records evidence-backed understanding
   assert.match(markdownSection(discovery, "Route"), /PROJECT.*SEED_APP/is);
   assert.match(markdownSection(discovery, "Facts"), /PROJECT-test/i);
   assert.match(markdownSection(discovery, "Facts"), /notesRouter/i);
+  assert.match(markdownSection(discovery, "Facts"), /dashboard\/page\.tsx/i);
   assert.match(markdownSection(discovery, "Facts"), /Mongoose/i);
   assert.match(markdownSection(discovery, "Evidence"), /servers\/test\/api\/src\/app\.ts/i);
   assert.match(
@@ -65,6 +66,61 @@ test("actual DISC-001 consumes REQ-001 and records evidence-backed understanding
   );
 });
 
+test("actual DISC-001 performs dynamic multi-lens Discovery", () => {
+  const discovery = readRepoFile(
+    ".project",
+    "discovery",
+    "DISC-001-personal-notes-test-application.md",
+  );
+  const lensSelection = markdownSection(discovery, "Lens Selection");
+  const lensFindings = markdownSection(discovery, "Lens Findings");
+
+  for (const lens of [
+    /Business \/ Product/,
+    /UX \/ User Experience/,
+    /Security/,
+    /QA \/ Quality/,
+    /Technical \/ Engineering/,
+    /Data/,
+    /Privacy/,
+    /Accessibility/,
+    /Integration/,
+  ]) {
+    assert.match(lensSelection, lens);
+  }
+
+  assert.match(lensSelection, /Performance\s+\|\s+Low/i);
+  assert.match(lensSelection, /Low-applicability lenses were not expanded/i);
+  assert.match(lensFindings, /### Business \/ Product/);
+  assert.match(lensFindings, /### UX \/ User Experience/);
+  assert.match(lensFindings, /### Security/);
+  assert.match(lensFindings, /### QA \/ Quality/);
+  assert.match(lensFindings, /### Technical \/ Engineering/);
+  assert.match(lensFindings, /Evidence:/);
+  assert.match(lensFindings, /Implication:/);
+  assert.match(lensFindings, /Open question:/);
+});
+
+test("actual DISC-001 analyzes current state, gaps, and needed capabilities", () => {
+  const discovery = readRepoFile(
+    ".project",
+    "discovery",
+    "DISC-001-personal-notes-test-application.md",
+  );
+
+  assert.match(markdownSection(discovery, "Current State"), /personal notes are already present/i);
+  assert.match(markdownSection(discovery, "Current State"), /dashboard navigation/i);
+  assert.match(markdownSection(discovery, "Gap / Capability Analysis"), /Desired outcome:/);
+  assert.match(markdownSection(discovery, "Gap / Capability Analysis"), /Current state:/);
+  assert.match(markdownSection(discovery, "Gap / Capability Analysis"), /Needed capability:/);
+  assert.match(markdownSection(discovery, "Gap / Capability Analysis"), /Reuse/);
+  assert.match(markdownSection(discovery, "Gap / Capability Analysis"), /Decide/);
+  assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /`reuse`/);
+  assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /`decide`/);
+  assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /not established yet/i);
+  assert.match(markdownSection(discovery, "Synthesis"), /false\s+greenfield\s+Specification/i);
+});
+
 test("actual DISC-001 preserves uncertainty and does not become Specification", () => {
   const discovery = readRepoFile(
     ".project",
@@ -75,6 +131,7 @@ test("actual DISC-001 preserves uncertainty and does not become Specification", 
   assert.match(markdownSection(discovery, "Assumptions"), /None/i);
   assert.match(markdownSection(discovery, "Unknowns"), /Whether the user knows/i);
   assert.match(markdownSection(discovery, "Open Questions"), /what is missing/i);
+  assert.match(markdownSection(discovery, "Decisions Needed"), /lifecycle demonstration/i);
   assert.match(markdownSection(discovery, "Contradictions"), /already present/i);
   assert.match(markdownSection(discovery, "Conclusion"), /needs-clarification/i);
   assertDiscoveryBoundary(markdownSection(discovery, "Boundary Check"));
@@ -86,12 +143,20 @@ test("actual DISC-001 preserves uncertainty and does not become Specification", 
 
 test("state and trace show Discovery complete and later phases not started", () => {
   const state = readRepoFile(".project", "state", "PROJECT-STATE.md");
-  const trace = readRepoFile(".project", "traces", "TRACE-021-discovery-phase.md");
+  const trace = [
+    readRepoFile(".project", "traces", "TRACE-021-discovery-phase.md"),
+    readRepoFile(".project", "traces", "TRACE-022-discovery-correction.md"),
+  ].join("\n");
   const architecture = readRepoFile("architecture.yaml");
 
   assert.match(state, /DISC-001/);
   assert.match(state, /Discovery is complete with status `needs-clarification`/i);
-  assert.match(state, /Specification\/Phase 3 has not been executed/i);
+  assert.match(state, /Specification\/Phase 3\s+has not been executed/i);
+  assert.match(state, /lens-based current-state,\s+gap\/capability, and synthesis analysis/i);
+  assert.match(
+    trace,
+    /current-state gap analysis, needed-capability classification, or synthesis/i,
+  );
   assert.match(trace, /No Specification, Decomposition, Architecture, Implementation/i);
   assert.match(architecture, /id: DISCOVERY/);
 });
@@ -108,10 +173,11 @@ test("negative Discovery cases keep ambiguity, conflicts, and insufficiency expl
     },
     {
       name: "technical request",
-      request: "Create a MongoDB collection and Express CRUD API for personal notes.",
+      request: "Add a /notes endpoint backed by MongoDB.",
       expected: {
         status: "needs-clarification",
-        unknown: /whether the requested technical solution is the right product solution/i,
+        unknown: /product intent behind the requested endpoint/i,
+        lenses: [/Business \/ Product/, /Security/, /QA \/ Quality/, /Technical \/ Engineering/],
       },
     },
     {
@@ -131,6 +197,36 @@ test("negative Discovery cases keep ambiguity, conflicts, and insufficiency expl
         unknown: /what "it" refers to/i,
       },
     },
+    {
+      name: "security-sensitive request",
+      request: "Allow users to share their personal notes with other users.",
+      expected: {
+        status: "needs-clarification",
+        unknown: /sharing rules, recipient permissions, revocation, and privacy expectations/i,
+        lenses: [
+          /Business \/ Product/,
+          /UX \/ User Experience/,
+          /Security/,
+          /Privacy/,
+          /QA \/ Quality/,
+        ],
+      },
+    },
+    {
+      name: "ui request",
+      request: "Add a notes button to the dashboard.",
+      expected: {
+        status: "needs-clarification",
+        unknown: /business reason and target user workflow/i,
+        lenses: [
+          /Business \/ Product/,
+          /UX \/ User Experience/,
+          /Accessibility/,
+          /QA \/ Quality/,
+          /Technical \/ Engineering/,
+        ],
+      },
+    },
   ];
 
   for (const item of cases) {
@@ -148,6 +244,15 @@ test("negative Discovery cases keep ambiguity, conflicts, and insufficiency expl
         result.unknowns.some((unknown) => item.expected.unknown.test(unknown)),
         item.name,
       );
+    }
+
+    if (item.expected.lenses) {
+      for (const lens of item.expected.lenses) {
+        assert(
+          result.selectedLenses.some((selectedLens) => lens.test(selectedLens)),
+          item.name,
+        );
+      }
     }
 
     if (item.expected.contradiction) {
@@ -171,12 +276,20 @@ function discoveryBoundaryFixture({ request, observedContext = "" }) {
   if (/make the application better/i.test(request)) {
     unknowns.push("which users, problem, workflow, and success measure are intended");
   }
-  if (/mongodb collection and express crud api/i.test(request)) {
-    unknowns.push("whether the requested technical solution is the right product solution");
+  if (/\/notes endpoint backed by mongodb/i.test(request)) {
+    unknowns.push("product intent behind the requested endpoint");
   }
   if (/add it/i.test(request)) {
     unknowns.push('what "it" refers to');
   }
+  if (/share their personal notes/i.test(request)) {
+    unknowns.push("sharing rules, recipient permissions, revocation, and privacy expectations");
+  }
+  if (/notes button to the dashboard/i.test(request)) {
+    unknowns.push("business reason and target user workflow");
+  }
+
+  const selectedLenses = selectLensesForBoundaryTest(request);
 
   return {
     originalRequest: request,
@@ -184,6 +297,7 @@ function discoveryBoundaryFixture({ request, observedContext = "" }) {
     facts: observedContext ? [observedContext] : [],
     contradictions,
     unknowns,
+    selectedLenses,
     lifecycle: {
       stage: "discovery",
       next: "specification",
@@ -194,4 +308,21 @@ function discoveryBoundaryFixture({ request, observedContext = "" }) {
       implementation: "not started",
     },
   };
+}
+
+function selectLensesForBoundaryTest(request) {
+  const base = ["Business / Product", "QA / Quality", "Technical / Engineering"];
+  if (/better for users|button|share|notes/i.test(request)) {
+    base.push("UX / User Experience");
+  }
+  if (/endpoint|mongodb|share|personal notes/i.test(request)) {
+    base.push("Security");
+  }
+  if (/share|personal notes/i.test(request)) {
+    base.push("Privacy");
+  }
+  if (/button|dashboard/i.test(request)) {
+    base.push("Accessibility");
+  }
+  return [...new Set(base)];
 }

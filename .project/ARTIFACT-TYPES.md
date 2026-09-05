@@ -300,10 +300,11 @@ inputs, outputs, boundaries, and completion conditions in `SPEC-015`.
 `.project/discovery/DISC-<NNN>-<slug>.md` records evidence-backed
 understanding produced from a completed Intake artifact. It preserves the
 source `REQ-*`, original request, route, selected Discovery jobs, problem
-understanding, desired outcome, actors, existing context, known
-requirements, facts, inferences, assumptions, unknowns, dependencies,
-risks, contradictions, open questions, evidence, conclusion, lifecycle
-state, and downstream boundary.
+understanding, desired outcome, actors, selected lenses, lens findings,
+current state, gap/capability analysis, existing capabilities, missing
+capabilities, known requirements, facts, findings, inferences, assumptions,
+unknowns, dependencies, risks, contradictions, open questions, evidence,
+synthesis, conclusion, lifecycle state, and downstream boundary.
 
 This is not a SPEC, PLAN, TASK, ADR, backlog item, architecture record, or
 implementation plan. It is the understanding record that may later feed

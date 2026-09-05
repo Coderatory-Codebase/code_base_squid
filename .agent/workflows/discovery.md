@@ -10,8 +10,10 @@ when_to_use: >
 # Discovery Workflow
 
 Use this workflow when a `REQ-*` artifact is ready for Discovery. Discovery
-answers: "What do we need to understand before we can responsibly specify
-this work?"
+answers: "What do we actually know about this request, what does the
+current world/system look like, what perspectives matter, what is missing,
+what needs to change or exist, and what remains uncertain before we can
+responsibly specify the solution?"
 
 The agent performs Discovery directly using existing repository artifacts,
 project memory, source inspection, evidence references, state, and traces.
@@ -29,15 +31,31 @@ framework.
    - requirements clarification
    - dependency investigation
    - risk/constraint investigation
-5. Inspect relevant repository artifacts and source files.
-6. Record evidence-backed facts separately from inferences, assumptions,
-   unknowns, risks, dependencies, contradictions, and open questions.
-7. Create one `DISC-*` artifact under `.project/discovery/` using
-   `.project/ARTIFACT-TYPES.md` and `SPEC-016`.
-8. Update the relevant `TRACE-*` record using `SPEC-013`.
-9. Update `.project/state/PROJECT-STATE.md` only enough to show Discovery
-   is complete and the next allowed phase is Specification.
-10. Stop at the Discovery boundary.
+5. Select relevant lenses dynamically. Consider business/product, UX,
+   security, QA, and technical/engineering by default, then add or exclude
+   accessibility, performance, reliability, operations, data, privacy,
+   compliance, legal, cost, analytics, observability, infrastructure,
+   maintainability, migration, or integration based on the request.
+6. For each selected lens, record applicability, why it matters, findings,
+   evidence, implications, and unresolved questions. Explain exclusions when
+   a material lens could reasonably be expected.
+7. Inspect relevant repository artifacts and source files to establish the
+   current state.
+8. Analyze the delta:
+   `desired outcome -> current state -> gap -> needed capability`.
+   Classify needs as `reuse`, `modify`, `create`, `remove`, `integrate`,
+   `decide`, or `investigate`.
+9. Record evidence-backed facts separately from findings, inferences,
+   assumptions, unknowns, risks, dependencies, contradictions, and open
+   questions.
+10. Synthesize whether the request is ready for Specification, needs
+    clarification, or is blocked by missing evidence.
+11. Create one `DISC-*` artifact under `.project/discovery/` using
+    `.project/ARTIFACT-TYPES.md` and `SPEC-016`.
+12. Update the relevant `TRACE-*` record using `SPEC-013`.
+13. Update `.project/state/PROJECT-STATE.md` only enough to show Discovery
+    is complete and the next allowed phase is Specification.
+14. Stop at the Discovery boundary.
 
 ## Boundary
 

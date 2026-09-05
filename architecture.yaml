@@ -375,14 +375,15 @@ roadmap:
     status: in-progress
     spec: SPEC-014
     decisions: [ADR-015, ADR-016]
-    completed_plans: [PLAN-005, PLAN-006, PLAN-007, PLAN-008, PLAN-009, PLAN-010]
-    trace: TRACE-021
+    completed_plans: [PLAN-005, PLAN-006, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011]
+    trace: TRACE-022
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
     project/product operating scope. SPEC-015 implements Intake and
-    SPEC-016 implements Discovery. architecture.yaml is current
-    architecture first; roadmap history is project memory.
+    SPEC-016 implements Discovery, now corrected to require lens-based
+    current-state and gap/capability analysis. architecture.yaml is
+    current architecture first; roadmap history is project memory.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure

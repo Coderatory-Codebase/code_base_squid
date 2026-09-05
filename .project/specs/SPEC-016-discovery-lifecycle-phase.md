@@ -24,8 +24,12 @@ REQ-* artifact
 ```
 
 Discovery transforms a captured Intake request into evidence-backed
-understanding. It does not specify what to build, decompose work, choose
-architecture, plan implementation, or write code.
+understanding across the relevant business, product, UX, security, QA,
+technical, and other applicable lenses. It establishes current state,
+identifies gaps and missing capabilities, exposes uncertainties and risks,
+and determines what needs to be true before Specification. It does not
+specify what to build, decompose work, choose architecture, plan
+implementation, or write code.
 
 ## Artifact Contract
 
@@ -50,8 +54,14 @@ Discovery Jobs      only necessary investigation jobs
 Problem             what appears to be solved
 Desired Outcome     preserved from Intake
 Actors              known actors or unknowns
+Lens Selection      applicable and excluded lenses with reasons
+Lens Findings       findings/evidence/implications/questions by lens
 Existing Context    evidence-backed repository/product context
+Current State       existing relevant capabilities and behavior
+Gap Analysis        desired outcome -> current state -> gap
+Needed Capability   reuse/modify/create/remove/integrate/decide/investigate
 Facts               evidence-backed claims
+Findings            conclusions drawn from evidence
 Inferences          reasoned conclusions from facts, labeled as such
 Assumptions         unvalidated assumptions, if any
 Unknowns            information not established
@@ -65,8 +75,9 @@ Lifecycle State     discovery complete, specification next
 Boundary Check      downstream work explicitly not performed
 ```
 
-Facts, inferences, assumptions, and unknowns are distinct. Technical facts
-about the repository are context, not automatic design decisions.
+Facts, evidence, findings, inferences, assumptions, and unknowns are
+distinct. Technical facts about the repository are context, not automatic
+design decisions.
 
 ## Discovery Jobs
 
@@ -87,6 +98,77 @@ Use only jobs needed for the request:
 - **Risk/constraint investigation**: identify security, privacy,
   accessibility, reliability, data, ownership, or governance risks that
   evidence makes relevant.
+
+## Lens Selection
+
+Discovery is broader than uncertainty detection. It must select relevant
+lenses dynamically and justify both inclusion and meaningful exclusion.
+
+Core candidate lenses:
+
+- Business / Product
+- UX / User Experience
+- Security
+- QA / Quality
+- Technical / Engineering
+
+Additional lenses may be selected when the request makes them relevant:
+accessibility, performance, reliability, operations, data, privacy,
+compliance, legal, cost, analytics, observability, infrastructure,
+maintainability, migration, and integration.
+
+Do not blindly run every lens. Do not skip security, QA, UX, or product
+thinking merely because a request sounds technical. The artifact must
+record lens, applicability, reason, findings, evidence, implications, and
+unresolved questions.
+
+## Gap and Capability Analysis
+
+Discovery must establish the delta:
+
+```text
+Desired Outcome
+  -> Current State
+  -> Gap
+  -> Needed Capability
+```
+
+Needed capability is classified at the capability level, not as
+implementation tasks:
+
+- `reuse`: capability already exists
+- `modify`: existing capability needs changing
+- `create`: capability does not exist
+- `remove`: existing capability conflicts with the desired outcome
+- `integrate`: existing capabilities need to work together
+- `decide`: product, technical, or business decision required
+- `investigate`: evidence is insufficient and more Discovery is needed
+
+This analysis explains what needs to exist or change and why. It must not
+turn into final acceptance criteria, schemas, endpoint lists, component
+plans, or task breakdowns.
+
+## Synthesis
+
+Discovery must end with a coherent synthesis:
+
+- requested outcome
+- current state
+- relevant lenses
+- evidence-backed findings
+- existing capabilities
+- missing capabilities
+- gaps
+- reuse opportunities
+- required modifications, integrations, or creations
+- risks
+- assumptions
+- unknowns
+- decisions/questions requiring resolution
+- readiness implications for Specification
+
+The synthesis answers whether the problem is understood well enough to
+specify responsibly.
 
 ## Boundary
 
