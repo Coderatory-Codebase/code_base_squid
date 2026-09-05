@@ -67,6 +67,11 @@ Specification, use the Discovery workflow (`.agent/workflows/discovery.md`).
 It consumes a `REQ-*` artifact, produces a `DISC-*` evidence artifact, and
 stops before Specification, Decomposition, Architecture, or Implementation.
 
+If the user asks to specify work from a completed Discovery artifact, use
+the Specification workflow (`.agent/workflows/specification.md`). It
+consumes a `DISC-*` artifact, produces an ordinary `SPEC-*` requirements
+artifact, and stops before Decomposition, Architecture, or Implementation.
+
 ## Working method
 
 For every meaningful change:
@@ -134,7 +139,8 @@ CLAUDE.md (or equivalent agent entry point)
   → relevant instruction (.agent/instructions/*)
   → relevant workflow (.agent/workflows/*)
      (use intake.md for raw business/product input capture; use
-      discovery.md for evidence-backed investigation from REQ-* to DISC-*)
+     discovery.md for evidence-backed investigation from REQ-* to DISC-*;
+     specification.md for requirements from DISC-* to SPEC-*)
   → relevant skill (.agent/skills/*)
   → current project state (.project/state/PROJECT-STATE.md)
   → owning project brain (.project/projects/<project>/PROJECT.md, if any)

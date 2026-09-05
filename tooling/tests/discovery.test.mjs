@@ -141,24 +141,27 @@ test("actual DISC-001 preserves uncertainty and does not become Specification", 
   assert.doesNotMatch(discovery, /^## Implementation Plan$/im);
 });
 
-test("state and trace show Discovery complete and later phases not started", () => {
+test("state and trace preserve Discovery boundary while Specification is now the next executed phase", () => {
   const state = readRepoFile(".project", "state", "PROJECT-STATE.md");
   const trace = [
     readRepoFile(".project", "traces", "TRACE-021-discovery-phase.md"),
     readRepoFile(".project", "traces", "TRACE-022-discovery-correction.md"),
+    readRepoFile(".project", "traces", "TRACE-023-specification-phase.md"),
   ].join("\n");
   const architecture = readRepoFile("architecture.yaml");
 
   assert.match(state, /DISC-001/);
   assert.match(state, /Discovery is complete with status `needs-clarification`/i);
-  assert.match(state, /Specification\/Phase 3\s+has not been executed/i);
-  assert.match(state, /lens-based current-state,\s+gap\/capability, and synthesis analysis/i);
+  assert.match(state, /SPEC-018/);
+  assert.match(state, /Decomposition\/Phase 4 has not been executed/i);
+  assert.match(state, /lens-based current-state,\s+gap\/capability,\s+and synthesis analysis/i);
   assert.match(
     trace,
     /current-state gap analysis, needed-capability classification, or synthesis/i,
   );
   assert.match(trace, /No Specification, Decomposition, Architecture, Implementation/i);
   assert.match(architecture, /id: DISCOVERY/);
+  assert.match(architecture, /id: SPECIFICATION/);
 });
 
 test("negative Discovery cases keep ambiguity, conflicts, and insufficiency explicit", () => {

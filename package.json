@@ -19,11 +19,12 @@
     "test": "vitest run --passWithNoTests",
     "test:intake": "node --test tooling/tests/intake.test.mjs",
     "test:discovery": "node --test tooling/tests/discovery.test.mjs",
+    "test:specification": "node --test tooling/tests/specification.test.mjs",
     "build": "pnpm -r --if-present run build",
     "validate:architecture": "node tooling/scripts/validate-architecture-boundaries.mjs",
     "secrets:scan": "node tooling/scripts/secret-scan.mjs",
     "commit-msg:check": "node tooling/git-hooks/commit-msg",
-    "validate": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run test:intake && pnpm run test:discovery && pnpm run build && pnpm run validate:architecture && pnpm run secrets:scan"
+    "validate": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run test:intake && pnpm run test:discovery && pnpm run test:specification && pnpm run build && pnpm run validate:architecture && pnpm run secrets:scan"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -63,7 +63,8 @@ test("actual REQ-001 captures the personal-notes request and preserves the Intak
   assert.match(trace, /No Discovery, Specification, Decomposition, Architecture, Implementation/i);
   assert.match(state, /REQ-001/);
   assert.match(state, /consumed by Discovery in\s+`DISC-001`/i);
-  assert.match(state, /no specification or decomposition was created for that\s+request/i);
+  assert.match(state, /then by Specification in\s+`SPEC-018`/i);
+  assert.match(state, /no decomposition or\s+architecture was created for that request/i);
 });
 
 test("actual REQ-001 does not manufacture product or technical decisions as facts", () => {

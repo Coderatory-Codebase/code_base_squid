@@ -127,10 +127,27 @@ operating_model:
       transition: intake/captured -> discovery/complete -> specification
       boundary: >
         Discovery consumes a completed Intake artifact, investigates
-        evidence-backed context, records facts/inferences/unknowns/risks/
-        dependencies/open questions, and stops before Specification,
-        Decomposition, Architecture, Implementation, Verification, Review,
-        Delivery, Operate, or Feedback.
+        evidence-backed context through relevant lenses, records current
+        state, facts/findings/inferences/unknowns/risks/dependencies/open
+        questions, identifies gaps and needed capabilities, and stops before
+        Specification, Decomposition, Architecture, Implementation,
+        Verification, Review, Delivery, Operate, or Feedback.
+    - id: SPECIFICATION
+      status: governed-workflow
+      spec: .project/specs/SPEC-017-specification-lifecycle-phase.md
+      workflow: .agent/workflows/specification.md
+      artifact_type: SPEC
+      artifact_path_pattern: .project/specs/SPEC-<NNN>-<slug>.md
+      behavioral_test: tooling/tests/specification.test.mjs
+      state_record: .project/state/PROJECT-STATE.md
+      trace_record_pattern: .project/traces/TRACE-<NNN>-<slug>.md
+      transition: discovery/complete -> specification/complete -> decomposition
+      boundary: >
+        Specification consumes a completed Discovery artifact, transforms
+        material findings into explicit testable requirements or unresolved
+        blockers, preserves traceability back to Intake and Discovery, and
+        stops before Decomposition, Architecture, Implementation,
+        Verification, Review, Delivery, Operate, or Feedback.
   operating_scopes:
     - id: FOUNDATION
       brain:
@@ -375,15 +392,17 @@ roadmap:
     status: in-progress
     spec: SPEC-014
     decisions: [ADR-015, ADR-016]
-    completed_plans: [PLAN-005, PLAN-006, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011]
-    trace: TRACE-022
+    completed_plans:
+      [PLAN-005, PLAN-006, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011, PLAN-012]
+    trace: TRACE-023
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
     project/product operating scope. SPEC-015 implements Intake and
     SPEC-016 implements Discovery, now corrected to require lens-based
-    current-state and gap/capability analysis. architecture.yaml is
-    current architecture first; roadmap history is project memory.
+    current-state and gap/capability analysis. SPEC-017 implements
+    Specification. architecture.yaml is current architecture first;
+    roadmap history is project memory.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure
@@ -391,8 +410,8 @@ non_goals_current_phase:
   - project generator
   - graph database
   - control panel / dashboard
-  - Specification / Phase 3
-  - Decomposition, Architecture, Implementation, Verification, Review,
+  - Decomposition / Phase 4
+  - Architecture, Implementation, Verification, Review,
     Delivery, Operate, or Feedback for REQ-001
   - a second/subsequent application feature not yet requested
   - email verification / password reset / OAuth / MFA / audit logging

@@ -43,7 +43,7 @@ renumbered.
 
 | Type           | Prefix         | Purpose                                                                                                                                                                                                                                                                                                 | Instantiated now?     |
 | -------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| Spec           | `SPEC-`        | What should exist / what behavior is required.                                                                                                                                                                                                                                                          | Yes — `specs/`        |
+| Spec           | `SPEC-`        | What should exist / what behavior is required. Also used by Phase 3 Specification outputs; no second requirement/specification artifact prefix exists.                                                                                                                                                  | Yes — `specs/`        |
 | Plan           | `PLAN-`        | How we intend to accomplish a spec.                                                                                                                                                                                                                                                                     | Yes — `plans/`        |
 | Task           | `TASK-`        | A bounded, executable unit of work.                                                                                                                                                                                                                                                                     | Not yet — see below   |
 | ADR            | `ADR-`         | An architectural decision: context, decision, consequences.                                                                                                                                                                                                                                             | Yes — `decisions/`    |
@@ -153,8 +153,9 @@ all of them.
 
 - **SPEC**: `draft → active → superseded → archived`. `active` means
   currently governing work (a spec doesn't stop being true just because
-  its milestone shipped); `superseded` points at the artifact that
-  replaced it via `related`.
+  its milestone shipped); `draft` may also hold a Phase 3 Specification
+  output whose readiness is `needs-clarification` or `blocked`;
+  `superseded` points at the artifact that replaced it via `related`.
 - **PLAN**: `draft → active → complete → superseded → archived`. A plan
   becomes `complete` when its bounded implementation effort is done, or
   `superseded` when another plan replaces it before completion.
@@ -172,7 +173,7 @@ all of them.
   transition is `input → intake/captured → discovery` (`SPEC-015`).
 - **DISC**: `complete`, `needs-clarification`, or `blocked` for Phase 2
   Discovery. The implemented transition is `REQ-* → discovery → DISC-* →
-specification`; Specification itself is not implemented yet (`SPEC-016`).
+specification` (`SPEC-016`).
 - **HANDOFF**: ephemeral by default (see below) — no formal lifecycle.
 - **BACKLOG** (when first used): `captured → clarifying → ready →
 selected → in-progress → review → completed`, with `deferred`,
@@ -312,6 +313,24 @@ Specification. It is also not a separate job-contract framework; Discovery
 jobs are bounded investigation responsibilities selected from the existing
 analysis/discovery model in `SPEC-010`, `SPEC-014`, and
 `.agent/workflows/app-analysis.md`.
+
+## Specification artifact
+
+Phase 3 Specification reuses the ordinary
+`.project/specs/SPEC-<NNN>-<slug>.md` artifact type. A Specification
+artifact consumes a completed `DISC-*` artifact and records explicit,
+testable requirements or the unresolved decisions that prevent a complete
+specification. It preserves the source `REQ-*`, source `DISC-*`, original
+request, route, readiness, Discovery inputs used, finding treatment,
+requirements, functional/non-functional requirements where supported,
+business rules, constraints, acceptance conditions, non-goals, unresolved
+decisions, traceability, lifecycle state, and downstream boundary.
+
+This is not a PLAN, TASK, ADR, API contract, database schema, architecture
+record, or implementation plan. It is the requirements contract that may
+later feed Decomposition when ready. The governing phase definition is
+`SPEC-017`; the agent-facing workflow is
+`.agent/workflows/specification.md`.
 
 ## Backlog
 

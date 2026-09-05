@@ -32,9 +32,14 @@ AGENTS.md (read in full)
       captured before downstream engineering — create REQ-* and stop
       before Discovery (intake.md, SPEC-015)
   → DISCOVERY when a completed REQ-* is selected for investigation —
-      create DISC-* with evidence-backed facts, unknowns, risks, and open
+      create DISC-* with evidence-backed facts, lens findings, current
+      state, gaps, needed capabilities, unknowns, risks, and open
       questions; stop before Specification
       (discovery.md, SPEC-016)
+  → SPECIFICATION when a completed DISC-* is selected for requirements —
+      create SPEC-* with explicit testable requirements or unresolved
+      blockers; stop before Decomposition
+      (specification.md, SPEC-017)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

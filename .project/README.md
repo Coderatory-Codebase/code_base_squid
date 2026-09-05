@@ -35,6 +35,9 @@ or downstream engineering work — see
 `discovery/` holds `DISC-*` artifacts created from completed Intake
 artifacts before Specification — see
 `specs/SPEC-016-discovery-lifecycle-phase.md`.
+`specs/` also holds work-item Specification artifacts created from
+completed Discovery artifacts before Decomposition — see
+`specs/SPEC-017-specification-lifecycle-phase.md`.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level

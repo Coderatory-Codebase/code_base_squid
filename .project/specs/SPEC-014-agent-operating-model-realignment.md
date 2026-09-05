@@ -4,7 +4,8 @@ type: spec
 title: Agent operating model realignment
 status: active
 created: 2026-09-05
-related: [SPEC-010, SPEC-011, SPEC-012, SPEC-013, SPEC-015, ADR-013, ADR-015, ADR-016]
+related:
+  [SPEC-010, SPEC-011, SPEC-012, SPEC-013, SPEC-015, SPEC-016, SPEC-017, ADR-013, ADR-015, ADR-016]
 ---
 
 # SPEC-014: Agent Operating Model Realignment
