@@ -14,11 +14,12 @@ going on," before opening any other artifact.
 after the user clarified that the repository must behave as an
 agent-executable operating foundation for MERN/Next.js monorepo app
 development, not mainly as after-the-fact records. The active work is
-`SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`: request routing,
-dual operating scope, Intake as the first executable lifecycle phase,
-dual-track discovery and delivery, pre-implementation artifact
-discipline, current architecture in `architecture.yaml`, and the first
-real stack skill for MERN/Next.js vertical slices.
+`SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`/`SPEC-016`:
+request routing, dual operating scope, Intake and Discovery as the first
+two executable lifecycle phases, dual-track discovery and delivery,
+pre-implementation artifact discipline, current architecture in
+`architecture.yaml`, and the first real stack skill for MERN/Next.js
+vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
 the reference app used to prove the foundation, not the whole repository.
@@ -157,7 +158,7 @@ conventions:
 
 ## Traces
 
-Twenty real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Twenty-one real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -203,8 +204,10 @@ into a longer report), `TRACE-014` (personal notes), `TRACE-015`
 (M26 operating-model realignment), `TRACE-016` (roadmap history
 extraction), `TRACE-017` (dual operating-scope clarification),
 `TRACE-018` (Intake phase implementation, superseded by the correction),
-`TRACE-019` (real Intake execution producing `REQ-001`), and `TRACE-020`
-(Intake correction removing the standalone CLI/contract framework). None is a retroactive trace of M01–M17, which
+`TRACE-019` (real Intake execution producing `REQ-001`), `TRACE-020`
+(Intake correction removing the standalone CLI/contract framework), and
+`TRACE-021` (Discovery phase implementation and real Discovery execution
+producing `DISC-001`). None is a retroactive trace of M01–M17, which
 predate the model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
@@ -662,13 +665,21 @@ is corrected and complete (`SPEC-015`, superseded `PLAN-008`,
 agent-executed governed workflow that creates `REQ-*` artifacts and stops
 before Discovery. The real demonstration artifact is
 `.project/requirements/REQ-001-add-personal-notes-functionality-to-the-test-application.md`,
-with trace `TRACE-019`. Discovery/Phase 2 has not been executed, no
-specification or decomposition was created for that request, no
-architecture was created, and implementation has not started. No
-application feature is currently selected. This Intake demonstration is
-separate from the historical personal-notes feature implementation
+with trace `TRACE-019`. It has since been consumed by Discovery in
+`DISC-001`; no specification or decomposition was created for that
+request, no architecture was created, and implementation has not started.
+No application feature is currently selected. This Intake demonstration
+is separate from the historical personal-notes feature implementation
 recorded under `TRACE-014`/`PLAN-004`; it does not authorize or imply any
-new app work.
+new app work. Its fifth slice is complete (`SPEC-016`, `PLAN-010`,
+`TRACE-021`): Phase 2 Discovery is an agent-executed governed workflow
+that consumes `REQ-*`, investigates evidence, creates `DISC-*`, and stops
+before Specification. The real Discovery artifact is
+`.project/discovery/DISC-001-personal-notes-test-application.md`.
+Discovery is complete with status `needs-clarification` because the
+requested notes capability appears already present in the current seed
+app. Specification/Phase 3 has not been executed, no decomposition or
+architecture was created, and implementation has not started.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -783,7 +794,7 @@ Nothing.
 
 ## Next
 
-Do not proceed to Discovery/Phase 2 unless explicitly requested. Other
+Do not proceed to Specification/Phase 3 unless explicitly requested. Other
 remaining M26 follow-ups still exist: add broader validators for artifact
 and architecture drift (`BACKLOG-011`), then migrate the backlog to
 explicit multilevel relationships (`BACKLOG-012`). Do not begin another

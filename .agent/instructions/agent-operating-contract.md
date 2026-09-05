@@ -31,6 +31,10 @@ AGENTS.md (read in full)
   → INTAKE when the request is raw business/product input that must be
       captured before downstream engineering — create REQ-* and stop
       before Discovery (intake.md, SPEC-015)
+  → DISCOVERY when a completed REQ-* is selected for investigation —
+      create DISC-* with evidence-backed facts, unknowns, risks, and open
+      questions; stop before Specification
+      (discovery.md, SPEC-016)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

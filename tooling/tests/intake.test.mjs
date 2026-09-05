@@ -36,7 +36,7 @@ test("Intake workflow is agent-operated, not a standalone CLI or engine", () => 
   assert.doesNotMatch(packageJson, /validate:intake/);
 });
 
-test("actual REQ-001 captures the personal-notes request and stops before Discovery", () => {
+test("actual REQ-001 captures the personal-notes request and preserves the Intake boundary", () => {
   const requirement = readRepoFile(
     ".project",
     "requirements",
@@ -62,7 +62,8 @@ test("actual REQ-001 captures the personal-notes request and stops before Discov
   assertStoppedAtIntake(markdownSection(requirement, "Boundary Check"));
   assert.match(trace, /No Discovery, Specification, Decomposition, Architecture, Implementation/i);
   assert.match(state, /REQ-001/);
-  assert.match(state, /Discovery\/Phase 2 has not been executed/i);
+  assert.match(state, /consumed by Discovery in\s+`DISC-001`/i);
+  assert.match(state, /no specification or decomposition was created for that\s+request/i);
 });
 
 test("actual REQ-001 does not manufacture product or technical decisions as facts", () => {

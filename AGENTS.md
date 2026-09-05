@@ -62,6 +62,11 @@ engineering, use the Intake workflow (`.agent/workflows/intake.md`). It
 creates a `REQ-*` artifact and stops before Discovery, Architecture, or
 Implementation.
 
+If the user asks to investigate a completed Intake artifact before
+Specification, use the Discovery workflow (`.agent/workflows/discovery.md`).
+It consumes a `REQ-*` artifact, produces a `DISC-*` evidence artifact, and
+stops before Specification, Decomposition, Architecture, or Implementation.
+
 ## Working method
 
 For every meaningful change:
@@ -128,7 +133,8 @@ CLAUDE.md (or equivalent agent entry point)
   → request routing (foundation, project/product, or cross-cutting)
   → relevant instruction (.agent/instructions/*)
   → relevant workflow (.agent/workflows/*)
-     (use intake.md for raw business/product input capture)
+     (use intake.md for raw business/product input capture; use
+      discovery.md for evidence-backed investigation from REQ-* to DISC-*)
   → relevant skill (.agent/skills/*)
   → current project state (.project/state/PROJECT-STATE.md)
   → owning project brain (.project/projects/<project>/PROJECT.md, if any)

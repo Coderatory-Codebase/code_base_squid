@@ -73,7 +73,9 @@ pre-implementation artifacts, current architecture in
 `architecture.yaml`, and the first stack skill
 (`.agent/skills/mern-nextjs-vertical-slice`). Phase 1 Intake is now
 implemented as an agent-executed `REQ-*` capture workflow under
-`.project/requirements/`, covered by `tooling/tests/intake.test.mjs`. See
+`.project/requirements/`, and Phase 2 Discovery is implemented as an
+evidence-backed `DISC-*` workflow under `.project/discovery/`, covered by
+`tooling/tests/intake.test.mjs` and `tooling/tests/discovery.test.mjs`. See
 `architecture.yaml` for current architecture and active phase, and
 `.project/state/PROJECT-STATE.md` for live status.
 

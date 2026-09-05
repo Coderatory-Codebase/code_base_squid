@@ -49,6 +49,7 @@ renumbered.
 | ADR            | `ADR-`         | An architectural decision: context, decision, consequences.                                                                                                                                                                                                                                             | Yes — `decisions/`    |
 | RFC            | `RFC-`         | A proposal under discussion, upstream of an ADR.                                                                                                                                                                                                                                                        | Not yet               |
 | Requirement    | `REQ-`         | Raw business/product input captured by the Intake phase before Discovery. Added M26, `SPEC-015`. One markdown file per real Intake artifact under `requirements/`; authored by the agent using existing artifact, state, and trace conventions.                                                         | Yes — `requirements/` |
+| Discovery      | `DISC-`        | Evidence-backed understanding produced from a completed Intake artifact before Specification. Added M26, `SPEC-016`. One markdown file per real Discovery artifact under `discovery/`; authored by the agent using existing artifact, state, trace, source, and project-memory conventions.             | Yes — `discovery/`    |
 | Research       | `RESEARCH-`    | Findings from an investigation, informing a spec/ADR.                                                                                                                                                                                                                                                   | Not yet               |
 | Review         | `REVIEW-`      | An evaluation of a completed change against its plan/spec.                                                                                                                                                                                                                                              | Yes — `reviews/`      |
 | Report         | `REPORT-`      | A point-in-time status summary for an audience beyond the agent.                                                                                                                                                                                                                                        | Yes — `reports/`      |
@@ -167,9 +168,11 @@ all of them.
   reference the earlier one.
 - **RFC**: `draft → discussion → accepted → rejected`. An accepted RFC
   typically produces an ADR.
-- **REQ**: `captured` for Phase 1 Intake. The only implemented transition
-  is `input → intake/captured → discovery`; Discovery itself is not
-  implemented yet (`SPEC-015`).
+- **REQ**: `captured` for Phase 1 Intake. The implemented Intake
+  transition is `input → intake/captured → discovery` (`SPEC-015`).
+- **DISC**: `complete`, `needs-clarification`, or `blocked` for Phase 2
+  Discovery. The implemented transition is `REQ-* → discovery → DISC-* →
+specification`; Specification itself is not implemented yet (`SPEC-016`).
 - **HANDOFF**: ephemeral by default (see below) — no formal lifecycle.
 - **BACKLOG** (when first used): `captured → clarifying → ready →
 selected → in-progress → review → completed`, with `deferred`,
@@ -291,6 +294,23 @@ This is not a SPEC, PLAN, TASK, ADR, or backlog item. It is the input
 record that may later feed Discovery. It is also not a separate contract
 framework; the Intake contract is the documented set of responsibilities,
 inputs, outputs, boundaries, and completion conditions in `SPEC-015`.
+
+## Discovery artifact
+
+`.project/discovery/DISC-<NNN>-<slug>.md` records evidence-backed
+understanding produced from a completed Intake artifact. It preserves the
+source `REQ-*`, original request, route, selected Discovery jobs, problem
+understanding, desired outcome, actors, existing context, known
+requirements, facts, inferences, assumptions, unknowns, dependencies,
+risks, contradictions, open questions, evidence, conclusion, lifecycle
+state, and downstream boundary.
+
+This is not a SPEC, PLAN, TASK, ADR, backlog item, architecture record, or
+implementation plan. It is the understanding record that may later feed
+Specification. It is also not a separate job-contract framework; Discovery
+jobs are bounded investigation responsibilities selected from the existing
+analysis/discovery model in `SPEC-010`, `SPEC-014`, and
+`.agent/workflows/app-analysis.md`.
 
 ## Backlog
 
