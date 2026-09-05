@@ -6,7 +6,18 @@ status: active
 created: 2026-08-30
 updated: 2026-09-05
 related:
-  [SPEC-004, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013, ADR-010, ADR-013, ADR-016, ARTIFACT-TYPES.md]
+  [
+    SPEC-004,
+    SPEC-006,
+    SPEC-007,
+    SPEC-008,
+    SPEC-009,
+    SPEC-013,
+    ADR-010,
+    ADR-013,
+    ADR-016,
+    ARTIFACT-TYPES.md,
+  ]
 ---
 
 # SPEC-010: Agent Backlog & Feature-Driven Development Model

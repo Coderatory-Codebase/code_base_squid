@@ -14,7 +14,7 @@ tooling/
 │                commit-msg, pre-commit, pre-push.
 └── scripts/     The validation logic those hooks (and CI) call into —
                  secret scanning, architecture boundary checks, commit-
-                 message rules, the hook installer.
+                 message rules, Intake validation, the hook installer.
 ```
 
 ## Getting working hooks

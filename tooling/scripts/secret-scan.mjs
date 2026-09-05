@@ -11,6 +11,16 @@
 //   node tooling/scripts/secret-scan.mjs --files a b c  scan an explicit file list (CI diff, tests)
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const gitSafeDirectory = repoRoot.replace(/\\/g, "/");
+const git = (args) =>
+  execFileSync("git", ["-c", `safe.directory=${gitSafeDirectory}`, ...args], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
 
 // Each pattern is a known, distinctive secret *shape* — not a generic
 // "contains the word password" match, to keep the false-positive rate
@@ -36,15 +46,11 @@ const ALWAYS_IGNORED = new Set([
 ]);
 
 function gitTrackedFiles() {
-  return execFileSync("git", ["ls-files"], { encoding: "utf8" }).split("\n").filter(Boolean);
+  return git(["ls-files"]).split("\n").filter(Boolean);
 }
 
 function gitStagedFiles() {
-  return execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACM"], {
-    encoding: "utf8",
-  })
-    .split("\n")
-    .filter(Boolean);
+  return git(["diff", "--cached", "--name-only", "--diff-filter=ACM"]).split("\n").filter(Boolean);
 }
 
 function resolveTargetFiles(argv) {

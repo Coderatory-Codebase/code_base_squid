@@ -57,6 +57,11 @@ owning project brain. For cross-cutting work, keep the foundation and
 project portions separate in scope, plan, backlog updates, validation,
 and trace.
 
+If the user asks to capture raw business/product input before downstream
+engineering, use the Intake workflow (`.agent/workflows/intake.md`). It
+creates a `REQ-*` artifact and stops before Discovery, Architecture, or
+Implementation.
+
 ## Working method
 
 For every meaningful change:
@@ -123,6 +128,7 @@ CLAUDE.md (or equivalent agent entry point)
   → request routing (foundation, project/product, or cross-cutting)
   → relevant instruction (.agent/instructions/*)
   → relevant workflow (.agent/workflows/*)
+     (use intake.md for raw business/product input capture)
   → relevant skill (.agent/skills/*)
   → current project state (.project/state/PROJECT-STATE.md)
   → owning project brain (.project/projects/<project>/PROJECT.md, if any)

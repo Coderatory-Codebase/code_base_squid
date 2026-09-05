@@ -5,8 +5,19 @@ description: Build one end-to-end MERN/Next.js feature slice in the seed monorep
 when_to_use: >
   Use for a seed-app feature that spans the Next.js app, Express API,
   MongoDB/Mongoose persistence, TypeScript contracts/validation, and tests.
-requires: [classified SEED_APP or CROSS_CUTTING request, selected feature scope, project-owned app/server paths]
-produces: [vertical feature implementation plan, UI/API/data/test changes, validation notes, discovered backlog updates]
+requires:
+  [
+    classified SEED_APP or CROSS_CUTTING request,
+    selected feature scope,
+    project-owned app/server paths,
+  ]
+produces:
+  [
+    vertical feature implementation plan,
+    UI/API/data/test changes,
+    validation notes,
+    discovered backlog updates,
+  ]
 ---
 
 # MERN/Next.js Vertical Slice

@@ -6,7 +6,8 @@ application code and not project memory.
 ```text
 .agent/
 ├── instructions/   Standing rules an agent applies while working here.
-├── workflows/      Lifecycle specs for common change types (not an engine).
+├── workflows/      Lifecycle specs for common change types and Intake
+│                   capture (not an engine).
 ├── skills/         Discoverable, self-describing capabilities.
 └── templates/      Authoring templates for the above.
 ```
@@ -38,6 +39,7 @@ CLAUDE.md (or another agent's entry point)
   → classify the request (foundation, seed-app, or cross-cutting)
   → .agent/instructions/*   (standing rules relevant to the task)
   → .agent/workflows/*      (lifecycle for the kind of change being made)
+                            (intake.md captures raw requests and stops)
   → .agent/skills/*         (a concrete capability needed to do the work)
   → .project/state/PROJECT-STATE.md  (current phase, decisions, next up)
   → .project/projects/<project>/PROJECT.md  (owning project/product brain)

@@ -14,10 +14,11 @@ going on," before opening any other artifact.
 after the user clarified that the repository must behave as an
 agent-executable operating foundation for MERN/Next.js monorepo app
 development, not mainly as after-the-fact records. The active work is
-`SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`: request routing, dual
-operating scope, dual-track discovery and delivery, pre-implementation
-artifact discipline, current architecture in `architecture.yaml`, and
-the first real stack skill for MERN/Next.js vertical slices.
+`SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`: request routing,
+dual operating scope, Intake as the first executable lifecycle phase,
+dual-track discovery and delivery, pre-implementation artifact
+discipline, current architecture in `architecture.yaml`, and the first
+real stack skill for MERN/Next.js vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
 the reference app used to prove the foundation, not the whole repository.
@@ -156,7 +157,7 @@ conventions:
 
 ## Traces
 
-Seventeen real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Twenty real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -200,8 +201,10 @@ most consequential finding is negative — most suspected gaps were
 already fixed or never real — stated honestly rather than manufactured
 into a longer report), `TRACE-014` (personal notes), `TRACE-015`
 (M26 operating-model realignment), `TRACE-016` (roadmap history
-extraction), and `TRACE-017` (dual operating-scope clarification). None
-is a retroactive trace of M01–M17, which
+extraction), `TRACE-017` (dual operating-scope clarification),
+`TRACE-018` (Intake phase implementation, superseded by the correction),
+`TRACE-019` (real Intake execution producing `REQ-001`), and `TRACE-020`
+(Intake correction removing the standalone CLI/contract framework). None is a retroactive trace of M01–M17, which
 predate the model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
@@ -653,8 +656,19 @@ also complete (`PLAN-006`, `TRACE-016`, `BACKLOG-010`): detailed
 milestone history moved to `.project/roadmap/MILESTONES.yaml`. Its third
 slice is complete (`ADR-016`, `PLAN-007`, `TRACE-017`): the operating
 model now has an explicit repository/foundation brain, a project/product
-brain for `test`, and `Scope`/`Owner` backlog columns. No application
-feature is currently selected.
+brain for `test`, and `Scope`/`Owner` backlog columns. Its fourth slice
+is corrected and complete (`SPEC-015`, superseded `PLAN-008`,
+`PLAN-009`, `TRACE-018`, `TRACE-020`): Phase 1 Intake is an
+agent-executed governed workflow that creates `REQ-*` artifacts and stops
+before Discovery. The real demonstration artifact is
+`.project/requirements/REQ-001-add-personal-notes-functionality-to-the-test-application.md`,
+with trace `TRACE-019`. Discovery/Phase 2 has not been executed, no
+specification or decomposition was created for that request, no
+architecture was created, and implementation has not started. No
+application feature is currently selected. This Intake demonstration is
+separate from the historical personal-notes feature implementation
+recorded under `TRACE-014`/`PLAN-004`; it does not authorize or imply any
+new app work.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -769,11 +783,12 @@ Nothing.
 
 ## Next
 
-Finish the remaining M26 follow-ups in priority order: add validators for
-artifact and architecture drift (`BACKLOG-011`), then migrate the backlog
-to explicit multilevel relationships (`BACKLOG-012`). Do not begin
-another application feature until it is selected from explicit user
-request or backlog.
+Do not proceed to Discovery/Phase 2 unless explicitly requested. Other
+remaining M26 follow-ups still exist: add broader validators for artifact
+and architecture drift (`BACKLOG-011`), then migrate the backlog to
+explicit multilevel relationships (`BACKLOG-012`). Do not begin another
+application feature until it is selected from explicit user request or
+backlog.
 
 ## Open questions carried forward
 

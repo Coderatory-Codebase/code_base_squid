@@ -4,16 +4,7 @@ type: report
 title: M26 behavioral audit — personal notes feature as a live test of the operating model
 status: final
 created: 2026-09-03
-related:
-  [
-    TRACE-014,
-    PLAN-004,
-    SPEC-008,
-    SPEC-010,
-    SPEC-011,
-    SPEC-012,
-    SPEC-013,
-  ]
+related: [TRACE-014, PLAN-004, SPEC-008, SPEC-010, SPEC-011, SPEC-012, SPEC-013]
 ---
 
 # REPORT-001: M26 Behavioral Audit Report

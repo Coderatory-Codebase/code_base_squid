@@ -8,16 +8,78 @@
 // Bypassable with `git commit --no-verify` — expected, not a bug. See
 // tooling/git-hooks/commit-msg for the rationale, which applies here too.
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import path from "node:path";
 
 // pnpm/prettier resolve to a .cmd/.ps1 shim on Windows, which
 // execFileSync can't exec directly without a shell — shell:true is
 // required there, and harmless on POSIX. See ADR-009 -> "Windows shell
 // resolution".
 const useShell = process.platform === "win32";
+const gitSafeDirectory = process.cwd().replace(/\\/g, "/");
+
+function resolveExecutable(command) {
+  if (path.isAbsolute(command) && existsSync(command)) {
+    return command;
+  }
+
+  const extensions = process.platform === "win32" ? [".cmd", ".exe", ".bat", ""] : [""];
+  const pathDirs = (process.env.PATH ?? "").split(path.delimiter).filter(Boolean);
+
+  for (const dir of pathDirs) {
+    for (const extension of extensions) {
+      const candidate = path.join(
+        dir,
+        command.endsWith(extension) ? command : `${command}${extension}`,
+      );
+      if (existsSync(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  if (command === "pnpm") {
+    const fallbackDirs = [
+      path.resolve(path.dirname(process.execPath), "..", "..", "bin", "fallback"),
+      process.env.APPDATA ? path.join(process.env.APPDATA, "npm") : "",
+      process.env.USERPROFILE
+        ? path.join(
+            process.env.USERPROFILE,
+            ".cache",
+            "codex-runtimes",
+            "codex-primary-runtime",
+            "dependencies",
+            "bin",
+            "fallback",
+          )
+        : "",
+    ].filter(Boolean);
+
+    for (const dir of fallbackDirs) {
+      for (const extension of extensions) {
+        const candidate = path.join(dir, `pnpm${extension}`);
+        if (existsSync(candidate)) {
+          return candidate;
+        }
+      }
+    }
+  }
+
+  return command;
+}
 
 function run(command, args) {
+  const resolvedCommand = resolveExecutable(command);
+  const commandPath = path.dirname(resolvedCommand);
+  const env = {
+    ...process.env,
+    PATH: [commandPath, path.dirname(process.execPath), process.env.PATH ?? ""]
+      .filter(Boolean)
+      .join(path.delimiter),
+  };
+
   try {
-    execFileSync(command, args, { stdio: "inherit", shell: useShell });
+    execFileSync(resolvedCommand, args, { stdio: "inherit", shell: useShell, env });
     return true;
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -28,9 +90,20 @@ function run(command, args) {
 }
 
 function stagedFiles() {
-  const out = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACM"], {
-    encoding: "utf8",
-  });
+  const out = execFileSync(
+    "git",
+    [
+      "-c",
+      `safe.directory=${gitSafeDirectory}`,
+      "diff",
+      "--cached",
+      "--name-only",
+      "--diff-filter=ACM",
+    ],
+    {
+      encoding: "utf8",
+    },
+  );
   return out.split("\n").filter(Boolean);
 }
 
@@ -46,10 +119,15 @@ if (staged.length === 0) {
 // required here: unlike glob mode, prettier errors (not skips) on an
 // explicit path it has no parser for (e.g. a stray extensionless file).
 console.log("pre-commit: format:check (staged files)");
-const formatOk = run("pnpm", ["exec", "prettier", "--check", "--ignore-unknown", ...staged]);
+const formatOk = run(process.execPath, [
+  path.join("node_modules", "prettier", "bin", "prettier.cjs"),
+  "--check",
+  "--ignore-unknown",
+  ...staged,
+]);
 
 console.log("pre-commit: secrets:scan (staged files)");
-const secretsOk = run("node", ["tooling/scripts/secret-scan.mjs", "--staged"]);
+const secretsOk = run(process.execPath, ["tooling/scripts/secret-scan.mjs", "--staged"]);
 
 if (!formatOk || !secretsOk) {
   console.error(

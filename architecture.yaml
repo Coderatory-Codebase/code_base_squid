@@ -99,9 +99,34 @@ current_architecture:
     active phase and history pointers.
 
 operating_model:
+  implemented_lifecycle_phases:
+    - id: INTAKE
+      status: governed-workflow
+      spec: .project/specs/SPEC-015-intake-lifecycle-phase.md
+      workflow: .agent/workflows/intake.md
+      artifact_type: REQ
+      artifact_path_pattern: .project/requirements/REQ-<NNN>-<slug>.md
+      behavioral_test: tooling/tests/intake.test.mjs
+      state_record: .project/state/PROJECT-STATE.md
+      trace_record_pattern: .project/traces/TRACE-<NNN>-<slug>.md
+      transition: input -> intake/captured -> discovery
+      boundary: >
+        Intake captures raw business/product input and stops before
+        Discovery, Specification, Decomposition, Architecture,
+        Implementation, Verification, Review, Delivery, Operate, or
+        Feedback.
   operating_scopes:
     - id: FOUNDATION
-      brain: [AGENTS.md, architecture.yaml, .agent/, .project/state/PROJECT-STATE.md, .project/roadmap/, .project/specs, .project/decisions]
+      brain:
+        [
+          AGENTS.md,
+          architecture.yaml,
+          .agent/,
+          .project/state/PROJECT-STATE.md,
+          .project/roadmap/,
+          .project/specs,
+          .project/decisions,
+        ]
       backlog_scope: FOUNDATION
       owns: >
         Repository architecture, agent behavior, workflows, skills,
@@ -138,17 +163,7 @@ operating_model:
   delivery_track:
     workflow: .agent/workflows/feature.md
     seed_stack_skill: .agent/skills/mern-nextjs-vertical-slice/SKILL.md
-    required_order:
-      [
-        classify,
-        discover,
-        scope,
-        plan,
-        implement,
-        validate,
-        review,
-        record,
-      ]
+    required_order: [classify, discover, scope, plan, implement, validate, review, record]
   backlog_model:
     file: .project/backlog/BACKLOG.md
     physical_model: single_backlog
@@ -177,6 +192,7 @@ boundaries:
         tasks,
         changes,
         research,
+        requirements,
         projects,
         reviews,
         reports,
@@ -186,7 +202,8 @@ boundaries:
         backlog,
         traces,
       ]
-    created: [state, decisions, specs, plans, projects, reviews, reports, roadmap, traces]
+    created:
+      [state, decisions, specs, plans, requirements, projects, reviews, reports, roadmap, traces]
     # Remaining entries in `contains` are defined conventions
     # (.project/ARTIFACT-TYPES.md) without a directory yet — created on
     # first real need, not pre-scaffolded. See .project/README.md.
@@ -329,13 +346,14 @@ roadmap:
     status: in-progress
     spec: SPEC-014
     decisions: [ADR-015, ADR-016]
-    completed_plans: [PLAN-005, PLAN-006, PLAN-007]
-    trace: TRACE-017
+    completed_plans: [PLAN-005, PLAN-006, PLAN-007, PLAN-008, PLAN-009]
+    trace: TRACE-020
   status: >
     Detailed milestone history moved to .project/roadmap/MILESTONES.yaml
     at M26 per ADR-015/BACKLOG-010. ADR-016 adds explicit foundation vs.
-    project/product operating scope. architecture.yaml is current
-    architecture first; roadmap history is project memory.
+    project/product operating scope. SPEC-015 implements the Intake phase
+    only. architecture.yaml is current architecture first; roadmap history
+    is project memory.
 non_goals_current_phase:
   - full agent runtime / orchestration engine
   - MCP infrastructure

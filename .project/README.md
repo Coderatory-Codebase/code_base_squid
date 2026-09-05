@@ -13,6 +13,7 @@ side of the boundary.
 ├── state/               Current project state (one singleton file).
 ├── decisions/            ADRs — accepted architectural decisions.
 ├── specs/                 What should exist / what behavior is required.
+├── requirements/          Intake artifacts (`REQ-*`) from raw requests.
 ├── plans/                  How a spec is/was accomplished.
 ├── projects/               Project/product operating memory.
 ├── reviews/                 Point-in-time evaluations of completed work.
@@ -27,6 +28,9 @@ side of the boundary.
 that's known, discovered, or deferred but not necessarily in current
 scope — see
 `specs/SPEC-010-agent-backlog-and-feature-driven-development.md`.
+`requirements/` holds `REQ-*` Intake artifacts created before Discovery
+or downstream engineering work — see
+`specs/SPEC-015-intake-lifecycle-phase.md`.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level

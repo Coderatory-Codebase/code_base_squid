@@ -4,7 +4,7 @@ type: spec
 title: Agent operating model realignment
 status: active
 created: 2026-09-05
-related: [SPEC-010, SPEC-011, SPEC-012, SPEC-013, ADR-013, ADR-015, ADR-016]
+related: [SPEC-010, SPEC-011, SPEC-012, SPEC-013, SPEC-015, ADR-013, ADR-015, ADR-016]
 ---
 
 # SPEC-014: Agent Operating Model Realignment
@@ -75,6 +75,11 @@ show both sides explicitly.
 The repository runs two connected tracks:
 
 ```text
+Intake track
+  raw business/product input
+        ↓
+  REQ-* captured request artifact
+        ↓
 Discovery / analysis track
   product, UX, domain, architecture, data, API, security, privacy,
   performance, reliability, testing, accessibility, operations,
@@ -94,8 +99,9 @@ Delivery track
   validation, review, trace, state/backlog update
 ```
 
-Discovery does not authorize implementation by itself. Delivery does not
-skip discovery because a feature sounds obvious.
+Intake does not perform Discovery. Discovery does not authorize
+implementation by itself. Delivery does not skip discovery because a
+feature sounds obvious.
 
 ## Pre-implementation artifacts
 

@@ -28,6 +28,9 @@ AGENTS.md (read in full)
       before source files or feature implementation
       (ADR-016; SPEC-014 -> "Dual operating scope")
   → UNDERSTAND the request — does it already exist (SPEC/ADR/backlog)?
+  → INTAKE when the request is raw business/product input that must be
+      captured before downstream engineering — create REQ-* and stop
+      before Discovery (intake.md, SPEC-015)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

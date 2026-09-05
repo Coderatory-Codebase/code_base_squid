@@ -42,10 +42,10 @@ see §6. Its project/product brain is
 This is the single most load-bearing structural idea in the repository
 (`ADR-013`, established M23, after the first real feature exposed the gap):
 
-| Layer          | What it is                                                                                                         | Lives in                                                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Layer          | What it is                                                                                                         | Lives in                                                                                                                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **FOUNDATION** | The reusable engineering operating system itself — rules, conventions, governance, the agent's own operating model | `AGENTS.md`, `CLAUDE.md`, `architecture.yaml`, `.agent/`, repository-level `.project/specs`, `.project/decisions`, `.project/state`, `.project/roadmap`, `tooling/`, `FOUNDATION` backlog rows |
-| **PROJECT**    | A concrete application or product built _using_ the foundation                                                     | `.project/projects/<project>/PROJECT.md`, `apps/<project>/`, `servers/<project>/`, `agents/<project>/`, `PROJECT` backlog rows       |
+| **PROJECT**    | A concrete application or product built _using_ the foundation                                                     | `.project/projects/<project>/PROJECT.md`, `apps/<project>/`, `servers/<project>/`, `agents/<project>/`, `PROJECT` backlog rows                                                                 |
 
 The rule this produces: `apps/`, `servers/`, and `agents/` are
 **project-owned boundaries** — a deployable lives at

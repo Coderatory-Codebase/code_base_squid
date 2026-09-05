@@ -71,7 +71,9 @@ request routing, dual operating scope (foundation brain plus
 project/product brains), dual-track discovery/delivery,
 pre-implementation artifacts, current architecture in
 `architecture.yaml`, and the first stack skill
-(`.agent/skills/mern-nextjs-vertical-slice`). See
+(`.agent/skills/mern-nextjs-vertical-slice`). Phase 1 Intake is now
+implemented as an agent-executed `REQ-*` capture workflow under
+`.project/requirements/`, covered by `tooling/tests/intake.test.mjs`. See
 `architecture.yaml` for current architecture and active phase, and
 `.project/state/PROJECT-STATE.md` for live status.
 
