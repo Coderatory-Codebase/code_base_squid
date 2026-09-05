@@ -42,7 +42,8 @@ CLAUDE.md (or another agent's entry point)
   → .agent/workflows/*      (lifecycle for the kind of change being made)
                             (intake.md captures raw requests and stops;
                              discovery.md investigates REQ-* and stops;
-                             specification.md converts DISC-* to SPEC-* and stops)
+                             specification.md converts DISC-* to SPEC-*,
+                             handles clarification/rework gates, and stops)
   → .agent/skills/*         (a concrete capability needed to do the work)
   → .project/state/PROJECT-STATE.md  (current phase, decisions, next up)
   → .project/projects/<project>/PROJECT.md  (owning project/product brain)

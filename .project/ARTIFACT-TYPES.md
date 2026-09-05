@@ -233,6 +233,27 @@ that precision, not preemptively. See
 `.agent/instructions/engineering-graph.md` for when a typed edge is
 warranted at all.
 
+## Rework and clarification
+
+Clarification is not an artifact type or lifecycle phase. It is a
+human/agent interaction that resolves missing lifecycle input. When the
+clarification changes upstream understanding, update that upstream
+artifact before revising downstream artifacts.
+
+Rework is represented with existing artifact conventions:
+
+- same work item, same artifact identity: update the artifact in place,
+  add `updated: YYYY-MM-DD`, and preserve the earlier outcome in a clear
+  history section;
+- changed work-item identity: create the next ordinary artifact and mark
+  the earlier one `superseded`;
+- meaningful clarification/rework events are recorded in `TRACE-*`, using
+  the existing human-input and decision-provenance fields from `SPEC-013`.
+
+Do not create `CLARIFICATION-*`, revision ledgers, lifecycle engines, or
+state machines for this unless a future concrete need proves the current
+artifact model is insufficient.
+
 ## SPEC vs PLAN vs TASK
 
 These are not interchangeable markdown files with different filenames:
@@ -331,6 +352,13 @@ record, or implementation plan. It is the requirements contract that may
 later feed Decomposition when ready. The governing phase definition is
 `SPEC-017`; the agent-facing workflow is
 `.agent/workflows/specification.md`.
+
+A Specification whose readiness is `needs-clarification` or `blocked`
+must identify the missing information, why it matters, the upstream phase
+that should supply it, and which downstream phase is blocked. Such a spec
+is not valid input to Decomposition. If clarification later resolves the
+issue and changes Discovery-level understanding, the `DISC-*` is reworked
+first, then the `SPEC-*` is revised.
 
 ## Backlog
 

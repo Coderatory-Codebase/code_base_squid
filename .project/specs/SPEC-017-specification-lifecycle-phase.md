@@ -4,6 +4,7 @@ type: spec
 title: Specification lifecycle phase
 status: active
 created: 2026-09-05
+updated: 2026-09-05
 related: [SPEC-010, SPEC-011, SPEC-013, SPEC-014, SPEC-015, SPEC-016, ADR-016]
 ---
 
@@ -30,6 +31,11 @@ intended behavior, not the implementation design.
 Specification consumes Discovery. It does not re-run Discovery as a fresh
 investigation, and it does not decompose work, choose architecture, plan
 implementation, or write code.
+
+If Specification exposes a material unresolved input, it may stop with a
+controlled clarification/rework path. That path returns to the appropriate
+upstream phase before Specification is revised when the missing information
+changes upstream understanding.
 
 ## Artifact Model
 
@@ -65,6 +71,7 @@ Constraints                known restrictions and governing constraints
 Acceptance Conditions      observable conditions demonstrating correctness
 Non-Goals                  explicitly excluded behavior
 Unresolved Decisions       decisions blocking a complete specification
+Clarification / Rework     required when readiness is not ready
 Traceability               Request -> Intake -> Discovery -> Specification
 Lifecycle State            specification status and next allowed phase
 Boundary Check             downstream work explicitly not performed
@@ -127,6 +134,57 @@ When an unresolved decision materially affects required behavior:
 
 A `draft` Specification is still a valid phase output when it truthfully
 records why the work cannot responsibly proceed.
+
+## Clarification and Rework
+
+Clarification is not a new lifecycle phase. It is the interaction/control
+path used when a lifecycle input is missing or ambiguous. Specification
+must distinguish the return point:
+
+| Unresolved issue                                                                 | Return upstream to         | Reason                                                                            |
+| -------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------- |
+| Captured request, route, owner, or product intent is wrong or materially changed | Intake, then Discovery     | The raw input record or its route must change before evidence is re-evaluated.    |
+| Current-state evidence is missing, stale, or contradicted                        | Discovery                  | Discovery owns evidence-backed understanding of current state.                    |
+| Clarified product or technical fact changes the understanding of the work        | Discovery                  | Specification may only consume facts already represented by upstream evidence.    |
+| Requirement wording needs tightening but upstream understanding is unchanged     | Specification              | The spec can be revised directly if it does not assert a new upstream fact.       |
+| Clarification fails to answer the blocker                                        | Same blocked Specification | Readiness stays `needs-clarification` or `blocked`; no requirements are invented. |
+
+The semantic rule is:
+
+```text
+clarification
+  -> upstream understanding updated when needed
+  -> Specification revised
+  -> ready or still blocked
+```
+
+Do not edit a downstream Specification to claim certainty that the source
+Discovery does not support.
+
+This repository does not yet have a formal revision artifact type. Rework
+therefore uses the smallest existing convention:
+
+- update the same artifact in place when it is still the same work item;
+- add `updated: YYYY-MM-DD`;
+- preserve the earlier outcome in a "Rework History" or
+  "Initial Outcome" section;
+- record who/what supplied the clarification and which artifact changed in
+  the relevant `TRACE-*`;
+- create a replacement artifact and mark the old one `superseded` only
+  when the clarification changes the work item's identity.
+
+## Readiness Gate
+
+Decomposition may consume only a work-item Specification that is:
+
+- `status: active`;
+- `Specification Readiness: ready-for-decomposition`;
+- traceable to source Intake and Discovery;
+- not contradicted by unresolved decisions that affect the selected scope.
+
+`draft`, `needs-clarification`, and `blocked` Specifications are not valid
+Decomposition input, even if they contain candidate requirements or useful
+analysis.
 
 ## Boundary
 

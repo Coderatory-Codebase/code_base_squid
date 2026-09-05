@@ -70,7 +70,9 @@ stops before Specification, Decomposition, Architecture, or Implementation.
 If the user asks to specify work from a completed Discovery artifact, use
 the Specification workflow (`.agent/workflows/specification.md`). It
 consumes a `DISC-*` artifact, produces an ordinary `SPEC-*` requirements
-artifact, and stops before Decomposition, Architecture, or Implementation.
+artifact, routes unresolved intent/evidence through the appropriate
+clarification/rework path, and stops before Decomposition, Architecture,
+or Implementation.
 
 ## Working method
 

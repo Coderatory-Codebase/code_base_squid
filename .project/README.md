@@ -37,7 +37,10 @@ artifacts before Specification — see
 `specs/SPEC-016-discovery-lifecycle-phase.md`.
 `specs/` also holds work-item Specification artifacts created from
 completed Discovery artifacts before Decomposition — see
-`specs/SPEC-017-specification-lifecycle-phase.md`.
+`specs/SPEC-017-specification-lifecycle-phase.md`. A blocked
+Specification may route clarification/rework back to Intake or Discovery
+before it can become ready; this uses existing artifact updates and
+`TRACE-*`, not a separate clarification subsystem.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level

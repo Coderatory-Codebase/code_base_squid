@@ -15,11 +15,12 @@ after the user clarified that the repository must behave as an
 agent-executable operating foundation for MERN/Next.js monorepo app
 development, not mainly as after-the-fact records. The active work is
 `SPEC-014`/`PLAN-005`/`ADR-015`/`ADR-016`/`SPEC-015`/`SPEC-016`/
-`SPEC-017`: request routing, dual operating scope, Intake, corrected
-Discovery, and Specification as the first three executable lifecycle
-phases, dual-track discovery and delivery, pre-implementation artifact
-discipline, current architecture in `architecture.yaml`, and the first
-real stack skill for MERN/Next.js vertical slices.
+`SPEC-017`/`PLAN-013`/`TRACE-024`: request routing, dual operating scope,
+Intake, corrected Discovery, Specification, and the Specification
+clarification/rework loop as the first executable lifecycle behavior,
+dual-track discovery and delivery, pre-implementation artifact discipline,
+current architecture in `architecture.yaml`, and the first real stack
+skill for MERN/Next.js vertical slices.
 
 The seed application remains `apps/test/web` + `servers/test/api`. It is
 the reference app used to prove the foundation, not the whole repository.
@@ -158,7 +159,7 @@ conventions:
 
 ## Traces
 
-Twenty-three real traces exist (`.project/traces/`): `TRACE-001` (M18's own
+Twenty-four real traces exist (`.project/traces/`): `TRACE-001` (M18's own
 execution, assembled mostly near the end), `TRACE-002` (M19's own
 execution — the first written progressively, checkpoint by checkpoint),
 `TRACE-003` (M20's own execution — also progressive; honestly records
@@ -211,8 +212,11 @@ producing `DISC-001`), `TRACE-022` (Discovery correction expanding Phase
 2 from uncertainty capture into lens-based current-state, gap/capability,
 and synthesis analysis), and `TRACE-023` (Specification phase
 implementation and real draft Specification execution producing
-`SPEC-018`). None is a retroactive trace of M01–M17, which predate the
-model and aren't traced.
+`SPEC-018`), and `TRACE-024` (Specification clarification/rework
+correction, preserving the initial blocked `SPEC-018`, reworking
+`DISC-001` first after clarification, and revising `SPEC-018` to
+`ready-for-decomposition` for the clarified baseline). None is a
+retroactive trace of M01–M17, which predate the model and aren't traced.
 Model and conventions:
 `.project/specs/SPEC-013-agent-execution-traceability.md`. Observational
 only — never a substitute for the ADR/SPEC/BACKLOG/PLAN/REVIEW that
@@ -685,20 +689,26 @@ stops before Specification. The real Discovery artifact is
 `.project/discovery/DISC-001-personal-notes-test-application.md`, now
 corrected to record dynamic lens selection, lens findings, current-state
 evidence, gap/capability analysis, decisions needed, and synthesis.
-Discovery is complete with status `needs-clarification` because the
-requested notes capability appears already present in the current seed
-app, but the intended delta is not established. Its sixth slice is
+Discovery initially completed with status `needs-clarification` because
+the requested notes capability appeared already present in the current
+seed app, but the intended delta was not established. Its sixth slice is
 complete (`SPEC-017`, `SPEC-018`, `PLAN-012`, `TRACE-023`): Phase 3
 Specification is an agent-executed governed workflow that consumes
 `DISC-*`, transforms material Discovery findings into explicit testable
 requirements or unresolved blockers, creates ordinary `SPEC-*` artifacts,
 and stops before Decomposition. The real Specification artifact is
-`.project/specs/SPEC-018-personal-notes-test-application.md`.
-Specification is draft with readiness `needs-clarification` because
-`DISC-001` did not establish whether the user intended validation,
-enhancement, rebuild, documentation, migration, or lifecycle
-demonstration. Decomposition/Phase 4 has not been executed, no
-architecture was created, and implementation has not started.
+`.project/specs/SPEC-018-personal-notes-test-application.md`. Its seventh
+M26 slice is complete (`PLAN-013`, `TRACE-024`): Specification now has a
+clarification/rework path that preserves the initial blocked
+`SPEC-018`, routes the supplied product clarification back through
+Discovery, reworks `DISC-001` first, and then revises `SPEC-018` to
+`active` with readiness `ready-for-decomposition` for the clarified
+baseline. Decomposition/Phase 4 has not been executed, no architecture
+was created, and implementation has not started.
+
+Discovery is reworked and complete after clarification. Specification is
+active with readiness `ready-for-decomposition` for the clarified
+baseline only.
 
 Previously: `BACKLOG-006` (rate limiting) was completed post-M23 —
 see `TRACE-007`. A user profile feature (editable `displayName`,
@@ -814,9 +824,11 @@ Nothing.
 ## Next
 
 Do not proceed to Decomposition/Phase 4 unless explicitly requested and
-the source Specification is ready. `SPEC-018` is not ready; it requires a
-clarification decision first. Other remaining M26 follow-ups still exist:
-add broader validators for artifact and architecture drift
+the source Specification is ready. `SPEC-018` is now ready only for the
+clarified baseline scope after `TRACE-024`; it does not authorize
+implementation, architecture, or unrelated notes enhancements. Other
+remaining M26 follow-ups still exist: add broader validators for artifact
+and architecture drift
 (`BACKLOG-011`), then migrate the backlog to explicit multilevel
 relationships (`BACKLOG-012`). Do not begin another application feature
 until it is selected from explicit user request or backlog.

@@ -44,7 +44,8 @@ test("actual DISC-001 consumes REQ-001 and records evidence-backed understanding
 
   assert.match(discovery, /^id: DISC-001/m);
   assert.match(discovery, /^type: discovery/m);
-  assert.match(discovery, /^status: needs-clarification/m);
+  assert.match(discovery, /^status: complete/m);
+  assert.match(discovery, /^updated: 2026-09-05/m);
   assert.match(markdownSection(discovery, "Source Requirement"), /REQ-001/);
   assert.match(
     markdownSection(discovery, "Original Request"),
@@ -117,23 +118,26 @@ test("actual DISC-001 analyzes current state, gaps, and needed capabilities", ()
   assert.match(markdownSection(discovery, "Gap / Capability Analysis"), /Decide/);
   assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /`reuse`/);
   assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /`decide`/);
-  assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /not established yet/i);
+  assert.match(markdownSection(discovery, "Needed Capabilities / Changes"), /not authorized/i);
   assert.match(markdownSection(discovery, "Synthesis"), /false\s+greenfield\s+Specification/i);
 });
 
-test("actual DISC-001 preserves uncertainty and does not become Specification", () => {
+test("actual DISC-001 preserves initial uncertainty and records clarification rework", () => {
   const discovery = readRepoFile(
     ".project",
     "discovery",
     "DISC-001-personal-notes-test-application.md",
   );
 
-  assert.match(markdownSection(discovery, "Assumptions"), /None/i);
-  assert.match(markdownSection(discovery, "Unknowns"), /Whether the user knows/i);
-  assert.match(markdownSection(discovery, "Open Questions"), /what is missing/i);
-  assert.match(markdownSection(discovery, "Decisions Needed"), /lifecycle demonstration/i);
-  assert.match(markdownSection(discovery, "Contradictions"), /already present/i);
-  assert.match(markdownSection(discovery, "Conclusion"), /needs-clarification/i);
+  assert.match(markdownSection(discovery, "Rework History"), /Initial Discovery Outcome/i);
+  assert.match(markdownSection(discovery, "Rework History"), /status `needs-clarification`/i);
+  assert.match(markdownSection(discovery, "Rework History"), /Return point: Discovery/i);
+  assert.match(markdownSection(discovery, "Assumptions"), /No additional enhancement/i);
+  assert.match(markdownSection(discovery, "Unknowns"), /Which future enhancement/i);
+  assert.match(markdownSection(discovery, "Open Questions"), /future enhancement/i);
+  assert.match(markdownSection(discovery, "Decisions Needed"), /No decision blocks baseline/i);
+  assert.match(markdownSection(discovery, "Contradictions"), /Resolution:/i);
+  assert.match(markdownSection(discovery, "Conclusion"), /current Discovery status is `complete`/i);
   assertDiscoveryBoundary(markdownSection(discovery, "Boundary Check"));
   assert.doesNotMatch(discovery, /^## Acceptance Criteria$/im);
   assert.doesNotMatch(discovery, /^## API Contract$/im);
@@ -147,11 +151,12 @@ test("state and trace preserve Discovery boundary while Specification is now the
     readRepoFile(".project", "traces", "TRACE-021-discovery-phase.md"),
     readRepoFile(".project", "traces", "TRACE-022-discovery-correction.md"),
     readRepoFile(".project", "traces", "TRACE-023-specification-phase.md"),
+    readRepoFile(".project", "traces", "TRACE-024-specification-clarification-rework.md"),
   ].join("\n");
   const architecture = readRepoFile("architecture.yaml");
 
   assert.match(state, /DISC-001/);
-  assert.match(state, /Discovery is complete with status `needs-clarification`/i);
+  assert.match(state, /Discovery is reworked and complete after clarification/i);
   assert.match(state, /SPEC-018/);
   assert.match(state, /Decomposition\/Phase 4 has not been executed/i);
   assert.match(state, /lens-based current-state,\s+gap\/capability,\s+and synthesis analysis/i);
@@ -160,6 +165,7 @@ test("state and trace preserve Discovery boundary while Specification is now the
     /current-state gap analysis, needed-capability classification, or synthesis/i,
   );
   assert.match(trace, /No Specification, Decomposition, Architecture, Implementation/i);
+  assert.match(trace, /DISC-001 reworked \/ complete/i);
   assert.match(architecture, /id: DISCOVERY/);
   assert.match(architecture, /id: SPECIFICATION/);
 });

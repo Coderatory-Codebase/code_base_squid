@@ -4,7 +4,8 @@ type: trace
 title: Specification lifecycle phase
 status: completed
 created: 2026-09-05
-related: [SPEC-017, SPEC-018, PLAN-012, REQ-001, DISC-001]
+updated: 2026-09-05
+related: [SPEC-017, SPEC-018, PLAN-012, REQ-001, DISC-001, TRACE-024]
 ---
 
 # TRACE-023: Specification Lifecycle Phase
@@ -58,6 +59,15 @@ and that the intended delta is unresolved. `SPEC-018` therefore stays
 requirements to resolve the intended outcome and prevent duplicate notes
 scope, plus candidate requirements that may become active only after the
 human/product intent is clarified.
+
+## Correction
+
+`TRACE-024` later supplied a controlled clarification/rework proof. That
+correction preserved this initial draft outcome, reworked `DISC-001` first
+because the clarification changed Discovery-level understanding, and then
+revised `SPEC-018` to `active` / `ready-for-decomposition` for the
+clarified baseline. This trace remains the record of the initial
+Specification execution.
 
 ## Boundary
 

@@ -2,9 +2,10 @@
 id: DISC-001
 type: discovery
 title: Personal notes in the test application
-status: needs-clarification
+status: complete
 created: 2026-09-05
-related: [REQ-001, TRACE-021, TRACE-022, PLAN-011, PROJECT-test, TRACE-014]
+updated: 2026-09-05
+related: [REQ-001, TRACE-021, TRACE-022, TRACE-024, PLAN-011, PROJECT-test, TRACE-014]
 ---
 
 # DISC-001: Personal Notes in the Test Application
@@ -17,6 +18,40 @@ related: [REQ-001, TRACE-021, TRACE-022, PLAN-011, PROJECT-test, TRACE-014]
 ## Original Request
 
 Add personal notes functionality to the test application.
+
+## Rework History
+
+### Initial Discovery Outcome
+
+`DISC-001` originally ended with status `needs-clarification`. Discovery
+found that personal notes already existed in the seed app, while the
+Intake request did not say whether the desired outcome was enhancement,
+verification, rebuild, migration, documentation, or lifecycle
+demonstration.
+
+That original blocked understanding is preserved here because it is the
+reason Specification initially produced a draft `SPEC-018` and blocked
+Decomposition.
+
+### Clarification Event
+
+Source: product clarification introduced during Phase 3 correction
+(`TRACE-024`) to prove the lifecycle loop.
+
+Clarification:
+
+> The intent is to improve the existing personal notes capability rather
+> than create a new notes system. Preserve the existing authenticated-owner
+> personal-notes model as the product baseline for this work. Do not add
+> search, tags, sharing, export, pagination, rich text, attachments,
+> reminders, collaboration, migration, or documentation scope from this
+> clarification.
+
+Return point: Discovery.
+
+Reason: the clarification changes Discovery-level understanding of the
+desired outcome and gap. Specification must not become the only source for
+that new fact.
 
 ## Route
 
@@ -36,25 +71,26 @@ No implementation tasks were created.
 
 ## Problem Understanding
 
-The request appears to concern note-taking functionality in the seed
-`test` application. Discovery cannot yet determine whether the requester
-means a new capability, an enhancement, validation of an existing
-capability, or a fresh example requirement for the lifecycle model.
+The request concerns note-taking functionality in the seed `test`
+application. After clarification, Discovery understands this as an
+improvement/preservation pass over the existing personal-notes capability,
+not as a request to create a duplicate notes system.
 
 ## Desired Outcome
 
-The user wants personal notes functionality added to the test application.
-The desired outcome is preserved from Intake; Discovery does not rewrite it
-into a specification.
+The user wants the existing personal-notes capability in the test
+application treated as the product baseline to improve and preserve. The
+clarification resolves the original duplicate-scope ambiguity without
+adding search, tags, sharing, export, pagination, rich text, attachments,
+reminders, collaboration, migration, or documentation scope.
 
 ## Actors
 
 - Fact: the current seed app has authenticated users.
-- Inference: the affected actor may be an authenticated user of the test
-  app, because the existing notes implementation is guarded by
-  authentication.
-- Unknown: whether the new request intends authenticated-user notes,
-  anonymous notes, shared notes, admin-managed notes, or another actor.
+- Clarified fact: the active actor is the authenticated owner of personal
+  notes.
+- Out of scope from this clarification: anonymous notes, shared notes,
+  admin-managed notes, or another actor model.
 
 ## Lens Selection
 
@@ -80,13 +116,15 @@ material for this request yet.
 
 ### Business / Product
 
-- Finding: the named capability appears already present, so the product
-  gap is not yet established.
+- Finding: the named capability appears already present, and the clarified
+  product intent is to improve/preserve that existing capability rather
+  than create another notes system.
 - Evidence: `PROJECT-test` lists personal notes as a current capability.
-- Implication: downstream Specification needs clarified intent before it
-  defines new requirements.
-- Open question: is the desired outcome an enhancement, verification,
-  rebuild, migration, documentation update, or lifecycle demonstration?
+- Implication: downstream Specification may define requirements for the
+  existing authenticated-owner baseline, but may not invent additional
+  enhancements.
+- Open question: which future enhancement, if any, should be selected
+  after the baseline is specified?
 
 ### UX / User Experience
 
@@ -94,10 +132,9 @@ material for this request yet.
   page.
 - Evidence: `apps/test/web/src/app/dashboard/page.tsx` links to `/notes`;
   `apps/test/web/src/app/notes/page.tsx` renders `NoteList`.
-- Implication: Discovery does not currently show a missing basic entry
-  point, though future UX requirements remain unknown.
-- Open question: is the existing create/list/edit/delete page sufficient
-  for the intended user workflow?
+- Implication: dashboard discoverability is part of the clarified baseline
+  to preserve.
+- Open question: no additional UX enhancement has been selected.
 
 ### Security
 
@@ -106,19 +143,18 @@ material for this request yet.
 - Evidence: `notesRouter.use(requireAuth)` in
   `servers/test/api/src/domains/notes/notes.routes.ts`; cross-user tests
   in `servers/test/api/test/domains/notes/notes.routes.test.ts`.
-- Implication: security work should likely reuse or verify the existing
-  ownership model rather than define a new one blindly.
-- Open question: is authenticated-owner privacy the desired product model?
+- Implication: authenticated-owner privacy is part of the clarified
+  baseline to preserve.
+- Open question: no sharing or cross-user access model has been selected.
 
 ### QA / Quality
 
 - Finding: route-level tests already exercise create/list/read/update/
   delete, validation, unauthenticated access, and cross-user isolation.
 - Evidence: `servers/test/api/test/domains/notes/notes.routes.test.ts`.
-- Implication: a future spec should decide whether to audit existing
-  coverage or add missing frontend/E2E coverage, not duplicate backend
-  behavior by default.
-- Open question: what quality bar is expected for this request?
+- Implication: existing route-level behavior and ownership tests form the
+  current quality baseline to preserve.
+- Open question: no additional frontend/E2E quality bar has been selected.
 
 ### Technical / Engineering
 
@@ -126,21 +162,19 @@ material for this request yet.
   persistence boundaries.
 - Evidence: `/notes` page and client in `apps/test/web`; `notesRouter`,
   contracts, service, and model in `servers/test/api/src/domains/notes`.
-- Implication: the likely capability classification is `reuse` plus
-  `decide`/`investigate`, not immediate `create`.
-- Open question: should future work modify the current implementation or
-  treat it as satisfactory?
+- Implication: the needed capability is `reuse` plus focused
+  improvement/preservation, not `create`.
+- Open question: no technical replacement or migration has been selected.
 
 ### Data / Privacy
 
 - Finding: notes are persisted with `userId`, `title`, `body`, and
   timestamps.
 - Evidence: `servers/test/api/src/domains/notes/notes.model.ts`.
-- Implication: data ownership exists in the current system, but Discovery
-  cannot promote current fields into required future product requirements
-  without Specification.
-- Open question: are fields, retention, deletion, privacy, or export
-  requirements missing?
+- Implication: persisted owner-scoped note content is part of the
+  clarified baseline to preserve.
+- Open question: no retention, export, or additional field requirement has
+  been selected.
 
 ## Existing Context
 
@@ -176,7 +210,13 @@ material for this request yet.
 
 - The Intake request asks for personal notes functionality in the test
   application.
-- No additional product behavior is established by the Intake request.
+- The clarification establishes that the existing personal-notes capability
+  should be improved/preserved rather than duplicated.
+- The clarification establishes the authenticated-owner personal-notes
+  model as the baseline for this work.
+- The clarification explicitly excludes additional enhancement families
+  such as search, tags, sharing, export, pagination, rich text,
+  attachments, reminders, collaboration, migration, and documentation.
 - Existing project memory and source code already contain a notes
   capability matching a common interpretation of that phrase.
 
@@ -184,30 +224,34 @@ material for this request yet.
 
 ```text
 Desired outcome:
-  Add personal notes functionality to the test application.
+  Improve and preserve the existing personal notes functionality in the
+  test application without creating a duplicate notes system.
 
 Current state:
   Personal notes already exist in the test application with web UI, API,
   authentication, persistence, dashboard navigation, and backend tests.
 
 Gap:
-  The request does not say what is missing from the existing notes
-  capability, or whether the request is a lifecycle demonstration rather
-  than product work.
+  The original request lacked intent. The clarification resolves the
+  duplicate-system ambiguity and selects the existing authenticated-owner
+  notes model as the baseline, but does not select any additional feature
+  enhancement.
 
 Needed capability:
-  Clarified downstream intent before Specification.
+  Reuse/preserve the existing capability and specify the baseline
+  requirements; defer any additional enhancement until separately
+  clarified.
 ```
 
-| Need Type   | Discovery Result                                                                                                   |
-| ----------- | ------------------------------------------------------------------------------------------------------------------ |
-| Reuse       | Existing notes UI/API/model/tests can likely be reused if the desired outcome is the already-present capability.   |
-| Modify      | Possible, but no modification is established until the user states what is missing or inadequate.                  |
-| Create      | No new notes capability is currently evidenced as missing.                                                         |
-| Remove      | No conflicting existing capability is evidenced.                                                                   |
-| Integrate   | Existing integration already crosses dashboard, `/notes`, `/api/notes`, auth, and persistence.                     |
-| Decide      | Decide whether this request means enhancement, validation, rebuild, documentation, migration, or demo-only output. |
-| Investigate | If product work is intended, investigate the specific desired delta and quality bar before Specification.          |
+| Need Type   | Discovery Result                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| Reuse       | Existing notes UI/API/model/tests are the selected baseline.                                   |
+| Modify      | Possible later, but no concrete modification is established by this clarification.             |
+| Create      | No duplicate notes capability is authorized.                                                   |
+| Remove      | No conflicting existing capability is evidenced.                                               |
+| Integrate   | Existing integration already crosses dashboard, `/notes`, `/api/notes`, auth, and persistence. |
+| Decide      | Resolved for baseline scope; still required for any additional enhancement.                    |
+| Investigate | Not required before baseline Specification; required later if a new enhancement is selected.   |
 
 ## Existing Capabilities
 
@@ -222,17 +266,17 @@ Needed capability:
 ## Missing Capabilities
 
 - No missing notes capability is established by current evidence.
-- Missing understanding: the desired delta from the existing capability.
-- Missing decision: whether Specification should validate, extend, replace,
-  or ignore the current notes implementation.
+- Missing future-selection detail: no specific additional enhancement has
+  been chosen.
+- No missing baseline capability is established after clarification.
 
 ## Needed Capabilities / Changes
 
-- `reuse`: preserve the existing notes capability as discovered context.
-- `decide`: clarify the intended product/lifecycle meaning of `REQ-001`.
-- `investigate`: if enhancement is intended, investigate the target
-  behavior, UX, security/privacy model, and quality bar.
-- `modify` or `create`: not established yet.
+- `reuse`: preserve the existing notes capability as the selected baseline.
+- `specify`: allow Specification to define the baseline requirements now
+  supported by clarified Discovery.
+- `decide` / `investigate`: only for future additional enhancements.
+- `create`: explicitly not authorized for a duplicate notes system.
 
 ## Facts
 
@@ -260,30 +304,25 @@ Needed capability:
 - The request is probably not a greenfield feature request against the
   current repository state, because relevant note-taking UI, API, model,
   and tests already exist.
-- The next Specification phase should not blindly specify a new notes
-  feature. It should first clarify whether the intent is enhancement,
-  verification, rebuild, migration, documentation, or only a lifecycle
-  demonstration.
-- The existing system likely satisfies the literal wording of `REQ-001`,
-  but Discovery cannot declare the user's goal complete because the Intake
-  request was intentionally minimal.
+- The next Specification phase should not specify a new notes system. It
+  can specify the existing authenticated-owner baseline and keep additional
+  enhancements inactive.
+- The existing system likely satisfies the literal wording of `REQ-001`;
+  the clarified outcome turns that current state into upstream evidence for
+  a baseline Specification, not into implementation instructions.
 
 ## Assumptions
 
-- None validated during Discovery.
+- No additional enhancement beyond the clarified baseline is assumed.
 
 ## Unknowns
 
-- Whether the user knows the current seed app already has personal notes.
-- Whether the desired work is a new notes feature, a change to existing
-  notes, a quality audit, a reimplementation, or a lifecycle demonstration.
-- Whether search, tags, sharing, export, pagination, rich text, attachments,
-  reminders, or collaboration are desired.
-- Whether the existing authenticated-owner model is acceptable for the new
-  request.
-- Whether current tests and UI behavior satisfy the requester.
-- Whether the prior notes implementation should be treated as authoritative
-  current product behavior for this request.
+- Which future enhancement, if any, should be selected after the baseline.
+- Whether a future request should add frontend/E2E coverage beyond the
+  current backend route-level coverage.
+- Whether future search, tags, sharing, export, pagination, rich text,
+  attachments, reminders, collaboration, migration, or documentation work
+  should be requested separately.
 
 ## Dependencies
 
@@ -313,32 +352,25 @@ Needed capability:
 
 ## Decisions Needed
 
-- Decide whether `REQ-001` is a lifecycle demonstration or an actual
-  product request.
-- If product work is intended, decide the intended delta from the current
-  notes feature.
-- Decide whether the existing authenticated-owner model should remain the
-  product model.
-- Decide whether Specification should focus on validation, enhancement,
-  replacement, or documentation.
+- No decision blocks baseline Specification after the clarification in
+  `TRACE-024`.
+- A future decision is still required before selecting any additional
+  enhancement beyond the baseline.
 
 ## Contradictions
 
 - The Intake request says to add personal notes functionality.
 - The current repository evidence shows personal notes functionality is
   already present in the seed app.
-- Status: requires clarification before Specification creates new product
-  requirements.
+- Resolution: the clarification says to improve/preserve the existing
+  capability rather than create a duplicate notes system.
 
 ## Open Questions
 
-- Is `REQ-001` intended as a lifecycle demonstration only?
-- If it is a real product request, what is missing from the existing notes
-  capability?
-- Should Specification validate the existing feature, extend it, replace
-  it, or document it?
-- Which actor and ownership model should govern any future notes work?
-- What outcome would make the next phase complete?
+- Which future enhancement, if any, should be selected after the baseline
+  is specified?
+- Should future work add frontend/E2E coverage beyond the current
+  route-level test baseline?
 
 ## Evidence
 
@@ -362,25 +394,23 @@ Needed capability:
 Discovery now understands the request well enough to avoid a false
 greenfield Specification: the requested outcome names personal notes in the
 test application, and the current repository already contains a
-substantially matching capability. The main gap is not an obviously missing
-technical component; it is missing intent about the desired delta from the
-current product. Relevant product, UX, security, QA, technical, data,
-privacy, accessibility, and integration lenses all point to the same
-readiness implication: proceed only after clarifying whether future work is
-reuse/validation, modification, replacement, or lifecycle demonstration.
+substantially matching capability. The initial gap was missing intent about
+the desired delta from the current product. The clarification resolves that
+gap for baseline scope: reuse and preserve the existing authenticated-owner
+notes capability, and do not create a duplicate system or silently activate
+additional enhancements.
 
 ## Conclusion
 
-Discovery is complete enough to proceed only to the Specification boundary,
-but the discovery status is `needs-clarification` because the requested
-capability appears already present. Specification should not create new
-requirements until the requester clarifies whether the intended work is an
-enhancement, verification, rebuild, or lifecycle-only demonstration.
+Discovery is complete enough to proceed to a ready baseline Specification.
+The initial `needs-clarification` result remains preserved in Rework
+History; the current Discovery status is `complete` because the clarified
+intent is now represented upstream.
 
 ## Lifecycle State
 
 - Intake: complete.
-- Discovery: complete with status `needs-clarification`.
+- Discovery: reworked and complete after clarification.
 - Next allowed phase: `specification`.
 
 ## Boundary Check
