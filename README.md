@@ -76,11 +76,14 @@ implemented as an agent-executed `REQ-*` capture workflow under
 `.project/requirements/`, Phase 2 Discovery is implemented as an
 evidence-backed `DISC-*` workflow under `.project/discovery/`, and Phase 3
 Specification reuses ordinary `SPEC-*` artifacts with an explicit
-clarification/rework path for blocked specifications. These are covered by
-`tooling/tests/intake.test.mjs`, `tooling/tests/discovery.test.mjs`, and
-`tooling/tests/specification.test.mjs`. See `architecture.yaml` for current
-architecture and active phase, and `.project/state/PROJECT-STATE.md` for
-live status.
+clarification/rework path for blocked specifications. Phase 4
+Decomposition now consumes ready Specifications and produces `DECOMP-*`
+product/system scope maps before Architecture. These are covered by
+`tooling/tests/intake.test.mjs`, `tooling/tests/discovery.test.mjs`,
+`tooling/tests/specification.test.mjs`, and
+`tooling/tests/decomposition.test.mjs`. See `architecture.yaml` for
+current architecture and active phase, and `.project/state/PROJECT-STATE.md`
+for live status.
 
 ## Quality gate
 

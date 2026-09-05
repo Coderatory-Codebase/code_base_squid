@@ -256,7 +256,8 @@ clarification selected the baseline only.
 - The Specification readiness is `ready-for-decomposition`.
 - Active requirements are limited to the clarified baseline.
 - Candidate enhancements remain inactive.
-- Decomposition is allowed only as a next phase and has not been executed.
+- Decomposition is allowed only as a next phase and is now represented by
+  `DECOMP-001`.
 
 ## Non-Goals
 
@@ -298,13 +299,14 @@ Human request
 - Intake: complete.
 - Discovery: reworked and complete after clarification.
 - Specification: active with readiness `ready-for-decomposition`.
-- Next allowed phase: Decomposition may be considered, but has not been
+- Decomposition: complete in `DECOMP-001`.
+- Next allowed phase: Architecture may be considered, but has not been
   executed.
-- Decomposition: not created.
 
 ## Boundary Check
 
-- Decomposition: not created.
+- Decomposition: created later by Phase 4 in `DECOMP-001`, not by
+  Specification.
 - Architecture: not created.
 - Implementation: not started.
 - Verification: not executed.

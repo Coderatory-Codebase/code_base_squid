@@ -15,6 +15,8 @@ side of the boundary.
 ├── specs/                 What should exist / what behavior is required.
 ├── requirements/          Intake artifacts (`REQ-*`) from raw requests.
 ├── discovery/             Discovery artifacts (`DISC-*`) from Intake.
+├── decomposition/          Decomposition artifacts (`DECOMP-*`) from ready
+│                            Specifications.
 ├── plans/                  How a spec is/was accomplished.
 ├── projects/               Project/product operating memory.
 ├── reviews/                 Point-in-time evaluations of completed work.
@@ -41,6 +43,9 @@ completed Discovery artifacts before Decomposition — see
 Specification may route clarification/rework back to Intake or Discovery
 before it can become ready; this uses existing artifact updates and
 `TRACE-*`, not a separate clarification subsystem.
+`decomposition/` holds `DECOMP-*` product/system scope maps created from
+ready Specifications before Architecture — see
+`specs/SPEC-019-decomposition-lifecycle-phase.md`.
 `projects/<project>/PROJECT.md` holds the project/product brain for a
 specific project inside the monorepo. The foundation brain stays in
 `AGENTS.md`, `.agent/`, `architecture.yaml`, and repository-level

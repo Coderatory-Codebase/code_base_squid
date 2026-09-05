@@ -40,6 +40,10 @@ AGENTS.md (read in full)
       create SPEC-* with explicit testable requirements or unresolved
       blockers; stop before Decomposition
       (specification.md, SPEC-017)
+  → DECOMPOSITION when an active SPEC-* is ready —
+      create DECOMP-* with coherent product/system scope units and
+      requirement coverage; stop before Architecture
+      (decomposition.md, SPEC-019)
   → ANALYZE — relevant lenses, relevant technologies, use vs. build vs.
       adopt for anything new
       (backlog-and-feature-development.md, engineering-standards.md ->

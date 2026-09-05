@@ -74,6 +74,12 @@ artifact, routes unresolved intent/evidence through the appropriate
 clarification/rework path, and stops before Decomposition, Architecture,
 or Implementation.
 
+If the user asks to decompose work from a ready Specification, use the
+Decomposition workflow (`.agent/workflows/decomposition.md`). It consumes
+an `active` / `ready-for-decomposition` `SPEC-*`, produces a `DECOMP-*`
+product/system scope map, and stops before Architecture, Implementation
+Planning, Implementation, or engineering tasks.
+
 ## Working method
 
 For every meaningful change:

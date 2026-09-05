@@ -16,7 +16,7 @@ function markdownSection(text, heading) {
 }
 
 function assertSpecificationBoundary(text) {
-  assert.match(text, /Decomposition: not created/i);
+  assert.match(text, /Decomposition: created later by Phase 4/i);
   assert.match(text, /Architecture: not created/i);
   assert.match(text, /Implementation: not started/i);
   assert.match(text, /Tasks: not created/i);
@@ -134,7 +134,7 @@ test("actual SPEC-018 activates only baseline requirements and keeps enhancement
   assert.doesNotMatch(activeRequirements, /search|tags|sharing|export|pagination|rich text/i);
 });
 
-test("actual SPEC-018 still stops before Decomposition, Architecture, tasks, and implementation", () => {
+test("actual SPEC-018 still preserves Architecture, task, and implementation boundaries", () => {
   const specification = readRepoFile(
     ".project",
     "specs",
@@ -143,7 +143,10 @@ test("actual SPEC-018 still stops before Decomposition, Architecture, tasks, and
   const activeRequirements = markdownSection(specification, "Active Requirements");
 
   assertSpecificationBoundary(markdownSection(specification, "Boundary Check"));
-  assert.match(markdownSection(specification, "Lifecycle State"), /Decomposition: not created/i);
+  assert.match(
+    markdownSection(specification, "Lifecycle State"),
+    /Decomposition: complete in `DECOMP-001`/i,
+  );
   assert.doesNotMatch(specification, /^## API Contract$/im);
   assert.doesNotMatch(specification, /^## Database Schema$/im);
   assert.doesNotMatch(specification, /^## Implementation Plan$/im);
@@ -162,12 +165,13 @@ test("state and trace record the clarification/rework loop and readiness gate", 
 
   assert.match(state, /TRACE-024/);
   assert.match(state, /Specification is\s+active with readiness `ready-for-decomposition`/i);
-  assert.match(state, /Decomposition\/Phase 4 has not been executed/i);
+  assert.match(state, /DECOMP-001/);
+  assert.match(state, /Architecture\/Phase 5 has not been executed/i);
   assert.match(trace, /DISC-001 initial needs-clarification/i);
   assert.match(trace, /DISC-001 reworked \/ complete/i);
   assert.match(trace, /SPEC-018 revised \/ ready-for-decomposition/i);
   assert.match(trace, /No Decomposition, Architecture, Implementation/i);
-  assert.match(architecture, /trace: TRACE-024/);
+  assert.match(architecture, /id: DECOMPOSITION/);
 });
 
 test("clarification behavior covers unresolved, failed, and successful rework paths", () => {
