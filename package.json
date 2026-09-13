@@ -1,43 +1,19 @@
 {
-  "name": "nut-shyll",
-  "version": "0.0.0",
+  "name": "monorepo-foundation",
   "private": true,
   "type": "module",
-  "description": "Agent-native software foundation monorepo.",
-  "license": "UNLICENSED",
-  "engines": {
-    "node": ">=22.13.0"
-  },
-  "packageManager": "pnpm@11.8.0",
   "scripts": {
-    "prepare": "node tooling/scripts/install-git-hooks.mjs",
-    "hooks:install": "node tooling/scripts/install-git-hooks.mjs",
-    "lint": "eslint . --no-error-on-unmatched-pattern",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "typecheck": "pnpm -r --if-present run typecheck",
-    "test": "vitest run --passWithNoTests",
-    "test:intake": "node --test tooling/tests/intake.test.mjs",
-    "test:discovery": "node --test tooling/tests/discovery.test.mjs",
-    "test:specification": "node --test tooling/tests/specification.test.mjs",
-    "test:decomposition": "node --test tooling/tests/decomposition.test.mjs",
-    "test:architecture": "node --test tooling/tests/architecture.test.mjs",
-    "test:system-design": "node --test tooling/tests/system-design.test.mjs",
-    "test:engineering-decomposition": "node --test tooling/tests/engineering-decomposition.test.mjs",
-    "build": "pnpm -r --if-present run build",
-    "validate:architecture": "node tooling/scripts/validate-architecture-boundaries.mjs",
-    "secrets:scan": "node tooling/scripts/secret-scan.mjs",
-    "commit-msg:check": "node tooling/git-hooks/commit-msg",
-    "validate": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run test:intake && pnpm run test:discovery && pnpm run test:specification && pnpm run test:decomposition && pnpm run test:architecture && pnpm run test:system-design && pnpm run test:engineering-decomposition && pnpm run build && pnpm run validate:architecture && pnpm run secrets:scan"
+    "repo": "node codebase/cli/repo.mjs",
+    "graph": "node codebase/cli/repo.mjs graph",
+    "projects": "node codebase/cli/repo.mjs projects",
+    "tasks": "node codebase/cli/repo.mjs tasks",
+    "check": "node codebase/cli/repo.mjs check",
+    "scan": "node codebase/cli/repo.mjs scan",
+    "validate": "node codebase/cli/repo.mjs validate",
+    "node:check": "node --check codebase/cli/repo.mjs",
+    "test": "node --test codebase/**/*.test.mjs"
   },
-  "devDependencies": {
-    "@eslint/js": "10.0.1",
-    "@typescript-eslint/eslint-plugin": "8.68.0",
-    "@typescript-eslint/parser": "8.68.0",
-    "eslint": "10.9.1",
-    "eslint-config-prettier": "10.1.8",
-    "prettier": "3.9.6",
-    "typescript": "6.0.3",
-    "vitest": "4.1.11"
+  "engines": {
+    "node": ">=20"
   }
 }

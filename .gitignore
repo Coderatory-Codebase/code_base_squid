@@ -1,25 +1,7 @@
 node_modules/
-.pnpm-store/
-dist/
+.repo-cache/
 .next/
+dist/
+build/
 coverage/
-*.tsbuildinfo
-*.log
-npm-debug.log*
-pnpm-debug.log*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE (settings a specific developer's editor writes; not repository config)
-.vscode/*
-!.vscode/extensions.json
-.idea/
-
-# Environment / secrets — never committed; see SPEC-009 -> "Repository cleanliness"
-.env
-.env.*
-!.env.example
-
-.claude/settings.local.json
+.test-tmp-*/
