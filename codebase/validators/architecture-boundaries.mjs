@@ -8,6 +8,10 @@ const importPattern = /(?:import|export)\s+(?:[^"']*?\s+from\s+)?["']([^"']+)["'
 const getImports = (source) => [...source.matchAll(importPattern)].map((match) => match[1] ?? match[2] ?? match[3]);
 const segmentsOf = (value) => toPosixPath(value).split("/").filter(Boolean);
 const includesSegment = (segments, candidates) => segments.some((segment) => candidates.includes(segment));
+const fileRole = (filePath) => {
+  const match = path.basename(filePath).match(/\.([a-z]+)(?:\.[cm]?[jt]sx?)?$/i);
+  return match?.[1]?.toLowerCase();
+};
 
 const resolveWorkspaceImport = ({ workspaceRoot, sourceFile, specifier }) => {
   if (specifier.startsWith(".")) return path.resolve(path.dirname(sourceFile), specifier);
@@ -33,8 +37,14 @@ const issue = (workspaceRoot, sourceFile, specifier, rule, detail) => ({
 });
 
 export const validateArchitectureBoundaries = async (workspace) => {
-  const policy = workspace.architecture.boundaries;
-  const ignoredDirectories = new Set(workspace.architecture.foundation.ignoredDirectories ?? []);
+  const policy = workspace.architecture.boundaries ?? {};
+  const dependencyDirection = {
+    app: ["servers", "prebuilt"],
+    server: ["apps", "prebuilt"],
+    package: policy.packagesCannotImport ?? ["apps", "servers", "prebuilt"],
+    ...(policy.workspaceUnitCannotImport ?? {})
+  };
+  const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
   const projectFiles = await Promise.all(workspace.projects.map(async (project) => {
     const root = path.resolve(workspace.root, project.root);
     const files = await walkFiles(root, { ignoredDirectories });
@@ -52,20 +62,30 @@ export const validateArchitectureBoundaries = async (workspace) => {
     for (const specifier of getImports(source)) {
       const targetPath = resolveWorkspaceImport({ workspaceRoot: workspace.root, sourceFile: filePath, specifier });
       const targetSegments = targetPath ? segmentsOf(path.relative(workspace.root, targetPath)) : [];
+      const targetFileRole = targetPath ? fileRole(targetPath) : undefined;
 
-      if (project.type === "package" && targetSegments.length > 0 && policy.packagesCannotImport.includes(targetSegments[0])) {
-        findings.push(issue(workspace.root, filePath, specifier, "packages-dependency-direction", "packages cannot import applications, servers, or prebuilt assemblies."));
+      const forbiddenRoots = dependencyDirection[project.type] ?? [];
+      if (targetSegments.length > 0 && forbiddenRoots.includes(targetSegments[0])) {
+        const rule = project.type === "package" ? "packages-dependency-direction" : `${project.type}-dependency-direction`;
+        findings.push(issue(workspace.root, filePath, specifier, rule, `${project.type} workspace units cannot import ${targetSegments[0]} workspace units.`));
       }
 
       if (sourceSegments.includes("domain")) {
         const externalRoot = specifier.startsWith("@") ? specifier.split("/").slice(0, 2).join("/") : specifier.split("/")[0];
-        if (policy.domainCannotImportPackages.includes(externalRoot) || includesSegment(targetSegments, policy.domainCannotImportSegments)) {
+        const importsForbiddenRole = (policy.domainCannotImportFileRoles ?? []).includes(targetFileRole);
+        if ((policy.domainCannotImportPackages ?? []).includes(externalRoot) || includesSegment(targetSegments, policy.domainCannotImportSegments ?? []) || importsForbiddenRole) {
           findings.push(issue(workspace.root, filePath, specifier, "domain-isolation", "domain code cannot depend on protocol, persistence-model, or infrastructure implementation details."));
         }
       }
 
-      if (includesSegment(sourceSegments, policy.uiSegments) && includesSegment(targetSegments, policy.persistenceSegments)) {
+      if (includesSegment(sourceSegments, policy.uiSegments ?? []) && (includesSegment(targetSegments, policy.persistenceSegments ?? []) || (policy.persistenceFileRoles ?? []).includes(targetFileRole))) {
         findings.push(issue(workspace.root, filePath, specifier, "ui-persistence-boundary", "UI code cannot import persistence implementation directly."));
+      }
+
+      const sourceIsService = sourceSegments.includes("services") || fileRole(filePath) === "service";
+      const serviceImportsForbiddenRole = (policy.serviceCannotImportFileRoles ?? []).includes(targetFileRole);
+      if (sourceIsService && (includesSegment(targetSegments, policy.serviceCannotImportSegments ?? ["routes", "controllers", "ui", "components"]) || serviceImportsForbiddenRole)) {
+        findings.push(issue(workspace.root, filePath, specifier, "service-isolation", "service code cannot depend on delivery or UI layers."));
       }
 
       const targetFeature = featureIdentity(targetSegments);

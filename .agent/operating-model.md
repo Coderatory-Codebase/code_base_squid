@@ -5,9 +5,9 @@ The agent plane records how development agents should understand and operate thi
 Agents should use progressive disclosure:
 
 1. Read root instructions.
-2. Discover projects.
+2. Discover workspace units.
 3. Build the dependency graph.
-4. Inspect the affected project only.
+4. Inspect the affected workspace unit only.
 5. Run targeted validation.
 6. Record durable architectural decisions when they matter.
 
@@ -22,6 +22,12 @@ alone is not a reason to create a shared package.
 Prefer functional modules, immutable values, composition, factories, and explicit
 dependency objects. Avoid class-first services, hidden singleton state, service locators,
 and dependency-injection containers.
+
+The repository itself is the workspace. Physical unit paths are authoritative, with
+`apps/web` and `servers/api` as conventional defaults when those runtimes are genuinely
+needed. Use feature-first ownership. Keep server responsibilities as optional feature-local
+files and add `domain/` only when domain complexity warrants it. Never scaffold unused
+role folders, applications, servers, packages, or abstractions.
 
 ## Completion
 

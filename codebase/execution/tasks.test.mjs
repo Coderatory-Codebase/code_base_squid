@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createDependencyGraph } from "../graph/dependency-graph.mjs";
-import { createExecutionPlan, listTasks } from "./tasks.mjs";
+import { createAffectedExecutionPlan, createExecutionPlan, listTasks } from "./tasks.mjs";
 
 const task = (name, dependsOn = []) => ({ name, command: `run ${name}`, dependsOn, inputs: [], outputs: [], cache: false });
 const project = (name, internalDependencies, tasks) => ({
@@ -46,4 +46,18 @@ test("rejects task cycles", () => {
     }),
     /Task dependency cycle/
   );
+});
+
+test("plans only affected tasks and their required dependencies", () => {
+  const projects = [
+    project("core", [], [task("build")]),
+    project("api", ["core"], [task("prepare"), task("build", ["prepare"])]),
+    project("web", ["api"], [task("build")]),
+    project("other", [], [task("build")])
+  ];
+  const tasks = listTasks(projects);
+  const plan = createAffectedExecutionPlan({
+    graph: createDependencyGraph(projects), projects, tasks, taskName: "build", affectedUnits: ["api"]
+  });
+  assert.deepEqual(plan.map((item) => item.id), ["core:build", "api:prepare", "api:build"]);
 });

@@ -9,6 +9,7 @@ export const listTasks = (projects) =>
       dependsOn: task.dependsOn,
       inputs: task.inputs,
       outputs: task.outputs,
+      environment: task.environment ?? [],
       cache: task.cache
     }))
   );
@@ -25,9 +26,10 @@ const resolveDeclaredDependencyIds = ({ task, project }) =>
     return dependency.includes(":") ? [dependency] : [`${task.project}:${dependency}`];
   });
 
-export const createExecutionPlan = ({ graph, projects, tasks, taskName }) => {
-  const requestedTasks = filterTasksByName({ tasks, taskName });
-  if (requestedTasks.length === 0) throw new Error(`No task matches "${taskName}".`);
+export const createExecutionPlanForTasks = ({ graph, projects, tasks, requestedTaskIds }) => {
+  const requestedTasks = requestedTaskIds.map((id) => tasks.find((task) => task.id === id)).filter(Boolean);
+  const missingRequested = requestedTaskIds.filter((id) => !requestedTasks.some((task) => task.id === id));
+  if (missingRequested.length > 0) throw new Error(`No task matches "${missingRequested.join(", ")}".`);
 
   const projectsByName = new Map(projects.map((project) => [project.name, project]));
   const tasksById = new Map(tasks.map((task) => [task.id, task]));
@@ -77,6 +79,27 @@ export const createExecutionPlan = ({ graph, projects, tasks, taskName }) => {
       projectDependencies: graph.edges
         .filter((edge) => edge.valid && edge.from === task.project)
         .map((edge) => edge.to)
+        .sort()
     };
   });
+};
+
+export const createExecutionPlan = ({ graph, projects, tasks, taskName }) => {
+  const requestedTasks = filterTasksByName({ tasks, taskName });
+  if (requestedTasks.length === 0) throw new Error(`No task matches "${taskName}".`);
+  return createExecutionPlanForTasks({
+    graph,
+    projects,
+    tasks,
+    requestedTaskIds: requestedTasks.map((task) => task.id)
+  });
+};
+
+export const createAffectedExecutionPlan = ({ graph, projects, tasks, taskName, affectedUnits }) => {
+  const affected = new Set(affectedUnits);
+  const requestedTaskIds = filterTasksByName({ tasks, taskName })
+    .filter((task) => affected.has(task.project))
+    .map((task) => task.id);
+  if (requestedTaskIds.length === 0) return [];
+  return createExecutionPlanForTasks({ graph, projects, tasks, requestedTaskIds });
 };

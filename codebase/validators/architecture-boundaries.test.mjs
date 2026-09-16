@@ -30,3 +30,56 @@ test("rejects a package importing application code", async (context) => {
   assert.equal(findings.length, 1);
   assert.equal(findings[0].rule, "packages-dependency-direction");
 });
+
+test("rejects a server importing application code", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-server-boundary-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const sourceRoot = path.join(root, "servers", "api", "src");
+  await mkdir(sourceRoot, { recursive: true });
+  await writeFile(path.join(sourceRoot, "service.ts"), "import '../../../apps/web/private.js';\n", "utf8");
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: { foundation: { ignoredDirectories: [] }, boundaries: {} },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+  assert.equal(findings[0].rule, "server-dependency-direction");
+});
+
+test("enforces domain isolation for flat feature file roles", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-flat-domain-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const featureRoot = path.join(root, "servers", "api", "orders");
+  await mkdir(path.join(featureRoot, "domain"), { recursive: true });
+  await writeFile(path.join(featureRoot, "domain", "orders.rules.ts"), "import '../orders.model.ts';\n", "utf8");
+  await writeFile(path.join(featureRoot, "orders.model.ts"), "export {};\n", "utf8");
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: { domainCannotImportFileRoles: ["route", "controller", "service", "repository", "validation", "model", "integration"] }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "domain-isolation");
+});
+
+test("allows services to compose repositories but not controllers in flat features", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-flat-service-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const featureRoot = path.join(root, "servers", "api", "orders");
+  await mkdir(featureRoot, { recursive: true });
+  await writeFile(path.join(featureRoot, "orders.service.ts"), "import './orders.repository.ts';\nimport './orders.controller.ts';\n", "utf8");
+  await writeFile(path.join(featureRoot, "orders.repository.ts"), "export {};\n", "utf8");
+  await writeFile(path.join(featureRoot, "orders.controller.ts"), "export {};\n", "utf8");
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: { serviceCannotImportFileRoles: ["route", "controller", "model"] }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "service-isolation");
+});

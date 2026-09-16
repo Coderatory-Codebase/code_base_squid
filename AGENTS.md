@@ -1,11 +1,14 @@
 # Agent Operating Guide
 
-Agents working in this repository must treat the monorepo foundation as the product being implemented.
+Agents working in this repository must treat the repository itself as the workspace and
+the monorepo foundation as the product being implemented. There is no mandatory
+`<project>` path segment: workspace units live under physical roots such as `apps/web`
+and `servers/api`. These are defaults, not directories to create without a real need.
 
 Before changing code:
 
 1. Read this file and `architecture.yaml`.
-2. Inspect the relevant project through the repository control plane.
+2. Inspect the relevant workspace unit through the repository control plane.
 3. Keep dependencies explicit and boundaries clear.
 4. Prefer functional modules, pure functions, immutable data, and explicit dependency passing.
 5. Run the smallest useful validation command after changes.
@@ -18,11 +21,17 @@ Implementation follows `UNDERSTAND -> PLAN -> IMPLEMENT -> VALIDATE -> REVIEW ->
 Create feature-owned code first, add layers only when a concrete boundary requires them,
 and extract packages only after ownership and genuine cross-boundary reuse are established.
 
+Architecture is feature-first. Server features are flat by default, using optional files
+such as `<feature>.route.ts`, `<feature>.controller.ts`, `<feature>.service.ts`,
+`<feature>.repository.ts`, `<feature>.validation.ts`, `<feature>.model.ts`, and
+`<feature>.integration.ts`. Introduce `domain/` only for meaningful domain complexity.
+Do not create role folders or any other architectural directory merely to represent a pattern.
+
 The control plane lives in `codebase/`. It must not use Turborepo, Nx, Lerna, or another third-party monorepo orchestrator as its foundation.
 `architecture.yaml` uses the JSON-compatible subset of YAML so Node.js can load the
 authoritative policy without adding a parser dependency to the control plane.
 
-Project code under `apps/`, `servers/`, `packages/`, and `prebuilt/` may use appropriate external libraries. The control plane should stay dependency-light and prefer Node.js built-ins plus repository-owned code.
+Workspace-unit code under `apps/`, `servers/`, `packages/`, and `prebuilt/` may use appropriate external libraries. The control plane should stay dependency-light and prefer Node.js built-ins plus repository-owned code. `packages/` owns reusable pieces; `prebuilt/` owns assembled reusable solutions; `enablers/` owns operational support.
 
 Useful commands:
 
@@ -35,5 +44,5 @@ npm run scan
 npm test
 ```
 
-Project tasks run through `node codebase/cli/repo.mjs run <task>`. Use `--dry-run` to
+Workspace-unit tasks run through `node codebase/cli/repo.mjs run <task>`. Use `--dry-run` to
 inspect ordering and `--json` when another tool needs stable output.

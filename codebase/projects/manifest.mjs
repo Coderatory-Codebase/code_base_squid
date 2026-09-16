@@ -20,6 +20,7 @@ const normalizeTask = ([name, task]) => ({
   dependsOn: asArray(task?.dependsOn).filter((dependency) => typeof dependency === "string"),
   inputs: asArray(task?.inputs).filter((input) => typeof input === "string"),
   outputs: asArray(task?.outputs).filter((output) => typeof output === "string"),
+  environment: asArray(task?.environment ?? task?.env).filter((name) => typeof name === "string"),
   cache: task?.cache === true
 });
 
@@ -86,6 +87,20 @@ export const validateProjectManifest = (project) => {
         level: "error",
         message: `${project.name} has invalid task name "${task.name}".`
       });
+    }
+
+    for (const [field, values] of [["input", task.inputs], ["output", task.outputs]]) {
+      for (const value of values ?? []) {
+        if (path.isAbsolute(value) || value.split(/[\\/]/).includes("..")) {
+          issues.push({ level: "error", message: `${project.name}:${task.name} has invalid ${field} path "${value}".` });
+        }
+      }
+    }
+
+    for (const name of task.environment ?? []) {
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+        issues.push({ level: "error", message: `${project.name}:${task.name} has invalid environment variable name "${name}".` });
+      }
     }
   }
 

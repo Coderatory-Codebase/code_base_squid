@@ -23,12 +23,22 @@ const resolveInputFiles = async ({ workspaceRoot, task, ignoredDirectories }) =>
   );
 };
 
-export const fingerprintTask = async ({ workspaceRoot, task, dependencyFingerprints, ignoredDirectories }) => {
+export const fingerprintTask = async ({
+  workspaceRoot,
+  task,
+  dependencyFingerprints,
+  ignoredDirectories,
+  workspaceConfiguration = {},
+  environment = process.env
+}) => {
   const hash = createHash("sha256");
+  const selectedEnvironment = [...(task.environment ?? [])].sort().map((name) => [name, environment[name] ?? null]);
   hash.update(JSON.stringify({
     id: task.id,
     command: task.command,
-    dependencies: task.taskDependencies.map((id) => [id, dependencyFingerprints.get(id) ?? null])
+    dependencies: task.taskDependencies.map((id) => [id, dependencyFingerprints.get(id) ?? null]),
+    environment: selectedEnvironment,
+    workspaceConfiguration
   }));
   const files = await resolveInputFiles({ workspaceRoot, task, ignoredDirectories });
   for (const filePath of files) {
@@ -68,4 +78,19 @@ export const recordTaskResult = async ({ workspaceRoot, task, fingerprint, exitC
     exitCode,
     recordedAt: new Date().toISOString()
   });
+};
+
+export const getTaskCachePath = cacheEntryPath;
+
+export const listTaskCacheEntries = async (workspaceRoot) => {
+  const root = path.join(workspaceRoot, ".repo-cache", "tasks");
+  const files = await walkFiles(root);
+  const entries = await Promise.all(files.filter((file) => file.endsWith(".json")).map(async (file) => {
+    try {
+      return { path: path.relative(workspaceRoot, file).split(path.sep).join("/"), valid: true, entry: JSON.parse(await readFile(file, "utf8")) };
+    } catch {
+      return { path: path.relative(workspaceRoot, file).split(path.sep).join("/"), valid: false, entry: null };
+    }
+  }));
+  return entries.sort((left, right) => left.path.localeCompare(right.path));
 };

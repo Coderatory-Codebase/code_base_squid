@@ -29,5 +29,7 @@ export const scanForCommittedSecrets = async (workspaceRoot, ignoredDirectories)
 
 export const runWorkspaceScans = async (workspace) => scanForCommittedSecrets(
   workspace.root,
-  new Set(workspace.architecture.foundation.ignoredDirectories ?? [])
+  new Set(Array.isArray(workspace.architecture.foundation?.ignoredDirectories)
+    ? workspace.architecture.foundation.ignoredDirectories
+    : [])
 );

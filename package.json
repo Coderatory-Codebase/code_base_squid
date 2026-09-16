@@ -7,10 +7,13 @@
     "graph": "node codebase/cli/repo.mjs graph",
     "projects": "node codebase/cli/repo.mjs projects",
     "tasks": "node codebase/cli/repo.mjs tasks",
+    "affected": "node codebase/cli/repo.mjs affected",
+    "build": "node codebase/cli/repo.mjs build",
+    "repo:test": "node codebase/cli/repo.mjs test",
     "check": "node codebase/cli/repo.mjs check",
     "scan": "node codebase/cli/repo.mjs scan",
     "validate": "node codebase/cli/repo.mjs validate",
-    "node:check": "node --check codebase/cli/repo.mjs",
+    "node:check": "node codebase/checks/node-syntax.mjs",
     "test": "node --test codebase/**/*.test.mjs"
   },
   "engines": {

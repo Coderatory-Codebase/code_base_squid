@@ -14,12 +14,38 @@
     "disallowedOrchestrators": ["turbo", "turborepo", "nx", "lerna"],
     "ignoredDirectories": [".git", ".next", ".repo-cache", "node_modules", "dist", "build", "coverage"]
   },
+  "workspaceModel": {
+    "repositoryIsWorkspace": true,
+    "mandatoryProjectNamespace": false,
+    "defaultUnits": {
+      "app": "apps/web",
+      "server": "servers/api"
+    },
+    "additionalUnits": "when-required"
+  },
+  "featureModel": {
+    "ownership": "feature-first",
+    "growth": "progressive",
+    "serverLayout": "flat-files-by-default",
+    "optionalServerFileRoles": ["route", "controller", "service", "repository", "validation", "model", "integration"],
+    "domainDirectory": "domain",
+    "domainFileRoles": ["entity", "rules", "policy", "calculations", "commands", "queries", "events", "constants"]
+  },
   "boundaries": {
     "packagesCannotImport": ["apps", "servers", "prebuilt"],
+    "workspaceUnitCannotImport": {
+      "app": ["servers", "prebuilt"],
+      "server": ["apps", "prebuilt"],
+      "package": ["apps", "servers", "prebuilt"]
+    },
     "domainCannotImportSegments": ["controllers", "routes", "models"],
+    "domainCannotImportFileRoles": ["route", "controller", "service", "repository", "validation", "model", "integration"],
     "domainCannotImportPackages": ["express", "mongoose", "next", "redis"],
+    "serviceCannotImportSegments": ["routes", "controllers", "ui", "components"],
+    "serviceCannotImportFileRoles": ["route", "controller", "model"],
     "uiSegments": ["components", "ui"],
-    "persistenceSegments": ["models", "persistence", "repositories"]
+    "persistenceSegments": ["models", "persistence", "repositories"],
+    "persistenceFileRoles": ["model", "repository"]
   },
   "programmingModel": {
     "prefer": ["pure-functions", "immutable-data", "composition", "explicit-dependencies"],

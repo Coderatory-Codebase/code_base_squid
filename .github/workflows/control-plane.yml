@@ -1,0 +1,18 @@
+name: Control Plane
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run node:check
+      - run: npm test
+      - run: npm run repo -- profile ${{ github.event_name == 'pull_request' && 'pull-request' || 'main' }} --json
