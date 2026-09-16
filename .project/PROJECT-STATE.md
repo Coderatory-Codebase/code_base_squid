@@ -2,7 +2,9 @@
 
 ## Current phase
 
-M03.1 architecture contract reconciled on top of the M03 control plane.
+M03.2 — First Workspace Bootstrap
+
+STATUS: COMPLETE
 
 ## Implemented
 
@@ -26,9 +28,40 @@ M03.1 architecture contract reconciled on top of the M03 control plane.
 - GitHub Actions delegates pull-request and main validation to repository-owned execution profiles.
 - Control-plane discovery, graph, affected analysis, planning, execution, caching, CLI, configuration, and boundaries have automated tests.
 
+## Workspace units
+
+- `apps/web` is the primary Next.js 16.3.5 and React 19.3 application, using the App Router, strict TypeScript 5.9, Tailwind CSS 4, ESLint, and a shadcn/ui-compatible configuration.
+- `servers/api` is the primary Express 5.2 API runtime, using strict TypeScript, Zod configuration validation, a local Mongoose 9 connection boundary, functional logging and error middleware, graceful shutdown, and `GET /health`.
+- Web and API remain independently buildable workspace units and communicate only through the configured HTTP boundary; the control plane can run their long-lived development tasks concurrently.
+- npm workspaces and the root `package-lock.json` are the sole package-management foundation.
+
+## Bootstrap structure
+
+- Web routing owns `layout`, home, loading, error, and not-found entry points.
+- The web unit has application-owned configuration, constants, shell UI, and a minimal `cn` utility needed by future shadcn/ui components. No feature directory exists yet.
+- The API composes configuration, logging, database, middleware, app, and HTTP server through explicit functional dependencies. No business feature exists yet.
+- Environment guidance is provided through unit-local `.env.example` files; secrets and local environment files are ignored.
+
+## Validation evidence
+
+- All 26 M03/M03.1 control-plane tests pass.
+- API health and error-boundary integration tests pass; the web server-render smoke test passes.
+- Both units pass strict TypeScript checks and ESLint.
+- API and Next.js production builds pass through the repository control plane.
+- The compiled API returned HTTP 200 from `/health`; the production web server returned HTTP 200 with the expected rendered page.
+- Repository validation, architecture checks, security scanning, module parsing, dependency audit, and Git whitespace checks pass.
+
 ## Deferred until justified
 
 - Remote artifact storage and distributed execution.
 - A custom external package installer or resolver.
 - Framework-specific project templates without a concrete project requirement.
 - Empty feature, infrastructure, or project-knowledge folder trees.
+- Authentication, users, sessions, authorization, and all other business features.
+- A required MongoDB runtime connection; `MONGODB_URI` remains optional until the first persistence-backed feature.
+- Extraction of database, logging, errors, validation, or UI into reusable packages until real cross-boundary reuse is demonstrated.
+- Deployment-specific standalone web packaging and production observability infrastructure.
+
+## Next milestone
+
+M03.3 — Auth Vertical Slice Design. Authentication is not implemented in the current workspace.

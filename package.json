@@ -2,21 +2,32 @@
   "name": "monorepo-foundation",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "servers/*",
+    "packages/*",
+    "prebuilt/*"
+  ],
   "scripts": {
     "repo": "node codebase/cli/repo.mjs",
     "graph": "node codebase/cli/repo.mjs graph",
     "projects": "node codebase/cli/repo.mjs projects",
     "tasks": "node codebase/cli/repo.mjs tasks",
     "affected": "node codebase/cli/repo.mjs affected",
-    "build": "node codebase/cli/repo.mjs build",
+    "dev": "node codebase/cli/repo.mjs run dev --concurrency 2",
+    "build": "node codebase/cli/repo.mjs build --concurrency 2",
     "repo:test": "node codebase/cli/repo.mjs test",
+    "test:control-plane": "node --test codebase/**/*.test.mjs",
+    "test:units": "node codebase/cli/repo.mjs test --concurrency 2",
+    "lint": "node codebase/cli/repo.mjs run lint --concurrency 2",
+    "typecheck": "node codebase/cli/repo.mjs run typecheck --concurrency 2",
     "check": "node codebase/cli/repo.mjs check",
     "scan": "node codebase/cli/repo.mjs scan",
     "validate": "node codebase/cli/repo.mjs validate",
     "node:check": "node codebase/checks/node-syntax.mjs",
-    "test": "node --test codebase/**/*.test.mjs"
+    "test": "npm run test:control-plane && npm run test:units"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.0"
   }
 }

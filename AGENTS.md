@@ -39,6 +39,10 @@ Useful commands:
 npm run projects
 npm run graph
 npm run tasks
+npm run dev
+npm run build
+npm run lint
+npm run typecheck
 npm run check
 npm run scan
 npm test
