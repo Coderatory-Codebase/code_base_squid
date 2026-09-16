@@ -1,40 +1,43 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
 import { ZodError } from "zod";
 import type { Logger } from "@workspace/logging";
-
-export type ApplicationError = Readonly<{
-  kind: "application-error";
-  code: string;
-  message: string;
-  status: number;
-}>;
-
-export const createApplicationError = (input: Omit<ApplicationError, "kind">): ApplicationError => ({
-  kind: "application-error",
-  ...input
-});
-
-const isApplicationError = (error: unknown): error is ApplicationError =>
-  typeof error === "object" && error !== null && "kind" in error && error.kind === "application-error";
+import { ERROR_CODES, ERROR_MESSAGES } from "../constants/errors.js";
+import { HTTP_STATUS } from "../constants/http.js";
+import { createApplicationError, isApplicationError } from "../errors/index.js";
+import type { ErrorResponse } from "../types/index.js";
 
 export const createNotFoundHandler = (): RequestHandler => (request, _response, next) => {
   next(createApplicationError({
-    code: "route_not_found",
-    message: `Route ${request.method} ${request.path} was not found.`,
-    status: 404
+    code: ERROR_CODES.routeNotFound,
+    message: ERROR_MESSAGES.routeNotFound,
+    status: HTTP_STATUS.notFound,
+    details: { method: request.method, path: request.path }
   }));
 };
 
 export const createErrorHandler = ({ logger }: { logger: Logger }): ErrorRequestHandler =>
   (error: unknown, _request, response, _next) => {
     if (error instanceof ZodError) {
-      response.status(400).json({ error: { code: "validation_error", message: "Request validation failed.", details: error.issues } });
+      const body: ErrorResponse = {
+        error: { code: ERROR_CODES.validation, message: ERROR_MESSAGES.validation, details: error.issues }
+      };
+      response.status(HTTP_STATUS.badRequest).json(body);
       return;
     }
     if (isApplicationError(error)) {
-      response.status(error.status).json({ error: { code: error.code, message: error.message } });
+      const body: ErrorResponse = {
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error.details ? { details: error.details } : {})
+        }
+      };
+      response.status(error.status).json(body);
       return;
     }
     logger.error("Unhandled API error.", { error: error instanceof Error ? error.message : String(error) });
-    response.status(500).json({ error: { code: "internal_error", message: "An unexpected error occurred." } });
+    const body: ErrorResponse = {
+      error: { code: ERROR_CODES.internal, message: ERROR_MESSAGES.internal }
+    };
+    response.status(HTTP_STATUS.internalServerError).json(body);
   };

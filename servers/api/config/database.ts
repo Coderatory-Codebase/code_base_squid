@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import type { Logger } from "@workspace/logging";
+import type { DatabaseConnection } from "../types/index.js";
 
 type MongooseConnection = Pick<typeof mongoose, "connect" | "disconnect">;
 
@@ -9,7 +10,7 @@ type DatabaseDependencies = Readonly<{
   connection?: MongooseConnection;
 }>;
 
-export const createDatabase = ({ uri, logger, connection = mongoose }: DatabaseDependencies) => ({
+export const createDatabase = ({ uri, logger, connection = mongoose }: DatabaseDependencies): DatabaseConnection => ({
   connect: async () => {
     if (!uri) {
       logger.info("MongoDB connection is not configured; starting without persistence.");

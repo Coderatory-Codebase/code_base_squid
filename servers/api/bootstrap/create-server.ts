@@ -1,11 +1,11 @@
 import { createServer as createNodeServer } from "node:http";
 import type { Express } from "express";
 import type { Logger } from "@workspace/logging";
-import type { ApiConfig } from "../config/api.js";
+import type { ApiConfig, ApiServer } from "../types/index.js";
 
 type ServerDependencies = Readonly<{ app: Express; config: ApiConfig; logger: Logger }>;
 
-export const createServer = ({ app, config, logger }: ServerDependencies) => {
+export const createServer = ({ app, config, logger }: ServerDependencies): ApiServer => {
   const server = createNodeServer(app);
   return {
     raw: server,

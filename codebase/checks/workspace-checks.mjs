@@ -1,4 +1,5 @@
 import path from "node:path";
+import { readFile } from "node:fs/promises";
 import { projectManifestFileName, validateProjectManifest } from "../projects/manifest.mjs";
 import { workspaceRoots } from "../workspace/discovery.mjs";
 import { createDependencyGraph, findGraphIssues, topologicalProjectOrder } from "../graph/dependency-graph.mjs";
@@ -122,6 +123,14 @@ export const checkReservedControlPlaneDependencies = async (workspace) => {
 };
 
 const typeScriptExtensions = new Set([".ts", ".tsx", ".mts", ".cts"]);
+const explicitAnyPatterns = [
+  /:\s*any\b/,
+  /\bas\s+any\b/,
+  /=\s*any\b/,
+  /<\s*any\s*>/,
+  /\bany\s*\[\s*\]/,
+  /\b(?:Array|Promise|ReadonlyArray|Record)\s*<[^>\n]*\bany\b/
+];
 
 export const checkTypeScriptConfiguration = async (workspace) => {
   const requiredOptions = workspace.architecture.typescript?.requiredCompilerOptions ?? [];
@@ -145,6 +154,53 @@ export const checkTypeScriptConfiguration = async (workspace) => {
         level: "error",
         message: `${project.name} tsconfig.json must explicitly enable compilerOptions.${option}.`
       }));
+  }));
+
+  return projectResults.flat();
+};
+
+export const checkTypeScriptArchitecture = async (workspace) => {
+  const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
+  const typeBoundaryProjectTypes = workspace.architecture.typescript?.requiredTypeBoundaryProjectTypes ?? [];
+  const disallowExplicitAny = workspace.architecture.typescript?.disallowExplicitAny === true;
+  const configurationPolicy = workspace.architecture.configuration ?? {};
+  const projectResults = await Promise.all(workspace.projects.map(async (project) => {
+    const projectRoot = path.join(workspace.root, project.root);
+    const files = (await walkFiles(projectRoot, { ignoredDirectories }))
+      .filter((file) => typeScriptExtensions.has(path.extname(file)));
+    if (files.length === 0) return [];
+
+    const issues = [];
+    if (typeBoundaryProjectTypes.includes(project.type)) {
+      const typeIndex = path.join(projectRoot, "types", "index.ts");
+      if (!(await pathExists(typeIndex))) {
+        issues.push({ level: "error", message: `${project.name} requires a types/index.ts architectural type boundary.` });
+      }
+    }
+
+    for (const file of files) {
+      const source = await readFile(file, "utf8");
+      const relative = path.relative(workspace.root, file).split(path.sep).join("/");
+      if (disallowExplicitAny && explicitAnyPatterns.some((pattern) => pattern.test(source))) {
+        issues.push({ level: "error", message: `${relative} uses an explicit any type.` });
+      }
+
+      const projectRelative = path.relative(projectRoot, file).split(path.sep).join("/");
+      if (projectRelative === configurationPolicy.environmentValidationFile
+        && configurationPolicy.forbidDefaultsInEnvironmentValidation === true
+        && /\.default\s*\(/.test(source)) {
+        issues.push({ level: "error", message: `${relative} embeds a default in environment validation; runtime values must come from the environment.` });
+      }
+
+      const isConfigFile = projectRelative.startsWith("config/");
+      const importsValidationPackage = (configurationPolicy.validationPackages ?? [])
+        .some((packageName) => new RegExp(`from\\s+["']${packageName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(source));
+      if (isConfigFile && importsValidationPackage) {
+        issues.push({ level: "error", message: `${relative} owns runtime validation inside config; move schemas to validation/.` });
+      }
+    }
+
+    return issues;
   }));
 
   return projectResults.flat();
@@ -174,6 +230,7 @@ export const runWorkspaceChecks = async (workspace) => [
   ...checkTaskGraph(workspace),
   ...(await checkReservedControlPlaneDependencies(workspace)),
   ...(await checkTypeScriptConfiguration(workspace)),
+  ...(await checkTypeScriptArchitecture(workspace)),
   ...(await validateArchitectureBoundaries(workspace))
 ];
 

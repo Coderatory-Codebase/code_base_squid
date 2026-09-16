@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { checkMissingProjectManifests, checkTypeScriptConfiguration } from "./workspace-checks.mjs";
+import { checkMissingProjectManifests, checkTypeScriptArchitecture, checkTypeScriptConfiguration } from "./workspace-checks.mjs";
 
 test("reports package-defined workspace units without a project manifest", async (context) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "repo-missing-manifest-"));
@@ -55,4 +55,58 @@ test("requires a tsconfig for TypeScript workspace units", async (context) => {
 
   assert.equal(issues.length, 1);
   assert.match(issues[0].message, /has no tsconfig\.json/);
+});
+
+test("rejects explicit any and environment defaults in TypeScript workspace units", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-typescript-architecture-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const projectRoot = path.join(root, "apps", "web");
+  await mkdir(path.join(projectRoot, "validation"), { recursive: true });
+  await mkdir(path.join(projectRoot, "types"), { recursive: true });
+  await writeFile(path.join(projectRoot, "types", "index.ts"), "export type Value = any;\n", "utf8");
+  await writeFile(path.join(projectRoot, "validation", "env.validation.ts"), "const port = z.number().default(4000);\n", "utf8");
+
+  const issues = await checkTypeScriptArchitecture({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      typescript: { disallowExplicitAny: true, requiredTypeBoundaryProjectTypes: ["app"] },
+      configuration: {
+        environmentValidationFile: "validation/env.validation.ts",
+        forbidDefaultsInEnvironmentValidation: true,
+        validationPackages: ["zod"]
+      }
+    },
+    projects: [{ name: "web", type: "app", root: "apps/web" }]
+  });
+
+  assert.equal(issues.length, 2);
+  assert.ok(issues.some((issue) => issue.message.includes("explicit any")));
+  assert.ok(issues.some((issue) => issue.message.includes("embeds a default")));
+});
+
+test("requires type boundaries and keeps runtime schemas outside config", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-type-boundary-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const projectRoot = path.join(root, "servers", "api");
+  await mkdir(path.join(projectRoot, "config"), { recursive: true });
+  await writeFile(path.join(projectRoot, "config", "env.ts"), "import { z } from 'zod';\nexport const schema = z.object({});\n", "utf8");
+
+  const issues = await checkTypeScriptArchitecture({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      typescript: { disallowExplicitAny: true, requiredTypeBoundaryProjectTypes: ["server"] },
+      configuration: {
+        environmentValidationFile: "validation/env.validation.ts",
+        forbidDefaultsInEnvironmentValidation: true,
+        validationPackages: ["zod"]
+      }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+
+  assert.equal(issues.length, 2);
+  assert.ok(issues.some((issue) => issue.message.includes("types/index.ts")));
+  assert.ok(issues.some((issue) => issue.message.includes("inside config")));
 });

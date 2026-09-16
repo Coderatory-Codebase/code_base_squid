@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@workspace/logging": "0.1.0",
+    "dotenv": "^17.2.2",
     "express": "^5.2.1",
     "mongoose": "^9.10.1",
     "zod": "^4.6.5"

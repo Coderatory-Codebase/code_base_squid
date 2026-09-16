@@ -1,6 +1,4 @@
-import type { ValidatedWebEnvironment } from "@/validation/env.validation";
-
-export type ApiConfiguration = Readonly<{ baseUrl: string }>;
+import type { ApiConfiguration, ValidatedWebEnvironment } from "@/types";
 
 export const createApiConfiguration = (
   environment: ValidatedWebEnvironment

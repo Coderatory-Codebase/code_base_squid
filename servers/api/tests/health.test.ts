@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import type { Logger, LogContext } from "@workspace/logging";
 import { createApp } from "../bootstrap/create-app.js";
 import { createServer } from "../bootstrap/create-server.js";
-import type { ApiConfig } from "../config/api.js";
+import { ERROR_CODES, ERROR_MESSAGES } from "../constants/errors.js";
+import { HTTP_STATUS } from "../constants/http.js";
+import type { ApiConfig } from "../types/index.js";
 
 const httpLogs: Array<Readonly<{ message: string; context?: LogContext }>> = [];
 const logger: Logger = {
@@ -26,7 +28,7 @@ void test("GET /health reports a healthy API runtime", async (context) => {
   const address = server.raw.address();
   assert.ok(address && typeof address === "object");
   const response = await fetch(`http://127.0.0.1:${String(address.port)}/health`);
-  assert.equal(response.status, 200);
+  assert.equal(response.status, HTTP_STATUS.ok);
   assert.deepEqual(await response.json(), { status: "ok", service: "api", environment: "test" });
   assert.ok(httpLogs.some(({ message, context: logContext }) =>
     message === "HTTP request" && typeof logContext?.http === "string"));
@@ -39,8 +41,12 @@ void test("unknown routes use the API error boundary", async (context) => {
   const address = server.raw.address();
   assert.ok(address && typeof address === "object");
   const response = await fetch(`http://127.0.0.1:${String(address.port)}/missing`);
-  assert.equal(response.status, 404);
+  assert.equal(response.status, HTTP_STATUS.notFound);
   assert.deepEqual(await response.json(), {
-    error: { code: "route_not_found", message: "Route GET /missing was not found." }
+    error: {
+      code: ERROR_CODES.routeNotFound,
+      message: ERROR_MESSAGES.routeNotFound,
+      details: { method: "GET", path: "/missing" }
+    }
   });
 });

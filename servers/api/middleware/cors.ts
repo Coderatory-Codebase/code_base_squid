@@ -1,4 +1,5 @@
 import type { RequestHandler } from "express";
+import { HTTP_STATUS } from "../constants/http.js";
 
 export const createCorsMiddleware = ({ origin }: { origin: string }): RequestHandler =>
   (request, response, next) => {
@@ -7,7 +8,7 @@ export const createCorsMiddleware = ({ origin }: { origin: string }): RequestHan
     response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     if (request.method === "OPTIONS") {
-      response.sendStatus(204);
+      response.sendStatus(HTTP_STATUS.noContent);
       return;
     }
     next();

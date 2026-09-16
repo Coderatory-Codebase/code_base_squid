@@ -1,14 +1,4 @@
-import type { LogLevel } from "@workspace/logging";
-import type { ValidatedApiEnvironment } from "../validation/env.validation.js";
-
-export type ApiConfig = Readonly<{
-  environment: "development" | "test" | "production";
-  host: string;
-  port: number;
-  webOrigin: string;
-  mongodbUri?: string;
-  logLevel: LogLevel;
-}>;
+import type { ApiConfig, ValidatedApiEnvironment } from "../types/index.js";
 
 export const createApiConfig = (environment: ValidatedApiEnvironment): ApiConfig => Object.freeze({
   environment: environment.NODE_ENV,

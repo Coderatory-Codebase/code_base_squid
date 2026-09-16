@@ -66,6 +66,19 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (!Array.isArray(architecture.typescript?.requiredCompilerOptions)) {
     issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredCompilerOptions array." });
   }
+  if (!Array.isArray(architecture.typescript?.requiredTypeBoundaryProjectTypes)) {
+    issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredTypeBoundaryProjectTypes array." });
+  }
+  if (!architecture.configuration || typeof architecture.configuration !== "object") {
+    issues.push({ level: "error", message: "Architecture policy is missing configuration-boundary rules." });
+  } else {
+    if (typeof architecture.configuration.environmentValidationFile !== "string") {
+      issues.push({ level: "error", message: "Architecture configuration requires an environmentValidationFile path." });
+    }
+    if (!Array.isArray(architecture.configuration.validationPackages)) {
+      issues.push({ level: "error", message: "Architecture configuration.validationPackages must be an array." });
+    }
+  }
   if (architecture.workspaceModel?.repositoryIsWorkspace !== true || architecture.workspaceModel?.mandatoryProjectNamespace !== false) {
     issues.push({ level: "error", message: "Architecture workspace model must define the repository as the workspace without a mandatory project namespace." });
   }

@@ -8,6 +8,8 @@ STATUS: COMPLETE
 
 REMEDIATED: 2026-09-16
 
+DEEP REMEDIATION: 2026-09-16
+
 ## Implemented
 
 - Code, control, and agent planes have explicit roots.
@@ -32,8 +34,8 @@ REMEDIATED: 2026-09-16
 
 ## Workspace units
 
-- `apps/web` is the primary Next.js 16.3.5 and React 19.3 application, using the App Router, strict TypeScript 5.9, Tailwind CSS 4, ESLint, and a working shadcn/ui Button with its generated import path and theme tokens.
-- `servers/api` is the primary Express 5.2 API runtime, using strict TypeScript, separated Zod environment validation, a local Mongoose 9 connection boundary, composed logging and error middleware, graceful shutdown, and `GET /health`.
+- `apps/web` is the primary Next.js 16.3.5 and React 19.3 application, using the App Router, strict TypeScript 5.9, Tailwind CSS 4, ESLint, and an explicit shadcn CLI workflow with a generated Button, configured aliases, and theme tokens.
+- `servers/api` is the primary Express 5.2 API runtime, using strict TypeScript, environment-loaded and separately validated configuration, structured functional errors, a local Mongoose 9 connection boundary, graceful shutdown, and `GET /health`.
 - `packages/logging` exposes the intentional `@workspace/logging` public API around Pino application logging and Morgan HTTP request logging; the API consumes it through the workspace package export.
 - `enablers/observability` owns future operational observability configuration, while an executable architecture rule prohibits duplicate server-local observability implementations.
 - Web and API remain independently buildable workspace units and communicate only through the configured HTTP boundary; the control plane can run their long-lived development tasks concurrently.
@@ -41,19 +43,21 @@ REMEDIATED: 2026-09-16
 
 ## Bootstrap structure
 
-- Web routing owns `layout`, home, loading, error, and not-found entry points.
-- The web unit separates environment access, Zod validation, derived API configuration, fixed constants, shell UI, and its shadcn/ui foundation. No feature directory exists yet.
-- The API separates environment access, Zod validation, derived runtime configuration, and fixed constants, then composes logging, database, middleware, app, and HTTP server through explicit functional dependencies. No business feature exists yet.
-- Environment guidance is provided through unit-local `.env.example` files; secrets and local environment files are ignored.
-- Every TypeScript workspace unit explicitly enables the repository's strict compiler-option set, and repository validation enforces both the presence of `tsconfig.json` and those options.
+- Web routing owns `layout`, home, loading, error, and not-found entry points and composes reusable UI instead of defining page-scale implementations.
+- The web unit has dedicated `types/`, `validation/`, `config/`, and `constants/` boundaries. Generic page-shell, header, and feedback components compose the shadcn primitive, while focused workspace components own bootstrap-specific meaning. No feature directory exists yet.
+- The API has dedicated `types/`, `validation/`, `config/`, `constants/`, and `errors/` boundaries. Error codes, messages, and HTTP statuses are fixed constants; functional error values carry structured code, status, message, and optional dynamic details.
+- Committed `.env.example` files document required values. Ignored local `.env` files drive development runtimes, and validation schemas contain no environment defaults.
+- Every TypeScript workspace unit explicitly enables the repository's strict compiler-option set. Repository validation enforces those options, app/server type barrels, absence of explicit `any`, validation ownership, and environment-driven schemas.
+- TypeScript component props, page contracts, reusable function boundaries, API configuration, responses, errors, and runtime handles are explicitly typed; only genuinely private implementation shapes remain local.
 
 ## Validation evidence
 
-- All M03/M03.1 control-plane tests pass, with three additional remediation checks covering strict TypeScript configuration and API-local observability ownership.
-- Logging, API health, error-boundary, environment-validation, and web server-render tests pass, including rendering the generated shadcn/ui Button.
+- All 31 control-plane tests pass, including five remediation checks for strict compiler options, required type boundaries, explicit `any`, environment-schema defaults, config-owned validation, and API-local observability.
+- All 10 workspace tests pass across logging, API health, structured error context, required environment validation, derived configuration, and web server rendering with the generated shadcn/ui Button.
 - All workspace units pass strict TypeScript checks, ESLint, and production builds through the repository control plane.
 - Runtime smoke tests verify the web page, API `/health`, structured startup and Morgan request logs, and graceful API shutdown.
-- Repository validation, architecture checks, security scanning, module parsing, workspace package resolution, dependency audit, and Git whitespace checks pass.
+- The local shadcn CLI command resolves from the web workspace, and workspace package exports resolve without relative cross-unit imports.
+- Repository validation, architecture checks, security scanning, module parsing, dependency audit, and Git whitespace checks pass.
 
 ## Deferred until justified
 

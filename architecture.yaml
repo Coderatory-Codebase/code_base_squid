@@ -49,6 +49,8 @@
     "serverDisallowedSegments": ["observability"]
   },
   "typescript": {
+    "disallowExplicitAny": true,
+    "requiredTypeBoundaryProjectTypes": ["app", "server"],
     "requiredCompilerOptions": [
       "strict",
       "noImplicitAny",
@@ -59,6 +61,11 @@
       "exactOptionalPropertyTypes",
       "useUnknownInCatchVariables"
     ]
+  },
+  "configuration": {
+    "environmentValidationFile": "validation/env.validation.ts",
+    "forbidDefaultsInEnvironmentValidation": true,
+    "validationPackages": ["zod"]
   },
   "programmingModel": {
     "prefer": ["pure-functions", "immutable-data", "composition", "explicit-dependencies"],

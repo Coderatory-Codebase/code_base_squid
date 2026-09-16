@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createLogger } from "@workspace/logging";
 import { createApp } from "./bootstrap/create-app.js";
 import { createServer } from "./bootstrap/create-server.js";
@@ -15,7 +16,7 @@ const database = createDatabase({
 const app = createApp({ config, logger });
 const server = createServer({ app, config, logger });
 
-const shutdown = async (signal: NodeJS.Signals) => {
+const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   logger.info("API shutdown requested.", { signal });
   await server.stop();
   await database.disconnect();

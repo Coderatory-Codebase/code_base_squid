@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { ZodError } from "zod";
 import { createApiConfig } from "../config/api.js";
 import { readApiEnvironment } from "../config/env.js";
 
@@ -22,4 +23,8 @@ void test("derives API configuration from validated environment input", () => {
 
 void test("rejects invalid server environment input", () => {
   assert.throws(() => readApiEnvironment({ API_PORT: "70000" }));
+});
+
+void test("requires runtime values from the environment", () => {
+  assert.throws(() => readApiEnvironment({}), ZodError);
 });

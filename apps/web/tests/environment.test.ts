@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { ZodError } from "zod";
 import { createApiConfiguration } from "../config/api";
 import { readWebEnvironment } from "../config/env";
 
@@ -10,4 +11,8 @@ test("derives API configuration from validated environment input", () => {
 
 test("rejects an invalid API URL", () => {
   assert.throws(() => readWebEnvironment({ NEXT_PUBLIC_API_BASE_URL: "not-a-url" }));
+});
+
+test("requires the API URL from the environment", () => {
+  assert.throws(() => readWebEnvironment({}), ZodError);
 });
