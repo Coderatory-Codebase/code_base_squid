@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import { createHttpLogger, type Logger } from "@workspace/logging";
-import type { ApiConfig, HealthResponse } from "../types/index.js";
+import type { ApiHealthResponse } from "@workspace/types";
+import type { ApiConfig } from "../types/index.js";
 import { apiRuntime } from "../constants/runtime.js";
 import { HTTP_STATUS } from "../constants/http.js";
 import { createCorsMiddleware } from "../middleware/cors.js";
@@ -18,7 +19,7 @@ export const createApp = ({ config, logger }: AppDependencies): Express => {
   app.use(createCorsMiddleware({ origin: config.webOrigin }));
   app.use(express.json({ limit: apiRuntime.jsonBodyLimit }));
   app.get("/health", (_request, response) => {
-    const health: HealthResponse = { status: "ok", service: apiRuntime.serviceName, environment: config.environment };
+    const health: ApiHealthResponse = { status: "ok", service: apiRuntime.serviceName, environment: config.environment };
     response.status(HTTP_STATUS.ok).json(health);
   });
   app.use(createNotFoundHandler());

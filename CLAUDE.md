@@ -6,7 +6,8 @@ Follow `AGENTS.md` and `architecture.yaml`. Do not introduce an external monorep
 
 ```text
 Code plane: apps/, servers/, packages/, prebuilt/
-Control plane: codebase/, enablers/
+Control plane: codebase/
+Enabler plane: enablers/
 Agent plane: .agent/, .project/, AGENTS.md, CLAUDE.md, architecture.yaml
 ```
 

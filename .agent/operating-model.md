@@ -11,6 +11,9 @@ Agents should use progressive disclosure:
 5. Run targeted validation.
 6. Record durable architectural decisions when they matter.
 
+`AGENTS.md` is the entry point. Focused instructions and standards under `.agent/` are
+authoritative for their concern; do not copy their complete rules into every guide.
+
 The agent plane does not replace the control plane. It teaches agents to use it.
 
 ## Scope and ownership

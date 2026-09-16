@@ -79,6 +79,32 @@ export const validateArchitectureConfiguration = (architecture) => {
       issues.push({ level: "error", message: "Architecture configuration.validationPackages must be an array." });
     }
   }
+  if (!architecture.uiComposition || typeof architecture.uiComposition !== "object") {
+    issues.push({ level: "error", message: "Architecture policy is missing UI composition rules." });
+  } else {
+    for (const field of ["genericRoots", "genericFiles", "applicationRoots", "shadcnPrimitiveNames"]) {
+      if (!Array.isArray(architecture.uiComposition[field])) {
+        issues.push({ level: "error", message: `Architecture uiComposition.${field} must be an array.` });
+      }
+    }
+  }
+  if (!architecture.integrations || typeof architecture.integrations !== "object") {
+    issues.push({ level: "error", message: "Architecture policy is missing integration-boundary rules." });
+  } else if (!Array.isArray(architecture.integrations.externalImplementationPackages)) {
+    issues.push({ level: "error", message: "Architecture integrations.externalImplementationPackages must be an array." });
+  } else if (!architecture.integrations.reusableImplementations
+    || typeof architecture.integrations.reusableImplementations !== "object"
+    || Array.isArray(architecture.integrations.reusableImplementations)) {
+    issues.push({ level: "error", message: "Architecture integrations.reusableImplementations must be an object." });
+  }
+  if (architecture.contractOwnership?.sharedTypesRoot !== "packages/types"
+    || architecture.contractOwnership?.extractionRule !== "genuine-cross-boundary-reuse") {
+    issues.push({ level: "error", message: "Architecture contract ownership must preserve categorized shared types and earned extraction." });
+  }
+  if (!Array.isArray(architecture.testingModel?.levels)
+    || architecture.testingModel?.principle !== "behavior-and-boundaries-not-files") {
+    issues.push({ level: "error", message: "Architecture testing model must define behavior-focused test levels." });
+  }
   if (architecture.workspaceModel?.repositoryIsWorkspace !== true || architecture.workspaceModel?.mandatoryProjectNamespace !== false) {
     issues.push({ level: "error", message: "Architecture workspace model must define the repository as the workspace without a mandatory project namespace." });
   }

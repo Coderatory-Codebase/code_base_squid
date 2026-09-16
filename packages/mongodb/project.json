@@ -1,0 +1,14 @@
+{
+  "name": "mongodb",
+  "type": "package",
+  "description": "Reusable MongoDB connection capability backed by Mongoose.",
+  "internalDependencies": [],
+  "externalDependencies": ["mongoose"],
+  "capabilities": ["mongodb", "mongoose", "connection"],
+  "tasks": {
+    "build": { "command": "npm run build", "outputs": ["dist"], "cache": true },
+    "test": { "command": "npm test", "cache": false },
+    "lint": { "command": "npm run lint", "cache": false },
+    "typecheck": { "command": "npm run typecheck", "cache": false }
+  }
+}

@@ -1,8 +1,8 @@
 import type { LogLevel } from "@workspace/logging";
-import type { ApiEnvironmentName } from "./environment.js";
+import type { ApiEnvironment } from "@workspace/types";
 
 export type ApiConfig = Readonly<{
-  environment: ApiEnvironmentName;
+  environment: ApiEnvironment;
   host: string;
   port: number;
   webOrigin: string;

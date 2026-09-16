@@ -13,6 +13,15 @@ Before changing code:
 4. Prefer functional modules, pure functions, immutable data, and explicit dependency passing.
 5. Run the smallest useful validation command after changes.
 
+Read the narrowest authoritative guide for the work:
+
+- `.agent/instructions/architecture.md` for planes, feature ownership, and dependency direction.
+- `.agent/instructions/ui-composition.md` for shadcn, Tailwind, component hierarchy, and page composition.
+- `.agent/instructions/integrations.md` for external systems and reusable infrastructure.
+- `.agent/standards/types-validation.md` for local versus shared contracts and runtime schemas.
+- `.agent/standards/testing.md` for unit, component, integration, and end-to-end test intent.
+- `.agent/standards/development.md` for functional implementation and progressive growth.
+
 Classify the scope before editing: application, reusable package, infrastructure/enabler,
 project knowledge, foundation, or control plane. Application work does not authorize
 foundation or control-plane changes.
@@ -20,6 +29,7 @@ foundation or control-plane changes.
 Implementation follows `UNDERSTAND -> PLAN -> IMPLEMENT -> VALIDATE -> REVIEW -> RECORD -> COMPLETE`.
 Create feature-owned code first, add layers only when a concrete boundary requires them,
 and extract packages only after ownership and genuine cross-boundary reuse are established.
+The governing principle is: everything available, nothing unnecessarily imposed.
 
 Architecture is feature-first. Server features are flat by default, using optional files
 such as `<feature>.route.ts`, `<feature>.controller.ts`, `<feature>.service.ts`,

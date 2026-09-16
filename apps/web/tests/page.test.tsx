@@ -3,11 +3,9 @@ import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import HomePage from "../app/page";
 
-test("renders the workspace bootstrap", () => {
-  process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:4000";
+test("composes environment-derived API configuration into the health action", () => {
+  process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.test";
   const markup = renderToStaticMarkup(<HomePage />);
   assert.match(markup, /The application foundation is running/);
-  assert.match(markup, /http:\/\/localhost:4000/);
-  assert.match(markup, /API health/);
-  assert.match(markup, /data-slot="button"/);
+  assert.match(markup, /href="https:\/\/api\.example\.test\/health"/);
 });

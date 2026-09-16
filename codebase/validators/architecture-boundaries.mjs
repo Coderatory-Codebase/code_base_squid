@@ -13,12 +13,24 @@ const fileRole = (filePath) => {
   return match?.[1]?.toLowerCase();
 };
 
-const resolveWorkspaceImport = ({ workspaceRoot, sourceFile, specifier }) => {
+const resolveWorkspaceImport = ({ workspaceRoot, projectRoot, sourceFile, specifier }) => {
   if (specifier.startsWith(".")) return path.resolve(path.dirname(sourceFile), specifier);
+  if (specifier.startsWith("@/")) return path.resolve(workspaceRoot, projectRoot, specifier.slice(2));
   const firstSegment = specifier.split("/")[0];
   if (["apps", "servers", "packages", "prebuilt"].includes(firstSegment)) {
     return path.resolve(workspaceRoot, specifier);
   }
+  return undefined;
+};
+
+const startsWithPath = (value, prefix) => value === prefix || value.startsWith(`${prefix}/`);
+
+const uiLayer = (projectRelativePath, policy) => {
+  if (startsWithPath(projectRelativePath, policy.primitiveRoot ?? "components/ui")) return "primitive";
+  if ((policy.genericRoots ?? []).some((root) => startsWithPath(projectRelativePath, root))
+    || (policy.genericFiles ?? []).includes(projectRelativePath)) return "generic";
+  if (startsWithPath(projectRelativePath, policy.featureRoot ?? "features")) return "feature";
+  if ((policy.applicationRoots ?? []).some((root) => startsWithPath(projectRelativePath, root))) return "application";
   return undefined;
 };
 
@@ -45,6 +57,8 @@ const localIssue = (workspaceRoot, sourceFile, rule, detail) => ({
 
 export const validateArchitectureBoundaries = async (workspace) => {
   const policy = workspace.architecture.boundaries ?? {};
+  const uiPolicy = workspace.architecture.uiComposition ?? {};
+  const integrationPolicy = workspace.architecture.integrations ?? {};
   const dependencyDirection = {
     app: ["servers", "prebuilt"],
     server: ["apps", "prebuilt"],
@@ -64,7 +78,22 @@ export const validateArchitectureBoundaries = async (workspace) => {
   for (const { project, filePath } of projectFiles.flat()) {
     const source = await readFile(filePath, "utf8");
     const sourceSegments = segmentsOf(path.relative(workspace.root, filePath));
+    const projectRelativePath = toPosixPath(path.relative(path.resolve(workspace.root, project.root), filePath));
     const sourceFeature = featureIdentity(sourceSegments);
+    const sourceUiLayer = project.type === "app" ? uiLayer(projectRelativePath, uiPolicy) : undefined;
+
+    if (project.type === "app" && projectRelativePath.startsWith("components/")) {
+      const componentName = path.basename(filePath, path.extname(filePath));
+      const isPrimitive = startsWithPath(projectRelativePath, uiPolicy.primitiveRoot ?? "components/ui");
+      if (!isPrimitive && (uiPolicy.shadcnPrimitiveNames ?? []).includes(componentName)) {
+        findings.push(localIssue(
+          workspace.root,
+          filePath,
+          "shadcn-primitive-ownership",
+          `${componentName} duplicates a named shadcn primitive outside ${uiPolicy.primitiveRoot ?? "components/ui"}.`
+        ));
+      }
+    }
 
     if (project.type === "server" && includesSegment(sourceSegments, policy.serverDisallowedSegments ?? [])) {
       findings.push(localIssue(
@@ -76,9 +105,53 @@ export const validateArchitectureBoundaries = async (workspace) => {
     }
 
     for (const specifier of getImports(source)) {
-      const targetPath = resolveWorkspaceImport({ workspaceRoot: workspace.root, sourceFile: filePath, specifier });
+      const targetPath = resolveWorkspaceImport({
+        workspaceRoot: workspace.root,
+        projectRoot: project.root,
+        sourceFile: filePath,
+        specifier
+      });
       const targetSegments = targetPath ? segmentsOf(path.relative(workspace.root, targetPath)) : [];
       const targetFileRole = targetPath ? fileRole(targetPath) : undefined;
+
+      if (project.type === "server") {
+        const externalRoot = specifier.startsWith("@") ? specifier.split("/").slice(0, 2).join("/") : specifier.split("/")[0];
+        const isIntegrationFile = sourceSegments.includes(integrationPolicy.serverDirectory ?? "integrations");
+        const reusableImplementation = integrationPolicy.reusableImplementations?.[externalRoot];
+        if (reusableImplementation) {
+          findings.push(issue(
+            workspace.root,
+            filePath,
+            specifier,
+            "reusable-integration-package",
+            `server code must consume ${reusableImplementation} instead of importing ${externalRoot} directly.`
+          ));
+        } else if ((integrationPolicy.externalImplementationPackages ?? []).includes(externalRoot) && !isIntegrationFile) {
+          findings.push(issue(
+            workspace.root,
+            filePath,
+            specifier,
+            "external-integration-boundary",
+            `server code must access ${externalRoot} through an integrations/ boundary or reusable package.`
+          ));
+        }
+      }
+
+      if (sourceUiLayer && targetPath) {
+        const targetProjectRelativePath = toPosixPath(path.relative(path.resolve(workspace.root, project.root), targetPath));
+        const targetUiLayer = uiLayer(targetProjectRelativePath, uiPolicy);
+        const reversesPrimitive = sourceUiLayer === "primitive" && ["generic", "feature", "application"].includes(targetUiLayer);
+        const reversesGeneric = sourceUiLayer === "generic" && ["feature", "application"].includes(targetUiLayer);
+        if (reversesPrimitive || reversesGeneric) {
+          findings.push(issue(
+            workspace.root,
+            filePath,
+            specifier,
+            "ui-composition-direction",
+            `${sourceUiLayer} UI cannot depend on ${targetUiLayer} UI.`
+          ));
+        }
+      }
 
       const forbiddenRoots = dependencyDirection[project.type] ?? [];
       if (targetSegments.length > 0 && forbiddenRoots.includes(targetSegments[0])) {

@@ -20,3 +20,10 @@ Preserve dependency direction: delivery and UI call application operations; appl
 services coordinate domain rules and explicit repository/integration boundaries;
 infrastructure implements technical concerns. Domain code must not depend on delivery,
 persistence models, infrastructure frameworks, or vendors.
+
+Architecture grows from simple to modular, bounded, scalable, distributed, and platform
+forms only as concrete needs appear. Apply the ownership test before extracting: shared
+implementation belongs in `packages/`; feature behavior stays with its feature;
+application/runtime composition stays in its app or server; operational capability belongs
+in `enablers/`. See `ui-composition.md` and `integrations.md` for those dependency models,
+and `../standards/types-validation.md` for contract ownership.

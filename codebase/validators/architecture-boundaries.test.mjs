@@ -103,3 +103,108 @@ test("allows services to compose repositories but not controllers in flat featur
   assert.equal(findings.length, 1);
   assert.equal(findings[0].rule, "service-isolation");
 });
+
+test("rejects generic UI importing application UI through an app alias", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-ui-direction-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const genericRoot = path.join(root, "apps", "web", "components", "layout");
+  const applicationRoot = path.join(root, "apps", "web", "components", "workspace");
+  await mkdir(genericRoot, { recursive: true });
+  await mkdir(applicationRoot, { recursive: true });
+  await writeFile(path.join(genericRoot, "shell.tsx"), "import '@/components/workspace/status';\n", "utf8");
+  await writeFile(path.join(applicationRoot, "status.tsx"), "export {};\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      uiComposition: {
+        primitiveRoot: "components/ui",
+        genericRoots: ["components/layout"],
+        genericFiles: [],
+        applicationRoots: ["components/workspace"],
+        featureRoot: "features",
+        shadcnPrimitiveNames: []
+      }
+    },
+    projects: [{ name: "web", type: "app", root: "apps/web" }]
+  });
+
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "ui-composition-direction");
+});
+
+test("rejects named shadcn replacements outside the primitive root", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-shadcn-ownership-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const componentRoot = path.join(root, "apps", "web", "components");
+  await mkdir(componentRoot, { recursive: true });
+  await writeFile(path.join(componentRoot, "button.tsx"), "export {};\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      uiComposition: {
+        primitiveRoot: "components/ui",
+        genericRoots: [],
+        genericFiles: [],
+        applicationRoots: [],
+        featureRoot: "features",
+        shadcnPrimitiveNames: ["button"]
+      }
+    },
+    projects: [{ name: "web", type: "app", root: "apps/web" }]
+  });
+
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "shadcn-primitive-ownership");
+});
+
+test("rejects external implementations hidden outside server integrations", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-integration-boundary-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const configRoot = path.join(root, "servers", "api", "config");
+  await mkdir(configRoot, { recursive: true });
+  await writeFile(path.join(configRoot, "database.ts"), "import mongoose from 'mongoose';\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      integrations: { serverDirectory: "integrations", externalImplementationPackages: ["mongoose"] }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "external-integration-boundary");
+});
+
+test("requires an established reusable integration package", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-reusable-integration-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const integrationRoot = path.join(root, "servers", "api", "integrations", "mongodb");
+  await mkdir(integrationRoot, { recursive: true });
+  await writeFile(path.join(integrationRoot, "client.ts"), "import mongoose from 'mongoose';\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      integrations: {
+        serverDirectory: "integrations",
+        externalImplementationPackages: ["mongoose"],
+        reusableImplementations: { mongoose: "@workspace/mongodb" }
+      }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "reusable-integration-package");
+});

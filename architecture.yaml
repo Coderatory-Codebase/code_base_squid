@@ -23,6 +23,10 @@
     },
     "additionalUnits": "when-required"
   },
+  "growthModel": {
+    "principle": "everything-available-nothing-unnecessarily-imposed",
+    "progression": ["simple", "modular", "bounded", "scalable", "distributed-when-justified", "platform-when-justified"]
+  },
   "featureModel": {
     "ownership": "feature-first",
     "growth": "progressive",
@@ -66,6 +70,47 @@
     "environmentValidationFile": "validation/env.validation.ts",
     "forbidDefaultsInEnvironmentValidation": true,
     "validationPackages": ["zod"]
+  },
+  "uiComposition": {
+    "primitiveRoot": "components/ui",
+    "genericRoots": ["components/layout", "components/feedback"],
+    "genericFiles": ["components/page-header.tsx"],
+    "applicationRoots": ["components/workspace"],
+    "featureRoot": "features",
+    "shadcnPrimitiveNames": [
+      "alert",
+      "avatar",
+      "badge",
+      "button",
+      "card",
+      "dialog",
+      "dropdown-menu",
+      "form",
+      "input",
+      "label",
+      "select",
+      "separator",
+      "sheet",
+      "skeleton",
+      "tabs",
+      "tooltip"
+    ]
+  },
+  "integrations": {
+    "serverDirectory": "integrations",
+    "externalImplementationPackages": ["mongoose", "redis", "stripe"],
+    "reusableImplementations": {
+      "mongoose": "@workspace/mongodb"
+    }
+  },
+  "contractOwnership": {
+    "sharedTypesRoot": "packages/types",
+    "sharedValidationRoot": "packages/validation",
+    "extractionRule": "genuine-cross-boundary-reuse"
+  },
+  "testingModel": {
+    "principle": "behavior-and-boundaries-not-files",
+    "levels": ["unit", "component", "integration", "e2e"]
   },
   "programmingModel": {
     "prefer": ["pure-functions", "immutable-data", "composition", "explicit-dependencies"],

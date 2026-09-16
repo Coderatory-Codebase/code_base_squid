@@ -1,0 +1,13 @@
+{
+  "name": "types",
+  "type": "package",
+  "description": "Shared cross-workspace TypeScript contracts.",
+  "internalDependencies": [],
+  "externalDependencies": [],
+  "capabilities": ["shared-types", "api-contracts"],
+  "tasks": {
+    "build": { "command": "npm run build", "outputs": ["dist"], "cache": true },
+    "lint": { "command": "npm run lint", "cache": false },
+    "typecheck": { "command": "npm run typecheck", "cache": false }
+  }
+}
