@@ -7,4 +7,6 @@ test("renders the workspace bootstrap", () => {
   const markup = renderToStaticMarkup(<HomePage />);
   assert.match(markup, /The application foundation is running/);
   assert.match(markup, /http:\/\/localhost:4000/);
+  assert.match(markup, /API health/);
+  assert.match(markup, /data-slot="button"/);
 });

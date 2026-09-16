@@ -1,11 +1,13 @@
+import { createLogger } from "@workspace/logging";
 import { createApp } from "./bootstrap/create-app.js";
 import { createServer } from "./bootstrap/create-server.js";
+import { createApiConfig } from "./config/api.js";
 import { createDatabase } from "./config/database.js";
-import { readApiConfig } from "./config/environment.js";
-import { createConsoleLogger } from "./observability/logger.js";
+import { readApiEnvironment } from "./config/env.js";
+import { apiRuntime } from "./constants/runtime.js";
 
-const config = readApiConfig();
-const logger = createConsoleLogger();
+const config = createApiConfig(readApiEnvironment());
+const logger = createLogger({ service: apiRuntime.serviceName, level: config.logLevel });
 const database = createDatabase({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})

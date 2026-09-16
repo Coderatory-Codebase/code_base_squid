@@ -45,6 +45,26 @@ test("rejects a server importing application code", async (context) => {
   assert.equal(findings[0].rule, "server-dependency-direction");
 });
 
+test("rejects observability implementation owned by a server", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-server-observability-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const sourceRoot = path.join(root, "servers", "api", "observability");
+  await mkdir(sourceRoot, { recursive: true });
+  await writeFile(path.join(sourceRoot, "logger.ts"), "export {};\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: { serverDisallowedSegments: ["observability"] }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].rule, "server-operational-observability");
+});
+
 test("enforces domain isolation for flat feature file roles", async (context) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "repo-flat-domain-"));
   context.after(() => rm(root, { recursive: true, force: true }));

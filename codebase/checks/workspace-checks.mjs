@@ -2,7 +2,7 @@ import path from "node:path";
 import { projectManifestFileName, validateProjectManifest } from "../projects/manifest.mjs";
 import { workspaceRoots } from "../workspace/discovery.mjs";
 import { createDependencyGraph, findGraphIssues, topologicalProjectOrder } from "../graph/dependency-graph.mjs";
-import { pathExists, walkFiles } from "../utilities/fs.mjs";
+import { pathExists, readJsonFile, walkFiles } from "../utilities/fs.mjs";
 import { validateArchitectureBoundaries } from "../validators/architecture-boundaries.mjs";
 import { createExecutionPlan, listTasks } from "../execution/tasks.mjs";
 import { validateArchitectureConfiguration } from "../configuration/architecture.mjs";
@@ -107,7 +107,6 @@ export const checkReservedControlPlaneDependencies = async (workspace) => {
     return [];
   }
 
-  const { readJsonFile } = await import("../utilities/fs.mjs");
   const packageJson = await readJsonFile(packageJsonPath);
   const dependencyNames = [
     ...Object.keys(packageJson.dependencies ?? {}),
@@ -120,6 +119,35 @@ export const checkReservedControlPlaneDependencies = async (workspace) => {
       level: "error",
       message: `Disallowed monorepo orchestration dependency found in root package.json: ${name}`
     }));
+};
+
+const typeScriptExtensions = new Set([".ts", ".tsx", ".mts", ".cts"]);
+
+export const checkTypeScriptConfiguration = async (workspace) => {
+  const requiredOptions = workspace.architecture.typescript?.requiredCompilerOptions ?? [];
+  const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
+  const projectResults = await Promise.all(workspace.projects.map(async (project) => {
+    const projectRoot = path.join(workspace.root, project.root);
+    const files = await walkFiles(projectRoot, { ignoredDirectories });
+    const hasTypeScript = files.some((file) => typeScriptExtensions.has(path.extname(file)));
+    if (!hasTypeScript) return [];
+
+    const tsconfigPath = path.join(projectRoot, "tsconfig.json");
+    if (!(await pathExists(tsconfigPath))) {
+      return [{ level: "error", message: `${project.name} contains TypeScript but has no tsconfig.json.` }];
+    }
+
+    const tsconfig = await readJsonFile(tsconfigPath);
+    const compilerOptions = tsconfig.compilerOptions ?? {};
+    return requiredOptions
+      .filter((option) => compilerOptions[option] !== true)
+      .map((option) => ({
+        level: "error",
+        message: `${project.name} tsconfig.json must explicitly enable compilerOptions.${option}.`
+      }));
+  }));
+
+  return projectResults.flat();
 };
 
 export const checkTaskGraph = (workspace) => {
@@ -145,6 +173,7 @@ export const runWorkspaceChecks = async (workspace) => [
   ...checkDependencyGraph(workspace),
   ...checkTaskGraph(workspace),
   ...(await checkReservedControlPlaneDependencies(workspace)),
+  ...(await checkTypeScriptConfiguration(workspace)),
   ...(await validateArchitectureBoundaries(workspace))
 ];
 

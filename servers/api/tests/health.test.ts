@@ -1,16 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import type { Logger, LogContext } from "@workspace/logging";
 import { createApp } from "../bootstrap/create-app.js";
 import { createServer } from "../bootstrap/create-server.js";
-import type { ApiConfig } from "../config/environment.js";
-import type { Logger } from "../observability/logger.js";
+import type { ApiConfig } from "../config/api.js";
 
-const logger: Logger = { info: () => undefined, warn: () => undefined, error: () => undefined };
+const httpLogs: Array<Readonly<{ message: string; context?: LogContext }>> = [];
+const logger: Logger = {
+  info: (message, context) => { httpLogs.push({ message, ...(context ? { context } : {}) }); },
+  warn: () => undefined,
+  error: () => undefined
+};
 const config: ApiConfig = {
   environment: "test",
   host: "127.0.0.1",
   port: 0,
-  webOrigin: "http://localhost:3000"
+  webOrigin: "http://localhost:3000",
+  logLevel: "silent"
 };
 
 void test("GET /health reports a healthy API runtime", async (context) => {
@@ -22,6 +28,8 @@ void test("GET /health reports a healthy API runtime", async (context) => {
   const response = await fetch(`http://127.0.0.1:${String(address.port)}/health`);
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { status: "ok", service: "api", environment: "test" });
+  assert.ok(httpLogs.some(({ message, context: logContext }) =>
+    message === "HTTP request" && typeof logContext?.http === "string"));
 });
 
 void test("unknown routes use the API error boundary", async (context) => {

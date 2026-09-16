@@ -45,7 +45,20 @@
     "serviceCannotImportFileRoles": ["route", "controller", "model"],
     "uiSegments": ["components", "ui"],
     "persistenceSegments": ["models", "persistence", "repositories"],
-    "persistenceFileRoles": ["model", "repository"]
+    "persistenceFileRoles": ["model", "repository"],
+    "serverDisallowedSegments": ["observability"]
+  },
+  "typescript": {
+    "requiredCompilerOptions": [
+      "strict",
+      "noImplicitAny",
+      "strictNullChecks",
+      "noImplicitReturns",
+      "noImplicitOverride",
+      "noUncheckedIndexedAccess",
+      "exactOptionalPropertyTypes",
+      "useUnknownInCatchVariables"
+    ]
   },
   "programmingModel": {
     "prefer": ["pure-functions", "immutable-data", "composition", "explicit-dependencies"],

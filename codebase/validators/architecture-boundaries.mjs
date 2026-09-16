@@ -36,6 +36,13 @@ const issue = (workspaceRoot, sourceFile, specifier, rule, detail) => ({
   message: `${toPosixPath(path.relative(workspaceRoot, sourceFile))} imports "${specifier}": ${detail}`
 });
 
+const localIssue = (workspaceRoot, sourceFile, rule, detail) => ({
+  level: "error",
+  rule,
+  file: toPosixPath(path.relative(workspaceRoot, sourceFile)),
+  message: `${toPosixPath(path.relative(workspaceRoot, sourceFile))}: ${detail}`
+});
+
 export const validateArchitectureBoundaries = async (workspace) => {
   const policy = workspace.architecture.boundaries ?? {};
   const dependencyDirection = {
@@ -58,6 +65,15 @@ export const validateArchitectureBoundaries = async (workspace) => {
     const source = await readFile(filePath, "utf8");
     const sourceSegments = segmentsOf(path.relative(workspace.root, filePath));
     const sourceFeature = featureIdentity(sourceSegments);
+
+    if (project.type === "server" && includesSegment(sourceSegments, policy.serverDisallowedSegments ?? [])) {
+      findings.push(localIssue(
+        workspace.root,
+        filePath,
+        "server-operational-observability",
+        "server-local observability is prohibited; use packages/logging for implementation and enablers/observability for operational ownership."
+      ));
+    }
 
     for (const specifier of getImports(source)) {
       const targetPath = resolveWorkspaceImport({ workspaceRoot: workspace.root, sourceFile: filePath, specifier });

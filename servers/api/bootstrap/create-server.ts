@@ -1,7 +1,7 @@
 import { createServer as createNodeServer } from "node:http";
 import type { Express } from "express";
-import type { ApiConfig } from "../config/environment.js";
-import type { Logger } from "../observability/logger.js";
+import type { Logger } from "@workspace/logging";
+import type { ApiConfig } from "../config/api.js";
 
 type ServerDependencies = Readonly<{ app: Express; config: ApiConfig; logger: Logger }>;
 

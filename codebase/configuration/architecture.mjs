@@ -63,6 +63,9 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (!architecture.boundaries || typeof architecture.boundaries !== "object") {
     issues.push({ level: "error", message: "Architecture policy is missing boundary configuration." });
   }
+  if (!Array.isArray(architecture.typescript?.requiredCompilerOptions)) {
+    issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredCompilerOptions array." });
+  }
   if (architecture.workspaceModel?.repositoryIsWorkspace !== true || architecture.workspaceModel?.mandatoryProjectNamespace !== false) {
     issues.push({ level: "error", message: "Architecture workspace model must define the repository as the workspace without a mandatory project namespace." });
   }

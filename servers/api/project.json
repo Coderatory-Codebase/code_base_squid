@@ -2,7 +2,7 @@
   "name": "api",
   "type": "server",
   "description": "Primary Express API runtime.",
-  "internalDependencies": [],
+  "internalDependencies": ["logging"],
   "externalDependencies": ["express", "mongoose", "zod"],
   "capabilities": ["http-api", "health", "mongoose"],
   "tasks": {

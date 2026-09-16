@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { Logger } from "../observability/logger.js";
+import type { Logger } from "@workspace/logging";
 
 type MongooseConnection = Pick<typeof mongoose, "connect" | "disconnect">;
 

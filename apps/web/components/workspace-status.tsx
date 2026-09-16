@@ -1,4 +1,5 @@
 import { Activity, Database, Globe2, Server } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type WorkspaceStatusProps = Readonly<{ apiBaseUrl: string }>;
 
@@ -40,7 +41,12 @@ export const WorkspaceStatus = ({ apiBaseUrl }: WorkspaceStatusProps) => (
 
     <footer className="mt-auto flex flex-col gap-2 border-t border-neutral-200 pt-6 text-sm text-neutral-600 sm:flex-row sm:items-center sm:justify-between">
       <span>API boundary</span>
-      <code className="w-fit rounded bg-neutral-100 px-2 py-1 font-mono text-xs text-neutral-800">{apiBaseUrl}</code>
+      <div className="flex flex-wrap items-center gap-3">
+        <code className="w-fit rounded bg-neutral-100 px-2 py-1 font-mono text-xs text-neutral-800">{apiBaseUrl}</code>
+        <Button asChild size="sm" variant="outline">
+          <a href={`${apiBaseUrl}/health`}>API health</a>
+        </Button>
+      </div>
     </footer>
   </main>
 );

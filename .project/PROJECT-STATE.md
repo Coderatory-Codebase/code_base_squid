@@ -6,6 +6,8 @@ M03.2 — First Workspace Bootstrap
 
 STATUS: COMPLETE
 
+REMEDIATED: 2026-09-16
+
 ## Implemented
 
 - Code, control, and agent planes have explicit roots.
@@ -30,26 +32,28 @@ STATUS: COMPLETE
 
 ## Workspace units
 
-- `apps/web` is the primary Next.js 16.3.5 and React 19.3 application, using the App Router, strict TypeScript 5.9, Tailwind CSS 4, ESLint, and a shadcn/ui-compatible configuration.
-- `servers/api` is the primary Express 5.2 API runtime, using strict TypeScript, Zod configuration validation, a local Mongoose 9 connection boundary, functional logging and error middleware, graceful shutdown, and `GET /health`.
+- `apps/web` is the primary Next.js 16.3.5 and React 19.3 application, using the App Router, strict TypeScript 5.9, Tailwind CSS 4, ESLint, and a working shadcn/ui Button with its generated import path and theme tokens.
+- `servers/api` is the primary Express 5.2 API runtime, using strict TypeScript, separated Zod environment validation, a local Mongoose 9 connection boundary, composed logging and error middleware, graceful shutdown, and `GET /health`.
+- `packages/logging` exposes the intentional `@workspace/logging` public API around Pino application logging and Morgan HTTP request logging; the API consumes it through the workspace package export.
+- `enablers/observability` owns future operational observability configuration, while an executable architecture rule prohibits duplicate server-local observability implementations.
 - Web and API remain independently buildable workspace units and communicate only through the configured HTTP boundary; the control plane can run their long-lived development tasks concurrently.
 - npm workspaces and the root `package-lock.json` are the sole package-management foundation.
 
 ## Bootstrap structure
 
 - Web routing owns `layout`, home, loading, error, and not-found entry points.
-- The web unit has application-owned configuration, constants, shell UI, and a minimal `cn` utility needed by future shadcn/ui components. No feature directory exists yet.
-- The API composes configuration, logging, database, middleware, app, and HTTP server through explicit functional dependencies. No business feature exists yet.
+- The web unit separates environment access, Zod validation, derived API configuration, fixed constants, shell UI, and its shadcn/ui foundation. No feature directory exists yet.
+- The API separates environment access, Zod validation, derived runtime configuration, and fixed constants, then composes logging, database, middleware, app, and HTTP server through explicit functional dependencies. No business feature exists yet.
 - Environment guidance is provided through unit-local `.env.example` files; secrets and local environment files are ignored.
+- Every TypeScript workspace unit explicitly enables the repository's strict compiler-option set, and repository validation enforces both the presence of `tsconfig.json` and those options.
 
 ## Validation evidence
 
-- All 26 M03/M03.1 control-plane tests pass.
-- API health and error-boundary integration tests pass; the web server-render smoke test passes.
-- Both units pass strict TypeScript checks and ESLint.
-- API and Next.js production builds pass through the repository control plane.
-- The compiled API returned HTTP 200 from `/health`; the production web server returned HTTP 200 with the expected rendered page.
-- Repository validation, architecture checks, security scanning, module parsing, dependency audit, and Git whitespace checks pass.
+- All M03/M03.1 control-plane tests pass, with three additional remediation checks covering strict TypeScript configuration and API-local observability ownership.
+- Logging, API health, error-boundary, environment-validation, and web server-render tests pass, including rendering the generated shadcn/ui Button.
+- All workspace units pass strict TypeScript checks, ESLint, and production builds through the repository control plane.
+- Runtime smoke tests verify the web page, API `/health`, structured startup and Morgan request logs, and graceful API shutdown.
+- Repository validation, architecture checks, security scanning, module parsing, workspace package resolution, dependency audit, and Git whitespace checks pass.
 
 ## Deferred until justified
 
@@ -59,7 +63,7 @@ STATUS: COMPLETE
 - Empty feature, infrastructure, or project-knowledge folder trees.
 - Authentication, users, sessions, authorization, and all other business features.
 - A required MongoDB runtime connection; `MONGODB_URI` remains optional until the first persistence-backed feature.
-- Extraction of database, logging, errors, validation, or UI into reusable packages until real cross-boundary reuse is demonstrated.
+- Extraction of database, errors, validation, or UI into reusable packages until real cross-boundary reuse is demonstrated.
 - Deployment-specific standalone web packaging and production observability infrastructure.
 
 ## Next milestone

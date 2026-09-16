@@ -1,6 +1,6 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
 import { ZodError } from "zod";
-import type { Logger } from "../observability/logger.js";
+import type { Logger } from "@workspace/logging";
 
 export type ApplicationError = Readonly<{
   kind: "application-error";
