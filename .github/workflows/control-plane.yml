@@ -10,9 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm run node:check
-      - run: npm test
-      - run: npm run repo -- profile ${{ github.event_name == 'pull_request' && 'pull-request' || 'main' }} --json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run node:check
+      - run: pnpm test
+      - run: pnpm run repo -- profile ${{ github.event_name == 'pull_request' && 'pull-request' || 'main' }} --json

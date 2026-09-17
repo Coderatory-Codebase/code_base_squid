@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { Activity } from "lucide-react";
-import { PageHeader, PageShell } from "@/components/layout";
+import { PageHeader, PageShell } from "@workspace/ui";
 import { ApiBoundary } from "./api-boundary";
 import { RuntimeFoundation } from "./runtime-foundation";
 

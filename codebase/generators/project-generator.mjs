@@ -3,22 +3,22 @@ import path from "node:path";
 
 const defaultTasksByType = {
   app: {
-    dev: { command: "npm run dev" },
-    build: { command: "npm run build" },
-    test: { command: "npm test" }
+    dev: { command: "pnpm run dev" },
+    build: { command: "pnpm run build" },
+    test: { command: "pnpm test" }
   },
   server: {
-    dev: { command: "npm run dev" },
-    build: { command: "npm run build" },
-    test: { command: "npm test" }
+    dev: { command: "pnpm run dev" },
+    build: { command: "pnpm run build" },
+    test: { command: "pnpm test" }
   },
   package: {
-    build: { command: "npm run build" },
-    test: { command: "npm test" },
-    lint: { command: "npm run lint" }
+    build: { command: "pnpm run build" },
+    test: { command: "pnpm test" },
+    lint: { command: "pnpm run lint" }
   },
   prebuilt: {
-    check: { command: "npm run check" }
+    check: { command: "pnpm run check" }
   }
 };
 

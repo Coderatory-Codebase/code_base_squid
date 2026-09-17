@@ -1,10 +1,10 @@
 {
-  "name": "logging",
+  "name": "ui",
   "type": "package",
-  "description": "Reusable structured application and HTTP logging capability.",
+  "description": "Reusable shadcn-based UI primitives and generic compositions.",
   "internalDependencies": [],
-  "externalDependencies": ["morgan", "pino"],
-  "capabilities": ["application-logging", "http-logging"],
+  "externalDependencies": ["@radix-ui/react-slot", "class-variance-authority", "clsx", "react", "tailwind-merge"],
+  "capabilities": ["shadcn-ui", "generic-ui", "react-components"],
   "tasks": {
     "build": { "command": "pnpm run build", "outputs": ["dist"], "cache": true },
     "test": { "command": "pnpm test", "cache": false },

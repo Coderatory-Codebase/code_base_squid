@@ -6,8 +6,8 @@
   "externalDependencies": [],
   "capabilities": ["shared-types", "api-contracts"],
   "tasks": {
-    "build": { "command": "npm run build", "outputs": ["dist"], "cache": true },
-    "lint": { "command": "npm run lint", "cache": false },
-    "typecheck": { "command": "npm run typecheck", "cache": false }
+    "build": { "command": "pnpm run build", "outputs": ["dist"], "cache": true },
+    "lint": { "command": "pnpm run lint", "cache": false },
+    "typecheck": { "command": "pnpm run typecheck", "cache": false }
   }
 }

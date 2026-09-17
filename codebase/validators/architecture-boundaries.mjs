@@ -78,26 +78,45 @@ export const validateArchitectureBoundaries = async (workspace) => {
     const project = workspace.projects.find(({ name }) => name === boundary.project);
     return project ? [{ ...boundary, project }] : [];
   });
-  const packageModuleSpecifiers = new Set();
+  const packageModuleSpecifiers = new Map();
+
+  if (typeof uiPolicy.packageProject === "string"
+    && !workspace.projects.some(({ name }) => name === uiPolicy.packageProject)) {
+    findings.push({
+      level: "error",
+      rule: "generic-ui-ownership",
+      file: "architecture.yaml",
+      message: `Configured generic UI package ${uiPolicy.packageProject} is not a discovered workspace project.`
+    });
+  }
 
   for (const boundary of moduleBoundaries.filter(({ project }) => project.type === "package")) {
     const packageJsonPath = path.resolve(workspace.root, boundary.project.root, "package.json");
     if (await pathExists(packageJsonPath)) {
       const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8"));
-      if (typeof packageJson.name === "string") packageModuleSpecifiers.add(packageJson.name);
+      if (typeof packageJson.name === "string") {
+        packageModuleSpecifiers.set(packageJson.name, Object.keys(packageJson.exports ?? { ".": true }));
+      }
     }
   }
 
   for (const boundary of moduleBoundaries) {
     const moduleRoot = path.resolve(workspace.root, boundary.project.root, boundary.root);
     const moduleIndex = path.join(moduleRoot, "index.ts");
+    const moduleIndexSource = await pathExists(moduleIndex) ? await readFile(moduleIndex, "utf8") : "";
     if (!(await pathExists(moduleIndex))) {
       findings.push(localIssue(workspace.root, moduleRoot, "module-public-surface", `module ${boundary.root} requires an index.ts public surface.`));
     }
     for (const category of boundary.categories) {
       const categoryRoot = path.join(moduleRoot, category);
-      if (!(await pathExists(path.join(categoryRoot, "index.ts")))) {
+      const categoryIndex = path.join(categoryRoot, "index.ts");
+      if (!(await pathExists(categoryIndex))) {
         findings.push(localIssue(workspace.root, categoryRoot, "module-public-surface", `category ${boundary.root}/${category} requires an index.ts public surface.`));
+      }
+    }
+    for (const category of boundary.rootExports ?? []) {
+      if (!new RegExp(`["']\\./${category}(?:/index(?:\\.js)?)?["']`).test(moduleIndexSource)) {
+        findings.push(localIssue(workspace.root, moduleIndex, "module-public-export", `module ${boundary.root} must re-export the ${category} category public surface.`));
       }
     }
     const moduleFiles = await walkFiles(moduleRoot, { ignoredDirectories });
@@ -109,17 +128,45 @@ export const validateArchitectureBoundaries = async (workspace) => {
     }
   }
 
+  for (const project of workspace.projects) {
+    for (const area of ["constants", "types"]) {
+      const areaRoot = path.resolve(workspace.root, project.root, area);
+      const directSourceFiles = (await walkFiles(areaRoot, { ignoredDirectories })).filter((file) => {
+        const relative = toPosixPath(path.relative(areaRoot, file));
+        return !relative.includes("/") && relative !== "index.ts" && sourceExtensions.has(path.extname(file));
+      });
+      if (directSourceFiles.length > 1) {
+        findings.push(localIssue(
+          workspace.root,
+          areaRoot,
+          `${area}-dumping-ground`,
+          `${area}/ contains multiple unrelated root source files; categorize them behind meaningful public modules.`
+        ));
+      }
+    }
+  }
+
   for (const { project, filePath } of projectFiles.flat()) {
     const source = await readFile(filePath, "utf8");
     const sourceSegments = segmentsOf(path.relative(workspace.root, filePath));
     const projectRelativePath = toPosixPath(path.relative(path.resolve(workspace.root, project.root), filePath));
     const sourceFeature = featureIdentity(sourceSegments);
-    const sourceUiLayer = project.type === "app" ? uiLayer(projectRelativePath, uiPolicy) : undefined;
+    const usesUiPackageModel = typeof uiPolicy.packageProject === "string";
+    const isUiPackage = project.name === uiPolicy.packageProject;
+    const sourceUiLayer = isUiPackage || (!usesUiPackageModel && project.type === "app")
+      ? uiLayer(projectRelativePath, uiPolicy)
+      : project.type === "app" && (uiPolicy.applicationRoots ?? []).some((root) => startsWithPath(projectRelativePath, root))
+        ? "application"
+        : project.type === "app" && startsWithPath(projectRelativePath, uiPolicy.featureRoot ?? "features")
+          ? "feature"
+          : undefined;
 
-    if (project.type === "app" && projectRelativePath.startsWith("components/")) {
+    if ((isUiPackage || project.type === "app") && projectRelativePath.includes("/")) {
       const componentName = path.basename(filePath, path.extname(filePath));
-      const isPrimitive = startsWithPath(projectRelativePath, uiPolicy.primitiveRoot ?? "components/ui");
-      if (!isPrimitive && (uiPolicy.shadcnPrimitiveNames ?? []).includes(componentName)) {
+      const isPrimitive = isUiPackage && startsWithPath(projectRelativePath, uiPolicy.primitiveRoot ?? "components/ui");
+      const isLegacyPrimitive = !usesUiPackageModel && project.type === "app"
+        && startsWithPath(projectRelativePath, uiPolicy.primitiveRoot ?? "components/ui");
+      if (!isPrimitive && !isLegacyPrimitive && (uiPolicy.shadcnPrimitiveNames ?? []).includes(componentName)) {
         findings.push(localIssue(
           workspace.root,
           filePath,
@@ -127,6 +174,25 @@ export const validateArchitectureBoundaries = async (workspace) => {
           `${componentName} duplicates a named shadcn primitive outside ${uiPolicy.primitiveRoot ?? "components/ui"}.`
         ));
       }
+    }
+
+    if (usesUiPackageModel && project.type === "app"
+      && (uiPolicy.appForbiddenGenericRoots ?? []).some((root) => startsWithPath(projectRelativePath, root))) {
+      findings.push(localIssue(
+        workspace.root,
+        filePath,
+        "generic-ui-ownership",
+        `generic UI belongs in the ${uiPolicy.packageProject} package, not an application-local generic UI root.`
+      ));
+    }
+
+    if (isUiPackage && sourceSegments.includes("features")) {
+      findings.push(localIssue(
+        workspace.root,
+        filePath,
+        "feature-ui-ownership",
+        "feature-specific UI must remain in its owning application feature."
+      ));
     }
 
     if (project.type === "server" && includesSegment(sourceSegments, policy.serverDisallowedSegments ?? [])) {
@@ -139,15 +205,20 @@ export const validateArchitectureBoundaries = async (workspace) => {
     }
 
     for (const specifier of getImports(source)) {
-      for (const packageName of packageModuleSpecifiers) {
+      for (const [packageName, exportKeys] of packageModuleSpecifiers) {
         if (specifier.startsWith(`${packageName}/`)) {
-          findings.push(issue(
-            workspace.root,
-            filePath,
-            specifier,
-            "module-public-import",
-            `consumers must import the ${packageName} package public root.`
-          ));
+          const subpath = `./${specifier.slice(packageName.length + 1)}`;
+          const isExported = exportKeys.some((key) => key === subpath
+            || (key.endsWith("/*") && subpath.startsWith(key.slice(0, -1))));
+          if (!isExported) {
+            findings.push(issue(
+              workspace.root,
+              filePath,
+              specifier,
+              "module-public-import",
+              `consumers must use an exported ${packageName} public surface.`
+            ));
+          }
         }
       }
       const targetPath = resolveWorkspaceImport({

@@ -5,10 +5,56 @@ import path from "node:path";
 import os from "node:os";
 import {
   checkMissingProjectManifests,
+  checkPackageManagerArchitecture,
   checkTypeScriptArchitecture,
   checkTypeScriptConfiguration,
   checkTypeScriptTaskCoverage
 } from "./workspace-checks.mjs";
+
+test("rejects stale npm workspace metadata and non-workspace internal dependencies", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-package-manager-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(path.join(root, "apps", "web"), { recursive: true });
+  await mkdir(path.join(root, "packages", "ui"), { recursive: true });
+  await writeFile(path.join(root, "package.json"), JSON.stringify({
+    packageManager: "pnpm@11.19.0",
+    workspaces: ["apps/*"],
+    scripts: { test: "npm test" }
+  }), "utf8");
+  await writeFile(path.join(root, "pnpm-workspace.yaml"), "packages:\n  - \"apps/*\"\n  - \"packages/*\"\nallowBuilds:\n  esbuild: true\n", "utf8");
+  await writeFile(path.join(root, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n", "utf8");
+  await writeFile(path.join(root, "apps", "web", "package.json"), JSON.stringify({
+    name: "@workspace/web",
+    dependencies: { "@workspace/ui": "0.1.0" }
+  }), "utf8");
+  await writeFile(path.join(root, "packages", "ui", "package.json"), JSON.stringify({ name: "@workspace/ui" }), "utf8");
+
+  const issues = await checkPackageManagerArchitecture({
+    root,
+    architecture: {
+      packageManagement: {
+        manager: "pnpm",
+        packageManagerVersion: "11.19.0",
+        workspaceFile: "pnpm-workspace.yaml",
+        workspacePatterns: ["apps/*", "packages/*"],
+        allowedBuildDependencies: ["esbuild", "unrs-resolver"],
+        lockfile: "pnpm-lock.yaml",
+        forbiddenLockfiles: ["package-lock.json"],
+        internalDependencyProtocol: "workspace:"
+      }
+    },
+    projects: [
+      { name: "web", root: "apps/web", internalDependencies: ["ui"], tasks: [{ name: "test", command: "npm test" }] },
+      { name: "ui", root: "packages/ui", internalDependencies: [], tasks: [] }
+    ]
+  });
+
+  assert.ok(issues.some((issue) => issue.message.includes("stale npm workspaces")));
+  assert.ok(issues.some((issue) => issue.message.includes("stale npm command")));
+  assert.ok(issues.some((issue) => issue.message.includes("must execute through pnpm")));
+  assert.ok(issues.some((issue) => issue.message.includes("workspace:")));
+  assert.ok(issues.some((issue) => issue.message.includes("allowBuilds")));
+});
 
 test("reports package-defined workspace units without a project manifest", async (context) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "repo-missing-manifest-"));

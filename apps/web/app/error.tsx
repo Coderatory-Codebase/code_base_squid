@@ -2,7 +2,7 @@
 
 import { CircleAlert, RotateCcw } from "lucide-react";
 import { useEffect, type ReactElement } from "react";
-import { Button, MessageState } from "@/components";
+import { Button, MessageState } from "@workspace/ui";
 import type { ErrorPageProps } from "@/types";
 
 const ErrorPage = ({ error, reset }: ErrorPageProps): ReactElement => {

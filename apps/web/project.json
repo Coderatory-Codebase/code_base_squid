@@ -2,14 +2,14 @@
   "name": "web",
   "type": "app",
   "description": "Primary Next.js web application.",
-  "internalDependencies": [],
-  "externalDependencies": ["next", "react", "react-dom", "shadcn", "tailwindcss", "zod"],
+  "internalDependencies": ["ui"],
+  "externalDependencies": ["lucide-react", "next", "react", "react-dom", "tailwindcss", "zod"],
   "capabilities": ["web", "app-router", "shadcn-ui", "tailwind"],
   "tasks": {
-    "dev": { "command": "npm run dev", "cache": false },
-    "build": { "command": "npm run build", "outputs": [".next"], "environment": ["NEXT_PUBLIC_API_BASE_URL"], "cache": true },
-    "test": { "command": "npm test", "cache": false },
-    "lint": { "command": "npm run lint", "cache": false },
-    "typecheck": { "command": "npm run typecheck", "cache": false }
+    "dev": { "command": "pnpm run dev", "cache": false },
+    "build": { "command": "pnpm run build", "outputs": [".next"], "environment": ["NEXT_PUBLIC_API_BASE_URL"], "cache": true },
+    "test": { "command": "pnpm test", "cache": false },
+    "lint": { "command": "pnpm run lint", "cache": false },
+    "typecheck": { "command": "pnpm run typecheck", "cache": false }
   }
 }

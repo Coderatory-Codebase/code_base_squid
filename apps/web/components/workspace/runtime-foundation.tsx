@@ -15,14 +15,14 @@ const foundations: readonly WorkspaceFoundation[] = [
 
 export const RuntimeFoundation = (): ReactElement => (
   <section aria-labelledby="foundation-heading" className="py-8">
-    <h2 id="foundation-heading" className="text-sm font-semibold text-neutral-950">Runtime foundation</h2>
-    <div className="mt-4 grid border-y border-neutral-200 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+    <h2 id="foundation-heading" className="text-sm font-semibold text-foreground">Runtime foundation</h2>
+    <div className="mt-4 grid border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
       {foundations.map(({ label, detail, icon: Icon }) => (
-        <div className="flex min-h-28 items-start gap-3 border-b border-neutral-200 py-5 last:border-b-0 sm:border-b-0 sm:px-5 sm:first:pl-0" key={label}>
-          <Icon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-neutral-500" />
+        <div className="flex min-h-28 items-start gap-3 border-b border-border py-5 last:border-b-0 sm:border-b-0 sm:px-5 sm:first:pl-0" key={label}>
+          <Icon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
           <div>
-            <p className="font-medium text-neutral-950">{label}</p>
-            <p className="mt-1 text-sm leading-6 text-neutral-600">{detail}</p>
+            <p className="font-medium text-foreground">{label}</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{detail}</p>
           </div>
         </div>
       ))}

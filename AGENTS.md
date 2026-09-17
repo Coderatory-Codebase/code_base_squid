@@ -41,21 +41,24 @@ The control plane lives in `codebase/`. It must not use Turborepo, Nx, Lerna, or
 `architecture.yaml` uses the JSON-compatible subset of YAML so Node.js can load the
 authoritative policy without adding a parser dependency to the control plane.
 
+pnpm is the repository package manager. Internal package dependencies use `workspace:*`,
+and `pnpm-workspace.yaml` is the authoritative package-workspace definition.
+
 Workspace-unit code under `apps/`, `servers/`, `packages/`, and `prebuilt/` may use appropriate external libraries. The control plane should stay dependency-light and prefer Node.js built-ins plus repository-owned code. `packages/` owns reusable pieces; `prebuilt/` owns assembled reusable solutions; `enablers/` owns operational support.
 
 Useful commands:
 
 ```text
-npm run projects
-npm run graph
-npm run tasks
-npm run dev
-npm run build
-npm run lint
-npm run typecheck
-npm run check
-npm run scan
-npm test
+pnpm run projects
+pnpm run graph
+pnpm run tasks
+pnpm run dev
+pnpm run build
+pnpm run lint
+pnpm run typecheck
+pnpm run check
+pnpm run scan
+pnpm test
 ```
 
 Workspace-unit tasks run through `node codebase/cli/repo.mjs run <task>`. Use `--dry-run` to

@@ -82,10 +82,13 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (!architecture.uiComposition || typeof architecture.uiComposition !== "object") {
     issues.push({ level: "error", message: "Architecture policy is missing UI composition rules." });
   } else {
-    for (const field of ["genericRoots", "genericFiles", "applicationRoots", "shadcnPrimitiveNames"]) {
+    for (const field of ["genericRoots", "genericFiles", "applicationRoots", "appForbiddenGenericRoots", "shadcnPrimitiveNames"]) {
       if (!Array.isArray(architecture.uiComposition[field])) {
         issues.push({ level: "error", message: `Architecture uiComposition.${field} must be an array.` });
       }
+    }
+    if (typeof architecture.uiComposition.packageProject !== "string") {
+      issues.push({ level: "error", message: "Architecture uiComposition.packageProject must identify the generic UI package." });
     }
   }
   if (!architecture.integrations || typeof architecture.integrations !== "object") {
@@ -97,8 +100,27 @@ export const validateArchitectureConfiguration = (architecture) => {
     issues.push({ level: "error", message: "Architecture policy requires a moduleBoundaries array." });
   } else {
     for (const boundary of architecture.moduleBoundaries) {
-      if (typeof boundary?.project !== "string" || typeof boundary?.root !== "string" || !Array.isArray(boundary?.categories)) {
-        issues.push({ level: "error", message: "Each module boundary requires project, root, and categories fields." });
+      if (typeof boundary?.project !== "string" || typeof boundary?.root !== "string"
+        || !Array.isArray(boundary?.categories) || !Array.isArray(boundary?.rootExports)) {
+        issues.push({ level: "error", message: "Each module boundary requires project, root, categories, and rootExports fields." });
+      }
+    }
+  }
+  const packageManagement = architecture.packageManagement;
+  if (!packageManagement || typeof packageManagement !== "object") {
+    issues.push({ level: "error", message: "Architecture policy is missing package-management rules." });
+  } else {
+    if (packageManagement.manager !== "pnpm") {
+      issues.push({ level: "error", message: "Architecture package manager must be pnpm." });
+    }
+    for (const field of ["workspacePatterns", "forbiddenLockfiles", "allowedBuildDependencies"]) {
+      if (!Array.isArray(packageManagement[field])) {
+        issues.push({ level: "error", message: `Architecture packageManagement.${field} must be an array.` });
+      }
+    }
+    for (const field of ["packageManagerVersion", "workspaceFile", "lockfile", "internalDependencyProtocol"]) {
+      if (typeof packageManagement[field] !== "string") {
+        issues.push({ level: "error", message: `Architecture packageManagement.${field} must be a string.` });
       }
     }
   }

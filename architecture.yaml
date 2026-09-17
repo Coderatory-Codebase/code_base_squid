@@ -10,7 +10,7 @@
       "prebuilt": "prebuilt"
     },
     "requiredRoots": ["apps", "servers", "packages", "prebuilt", "codebase", "enablers", ".agent", ".project", ".github"],
-    "requiredFiles": ["AGENTS.md", "CLAUDE.md", "architecture.yaml", "package.json"],
+    "requiredFiles": ["AGENTS.md", "CLAUDE.md", "architecture.yaml", "package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
     "disallowedOrchestrators": ["turbo", "turborepo", "nx", "lerna"],
     "ignoredDirectories": [".git", ".next", ".repo-cache", "node_modules", "dist", "build", "coverage"]
   },
@@ -72,10 +72,12 @@
     "validationPackages": ["zod"]
   },
   "uiComposition": {
-    "primitiveRoot": "components/ui",
-    "genericRoots": ["components/layout", "components/feedback"],
+    "packageProject": "ui",
+    "primitiveRoot": "src/primitives",
+    "genericRoots": ["src/components", "src/compositions"],
     "genericFiles": [],
     "applicationRoots": ["components/workspace"],
+    "appForbiddenGenericRoots": ["components/ui", "components/layout", "components/feedback"],
     "featureRoot": "features",
     "shadcnPrimitiveNames": [
       "alert",
@@ -100,12 +102,24 @@
     "serverDirectory": "integrations",
     "externalImplementationPackages": ["mongoose", "redis", "stripe"]
   },
+  "packageManagement": {
+    "manager": "pnpm",
+    "packageManagerVersion": "11.19.0",
+    "workspaceFile": "pnpm-workspace.yaml",
+    "workspacePatterns": ["apps/*", "servers/*", "packages/*", "prebuilt/*"],
+    "allowedBuildDependencies": ["esbuild", "unrs-resolver"],
+    "lockfile": "pnpm-lock.yaml",
+    "forbiddenLockfiles": ["package-lock.json", "yarn.lock"],
+    "internalDependencyProtocol": "workspace:"
+  },
   "moduleBoundaries": [
-    { "project": "web", "root": "components", "categories": ["feedback", "layout", "ui", "workspace"] },
-    { "project": "web", "root": "types", "categories": ["configuration", "routing"] },
-    { "project": "api", "root": "integrations", "categories": ["mongodb"] },
-    { "project": "api", "root": "types", "categories": ["configuration"] },
-    { "project": "types", "root": "src", "categories": ["api", "errors"] }
+    { "project": "web", "root": "components", "categories": ["workspace"], "rootExports": ["workspace"] },
+    { "project": "web", "root": "types", "categories": ["configuration", "routing"], "rootExports": ["configuration", "routing"] },
+    { "project": "api", "root": "integrations", "categories": ["mongodb"], "rootExports": ["mongodb"] },
+    { "project": "api", "root": "constants", "categories": ["errors", "http", "runtime"], "rootExports": ["errors", "http", "runtime"] },
+    { "project": "api", "root": "types", "categories": ["configuration"], "rootExports": ["configuration"] },
+    { "project": "types", "root": "src", "categories": ["api", "errors"], "rootExports": ["api", "errors"] },
+    { "project": "ui", "root": "src", "categories": ["components", "compositions", "primitives", "utilities"], "rootExports": ["components", "compositions", "primitives"] }
   ],
   "contractOwnership": {
     "sharedTypesRoot": "packages/types",

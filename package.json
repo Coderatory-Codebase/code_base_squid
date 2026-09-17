@@ -2,12 +2,7 @@
   "name": "monorepo-foundation",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "servers/*",
-    "packages/*",
-    "prebuilt/*"
-  ],
+  "packageManager": "pnpm@11.19.0",
   "scripts": {
     "repo": "node codebase/cli/repo.mjs",
     "graph": "node codebase/cli/repo.mjs graph",
@@ -25,7 +20,8 @@
     "scan": "node codebase/cli/repo.mjs scan",
     "validate": "node codebase/cli/repo.mjs validate",
     "node:check": "node codebase/checks/node-syntax.mjs",
-    "test": "npm run test:control-plane && npm run test:units"
+    "ui:add": "pnpm --dir packages/ui run ui:add",
+    "test": "pnpm run test:control-plane && pnpm run test:units"
   },
   "engines": {
     "node": ">=20.19.0"

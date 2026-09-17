@@ -30,9 +30,6 @@
       }
     ],
     "paths": {
-      "@/components": [
-        "./components/index.ts"
-      ],
       "@/*": [
         "./*"
       ]
