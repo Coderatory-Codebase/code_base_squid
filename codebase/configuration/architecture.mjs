@@ -92,10 +92,15 @@ export const validateArchitectureConfiguration = (architecture) => {
     issues.push({ level: "error", message: "Architecture policy is missing integration-boundary rules." });
   } else if (!Array.isArray(architecture.integrations.externalImplementationPackages)) {
     issues.push({ level: "error", message: "Architecture integrations.externalImplementationPackages must be an array." });
-  } else if (!architecture.integrations.reusableImplementations
-    || typeof architecture.integrations.reusableImplementations !== "object"
-    || Array.isArray(architecture.integrations.reusableImplementations)) {
-    issues.push({ level: "error", message: "Architecture integrations.reusableImplementations must be an object." });
+  }
+  if (!Array.isArray(architecture.moduleBoundaries)) {
+    issues.push({ level: "error", message: "Architecture policy requires a moduleBoundaries array." });
+  } else {
+    for (const boundary of architecture.moduleBoundaries) {
+      if (typeof boundary?.project !== "string" || typeof boundary?.root !== "string" || !Array.isArray(boundary?.categories)) {
+        issues.push({ level: "error", message: "Each module boundary requires project, root, and categories fields." });
+      }
+    }
   }
   if (architecture.contractOwnership?.sharedTypesRoot !== "packages/types"
     || architecture.contractOwnership?.extractionRule !== "genuine-cross-boundary-reuse") {

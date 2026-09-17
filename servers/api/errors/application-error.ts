@@ -1,4 +1,4 @@
-import type { ApplicationError } from "../types/index.js";
+import type { ApplicationError } from "./types.js";
 
 type ApplicationErrorInput = Omit<ApplicationError, "kind">;
 

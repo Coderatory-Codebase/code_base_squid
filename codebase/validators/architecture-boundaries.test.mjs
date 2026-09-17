@@ -184,7 +184,7 @@ test("rejects external implementations hidden outside server integrations", asyn
   assert.equal(findings[0].rule, "external-integration-boundary");
 });
 
-test("requires an established reusable integration package", async (context) => {
+test("allows a server-owned external implementation inside its integration boundary", async (context) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "repo-reusable-integration-"));
   context.after(() => rm(root, { recursive: true, force: true }));
   const integrationRoot = path.join(root, "servers", "api", "integrations", "mongodb");
@@ -198,13 +198,84 @@ test("requires an established reusable integration package", async (context) => 
       boundaries: {},
       integrations: {
         serverDirectory: "integrations",
-        externalImplementationPackages: ["mongoose"],
-        reusableImplementations: { mongoose: "@workspace/mongodb" }
+        externalImplementationPackages: ["mongoose"]
       }
     },
     projects: [{ name: "api", type: "server", root: "servers/api" }]
   });
 
-  assert.equal(findings.length, 1);
-  assert.equal(findings[0].rule, "reusable-integration-package");
+  assert.equal(findings.length, 0);
+});
+
+test("requires categorized modules to expose indexes without root dumping-ground files", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-module-surface-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const typesRoot = path.join(root, "apps", "web", "types");
+  await mkdir(path.join(typesRoot, "configuration"), { recursive: true });
+  await writeFile(path.join(typesRoot, "misc.ts"), "export type Misc = string;\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      moduleBoundaries: [{ project: "web", root: "types", categories: ["configuration"] }]
+    },
+    projects: [{ name: "web", type: "app", root: "apps/web" }]
+  });
+
+  assert.equal(findings.filter(({ rule }) => rule === "module-public-surface").length, 2);
+  assert.equal(findings.filter(({ rule }) => rule === "module-dumping-ground").length, 1);
+});
+
+test("rejects consumers bypassing a categorized module public index", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-module-import-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const projectRoot = path.join(root, "apps", "web");
+  await mkdir(path.join(projectRoot, "components", "feedback"), { recursive: true });
+  await mkdir(path.join(projectRoot, "app"), { recursive: true });
+  await writeFile(path.join(projectRoot, "components", "index.ts"), "export * from './feedback';\n", "utf8");
+  await writeFile(path.join(projectRoot, "components", "feedback", "index.ts"), "export * from './message';\n", "utf8");
+  await writeFile(path.join(projectRoot, "components", "feedback", "message.tsx"), "export const Message = () => null;\n", "utf8");
+  await writeFile(path.join(projectRoot, "app", "page.tsx"), "import '@/components/feedback/message';\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      moduleBoundaries: [{ project: "web", root: "components", categories: ["feedback"] }]
+    },
+    projects: [{ name: "web", type: "app", root: "apps/web" }]
+  });
+
+  assert.equal(findings.filter(({ rule }) => rule === "module-public-import").length, 1);
+});
+
+test("rejects deep imports that bypass a workspace package public root", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-package-public-import-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const packageRoot = path.join(root, "packages", "types");
+  const appRoot = path.join(root, "apps", "web");
+  await mkdir(path.join(packageRoot, "src", "api"), { recursive: true });
+  await mkdir(appRoot, { recursive: true });
+  await writeFile(path.join(packageRoot, "package.json"), JSON.stringify({ name: "@workspace/types" }), "utf8");
+  await writeFile(path.join(packageRoot, "src", "index.ts"), "export * from './api';\n", "utf8");
+  await writeFile(path.join(packageRoot, "src", "api", "index.ts"), "export type Health = 'ok';\n", "utf8");
+  await writeFile(path.join(appRoot, "page.ts"), "import type { Health } from '@workspace/types/api';\nexport const status: Health = 'ok';\n", "utf8");
+
+  const findings = await validateArchitectureBoundaries({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      boundaries: {},
+      moduleBoundaries: [{ project: "types", root: "src", categories: ["api"] }]
+    },
+    projects: [
+      { name: "web", type: "app", root: "apps/web" },
+      { name: "types", type: "package", root: "packages/types" }
+    ]
+  });
+
+  assert.equal(findings.filter(({ rule }) => rule === "module-public-import").length, 1);
 });

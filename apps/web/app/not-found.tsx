@@ -1,8 +1,7 @@
 import type { ReactElement } from "react";
 import { CircleAlert } from "lucide-react";
 import Link from "next/link";
-import { MessageState } from "@/components/feedback/message-state";
-import { Button } from "@/components/ui/button";
+import { Button, MessageState } from "@/components";
 
 const NotFound = (): ReactElement => (
   <MessageState

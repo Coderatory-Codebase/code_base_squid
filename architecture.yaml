@@ -74,7 +74,7 @@
   "uiComposition": {
     "primitiveRoot": "components/ui",
     "genericRoots": ["components/layout", "components/feedback"],
-    "genericFiles": ["components/page-header.tsx"],
+    "genericFiles": [],
     "applicationRoots": ["components/workspace"],
     "featureRoot": "features",
     "shadcnPrimitiveNames": [
@@ -98,11 +98,15 @@
   },
   "integrations": {
     "serverDirectory": "integrations",
-    "externalImplementationPackages": ["mongoose", "redis", "stripe"],
-    "reusableImplementations": {
-      "mongoose": "@workspace/mongodb"
-    }
+    "externalImplementationPackages": ["mongoose", "redis", "stripe"]
   },
+  "moduleBoundaries": [
+    { "project": "web", "root": "components", "categories": ["feedback", "layout", "ui", "workspace"] },
+    { "project": "web", "root": "types", "categories": ["configuration", "routing"] },
+    { "project": "api", "root": "integrations", "categories": ["mongodb"] },
+    { "project": "api", "root": "types", "categories": ["configuration"] },
+    { "project": "types", "root": "src", "categories": ["api", "errors"] }
+  ],
   "contractOwnership": {
     "sharedTypesRoot": "packages/types",
     "sharedValidationRoot": "packages/validation",

@@ -2,8 +2,7 @@ import type { ErrorRequestHandler, RequestHandler } from "express";
 import { ZodError } from "zod";
 import type { Logger } from "@workspace/logging";
 import type { ApiErrorResponse } from "@workspace/types";
-import { ERROR_CODES, ERROR_MESSAGES } from "../constants/errors.js";
-import { HTTP_STATUS } from "../constants/http.js";
+import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../constants/index.js";
 import { createApplicationError, isApplicationError } from "../errors/index.js";
 
 export const createNotFoundHandler = (): RequestHandler => (request, _response, next) => {

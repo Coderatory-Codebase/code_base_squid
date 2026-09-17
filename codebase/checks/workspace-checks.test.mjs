@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { checkMissingProjectManifests, checkTypeScriptArchitecture, checkTypeScriptConfiguration } from "./workspace-checks.mjs";
+import {
+  checkMissingProjectManifests,
+  checkTypeScriptArchitecture,
+  checkTypeScriptConfiguration,
+  checkTypeScriptTaskCoverage
+} from "./workspace-checks.mjs";
 
 test("reports package-defined workspace units without a project manifest", async (context) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "repo-missing-manifest-"));
@@ -55,6 +60,24 @@ test("requires a tsconfig for TypeScript workspace units", async (context) => {
 
   assert.equal(issues.length, 1);
   assert.match(issues[0].message, /has no tsconfig\.json/);
+});
+
+test("requires lint and typecheck tasks plus ESLint configuration for TypeScript workspace units", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-typescript-task-coverage-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const projectRoot = path.join(root, "apps", "web");
+  await mkdir(projectRoot, { recursive: true });
+  await writeFile(path.join(projectRoot, "index.ts"), "export const value = 1;\n", "utf8");
+
+  const issues = await checkTypeScriptTaskCoverage({
+    root,
+    architecture: { foundation: { ignoredDirectories: [] } },
+    projects: [{ name: "web", root: "apps/web", tasks: [{ name: "lint", command: "eslint ." }] }]
+  });
+
+  assert.equal(issues.length, 2);
+  assert.ok(issues.some((issue) => issue.message.includes("typecheck task")));
+  assert.ok(issues.some((issue) => issue.message.includes("eslint.config.mjs")));
 });
 
 test("rejects explicit any and environment defaults in TypeScript workspace units", async (context) => {

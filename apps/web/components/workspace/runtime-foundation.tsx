@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
-import { Database, Globe2, Server } from "lucide-react";
-import type { WorkspaceFoundation } from "@/types";
+import { Database, Globe2, Server, type LucideIcon } from "lucide-react";
+
+type WorkspaceFoundation = Readonly<{
+  label: string;
+  detail: string;
+  icon: LucideIcon;
+}>;
 
 const foundations: readonly WorkspaceFoundation[] = [
   { label: "Web", detail: "Next.js 16 / React 19", icon: Globe2 },

@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
-import { WorkspaceStatus } from "@/components/workspace/workspace-status";
-import { createApiConfiguration } from "@/config/api";
-import { readWebEnvironment } from "@/config/env";
+import { WorkspaceStatus } from "@/components";
+import { createApiConfiguration, readWebEnvironment } from "@/config";
 
 const HomePage = (): ReactElement => {
   const api = createApiConfiguration(readWebEnvironment());

@@ -1,8 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { ZodError } from "zod";
-import { createApiConfig } from "../config/api.js";
-import { readApiEnvironment } from "../config/env.js";
+import { createApiConfig, readApiEnvironment } from "../config/index.js";
 
 void test("derives API configuration from validated environment input", () => {
   const environment = readApiEnvironment({

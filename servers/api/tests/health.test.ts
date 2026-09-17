@@ -1,10 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import type { Logger, LogContext } from "@workspace/logging";
-import { createApp } from "../bootstrap/create-app.js";
-import { createServer } from "../bootstrap/create-server.js";
-import { ERROR_CODES, ERROR_MESSAGES } from "../constants/errors.js";
-import { HTTP_STATUS } from "../constants/http.js";
+import { createApp, createServer } from "../bootstrap/index.js";
+import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../constants/index.js";
 import type { ApiConfig } from "../types/index.js";
 
 const httpLogs: Array<Readonly<{ message: string; context?: LogContext }>> = [];

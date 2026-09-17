@@ -2,10 +2,8 @@ import express, { type Express } from "express";
 import { createHttpLogger, type Logger } from "@workspace/logging";
 import type { ApiHealthResponse } from "@workspace/types";
 import type { ApiConfig } from "../types/index.js";
-import { apiRuntime } from "../constants/runtime.js";
-import { HTTP_STATUS } from "../constants/http.js";
-import { createCorsMiddleware } from "../middleware/cors.js";
-import { createErrorHandler, createNotFoundHandler } from "../middleware/errors.js";
+import { apiRuntime, HTTP_STATUS } from "../constants/index.js";
+import { createCorsMiddleware, createErrorHandler, createNotFoundHandler } from "../middleware/index.js";
 
 type AppDependencies = Readonly<{ config: ApiConfig; logger: Logger }>;
 

@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import { HTTP_STATUS } from "../constants/http.js";
+import { HTTP_STATUS } from "../constants/index.js";
 
 export const createCorsMiddleware = ({ origin }: { origin: string }): RequestHandler =>
   (request, response, next) => {

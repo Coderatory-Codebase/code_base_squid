@@ -159,6 +159,29 @@ export const checkTypeScriptConfiguration = async (workspace) => {
   return projectResults.flat();
 };
 
+export const checkTypeScriptTaskCoverage = async (workspace) => {
+  const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
+  const projectResults = await Promise.all(workspace.projects.map(async (project) => {
+    const projectRoot = path.join(workspace.root, project.root);
+    const files = await walkFiles(projectRoot, { ignoredDirectories });
+    const hasTypeScript = files.some((file) => typeScriptExtensions.has(path.extname(file)));
+    if (!hasTypeScript) return [];
+
+    const issues = [];
+    for (const taskName of ["lint", "typecheck"]) {
+      if (!project.tasks?.some((task) => task.name === taskName)) {
+        issues.push({ level: "error", message: `${project.name} contains TypeScript but has no ${taskName} task.` });
+      }
+    }
+    if (!(await pathExists(path.join(projectRoot, "eslint.config.mjs")))) {
+      issues.push({ level: "error", message: `${project.name} contains TypeScript but has no eslint.config.mjs.` });
+    }
+    return issues;
+  }));
+
+  return projectResults.flat();
+};
+
 export const checkTypeScriptArchitecture = async (workspace) => {
   const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
   const typeBoundaryProjectTypes = workspace.architecture.typescript?.requiredTypeBoundaryProjectTypes ?? [];
@@ -230,6 +253,7 @@ export const runWorkspaceChecks = async (workspace) => [
   ...checkTaskGraph(workspace),
   ...(await checkReservedControlPlaneDependencies(workspace)),
   ...(await checkTypeScriptConfiguration(workspace)),
+  ...(await checkTypeScriptTaskCoverage(workspace)),
   ...(await checkTypeScriptArchitecture(workspace)),
   ...(await validateArchitectureBoundaries(workspace))
 ];

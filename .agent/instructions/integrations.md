@@ -16,6 +16,7 @@ Configuration may provide validated connection inputs, but it must not initializ
 client. Integration factories receive explicit dependencies and return functional contracts;
 do not introduce service locators, mutable global clients, DI containers, or class hierarchies.
 
-The current MongoDB path demonstrates the model: `@workspace/mongodb` owns reusable Mongoose
-connection mechanics, while `servers/api/integrations/mongodb` owns optional API-runtime
-composition and logging. Future feature repositories will own persistence operations.
+The current MongoDB path demonstrates the model: `servers/api/integrations/mongodb` owns the
+typed Mongoose adapter, optional API-runtime connection lifecycle, and logging. It remains
+server-owned until a second runtime demonstrates real reuse. Future feature repositories will
+own persistence operations and depend on this integration boundary rather than Mongoose.

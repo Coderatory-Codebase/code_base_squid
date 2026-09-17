@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 import { Activity } from "lucide-react";
-import { PageShell } from "@/components/layout/page-shell";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader, PageShell } from "@/components/layout";
 import { ApiBoundary } from "./api-boundary";
 import { RuntimeFoundation } from "./runtime-foundation";
 

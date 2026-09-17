@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import { PageShell } from "@/components/layout/page-shell";
+import { PageShell } from "@/components/layout";
 
 type MessageStateProps = Readonly<{
   action?: ReactNode;

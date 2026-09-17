@@ -1,6 +1,6 @@
 import path from "node:path";
 import { readFile } from "node:fs/promises";
-import { toPosixPath, walkFiles } from "../utilities/fs.mjs";
+import { pathExists, toPosixPath, walkFiles } from "../utilities/fs.mjs";
 
 const sourceExtensions = new Set([".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".mts", ".cts"]);
 const importPattern = /(?:import|export)\s+(?:[^"']*?\s+from\s+)?["']([^"']+)["']|require\(\s*["']([^"']+)["']\s*\)|import\(\s*["']([^"']+)["']\s*\)/g;
@@ -74,6 +74,40 @@ export const validateArchitectureBoundaries = async (workspace) => {
       .map((filePath) => ({ project, filePath }));
   }));
   const findings = [];
+  const moduleBoundaries = (workspace.architecture.moduleBoundaries ?? []).flatMap((boundary) => {
+    const project = workspace.projects.find(({ name }) => name === boundary.project);
+    return project ? [{ ...boundary, project }] : [];
+  });
+  const packageModuleSpecifiers = new Set();
+
+  for (const boundary of moduleBoundaries.filter(({ project }) => project.type === "package")) {
+    const packageJsonPath = path.resolve(workspace.root, boundary.project.root, "package.json");
+    if (await pathExists(packageJsonPath)) {
+      const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8"));
+      if (typeof packageJson.name === "string") packageModuleSpecifiers.add(packageJson.name);
+    }
+  }
+
+  for (const boundary of moduleBoundaries) {
+    const moduleRoot = path.resolve(workspace.root, boundary.project.root, boundary.root);
+    const moduleIndex = path.join(moduleRoot, "index.ts");
+    if (!(await pathExists(moduleIndex))) {
+      findings.push(localIssue(workspace.root, moduleRoot, "module-public-surface", `module ${boundary.root} requires an index.ts public surface.`));
+    }
+    for (const category of boundary.categories) {
+      const categoryRoot = path.join(moduleRoot, category);
+      if (!(await pathExists(path.join(categoryRoot, "index.ts")))) {
+        findings.push(localIssue(workspace.root, categoryRoot, "module-public-surface", `category ${boundary.root}/${category} requires an index.ts public surface.`));
+      }
+    }
+    const moduleFiles = await walkFiles(moduleRoot, { ignoredDirectories });
+    for (const file of moduleFiles) {
+      const relative = toPosixPath(path.relative(moduleRoot, file));
+      if (!relative.includes("/") && sourceExtensions.has(path.extname(file)) && relative !== "index.ts") {
+        findings.push(localIssue(workspace.root, file, "module-dumping-ground", `categorized module ${boundary.root} may only expose source from its root index.ts.`));
+      }
+    }
+  }
 
   for (const { project, filePath } of projectFiles.flat()) {
     const source = await readFile(filePath, "utf8");
@@ -105,6 +139,17 @@ export const validateArchitectureBoundaries = async (workspace) => {
     }
 
     for (const specifier of getImports(source)) {
+      for (const packageName of packageModuleSpecifiers) {
+        if (specifier.startsWith(`${packageName}/`)) {
+          findings.push(issue(
+            workspace.root,
+            filePath,
+            specifier,
+            "module-public-import",
+            `consumers must import the ${packageName} package public root.`
+          ));
+        }
+      }
       const targetPath = resolveWorkspaceImport({
         workspaceRoot: workspace.root,
         projectRoot: project.root,
@@ -117,16 +162,7 @@ export const validateArchitectureBoundaries = async (workspace) => {
       if (project.type === "server") {
         const externalRoot = specifier.startsWith("@") ? specifier.split("/").slice(0, 2).join("/") : specifier.split("/")[0];
         const isIntegrationFile = sourceSegments.includes(integrationPolicy.serverDirectory ?? "integrations");
-        const reusableImplementation = integrationPolicy.reusableImplementations?.[externalRoot];
-        if (reusableImplementation) {
-          findings.push(issue(
-            workspace.root,
-            filePath,
-            specifier,
-            "reusable-integration-package",
-            `server code must consume ${reusableImplementation} instead of importing ${externalRoot} directly.`
-          ));
-        } else if ((integrationPolicy.externalImplementationPackages ?? []).includes(externalRoot) && !isIntegrationFile) {
+        if ((integrationPolicy.externalImplementationPackages ?? []).includes(externalRoot) && !isIntegrationFile) {
           findings.push(issue(
             workspace.root,
             filePath,
@@ -134,6 +170,29 @@ export const validateArchitectureBoundaries = async (workspace) => {
             "external-integration-boundary",
             `server code must access ${externalRoot} through an integrations/ boundary or reusable package.`
           ));
+        }
+      }
+
+      if (targetPath) {
+        const normalizedTarget = toPosixPath(path.relative(path.resolve(workspace.root, project.root), targetPath))
+          .replace(/\.[^/.]+$/, "")
+          .replace(/\/index$/, "");
+        for (const boundary of moduleBoundaries.filter(({ project: owner }) => owner.name === project.name)) {
+          for (const category of boundary.categories) {
+            const categoryRoot = `${boundary.root}/${category}`;
+            const sourcePath = projectRelativePath.replace(/\.[^/.]+$/, "");
+            const importsCategoryInternal = normalizedTarget.startsWith(`${categoryRoot}/`);
+            const sourceOwnsCategory = sourcePath.startsWith(`${categoryRoot}/`);
+            if (importsCategoryInternal && !sourceOwnsCategory) {
+              findings.push(issue(
+                workspace.root,
+                filePath,
+                specifier,
+                "module-public-import",
+                `consumers outside ${categoryRoot} must import its public index.`
+              ));
+            }
+          }
         }
       }
 

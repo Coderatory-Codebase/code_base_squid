@@ -1,5 +1,6 @@
-import { createMongoConnection, type MongoClient, type MongoConnection } from "@workspace/mongodb";
+import mongoose from "mongoose";
 import type { Logger } from "@workspace/logging";
+import type { MongoClient, MongoDbIntegration } from "./types.js";
 
 type MongoDbIntegrationDependencies = Readonly<{
   uri?: string;
@@ -7,11 +8,16 @@ type MongoDbIntegrationDependencies = Readonly<{
   client?: MongoClient;
 }>;
 
+const mongooseClient: MongoClient = Object.freeze({
+  connect: (uri: string): Promise<unknown> => mongoose.connect(uri),
+  disconnect: (): Promise<void> => mongoose.disconnect()
+});
+
 export const createMongoDbIntegration = ({
   uri,
   logger,
-  client
-}: MongoDbIntegrationDependencies): MongoConnection => {
+  client = mongooseClient
+}: MongoDbIntegrationDependencies): MongoDbIntegration => {
   if (!uri) {
     return Object.freeze({
       connect: (): Promise<void> => {
@@ -22,14 +28,13 @@ export const createMongoDbIntegration = ({
     });
   }
 
-  const connection = createMongoConnection({ uri, ...(client ? { client } : {}) });
   return Object.freeze({
     connect: async (): Promise<void> => {
-      await connection.connect();
+      await client.connect(uri);
       logger.info("MongoDB connection established.");
     },
     disconnect: async (): Promise<void> => {
-      await connection.disconnect();
+      await client.disconnect();
     }
   });
 };

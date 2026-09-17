@@ -1,8 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import type { MongoClient } from "@workspace/mongodb";
 import type { Logger } from "@workspace/logging";
-import { createMongoDbIntegration } from "../integrations/mongodb/create-mongodb-integration.js";
+import { createMongoDbIntegration, type MongoClient } from "../integrations/index.js";
 
 void test("keeps persistence optional when MongoDB is not configured", async (): Promise<void> => {
   const messages: string[] = [];
@@ -19,7 +18,7 @@ void test("keeps persistence optional when MongoDB is not configured", async ():
   assert.deepEqual(messages, ["MongoDB connection is not configured; starting without persistence."]);
 });
 
-void test("composes the reusable MongoDB capability when configured", async (): Promise<void> => {
+void test("composes the server-owned MongoDB integration when configured", async (): Promise<void> => {
   const calls: string[] = [];
   const client: MongoClient = {
     connect: (uri): Promise<void> => {
