@@ -63,6 +63,23 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (!architecture.boundaries || typeof architecture.boundaries !== "object") {
     issues.push({ level: "error", message: "Architecture policy is missing boundary configuration." });
   }
+  const toolingModel = architecture.toolingModel;
+  if (!toolingModel || toolingModel.principle !== "custom-orchestration-standard-engines") {
+    issues.push({ level: "error", message: "Architecture policy must separate custom repository orchestration from standard technical engines." });
+  } else {
+    for (const [capability, engine] of Object.entries({
+      packageManagement: "pnpm",
+      typescript: "tsc",
+      lint: "eslint",
+      tests: "project-declared-runner",
+      dependencySecurity: "pnpm-audit",
+      secretDetection: "gitleaks"
+    })) {
+      if (toolingModel.standardEngines?.[capability] !== engine) {
+        issues.push({ level: "error", message: `Architecture tooling model must delegate ${capability} to ${engine}.` });
+      }
+    }
+  }
   if (!Array.isArray(architecture.typescript?.requiredCompilerOptions)) {
     issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredCompilerOptions array." });
   }
@@ -122,6 +139,23 @@ export const validateArchitectureConfiguration = (architecture) => {
       if (typeof packageManagement[field] !== "string") {
         issues.push({ level: "error", message: `Architecture packageManagement.${field} must be a string.` });
       }
+    }
+  }
+  const security = architecture.security;
+  if (!security || typeof security !== "object") {
+    issues.push({ level: "error", message: "Architecture policy is missing security tool orchestration rules." });
+  } else {
+    if (security.model !== "standard-engines-repository-policy") {
+      issues.push({ level: "error", message: "Architecture security must separate standard engines from repository policy." });
+    }
+    if (security.dependencyAudit?.engine !== "pnpm-audit"
+      || !["low", "moderate", "high", "critical"].includes(security.dependencyAudit?.minimumSeverity)) {
+      issues.push({ level: "error", message: "Architecture dependency security must configure pnpm audit with a valid minimum severity." });
+    }
+    if (security.secretScan?.engine !== "gitleaks"
+      || typeof security.secretScan?.version !== "string"
+      || typeof security.secretScan?.configuration !== "string") {
+      issues.push({ level: "error", message: "Architecture secret security must configure a pinned Gitleaks engine and native configuration." });
     }
   }
   if (architecture.contractOwnership?.sharedTypesRoot !== "packages/types"

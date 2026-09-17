@@ -1,0 +1,10 @@
+title = "Repository secret scanning policy"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated and dependency directories"
+paths = [
+  '''(^|/)(\.git|\.next|\.repo-cache|node_modules|dist|build|coverage)(/|$)'''
+]

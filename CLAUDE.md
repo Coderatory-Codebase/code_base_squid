@@ -12,6 +12,12 @@ Agent plane: .agent/, .project/, AGENTS.md, CLAUDE.md, architecture.yaml
 ```
 
 Use the repository CLI for discovery and validation instead of inventing ad hoc commands.
+`codebase/` is the custom repository control plane, not a replacement for specialized
+ecosystem tools. Keep repository discovery, graphing, planning, caching, policy, and result
+aggregation custom; delegate package management and auditing to pnpm, type checking to
+`tsc`, linting to ESLint, tests to project-declared runners, and secret detection to
+Gitleaks. Do not implement homemade scanners, compilers, linters, formatters, test runners,
+or package resolvers inside the control plane.
 
 The repository is the workspace. Do not insert a project namespace between the root and
 workspace units. Document `apps/web` and `servers/api` as defaults, but create them only

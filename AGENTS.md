@@ -37,7 +37,19 @@ such as `<feature>.route.ts`, `<feature>.controller.ts`, `<feature>.service.ts`,
 `<feature>.integration.ts`. Introduce `domain/` only for meaningful domain complexity.
 Do not create role folders or any other architectural directory merely to represent a pattern.
 
-The control plane lives in `codebase/`. It must not use Turborepo, Nx, Lerna, or another third-party monorepo orchestrator as its foundation.
+The control plane lives in `codebase/`. It owns repository discovery, dependency graphing,
+execution planning, task ordering, caching, repository policy, result normalization, and
+the CLI. It must not use Turborepo, Nx, Lerna, or another third-party monorepo orchestrator
+as its foundation.
+
+The control plane orchestrates established technical tools instead of reimplementing them.
+pnpm owns package resolution and dependency auditing; `tsc` owns TypeScript analysis;
+ESLint owns lint analysis; project-declared runners own tests; and Gitleaks owns secret
+detection. Custom checks are reserved for repository-specific architecture and governance.
+Missing required tools and tool execution failures must fail clearly rather than becoming
+successful scans. `pnpm run scan` requires Gitleaks 8.29.1 on `PATH` and contacts the
+configured package registry through `pnpm audit`.
+
 `architecture.yaml` uses the JSON-compatible subset of YAML so Node.js can load the
 authoritative policy without adding a parser dependency to the control plane.
 

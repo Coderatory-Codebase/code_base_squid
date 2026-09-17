@@ -27,6 +27,18 @@
     "principle": "everything-available-nothing-unnecessarily-imposed",
     "progression": ["simple", "modular", "bounded", "scalable", "distributed-when-justified", "platform-when-justified"]
   },
+  "toolingModel": {
+    "principle": "custom-orchestration-standard-engines",
+    "controlPlaneOwns": ["discovery", "dependency-graph", "execution-planning", "task-orchestration", "caching", "repository-policy", "result-normalization", "cli"],
+    "standardEngines": {
+      "packageManagement": "pnpm",
+      "typescript": "tsc",
+      "lint": "eslint",
+      "tests": "project-declared-runner",
+      "dependencySecurity": "pnpm-audit",
+      "secretDetection": "gitleaks"
+    }
+  },
   "featureModel": {
     "ownership": "feature-first",
     "growth": "progressive",
@@ -111,6 +123,18 @@
     "lockfile": "pnpm-lock.yaml",
     "forbiddenLockfiles": ["package-lock.json", "yarn.lock"],
     "internalDependencyProtocol": "workspace:"
+  },
+  "security": {
+    "model": "standard-engines-repository-policy",
+    "dependencyAudit": {
+      "engine": "pnpm-audit",
+      "minimumSeverity": "high"
+    },
+    "secretScan": {
+      "engine": "gitleaks",
+      "version": "8.29.1",
+      "configuration": ".gitleaks.toml"
+    }
   },
   "moduleBoundaries": [
     { "project": "web", "root": "components", "categories": ["workspace"], "rootExports": ["workspace"] },

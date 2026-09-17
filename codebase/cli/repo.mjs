@@ -6,7 +6,7 @@ import { createDependencyGraph, topologicalProjectOrder } from "../graph/depende
 import { createAffectedExecutionPlan, createExecutionPlan, listTasks } from "../execution/tasks.mjs";
 import { executePlan } from "../execution/runner.mjs";
 import { runWorkspaceChecks } from "../checks/workspace-checks.mjs";
-import { runWorkspaceScans } from "../checks/scans.mjs";
+import { runWorkspaceScans } from "../scans/index.mjs";
 import { generateProject } from "../generators/project-generator.mjs";
 import { findAffectedWorkspaceUnits } from "../affected/affected-units.mjs";
 import { createExecutionPlanContract, createResult } from "../contracts/control-plane.mjs";
@@ -59,8 +59,8 @@ const createPlan = async (workspace, taskName, args) => {
   };
 };
 
-const printIssues = (kind, issues, { json }) => {
-  const result = createResult({ kind, ok: !issues.some((issue) => issue.level === "error"), issues });
+const printIssues = (kind, issues, { json, ...details }) => {
+  const result = createResult({ kind, ok: !issues.some((issue) => issue.level === "error"), issues, ...details });
   if (json) print(result);
   else if (issues.length === 0) print("No issues found.\n");
   else issues.forEach((issue) => print(`${issue.level.toUpperCase()}: ${issue.message}\n`));
@@ -121,13 +121,22 @@ const commands = {
   build: async ({ workspace, args }) => runTaskCommand({ workspace, args, taskName: "build" }),
   test: async ({ workspace, args }) => runTaskCommand({ workspace, args, taskName: "test" }),
   check: async ({ workspace, args }) => printIssues("validation-result", await runWorkspaceChecks(workspace), { json: hasFlag(args, "json") }),
-  scan: async ({ workspace, args }) => printIssues("scan-result", await runWorkspaceScans(workspace), { json: hasFlag(args, "json") }),
-  validate: async ({ workspace, args }) => printIssues("validation-result", [...await runWorkspaceChecks(workspace), ...await runWorkspaceScans(workspace)], { json: hasFlag(args, "json") }),
+  scan: async ({ workspace, args }) => {
+    const scan = await runWorkspaceScans(workspace);
+    printIssues("scan-result", scan.issues, { json: hasFlag(args, "json"), tools: scan.tools });
+  },
+  validate: async ({ workspace, args }) => {
+    const [checks, scan] = await Promise.all([runWorkspaceChecks(workspace), runWorkspaceScans(workspace)]);
+    printIssues("validation-result", [...checks, ...scan.issues], { json: hasFlag(args, "json"), tools: scan.tools });
+  },
   profile: async ({ workspace, args }) => {
     const profile = getExecutionProfile(args[0]);
     const profileArgs = profile.affected && !hasFlag(args, "affected") ? [...args, "--affected"] : args;
-    const issueGroups = await Promise.all(profile.checks.map((name) => name === "scan" ? runWorkspaceScans(workspace) : runWorkspaceChecks(workspace)));
-    const issues = issueGroups.flat();
+    const checkResults = await Promise.all(profile.checks.map(async (name) => name === "scan"
+      ? runWorkspaceScans(workspace)
+      : { issues: await runWorkspaceChecks(workspace), tools: [] }));
+    const issues = checkResults.flatMap(({ issues: groupIssues }) => groupIssues);
+    const tools = checkResults.flatMap(({ tools: groupTools }) => groupTools);
     const taskResults = [];
     for (const taskName of profile.tasks) {
       if (!listTasks(workspace.projects).some((task) => task.name === taskName)) continue;
@@ -135,7 +144,7 @@ const commands = {
       taskResults.push(...await executePlan({ workspace, plan, dryRun: hasFlag(args, "dry-run"), captureOutput: true, concurrency: Number(getOption(args, "concurrency") ?? 1) }));
     }
     const ok = !issues.some((issue) => issue.level === "error") && !taskResults.some((result) => ["failed", "skipped"].includes(result.status));
-    const result = { kind: "execution-profile-result", ok, profile, issues, taskResults };
+    const result = { kind: "execution-profile-result", ok, profile, issues, tools, taskResults };
     if (hasFlag(args, "json")) print(result);
     else {
       print(`${profile.name}: ${ok ? "PASSED" : "FAILED"}\n`);

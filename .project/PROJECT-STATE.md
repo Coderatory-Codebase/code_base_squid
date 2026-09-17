@@ -6,11 +6,15 @@ M03.2 - First Workspace Bootstrap
 
 STATUS: COMPLETE
 
-UI, PACKAGE MANAGER, AND MODULE RECONCILIATION: 2026-09-17
+CONTROL PLANE TOOLING RECONCILIATION: 2026-09-17
 
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
+- `codebase/` owns repository discovery, dependency graphing, execution planning, task ordering, caching, repository-specific policy, result normalization, and the CLI. It delegates specialized analysis to standard engines rather than recreating them.
+- The homemade regex secret scanner was removed. Thin functional adapters now orchestrate `pnpm audit` for dependency vulnerabilities and Gitleaks 8.29.1 for secret detection, normalize their results, redact secret values, and fail closed on missing tools, malformed reports, registry failures, findings, or non-zero tool failures.
+- Type checking remains delegated to `tsc`, linting to ESLint, testing to project-declared runners, compilation to project build tools, and package resolution to pnpm. The custom dependency graph, planner, runner, cache, architecture validators, and generators remain repository-owned.
+- Gitleaks uses native `.gitleaks.toml` configuration. CI installs the pinned official release, verifies its published checksum, and exposes it to the control-plane scan.
 - pnpm 11.19.0 is the actual workspace package manager. `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `workspace:*` internal dependencies, package scripts, project tasks, CI, generator defaults, and operating guidance are aligned; the npm workspace field and `package-lock.json` were removed.
 - pnpm dependency build scripts are deny-by-default except for the explicit `esbuild` and `unrs-resolver` allowlist required by installed tooling.
 - `packages/ui` is an operational strict TypeScript workspace package with controlled compiled exports, package-local shadcn configuration, a generated shadcn Button primitive, generic PageHeader, PageShell, and MessageState compositions, and a component test.
@@ -24,11 +28,13 @@ UI, PACKAGE MANAGER, AND MODULE RECONCILIATION: 2026-09-17
 ## Validated
 
 - A frozen pnpm install succeeds across its six-package scope (the root plus five project workspaces) and executes only the two allowlisted dependency build scripts.
-- Repository syntax, architecture, security scan, project discovery, and package-manager checks pass with no issues.
+- Repository syntax, architecture, project discovery, and package-manager checks pass with no issues.
 - All five TypeScript workspaces pass independent `tsc --noEmit`: web, API, UI, logging, and shared types.
 - All five TypeScript workspaces pass independent ESLint tasks.
 - Production builds pass for web, API, UI, logging, and shared types. Next.js compiled and type-checked the app and generated `/` and `/_not-found`.
-- 42 control-plane tests pass. Fourteen workspace tests pass: four web, eight API, one UI, and one logging test.
+- 48 control-plane tests pass. Fourteen workspace tests pass: four web, eight API, one UI, and one logging test.
+- The aggregate security command passes with normalized tool results: `pnpm audit` reports zero high-or-critical dependency findings and Gitleaks reports zero secret findings.
+- Controlled standard-tool failures propagate correctly. ESLint rejected explicit `any`; `tsc` rejected an invalid assignment; the runner marked the owning task failed and skipped its dependent task; Gitleaks detected a synthetic nonfunctional AWS-style fixture without exposing its value; dependency advisory, malformed-report, and missing-tool fixtures all failed repository policy. All temporary files were removed.
 - The shadcn 4.21.0 CLI and package-local `ui:add` workflow are operational, and package exports resolve from the web tests and production build.
 - Controlled failures detected all required representative violations: duplicate shadcn primitive, flat constants, unexported package deep import, invalid workspace dependency, feature UI inside `packages/ui`, and generic UI inside `apps/web`. All temporary files and manifest changes were removed, and the real tree passes cleanly afterward.
 - Production runtime smoke checks returned HTTP 200 from the web application, rendered the expected UI-package-backed content, and returned the healthy API payload from `/health` with startup and request logging.

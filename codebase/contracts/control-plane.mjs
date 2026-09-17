@@ -11,6 +11,7 @@ export const contractNames = Object.freeze([
   "execution-plan",
   "cache-entry",
   "validation-result",
+  "tool-result",
   "scan-result"
 ]);
 
@@ -23,7 +24,8 @@ export const controlPlaneContracts = Object.freeze({
   "execution-plan": ["kind", "requestedTasks", "affectedUnits", "tasks"],
   "cache-entry": ["task", "fingerprint", "exitCode", "recordedAt"],
   "validation-result": ["kind", "ok", "issues"],
-  "scan-result": ["kind", "ok", "issues"]
+  "tool-result": ["name", "engine", "status", "exitCode", "durationMs", "findingCount"],
+  "scan-result": ["kind", "ok", "tools", "issues"]
 });
 
 export const createResult = ({ kind, ok, issues = [], ...details }) => ({
