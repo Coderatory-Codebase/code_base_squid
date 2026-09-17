@@ -21,6 +21,7 @@
     "validate": "node codebase/cli/repo.mjs validate",
     "node:check": "node codebase/checks/node-syntax.mjs",
     "ui:add": "pnpm --dir packages/ui run ui:add",
+    "ui:add:all": "pnpm --dir packages/ui run ui:add:all",
     "test": "pnpm run test:control-plane && pnpm run test:units"
   },
   "engines": {

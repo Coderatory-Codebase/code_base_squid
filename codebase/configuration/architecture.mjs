@@ -83,6 +83,9 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (!Array.isArray(architecture.typescript?.requiredCompilerOptions)) {
     issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredCompilerOptions array." });
   }
+  if (!Array.isArray(architecture.typescript?.forbiddenCompilerOptions)) {
+    issues.push({ level: "error", message: "Architecture policy requires a typescript.forbiddenCompilerOptions array." });
+  }
   if (!Array.isArray(architecture.typescript?.requiredTypeBoundaryProjectTypes)) {
     issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredTypeBoundaryProjectTypes array." });
   }
@@ -99,13 +102,31 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (!architecture.uiComposition || typeof architecture.uiComposition !== "object") {
     issues.push({ level: "error", message: "Architecture policy is missing UI composition rules." });
   } else {
-    for (const field of ["genericRoots", "genericFiles", "applicationRoots", "appForbiddenGenericRoots", "shadcnPrimitiveNames"]) {
+    for (const field of ["genericRoots", "genericFiles", "applicationRoots", "appForbiddenGenericRoots", "shadcnPrimitiveNames", "registryCatalogItems", "registryUnavailableItems"]) {
       if (!Array.isArray(architecture.uiComposition[field])) {
         issues.push({ level: "error", message: `Architecture uiComposition.${field} must be an array.` });
       }
     }
     if (typeof architecture.uiComposition.packageProject !== "string") {
       issues.push({ level: "error", message: "Architecture uiComposition.packageProject must identify the generic UI package." });
+    }
+    if (architecture.uiComposition.registryFirst !== true) {
+      issues.push({ level: "error", message: "Architecture UI composition must require registry-first component creation." });
+    }
+    for (const field of ["registryConfig", "registryCliPackage", "registryCliVersion", "registryAddScript", "registryAddAllScript"]) {
+      if (typeof architecture.uiComposition[field] !== "string") {
+        issues.push({ level: "error", message: `Architecture uiComposition.${field} must be a string.` });
+      }
+    }
+    if (!architecture.uiComposition.registryAliases || typeof architecture.uiComposition.registryAliases !== "object"
+      || Array.isArray(architecture.uiComposition.registryAliases)) {
+      issues.push({ level: "error", message: "Architecture uiComposition.registryAliases must be an object." });
+    }
+    const primitiveNames = new Set(architecture.uiComposition.shadcnPrimitiveNames ?? []);
+    for (const item of architecture.uiComposition.registryCatalogItems ?? []) {
+      if (!primitiveNames.has(item)) {
+        issues.push({ level: "error", message: `Registry catalog item ${item} must be protected as a shadcn primitive name.` });
+      }
     }
   }
   if (!architecture.integrations || typeof architecture.integrations !== "object") {

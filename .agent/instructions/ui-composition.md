@@ -1,9 +1,13 @@
 # UI Composition Instructions
 
 The default web foundation is shadcn/ui, Tailwind CSS, and CSS-variable design tokens.
-Before creating UI, check whether shadcn already supplies the primitive. Generate and use
-that primitive through `packages/ui` instead of building a parallel Button, Input, Dialog,
-Card, or other named primitive inside an application.
+Before creating any UI component, search the configured shadcn registry first. When a suitable
+component exists, install it with `pnpm run ui:add <component>` and compose from the generated
+source in `packages/ui`; do not copy registry source manually or build a parallel Button, Input,
+Dialog, Card, or other named primitive. Use `pnpm run ui:add:all` only when deliberately
+reconciling the complete style-compatible official catalog. Both commands run the
+repository-pinned shadcn CLI against `packages/ui/components.json`; the architecture policy
+records registry entries that are searchable but unavailable for the configured style.
 
 Compose upward in this order:
 

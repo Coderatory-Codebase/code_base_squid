@@ -19,8 +19,9 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
+      "#ui": ["./src/index.ts"],
+      "#ui/*": ["./src/*"],
       "@workspace/ui": ["./src/index.ts"],
       "@workspace/ui/*": ["./src/*"]
     }

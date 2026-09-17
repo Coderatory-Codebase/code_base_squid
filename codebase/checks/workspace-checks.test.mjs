@@ -8,7 +8,8 @@ import {
   checkPackageManagerArchitecture,
   checkTypeScriptArchitecture,
   checkTypeScriptConfiguration,
-  checkTypeScriptTaskCoverage
+  checkTypeScriptTaskCoverage,
+  checkUiRegistryWorkflow
 } from "./workspace-checks.mjs";
 
 test("rejects stale npm workspace metadata and non-workspace internal dependencies", async (context) => {
@@ -89,6 +90,62 @@ test("requires configured strict TypeScript options in TypeScript workspace unit
 
   assert.equal(issues.length, 1);
   assert.match(issues[0].message, /compilerOptions\.noImplicitAny/);
+});
+
+test("rejects forbidden TypeScript compiler options", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-typescript-forbidden-config-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const projectRoot = path.join(root, "packages", "ui");
+  await mkdir(projectRoot, { recursive: true });
+  await writeFile(path.join(projectRoot, "index.ts"), "export const value = 1;\n", "utf8");
+  await writeFile(path.join(projectRoot, "tsconfig.json"), JSON.stringify({
+    compilerOptions: { strict: true, baseUrl: ".", ignoreDeprecations: "6.0" }
+  }), "utf8");
+
+  const issues = await checkTypeScriptConfiguration({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      typescript: { requiredCompilerOptions: ["strict"], forbiddenCompilerOptions: ["baseUrl", "ignoreDeprecations"] }
+    },
+    projects: [{ name: "ui", root: "packages/ui" }]
+  });
+
+  assert.equal(issues.length, 2);
+  assert.ok(issues.some((issue) => issue.message.includes("compilerOptions.baseUrl")));
+  assert.ok(issues.some((issue) => issue.message.includes("compilerOptions.ignoreDeprecations")));
+});
+
+test("requires the pinned official shadcn registry workflow", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-ui-registry-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const projectRoot = path.join(root, "packages", "ui");
+  await mkdir(projectRoot, { recursive: true });
+  await writeFile(path.join(root, "package.json"), JSON.stringify({ scripts: {} }), "utf8");
+  await writeFile(path.join(projectRoot, "package.json"), JSON.stringify({
+    scripts: { "ui:add": "custom-generator add" },
+    devDependencies: { shadcn: "^4.20.0" }
+  }), "utf8");
+
+  const issues = await checkUiRegistryWorkflow({
+    root,
+    architecture: {
+      uiComposition: {
+        packageProject: "ui",
+        registryConfig: "components.json",
+        registryCliPackage: "shadcn",
+        registryCliVersion: "4.20.0",
+        registryAddScript: "ui:add",
+        registryAddAllScript: "ui:add:all"
+      }
+    },
+    projects: [{ name: "ui", root: "packages/ui" }]
+  });
+
+  assert.equal(issues.length, 6);
+  assert.ok(issues.some((issue) => issue.message.includes("registry configuration")));
+  assert.ok(issues.some((issue) => issue.message.includes("must pin shadcn")));
+  assert.ok(issues.some((issue) => issue.message.includes("official shadcn add workflow")));
 });
 
 test("requires a tsconfig for TypeScript workspace units", async (context) => {

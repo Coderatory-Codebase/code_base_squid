@@ -9,11 +9,11 @@
     "cssVariables": true
   },
   "aliases": {
-    "components": "@workspace/ui/components",
-    "utils": "@workspace/ui/utilities",
-    "ui": "@workspace/ui/primitives",
-    "lib": "@workspace/ui",
-    "hooks": "@workspace/ui/hooks"
+    "components": "#ui/components",
+    "utils": "#ui/utilities",
+    "ui": "#ui/primitives",
+    "lib": "#ui",
+    "hooks": "#ui/hooks"
   },
   "iconLibrary": "lucide"
 }

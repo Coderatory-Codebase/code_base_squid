@@ -227,6 +227,7 @@ const explicitAnyPatterns = [
 
 export const checkTypeScriptConfiguration = async (workspace) => {
   const requiredOptions = workspace.architecture.typescript?.requiredCompilerOptions ?? [];
+  const forbiddenOptions = workspace.architecture.typescript?.forbiddenCompilerOptions ?? [];
   const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
   const projectResults = await Promise.all(workspace.projects.map(async (project) => {
     const projectRoot = path.join(workspace.root, project.root);
@@ -241,15 +242,72 @@ export const checkTypeScriptConfiguration = async (workspace) => {
 
     const tsconfig = await readJsonFile(tsconfigPath);
     const compilerOptions = tsconfig.compilerOptions ?? {};
-    return requiredOptions
+    const requiredOptionIssues = requiredOptions
       .filter((option) => compilerOptions[option] !== true)
       .map((option) => ({
         level: "error",
         message: `${project.name} tsconfig.json must explicitly enable compilerOptions.${option}.`
       }));
+    const forbiddenOptionIssues = forbiddenOptions
+      .filter((option) => compilerOptions[option] !== undefined)
+      .map((option) => ({
+        level: "error",
+        message: `${project.name} tsconfig.json must not set compilerOptions.${option}.`
+      }));
+    return [...requiredOptionIssues, ...forbiddenOptionIssues];
   }));
 
   return projectResults.flat();
+};
+
+export const checkUiRegistryWorkflow = async (workspace) => {
+  const policy = workspace.architecture.uiComposition ?? {};
+  const project = workspace.projects.find((candidate) => candidate.name === policy.packageProject);
+  if (!project) return [{ level: "error", message: `UI package project ${policy.packageProject ?? "(missing)"} is not registered.` }];
+
+  const issues = [];
+  const packageRoot = path.join(workspace.root, project.root);
+  const packageJson = await readJsonFile(path.join(packageRoot, "package.json"));
+  const rootPackageJson = await readJsonFile(path.join(workspace.root, "package.json"));
+  const configPath = path.join(packageRoot, policy.registryConfig ?? "components.json");
+  const addScript = policy.registryAddScript ?? "ui:add";
+  const addAllScript = policy.registryAddAllScript ?? "ui:add:all";
+  const cliPackage = policy.registryCliPackage ?? "shadcn";
+  const catalogItems = policy.registryCatalogItems ?? [];
+  const catalogCommand = `${cliPackage} add ${catalogItems.join(" ")} --yes --overwrite && node scripts/reconcile-registry.mjs`;
+
+  if (!(await pathExists(configPath))) {
+    issues.push({ level: "error", message: `UI registry configuration is missing: ${path.relative(workspace.root, configPath).split(path.sep).join("/")}.` });
+  } else {
+    const config = await readJsonFile(configPath);
+    for (const [alias, target] of Object.entries(policy.registryAliases ?? {})) {
+      if (config.aliases?.[alias] !== target) {
+        issues.push({ level: "error", message: `UI registry alias ${alias} must target ${target}.` });
+      }
+    }
+  }
+  if (packageJson.devDependencies?.[cliPackage] !== policy.registryCliVersion) {
+    issues.push({ level: "error", message: `${project.name} must pin ${cliPackage} to ${policy.registryCliVersion}.` });
+  }
+  if (packageJson.scripts?.[addScript] !== `${cliPackage} add`) {
+    issues.push({ level: "error", message: `${project.name} script ${addScript} must use the official ${cliPackage} add workflow.` });
+  }
+  if (packageJson.scripts?.[addAllScript] !== catalogCommand) {
+    issues.push({ level: "error", message: `${project.name} script ${addAllScript} must install the official registry catalog.` });
+  }
+  if (rootPackageJson.scripts?.[addScript] !== `pnpm --dir ${project.root} run ${addScript}`) {
+    issues.push({ level: "error", message: `Root script ${addScript} must delegate to the UI package.` });
+  }
+  if (rootPackageJson.scripts?.[addAllScript] !== `pnpm --dir ${project.root} run ${addAllScript}`) {
+    issues.push({ level: "error", message: `Root script ${addAllScript} must delegate to the UI package.` });
+  }
+  for (const item of catalogItems) {
+    const componentPath = path.join(packageRoot, policy.primitiveRoot ?? "src/primitives", `${item}.tsx`);
+    if (!(await pathExists(componentPath))) {
+      issues.push({ level: "error", message: `UI registry catalog item ${item} is not installed under the primitive root.` });
+    }
+  }
+  return issues;
 };
 
 export const checkTypeScriptTaskCoverage = async (workspace) => {
@@ -347,6 +405,7 @@ export const runWorkspaceChecks = async (workspace) => [
   ...(await checkReservedControlPlaneDependencies(workspace)),
   ...(await checkPackageManagerArchitecture(workspace)),
   ...(await checkTypeScriptConfiguration(workspace)),
+  ...(await checkUiRegistryWorkflow(workspace)),
   ...(await checkTypeScriptTaskCoverage(workspace)),
   ...(await checkTypeScriptArchitecture(workspace)),
   ...(await validateArchitectureBoundaries(workspace))

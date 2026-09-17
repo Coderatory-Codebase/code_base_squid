@@ -16,5 +16,13 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-explicit-any": "error"
     }
+  },
+  {
+    ...tseslint.configs.disableTypeChecked,
+    files: ["src/primitives/**/*.tsx", "src/hooks/**/*.tsx"],
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      "@typescript-eslint/no-explicit-any": "error"
+    }
   }
 );

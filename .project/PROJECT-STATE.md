@@ -8,6 +8,8 @@ STATUS: COMPLETE
 
 CONTROL PLANE TOOLING RECONCILIATION: 2026-09-17
 
+UI REGISTRY AND TYPESCRIPT RECONCILIATION: 2026-09-17
+
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
@@ -18,6 +20,9 @@ CONTROL PLANE TOOLING RECONCILIATION: 2026-09-17
 - pnpm 11.19.0 is the actual workspace package manager. `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `workspace:*` internal dependencies, package scripts, project tasks, CI, generator defaults, and operating guidance are aligned; the npm workspace field and `package-lock.json` were removed.
 - pnpm dependency build scripts are deny-by-default except for the explicit `esbuild` and `unrs-resolver` allowlist required by installed tooling.
 - `packages/ui` is an operational strict TypeScript workspace package with controlled compiled exports, package-local shadcn configuration, a generated shadcn Button primitive, generic PageHeader, PageShell, and MessageState compositions, and a component test.
+- `packages/ui` now owns 53 official shadcn `new-york` registry primitives under `src/primitives`, with a controlled category index, generated hooks category, source/runtime private import mappings, and the exact dependencies declared by its project manifest.
+- UI creation is registry-first and CLI-first. Root `ui:add` and `ui:add:all` commands delegate to the package-pinned shadcn 4.20.0 CLI, architecture policy fixes the source aliases and style-compatible catalog, and repository checks reject workflow, alias, version, or catalog drift.
+- Repository-owned TypeScript configuration forbids `baseUrl` and `ignoreDeprecations`. The UI package retains explicit source path mappings without `baseUrl`, and repository checks reject either forbidden compiler option.
 - `apps/web` consumes generic UI only through the `@workspace/ui` root API. Application-specific workspace components remain local, while the former app-local primitive, layout, feedback, and utility implementations were removed.
 - Tailwind CSS scans the UI package source and applies the shared shadcn CSS-variable tokens. The rendered home route composes the package Button through application-owned workspace UI.
 - API constants are categorized under `constants/errors`, `constants/http`, and `constants/runtime`, with controlled category and root exports. Existing categorized web, API, and shared types remain in their owning boundaries.
@@ -35,7 +40,10 @@ CONTROL PLANE TOOLING RECONCILIATION: 2026-09-17
 - 48 control-plane tests pass. Fourteen workspace tests pass: four web, eight API, one UI, and one logging test.
 - The aggregate security command passes with normalized tool results: `pnpm audit` reports zero high-or-critical dependency findings and Gitleaks reports zero secret findings.
 - Controlled standard-tool failures propagate correctly. ESLint rejected explicit `any`; `tsc` rejected an invalid assignment; the runner marked the owning task failed and skipped its dependent task; Gitleaks detected a synthetic nonfunctional AWS-style fixture without exposing its value; dependency advisory, malformed-report, and missing-tool fixtures all failed repository policy. All temporary files were removed.
-- The shadcn 4.21.0 CLI and package-local `ui:add` workflow are operational, and package exports resolve from the web tests and production build.
+- The package-local `ui:add` workflow and controlled UI package exports remain operational across tests and production builds.
+- The pinned shadcn 4.20.0 CLI successfully queried the official registry and generated all 53 components that expose `new-york` style artifacts. The reproducible catalog command excludes eight searchable entries whose registry style artifacts return not found: `attachment`, `bubble`, `combobox`, `direction`, `marker`, `message`, `message-scroller`, and `native-select`.
+- Registry aliases resolve generation into `packages/ui/src` without `baseUrl`; the private `#ui` import map resolves source during TypeScript compilation and compiled files at runtime. Strict UI type checking, scoped registry-source linting, the component test, and the UI build pass.
+- 50 control-plane tests pass, including enforcement tests for forbidden TypeScript compiler options and the pinned registry workflow. Fourteen workspace tests pass.
 - Controlled failures detected all required representative violations: duplicate shadcn primitive, flat constants, unexported package deep import, invalid workspace dependency, feature UI inside `packages/ui`, and generic UI inside `apps/web`. All temporary files and manifest changes were removed, and the real tree passes cleanly afterward.
 - Production runtime smoke checks returned HTTP 200 from the web application, rendered the expected UI-package-backed content, and returned the healthy API payload from `/health` with startup and request logging.
 - `git diff --check` passes.

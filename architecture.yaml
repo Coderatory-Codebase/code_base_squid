@@ -66,6 +66,7 @@
   },
   "typescript": {
     "disallowExplicitAny": true,
+    "forbiddenCompilerOptions": ["baseUrl", "ignoreDeprecations"],
     "requiredTypeBoundaryProjectTypes": ["app", "server"],
     "requiredCompilerOptions": [
       "strict",
@@ -85,6 +86,29 @@
   },
   "uiComposition": {
     "packageProject": "ui",
+    "registryFirst": true,
+    "registryConfig": "components.json",
+    "registryCliPackage": "shadcn",
+    "registryCliVersion": "4.20.0",
+    "registryAddScript": "ui:add",
+    "registryAddAllScript": "ui:add:all",
+    "registryAliases": {
+      "components": "#ui/components",
+      "utils": "#ui/utilities",
+      "ui": "#ui/primitives",
+      "lib": "#ui",
+      "hooks": "#ui/hooks"
+    },
+    "registryCatalogItems": [
+      "accordion", "alert", "alert-dialog", "aspect-ratio", "avatar", "badge", "breadcrumb",
+      "button", "button-group", "calendar", "card", "carousel", "chart", "checkbox", "collapsible",
+      "command", "context-menu", "dialog", "drawer", "dropdown-menu", "empty", "field", "form",
+      "hover-card", "input", "input-group", "input-otp", "item", "kbd", "label", "menubar",
+      "navigation-menu", "pagination", "popover", "progress", "radio-group", "resizable",
+      "scroll-area", "select", "separator", "sheet", "sidebar", "skeleton", "slider", "sonner",
+      "spinner", "switch", "table", "tabs", "textarea", "toggle", "toggle-group", "tooltip"
+    ],
+    "registryUnavailableItems": ["attachment", "bubble", "combobox", "direction", "marker", "message", "message-scroller", "native-select"],
     "primitiveRoot": "src/primitives",
     "genericRoots": ["src/components", "src/compositions"],
     "genericFiles": [],
@@ -92,22 +116,13 @@
     "appForbiddenGenericRoots": ["components/ui", "components/layout", "components/feedback"],
     "featureRoot": "features",
     "shadcnPrimitiveNames": [
-      "alert",
-      "avatar",
-      "badge",
-      "button",
-      "card",
-      "dialog",
-      "dropdown-menu",
-      "form",
-      "input",
-      "label",
-      "select",
-      "separator",
-      "sheet",
-      "skeleton",
-      "tabs",
-      "tooltip"
+      "accordion", "alert", "alert-dialog", "aspect-ratio", "avatar", "badge", "breadcrumb",
+      "button", "button-group", "calendar", "card", "carousel", "chart", "checkbox", "collapsible",
+      "command", "context-menu", "dialog", "drawer", "dropdown-menu", "empty", "field", "form",
+      "hover-card", "input", "input-group", "input-otp", "item", "kbd", "label", "menubar",
+      "navigation-menu", "pagination", "popover", "progress", "radio-group", "resizable",
+      "scroll-area", "select", "separator", "sheet", "sidebar", "skeleton", "slider", "sonner",
+      "spinner", "switch", "table", "tabs", "textarea", "toggle", "toggle-group", "tooltip"
     ]
   },
   "integrations": {
@@ -143,7 +158,7 @@
     { "project": "api", "root": "constants", "categories": ["errors", "http", "runtime"], "rootExports": ["errors", "http", "runtime"] },
     { "project": "api", "root": "types", "categories": ["configuration"], "rootExports": ["configuration"] },
     { "project": "types", "root": "src", "categories": ["api", "errors"], "rootExports": ["api", "errors"] },
-    { "project": "ui", "root": "src", "categories": ["components", "compositions", "primitives", "utilities"], "rootExports": ["components", "compositions", "primitives"] }
+    { "project": "ui", "root": "src", "categories": ["components", "compositions", "hooks", "primitives", "utilities"], "rootExports": ["components", "compositions", "hooks", "primitives"] }
   ],
   "contractOwnership": {
     "sharedTypesRoot": "packages/types",

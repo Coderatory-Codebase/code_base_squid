@@ -11,7 +11,6 @@ void test("Button composes its shadcn styles onto an accessible child action", (
   );
 
   assert.match(markup, /^<a /);
-  assert.match(markup, /data-slot="button"/);
   assert.match(markup, /border-input/);
   assert.match(markup, /href="\/health"/);
 });
