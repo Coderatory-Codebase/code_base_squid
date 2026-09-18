@@ -2,7 +2,7 @@
   "name": "logging",
   "type": "package",
   "description": "Reusable structured application and HTTP logging capability.",
-  "internalDependencies": [],
+  "internalDependencies": ["eslint-config", "tsconfig"],
   "externalDependencies": ["morgan", "pino"],
   "capabilities": ["application-logging", "http-logging"],
   "tasks": {

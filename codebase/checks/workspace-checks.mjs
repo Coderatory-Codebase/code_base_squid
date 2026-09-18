@@ -56,6 +56,7 @@ export const checkProjectRegistry = (workspace) => {
   const issues = [];
   const projectsByName = new Map();
   const expectedTypes = workspace.architecture.foundation?.projectRoots ?? {};
+  const allowedTypesByRoot = workspace.architecture.foundation?.allowedProjectTypesByRoot ?? {};
 
   for (const project of workspace.projects) {
     const existing = projectsByName.get(project.name);
@@ -68,8 +69,9 @@ export const checkProjectRegistry = (workspace) => {
     if (project.root.startsWith("../") || path.isAbsolute(project.root)) {
       issues.push({ level: "error", message: `${project.name} has invalid workspace path ${project.root}.` });
     }
-    if (expectedTypes[rootName] !== project.type) {
-      issues.push({ level: "error", message: `${project.name} is type ${project.type} but its root ${rootName}/ owns ${expectedTypes[rootName] ?? "no project type"}.` });
+    const allowedTypes = allowedTypesByRoot[rootName] ?? [expectedTypes[rootName]].filter(Boolean);
+    if (!allowedTypes.includes(project.type)) {
+      issues.push({ level: "error", message: `${project.name} is type ${project.type} but its root ${rootName}/ allows ${allowedTypes.join(", ") || "no project type"}.` });
     }
     if (project.internalDependencies.includes(project.name)) {
       issues.push({ level: "error", message: `${project.name} cannot depend on itself.` });
@@ -226,9 +228,56 @@ const explicitAnyPatterns = [
 ];
 
 export const checkTypeScriptConfiguration = async (workspace) => {
-  const requiredOptions = workspace.architecture.typescript?.requiredCompilerOptions ?? [];
-  const forbiddenOptions = workspace.architecture.typescript?.forbiddenCompilerOptions ?? [];
+  const policy = workspace.architecture.typescript ?? {};
+  const requiredOptions = policy.requiredCompilerOptions ?? [];
+  const forbiddenOptions = policy.forbiddenCompilerOptions ?? [];
   const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
+  const sharedConfigProjectName = policy.sharedConfigProject;
+  const sharedConfigProject = workspace.projects.find((project) => project.name === sharedConfigProjectName);
+  const usesSharedPolicy = typeof sharedConfigProjectName === "string";
+  const sharedIssues = [];
+
+  if (usesSharedPolicy && (!sharedConfigProject || sharedConfigProject.type !== "config")) {
+    sharedIssues.push({ level: "error", message: `TypeScript shared config project ${sharedConfigProjectName} must be registered as type config.` });
+  }
+  if (sharedConfigProject) {
+    const sharedConfigRoot = path.join(workspace.root, sharedConfigProject.root);
+    const policyConfigFile = policy.policyConfigFile ?? "base.json";
+    const policyConfigPath = path.join(sharedConfigRoot, policyConfigFile);
+    if (!(await pathExists(policyConfigPath))) {
+      sharedIssues.push({ level: "error", message: `TypeScript policy config is missing: ${path.relative(workspace.root, policyConfigPath).split(path.sep).join("/")}.` });
+    } else {
+      const policyConfig = await readJsonFile(policyConfigPath);
+      const compilerOptions = policyConfig.compilerOptions ?? {};
+      for (const option of requiredOptions) {
+        if (compilerOptions[option] !== true) {
+          sharedIssues.push({ level: "error", message: `Shared TypeScript policy must enable compilerOptions.${option}.` });
+        }
+      }
+      for (const option of forbiddenOptions) {
+        if (compilerOptions[option] !== undefined) {
+          sharedIssues.push({ level: "error", message: `Shared TypeScript policy must not set compilerOptions.${option}.` });
+        }
+      }
+    }
+    for (const presetFile of policy.presetConfigFiles ?? []) {
+      const presetPath = path.join(sharedConfigRoot, presetFile);
+      if (!(await pathExists(presetPath))) {
+        sharedIssues.push({ level: "error", message: `Shared TypeScript preset is missing: ${presetFile}.` });
+        continue;
+      }
+      const preset = await readJsonFile(presetPath);
+      if (preset.extends !== `./${policyConfigFile}`) {
+        sharedIssues.push({ level: "error", message: `Shared TypeScript preset ${presetFile} must extend ./${policyConfigFile}.` });
+      }
+      for (const option of forbiddenOptions) {
+        if (preset.compilerOptions?.[option] !== undefined) {
+          sharedIssues.push({ level: "error", message: `Shared TypeScript preset ${presetFile} must not set compilerOptions.${option}.` });
+        }
+      }
+    }
+  }
+
   const projectResults = await Promise.all(workspace.projects.map(async (project) => {
     const projectRoot = path.join(workspace.root, project.root);
     const files = await walkFiles(projectRoot, { ignoredDirectories });
@@ -242,11 +291,17 @@ export const checkTypeScriptConfiguration = async (workspace) => {
 
     const tsconfig = await readJsonFile(tsconfigPath);
     const compilerOptions = tsconfig.compilerOptions ?? {};
+    const expectedExtends = policy.approvedExtendsByProjectType?.[project.type];
+    const inheritanceIssues = usesSharedPolicy && expectedExtends && tsconfig.extends !== expectedExtends
+      ? [{ level: "error", message: `${project.name} tsconfig.json must extend ${expectedExtends}.` }]
+      : [];
     const requiredOptionIssues = requiredOptions
-      .filter((option) => compilerOptions[option] !== true)
+      .filter((option) => usesSharedPolicy ? compilerOptions[option] === false : compilerOptions[option] !== true)
       .map((option) => ({
         level: "error",
-        message: `${project.name} tsconfig.json must explicitly enable compilerOptions.${option}.`
+        message: usesSharedPolicy
+          ? `${project.name} tsconfig.json must not disable compilerOptions.${option}.`
+          : `${project.name} tsconfig.json must explicitly enable compilerOptions.${option}.`
       }));
     const forbiddenOptionIssues = forbiddenOptions
       .filter((option) => compilerOptions[option] !== undefined)
@@ -254,10 +309,10 @@ export const checkTypeScriptConfiguration = async (workspace) => {
         level: "error",
         message: `${project.name} tsconfig.json must not set compilerOptions.${option}.`
       }));
-    return [...requiredOptionIssues, ...forbiddenOptionIssues];
+    return [...inheritanceIssues, ...requiredOptionIssues, ...forbiddenOptionIssues];
   }));
 
-  return projectResults.flat();
+  return [...sharedIssues, ...projectResults.flat()];
 };
 
 export const checkUiRegistryWorkflow = async (workspace) => {
@@ -380,6 +435,89 @@ export const checkTypeScriptArchitecture = async (workspace) => {
   return projectResults.flat();
 };
 
+export const checkServerFeatureArchitecture = async (workspace) => {
+  const policy = workspace.architecture.featureModel ?? {};
+  const featureRoot = policy.serverFeatureRoot ?? "features";
+  const registrationFile = policy.serverFeatureRegistrationFile ?? "bootstrap/create-app.ts";
+  const routeSuffix = policy.serverRouteFileSuffix ?? ".route.ts";
+  const ignoredDirectories = new Set(workspace.architecture.foundation?.ignoredDirectories ?? []);
+  const issues = [];
+
+  for (const project of workspace.projects.filter((candidate) => candidate.type === "server")) {
+    const projectRoot = path.join(workspace.root, project.root);
+    const files = await walkFiles(projectRoot, { ignoredDirectories });
+    const routeFiles = files.filter((file) => file.endsWith(routeSuffix));
+    const registrationPath = path.join(projectRoot, registrationFile);
+    const registrationSource = await pathExists(registrationPath) ? await readFile(registrationPath, "utf8") : "";
+
+    if (!registrationSource) {
+      issues.push({ level: "error", message: `${project.name} is missing its server feature registration file ${registrationFile}.` });
+    } else if (/\bapp\.(?:get|post|put|patch|delete|options|head)\s*\(/.test(registrationSource)) {
+      issues.push({ level: "error", message: `${project.name} registers an HTTP route inline in ${registrationFile}; routes belong to feature routers.` });
+    }
+
+    for (const routeFile of routeFiles) {
+      const relative = path.relative(projectRoot, routeFile).split(path.sep).join("/");
+      const segments = relative.split("/");
+      if (segments.length !== 3 || segments[0] !== featureRoot) {
+        issues.push({ level: "error", message: `${project.name} route ${relative} must live at ${featureRoot}/<feature>/<name>${routeSuffix}.` });
+        continue;
+      }
+
+      const featureName = segments[1];
+      const source = await readFile(routeFile, "utf8");
+      const factoryName = source.match(/export\s+const\s+(create[A-Z][A-Za-z0-9]*Router)\s*=/)?.[1];
+      if (!factoryName) {
+        issues.push({ level: "error", message: `${project.name} route ${relative} must export a deterministic create*Router factory.` });
+        continue;
+      }
+
+      const indexPath = path.join(projectRoot, featureRoot, featureName, "index.ts");
+      const indexSource = await pathExists(indexPath) ? await readFile(indexPath, "utf8") : "";
+      if (!indexSource.includes(factoryName)) {
+        issues.push({ level: "error", message: `${project.name} feature ${featureName} must expose ${factoryName} from its index.ts.` });
+      }
+      const publicImport = `../${featureRoot}/${featureName}/index.js`;
+      if (!registrationSource.includes(publicImport) || !registrationSource.includes(`${factoryName}(`)) {
+        issues.push({ level: "error", message: `${project.name} feature ${featureName} must be explicitly registered through ${publicImport}.` });
+      }
+    }
+  }
+
+  return issues;
+};
+
+export const checkPackageLocalMaintenanceScripts = async (workspace) => {
+  const policies = workspace.architecture.maintenanceScripts?.packageLocal ?? [];
+  const issues = [];
+  const forbiddenBehavior = /(?:apps|servers|prebuilt|codebase|enablers|\.agent|\.project)[\\/]|architecture\.yaml|\.\.\s*[\\/]\s*\.\.|node:child_process|\b(?:fetch|process\.cwd|Math\.random|Date\.now)\b/;
+
+  for (const policy of policies) {
+    const project = workspace.projects.find((candidate) => candidate.name === policy.project);
+    if (!project) {
+      issues.push({ level: "error", message: `Maintenance script project ${policy.project} is not registered.` });
+      continue;
+    }
+    const projectRoot = path.resolve(workspace.root, project.root);
+    const scriptPath = path.resolve(projectRoot, policy.path);
+    const relative = path.relative(projectRoot, scriptPath);
+    if (relative.startsWith("..") || path.isAbsolute(relative) || !(await pathExists(scriptPath))) {
+      issues.push({ level: "error", message: `${project.name} maintenance script must exist inside its owning package: ${policy.path}.` });
+      continue;
+    }
+    const source = await readFile(scriptPath, "utf8");
+    if (!source.includes("packageRoot") || forbiddenBehavior.test(source)) {
+      issues.push({ level: "error", message: `${project.name} maintenance script ${policy.path} violates package-local deterministic scope.` });
+    }
+    const packageJson = await readJsonFile(path.join(projectRoot, "package.json"));
+    if (!packageJson.scripts?.[policy.packageScript]?.includes(policy.path)) {
+      issues.push({ level: "error", message: `${project.name} package script ${policy.packageScript} must invoke ${policy.path}.` });
+    }
+  }
+
+  return issues;
+};
+
 export const checkTaskGraph = (workspace) => {
   const graph = createDependencyGraph(workspace.projects);
   const tasks = listTasks(workspace.projects);
@@ -408,6 +546,8 @@ export const runWorkspaceChecks = async (workspace) => [
   ...(await checkUiRegistryWorkflow(workspace)),
   ...(await checkTypeScriptTaskCoverage(workspace)),
   ...(await checkTypeScriptArchitecture(workspace)),
+  ...(await checkServerFeatureArchitecture(workspace)),
+  ...(await checkPackageLocalMaintenanceScripts(workspace)),
   ...(await validateArchitectureBoundaries(workspace))
 ];
 

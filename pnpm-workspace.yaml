@@ -3,6 +3,7 @@ packages:
   - "servers/*"
   - "packages/*"
   - "prebuilt/*"
+  - "prebuilt/*/*"
 
 allowBuilds:
   esbuild: true

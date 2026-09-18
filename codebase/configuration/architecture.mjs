@@ -49,8 +49,19 @@ export const validateArchitectureConfiguration = (architecture) => {
       if (!root || root.includes("..") || path.isAbsolute(root)) {
         issues.push({ level: "error", message: `Invalid workspace unit root: ${root || "(empty)"}.` });
       }
-      if (!["app", "server", "package", "prebuilt"].includes(type)) {
+      if (!["app", "server", "package", "prebuilt", "config"].includes(type)) {
         issues.push({ level: "error", message: `Workspace unit root ${root} has invalid type ${type}.` });
+      }
+    }
+  }
+  const allowedProjectTypesByRoot = architecture.foundation.allowedProjectTypesByRoot;
+  if (!allowedProjectTypesByRoot || typeof allowedProjectTypesByRoot !== "object" || Array.isArray(allowedProjectTypesByRoot)) {
+    issues.push({ level: "error", message: "Architecture policy requires an allowedProjectTypesByRoot object." });
+  } else {
+    for (const [root, types] of Object.entries(allowedProjectTypesByRoot)) {
+      if (!Array.isArray(types) || types.length === 0
+        || types.some((type) => !["app", "server", "package", "prebuilt", "config"].includes(type))) {
+        issues.push({ level: "error", message: `Workspace unit root ${root} has invalid allowed project types.` });
       }
     }
   }
@@ -88,6 +99,14 @@ export const validateArchitectureConfiguration = (architecture) => {
   }
   if (!Array.isArray(architecture.typescript?.requiredTypeBoundaryProjectTypes)) {
     issues.push({ level: "error", message: "Architecture policy requires a typescript.requiredTypeBoundaryProjectTypes array." });
+  }
+  if (typeof architecture.typescript?.sharedConfigProject !== "string"
+    || typeof architecture.typescript?.policyConfigFile !== "string"
+    || !Array.isArray(architecture.typescript?.presetConfigFiles)
+    || !architecture.typescript?.approvedExtendsByProjectType
+    || typeof architecture.typescript.approvedExtendsByProjectType !== "object"
+    || Array.isArray(architecture.typescript.approvedExtendsByProjectType)) {
+    issues.push({ level: "error", message: "Architecture TypeScript policy must identify its shared config project, policy file, and approved inheritance." });
   }
   if (!architecture.configuration || typeof architecture.configuration !== "object") {
     issues.push({ level: "error", message: "Architecture policy is missing configuration-boundary rules." });
@@ -133,6 +152,16 @@ export const validateArchitectureConfiguration = (architecture) => {
     issues.push({ level: "error", message: "Architecture policy is missing integration-boundary rules." });
   } else if (!Array.isArray(architecture.integrations.externalImplementationPackages)) {
     issues.push({ level: "error", message: "Architecture integrations.externalImplementationPackages must be an array." });
+  }
+  const maintenanceScripts = architecture.maintenanceScripts;
+  if (!maintenanceScripts || !Array.isArray(maintenanceScripts.packageLocal)
+    || maintenanceScripts.contract?.ownPackageOnly !== true
+    || maintenanceScripts.contract?.deterministic !== true
+    || maintenanceScripts.contract?.idempotent !== true
+    || maintenanceScripts.contract?.mayOrchestrateRepository !== false
+    || maintenanceScripts.contract?.mayChangeArchitecture !== false
+    || maintenanceScripts.contract?.mayBypassPolicy !== false) {
+    issues.push({ level: "error", message: "Architecture policy must define the package-local maintenance-script contract." });
   }
   if (!Array.isArray(architecture.moduleBoundaries)) {
     issues.push({ level: "error", message: "Architecture policy requires a moduleBoundaries array." });
@@ -190,8 +219,16 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (architecture.workspaceModel?.repositoryIsWorkspace !== true || architecture.workspaceModel?.mandatoryProjectNamespace !== false) {
     issues.push({ level: "error", message: "Architecture workspace model must define the repository as the workspace without a mandatory project namespace." });
   }
-  if (architecture.featureModel?.ownership !== "feature-first" || architecture.featureModel?.serverLayout !== "flat-files-by-default") {
+  if (architecture.featureModel?.ownership !== "feature-first" || architecture.featureModel?.serverLayout !== "flat-files-by-default"
+    || typeof architecture.featureModel?.serverFeatureRoot !== "string"
+    || typeof architecture.featureModel?.serverFeatureRegistrationFile !== "string"
+    || typeof architecture.featureModel?.serverRouteFileSuffix !== "string") {
     issues.push({ level: "error", message: "Architecture feature model must be feature-first with flat server files by default." });
+  }
+  if (architecture.growthModel?.categorizationRule !== "meaningful-ownership-or-growth"
+    || architecture.growthModel?.commonFileCountHeuristic !== 3
+    || architecture.growthModel?.fileCountIsMandatoryThreshold !== false) {
+    issues.push({ level: "error", message: "Architecture growth model must treat file count as a heuristic, not a mandatory category threshold." });
   }
   return issues;
 };

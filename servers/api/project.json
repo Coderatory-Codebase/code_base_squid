@@ -2,7 +2,7 @@
   "name": "api",
   "type": "server",
   "description": "Primary Express API runtime.",
-  "internalDependencies": ["logging", "types"],
+  "internalDependencies": ["eslint-config", "logging", "tsconfig", "types"],
   "externalDependencies": ["dotenv", "express", "mongoose", "zod"],
   "capabilities": ["http-api", "health", "mongodb-integration"],
   "tasks": {

@@ -6,11 +6,34 @@ import os from "node:os";
 import {
   checkMissingProjectManifests,
   checkPackageManagerArchitecture,
+  checkPackageLocalMaintenanceScripts,
+  checkProjectRegistry,
+  checkServerFeatureArchitecture,
   checkTypeScriptArchitecture,
   checkTypeScriptConfiguration,
   checkTypeScriptTaskCoverage,
   checkUiRegistryWorkflow
 } from "./workspace-checks.mjs";
+
+test("allows config projects only in architecture-approved roots", () => {
+  const architecture = {
+    foundation: {
+      projectRoots: { apps: "app", packages: "package" },
+      allowedProjectTypesByRoot: { apps: ["app"], packages: ["package", "config"] }
+    }
+  };
+  const validIssues = checkProjectRegistry({
+    architecture,
+    projects: [{ name: "tsconfig", type: "config", root: "packages/tsconfig", internalDependencies: [], externalDependencies: [], capabilities: [], tasks: [] }]
+  });
+  const invalidIssues = checkProjectRegistry({
+    architecture,
+    projects: [{ name: "tsconfig", type: "config", root: "apps/tsconfig", internalDependencies: [], externalDependencies: [], capabilities: [], tasks: [] }]
+  });
+
+  assert.deepEqual(validIssues, []);
+  assert.ok(invalidIssues.some((issue) => issue.message.includes("allows app")));
+});
 
 test("rejects stale npm workspace metadata and non-workspace internal dependencies", async (context) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "repo-package-manager-"));
@@ -114,6 +137,87 @@ test("rejects forbidden TypeScript compiler options", async (context) => {
   assert.equal(issues.length, 2);
   assert.ok(issues.some((issue) => issue.message.includes("compilerOptions.baseUrl")));
   assert.ok(issues.some((issue) => issue.message.includes("compilerOptions.ignoreDeprecations")));
+});
+
+test("requires approved shared TypeScript config inheritance", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-typescript-inheritance-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(path.join(root, "apps", "web"), { recursive: true });
+  await mkdir(path.join(root, "packages", "tsconfig"), { recursive: true });
+  await writeFile(path.join(root, "apps", "web", "index.ts"), "export const value = 1;\n", "utf8");
+  await writeFile(path.join(root, "apps", "web", "tsconfig.json"), JSON.stringify({ extends: "./local.json" }), "utf8");
+  await writeFile(path.join(root, "packages", "tsconfig", "base.json"), JSON.stringify({
+    compilerOptions: { strict: true, noImplicitAny: true }
+  }), "utf8");
+
+  const issues = await checkTypeScriptConfiguration({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      typescript: {
+        sharedConfigProject: "tsconfig",
+        policyConfigFile: "base.json",
+        presetConfigFiles: [],
+        approvedExtendsByProjectType: { app: "@workspace/tsconfig/next.json" },
+        requiredCompilerOptions: ["strict", "noImplicitAny"],
+        forbiddenCompilerOptions: ["baseUrl", "ignoreDeprecations"]
+      }
+    },
+    projects: [
+      { name: "web", type: "app", root: "apps/web" },
+      { name: "tsconfig", type: "config", root: "packages/tsconfig" }
+    ]
+  });
+
+  assert.equal(issues.length, 1);
+  assert.match(issues[0].message, /must extend @workspace\/tsconfig\/next\.json/);
+});
+
+test("rejects misplaced and unregistered server feature routes", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-server-features-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const serverRoot = path.join(root, "servers", "api");
+  await mkdir(path.join(serverRoot, "bootstrap"), { recursive: true });
+  await mkdir(path.join(serverRoot, "routes"), { recursive: true });
+  await mkdir(path.join(serverRoot, "features", "status"), { recursive: true });
+  await writeFile(path.join(serverRoot, "bootstrap", "create-app.ts"), "export const createApp = () => undefined;\n", "utf8");
+  await writeFile(path.join(serverRoot, "routes", "legacy.route.ts"), "export const createLegacyRouter = () => undefined;\n", "utf8");
+  await writeFile(path.join(serverRoot, "features", "status", "status.route.ts"), "export const createStatusRouter = () => undefined;\n", "utf8");
+  await writeFile(path.join(serverRoot, "features", "status", "index.ts"), "export { createStatusRouter } from './status.route.js';\n", "utf8");
+
+  const issues = await checkServerFeatureArchitecture({
+    root,
+    architecture: {
+      foundation: { ignoredDirectories: [] },
+      featureModel: {
+        serverFeatureRoot: "features",
+        serverFeatureRegistrationFile: "bootstrap/create-app.ts",
+        serverRouteFileSuffix: ".route.ts"
+      }
+    },
+    projects: [{ name: "api", type: "server", root: "servers/api" }]
+  });
+
+  assert.ok(issues.some((issue) => issue.message.includes("routes/legacy.route.ts must live")));
+  assert.ok(issues.some((issue) => issue.message.includes("feature status must be explicitly registered")));
+});
+
+test("rejects package maintenance scripts that reach outside their owner", async (context) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "repo-maintenance-script-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const packageRoot = path.join(root, "packages", "ui");
+  await mkdir(path.join(packageRoot, "scripts"), { recursive: true });
+  await writeFile(path.join(packageRoot, "scripts", "reconcile.mjs"), "const packageRoot = '..';\nawait writeFile('../../architecture.yaml', 'x');\n", "utf8");
+  await writeFile(path.join(packageRoot, "package.json"), JSON.stringify({ scripts: { reconcile: "node scripts/reconcile.mjs" } }), "utf8");
+
+  const issues = await checkPackageLocalMaintenanceScripts({
+    root,
+    architecture: { maintenanceScripts: { packageLocal: [{ project: "ui", path: "scripts/reconcile.mjs", packageScript: "reconcile" }] } },
+    projects: [{ name: "ui", root: "packages/ui" }]
+  });
+
+  assert.equal(issues.length, 1);
+  assert.match(issues[0].message, /violates package-local deterministic scope/);
 });
 
 test("requires the pinned official shadcn registry workflow", async (context) => {

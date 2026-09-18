@@ -1,21 +1,7 @@
-import eslint from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import { createNodeConfig } from "@workspace/eslint-config/node";
 
-export default tseslint.config(
-  { ignores: ["dist/**"] },
-  eslint.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  {
-    files: ["src/**/*.ts"],
-    languageOptions: {
-      globals: globals.node,
-      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname }
-    },
-    rules: {
-      "@typescript-eslint/consistent-type-exports": "error",
-      "@typescript-eslint/consistent-type-imports": "error",
-      "@typescript-eslint/no-explicit-any": "error"
-    }
-  }
-);
+export default createNodeConfig({
+  tsconfigRootDir: import.meta.dirname,
+  files: ["src/**/*.ts"],
+  rules: { "@typescript-eslint/consistent-type-exports": "error" }
+});

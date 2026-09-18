@@ -3,7 +3,7 @@ import { pathExists, readJsonFile, toWorkspaceRelativePath } from "../utilities/
 
 export const projectManifestFileName = "project.json";
 
-export const projectTypes = new Set(["app", "server", "package", "prebuilt"]);
+export const projectTypes = new Set(["app", "server", "package", "prebuilt", "config"]);
 
 export const projectTypeByRoot = {
   apps: "app",

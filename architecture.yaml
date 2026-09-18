@@ -9,6 +9,12 @@
       "packages": "package",
       "prebuilt": "prebuilt"
     },
+    "allowedProjectTypesByRoot": {
+      "apps": ["app"],
+      "servers": ["server"],
+      "packages": ["package", "config"],
+      "prebuilt": ["prebuilt"]
+    },
     "requiredRoots": ["apps", "servers", "packages", "prebuilt", "codebase", "enablers", ".agent", ".project", ".github"],
     "requiredFiles": ["AGENTS.md", "CLAUDE.md", "architecture.yaml", "package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
     "disallowedOrchestrators": ["turbo", "turborepo", "nx", "lerna"],
@@ -25,7 +31,10 @@
   },
   "growthModel": {
     "principle": "everything-available-nothing-unnecessarily-imposed",
-    "progression": ["simple", "modular", "bounded", "scalable", "distributed-when-justified", "platform-when-justified"]
+    "progression": ["simple", "modular", "bounded", "scalable", "distributed-when-justified", "platform-when-justified"],
+    "categorizationRule": "meaningful-ownership-or-growth",
+    "commonFileCountHeuristic": 3,
+    "fileCountIsMandatoryThreshold": false
   },
   "toolingModel": {
     "principle": "custom-orchestration-standard-engines",
@@ -45,7 +54,10 @@
     "serverLayout": "flat-files-by-default",
     "optionalServerFileRoles": ["route", "controller", "service", "repository", "validation", "model", "integration"],
     "domainDirectory": "domain",
-    "domainFileRoles": ["entity", "rules", "policy", "calculations", "commands", "queries", "events", "constants"]
+    "domainFileRoles": ["entity", "rules", "policy", "calculations", "commands", "queries", "events", "constants"],
+    "serverFeatureRoot": "features",
+    "serverFeatureRegistrationFile": "bootstrap/create-app.ts",
+    "serverRouteFileSuffix": ".route.ts"
   },
   "boundaries": {
     "packagesCannotImport": ["apps", "servers", "prebuilt"],
@@ -68,6 +80,14 @@
     "disallowExplicitAny": true,
     "forbiddenCompilerOptions": ["baseUrl", "ignoreDeprecations"],
     "requiredTypeBoundaryProjectTypes": ["app", "server"],
+    "sharedConfigProject": "tsconfig",
+    "policyConfigFile": "base.json",
+    "presetConfigFiles": ["node.json", "next.json"],
+    "approvedExtendsByProjectType": {
+      "app": "@workspace/tsconfig/next.json",
+      "server": "@workspace/tsconfig/node.json",
+      "package": "@workspace/tsconfig/node.json"
+    },
     "requiredCompilerOptions": [
       "strict",
       "noImplicitAny",
@@ -125,6 +145,23 @@
       "spinner", "switch", "table", "tabs", "textarea", "toggle", "toggle-group", "tooltip"
     ]
   },
+  "maintenanceScripts": {
+    "packageLocal": [
+      {
+        "project": "ui",
+        "path": "scripts/reconcile-registry.mjs",
+        "packageScript": "ui:add:all"
+      }
+    ],
+    "contract": {
+      "ownPackageOnly": true,
+      "deterministic": true,
+      "idempotent": true,
+      "mayOrchestrateRepository": false,
+      "mayChangeArchitecture": false,
+      "mayBypassPolicy": false
+    }
+  },
   "integrations": {
     "serverDirectory": "integrations",
     "externalImplementationPackages": ["mongoose", "redis", "stripe"]
@@ -133,7 +170,7 @@
     "manager": "pnpm",
     "packageManagerVersion": "11.19.0",
     "workspaceFile": "pnpm-workspace.yaml",
-    "workspacePatterns": ["apps/*", "servers/*", "packages/*", "prebuilt/*"],
+    "workspacePatterns": ["apps/*", "servers/*", "packages/*", "prebuilt/*", "prebuilt/*/*"],
     "allowedBuildDependencies": ["esbuild", "unrs-resolver"],
     "lockfile": "pnpm-lock.yaml",
     "forbiddenLockfiles": ["package-lock.json", "yarn.lock"],

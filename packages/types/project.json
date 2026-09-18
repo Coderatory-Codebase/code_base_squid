@@ -2,7 +2,7 @@
   "name": "types",
   "type": "package",
   "description": "Shared cross-workspace TypeScript contracts.",
-  "internalDependencies": [],
+  "internalDependencies": ["eslint-config", "tsconfig"],
   "externalDependencies": [],
   "capabilities": ["shared-types", "api-contracts"],
   "tasks": {

@@ -10,6 +10,8 @@ CONTROL PLANE TOOLING RECONCILIATION: 2026-09-17
 
 UI REGISTRY AND TYPESCRIPT RECONCILIATION: 2026-09-17
 
+SERVER FEATURE AND SHARED CONFIG RECONCILIATION: 2026-09-17
+
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
@@ -29,22 +31,26 @@ UI REGISTRY AND TYPESCRIPT RECONCILIATION: 2026-09-17
 - MongoDB remains server-owned under `servers/api/integrations/mongodb`; no database package or speculative integration was introduced.
 - Architecture validation enforces pnpm workspace policy, `workspace:` dependencies, the native-build allowlist, UI ownership, named shadcn primitive ownership, feature ownership, package export surfaces, deep-import boundaries, categorized module exports, and constants/types dumping-ground rules.
 - New and refactored code remains functional and compositional, with no classes, dependency-injection containers, mutable global state, or explicit `any`.
+- Server HTTP features now have an explicit `servers/<runtime>/features/<feature>/` boundary. Health owns a dependency-injected router factory under `servers/api/features/health`, and API bootstrap composes it through an explicit feature list while preserving `/health`.
+- `packages/tsconfig` and `packages/eslint-config` are configuration-only workspace projects. Five TypeScript consumers inherit approved shared presets, and configuration projects participate in discovery and dependency planning without invented tasks.
+- The web root route is owned by `(public)`, while `(app)` establishes a minimal application layout boundary without authentication, guards, providers, or speculative feature code.
+- Package-local maintenance, prebuilt solution, enabler, and categorization contracts are now explicit and executable where static validation is meaningful.
 
 ## Validated
 
-- A frozen pnpm install succeeds across its six-package scope (the root plus five project workspaces) and executes only the two allowlisted dependency build scripts.
+- A frozen pnpm install succeeds across all eight workspace projects and executes only the two allowlisted dependency build scripts.
 - Repository syntax, architecture, project discovery, and package-manager checks pass with no issues.
 - All five TypeScript workspaces pass independent `tsc --noEmit`: web, API, UI, logging, and shared types.
 - All five TypeScript workspaces pass independent ESLint tasks.
 - Production builds pass for web, API, UI, logging, and shared types. Next.js compiled and type-checked the app and generated `/` and `/_not-found`.
 - 48 control-plane tests pass. Fourteen workspace tests pass: four web, eight API, one UI, and one logging test.
-- The aggregate security command passes with normalized tool results: `pnpm audit` reports zero high-or-critical dependency findings and Gitleaks reports zero secret findings.
+- `pnpm audit` reports zero dependency findings at every severity. The aggregate local scan fails closed because Gitleaks is not installed on this host; CI retains the pinned Gitleaks 8.29.1 installation and scan path.
 - Controlled standard-tool failures propagate correctly. ESLint rejected explicit `any`; `tsc` rejected an invalid assignment; the runner marked the owning task failed and skipped its dependent task; Gitleaks detected a synthetic nonfunctional AWS-style fixture without exposing its value; dependency advisory, malformed-report, and missing-tool fixtures all failed repository policy. All temporary files were removed.
 - The package-local `ui:add` workflow and controlled UI package exports remain operational across tests and production builds.
 - The pinned shadcn 4.20.0 CLI successfully queried the official registry and generated all 53 components that expose `new-york` style artifacts. The reproducible catalog command excludes eight searchable entries whose registry style artifacts return not found: `attachment`, `bubble`, `combobox`, `direction`, `marker`, `message`, `message-scroller`, and `native-select`.
 - Registry aliases resolve generation into `packages/ui/src` without `baseUrl`; the private `#ui` import map resolves source during TypeScript compilation and compiled files at runtime. Strict UI type checking, scoped registry-source linting, the component test, and the UI build pass.
-- 50 control-plane tests pass, including enforcement tests for forbidden TypeScript compiler options and the pinned registry workflow. Fourteen workspace tests pass.
-- Controlled failures detected all required representative violations: duplicate shadcn primitive, flat constants, unexported package deep import, invalid workspace dependency, feature UI inside `packages/ui`, and generic UI inside `apps/web`. All temporary files and manifest changes were removed, and the real tree passes cleanly afterward.
+- 55 control-plane tests pass, including shared TypeScript inheritance, config-project placement, server feature placement and registration, package-local maintenance scope, forbidden compiler options, and the pinned registry workflow. Fourteen workspace tests pass.
+- Controlled failures detect invalid server feature location and registration, invalid shared TypeScript inheritance, invalid config-project placement, forbidden package-local maintenance behavior, duplicate shadcn primitives, feature UI inside `packages/ui`, and generic UI inside `apps/web`. Test fixtures are temporary and the real tree passes cleanly afterward.
 - Production runtime smoke checks returned HTTP 200 from the web application, rendered the expected UI-package-backed content, and returned the healthy API payload from `/health` with startup and request logging.
 - `git diff --check` passes.
 

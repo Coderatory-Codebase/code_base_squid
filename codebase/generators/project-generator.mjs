@@ -19,7 +19,8 @@ const defaultTasksByType = {
   },
   prebuilt: {
     check: { command: "pnpm run check" }
-  }
+  },
+  config: {}
 };
 
 export const createProjectManifest = ({ name, type, description = "" }) => ({
@@ -37,8 +38,12 @@ export const generateProject = async ({ workspaceRoot, architecture, name, type 
     throw new Error("Project name must be lowercase kebab-case.");
   }
   const rootByProjectType = Object.fromEntries(
-    Object.entries(architecture.foundation.projectRoots).map(([rootName, projectType]) => [projectType, rootName])
+    Object.entries(architecture.foundation.allowedProjectTypesByRoot ?? {})
+      .flatMap(([rootName, projectTypes]) => projectTypes.map((projectType) => [projectType, rootName]))
   );
+  for (const [rootName, projectType] of Object.entries(architecture.foundation.projectRoots)) {
+    rootByProjectType[projectType] ??= rootName;
+  }
   const rootName = rootByProjectType[type];
 
   if (!rootName) {

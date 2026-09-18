@@ -2,7 +2,7 @@
   "name": "ui",
   "type": "package",
   "description": "Reusable shadcn-based UI primitives and generic compositions.",
-  "internalDependencies": [],
+  "internalDependencies": ["eslint-config", "tsconfig"],
   "externalDependencies": [
     "@hookform/resolvers",
     "@radix-ui/react-accordion",

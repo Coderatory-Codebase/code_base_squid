@@ -2,7 +2,7 @@
   "name": "web",
   "type": "app",
   "description": "Primary Next.js web application.",
-  "internalDependencies": ["ui"],
+  "internalDependencies": ["eslint-config", "tsconfig", "ui"],
   "externalDependencies": ["lucide-react", "next", "react", "react-dom", "tailwindcss", "zod"],
   "capabilities": ["web", "app-router", "shadcn-ui", "tailwind"],
   "tasks": {
