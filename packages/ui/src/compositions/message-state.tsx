@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PageShell } from "../compositions/index.js";
+import { PageShell } from "./page-shell.js";
 
 type MessageStateProps = Readonly<{
   action?: React.ReactNode;

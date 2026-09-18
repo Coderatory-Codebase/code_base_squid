@@ -14,6 +14,8 @@ SERVER FEATURE AND SHARED CONFIG RECONCILIATION: 2026-09-17
 
 HEALTH FEATURE RESPONSIBILITY RECONCILIATION: 2026-09-18
 
+NEXT.JS AND PACKAGES ARCHITECTURE RECONCILIATION: 2026-09-18
+
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
@@ -41,6 +43,9 @@ HEALTH FEATURE RESPONSIBILITY RECONCILIATION: 2026-09-18
 - Health behavior tests now live with the feature and independently verify service, controller, and HTTP route contracts. The API-level suite retains the general not-found/error boundary test.
 - Server consumers outside a feature are rejected when they bypass the feature root public API, and route validation requires the justified `features/<feature>/routes/` boundary plus explicit bootstrap registration.
 - Shared logging renders readable level-first, locally timestamped terminal output with indented context in non-production API environments; production output remains structured JSON for ingestion.
+- The public home route now composes an application-owned `workspace-foundation` feature through its root public API. Its feature UI moved out of the generic application component boundary, and the route remains a thin Server Component that owns environment-derived configuration.
+- `packages/ui` now owns its Tailwind theme and semantic design tokens through an exported stylesheet consumed by the web application. `PageHeader` is a generic component, while `PageShell` and the shell-dependent `MessageState` are compositions; all consumers continue through the package root API.
+- Shared API contracts are categorized under `packages/types/src/api/environment`, `errors`, and `health`, with category indexes and unchanged root-package imports for consumers.
 
 ## Validated
 
@@ -59,6 +64,7 @@ HEALTH FEATURE RESPONSIBILITY RECONCILIATION: 2026-09-18
 - Controlled failures detect invalid server feature location and registration, invalid shared TypeScript inheritance, invalid config-project placement, forbidden package-local maintenance behavior, duplicate shadcn primitives, feature UI inside `packages/ui`, and generic UI inside `apps/web`. Test fixtures are temporary and the real tree passes cleanly afterward.
 - Production runtime smoke checks returned HTTP 200 from the web application, rendered the expected UI-package-backed content, and returned the healthy API payload from `/health` with startup and request logging.
 - `git diff --check` passes.
+- M03.4 workspace discovery and the dependency graph remain valid and acyclic. Architecture checks, lint, strict type checking, production builds, 56 control-plane tests, and 17 workspace tests pass; the pinned shadcn CLI resolves the package-owned theme and all 53 installed registry components.
 
 ## Deferred
 

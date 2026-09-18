@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
-import HomePage from "../app/(public)/page";
+import HomePage from "../../app/(public)/page";
 
 test("composes environment-derived API configuration into the health action", () => {
   process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.test";
