@@ -18,8 +18,10 @@ the disruption.
 
 Do not create empty capability directories. In particular, role folders such as
 `routes/`, `controllers/`, `services/`, and `repositories/` are not the default server
-feature model. Keep role-named files beside one another and use `domain/` as the sole
-routine subdirectory exception when justified.
+feature model. Keep role-named files beside one another while the feature is genuinely
+flat. Introduce a role category only when it owns an independently meaningful boundary,
+then give it a controlled `index.ts` surface. Use `domain/` only for justified domain
+complexity; never create categories as placeholders.
 
 Complete work through `UNDERSTAND -> PLAN -> IMPLEMENT -> VALIDATE -> REVIEW -> RECORD
 -> COMPLETE`. Run repository-owned checks and update durable architecture records when a

@@ -179,11 +179,12 @@ test("rejects misplaced and unregistered server feature routes", async (context)
   const serverRoot = path.join(root, "servers", "api");
   await mkdir(path.join(serverRoot, "bootstrap"), { recursive: true });
   await mkdir(path.join(serverRoot, "routes"), { recursive: true });
-  await mkdir(path.join(serverRoot, "features", "status"), { recursive: true });
+  await mkdir(path.join(serverRoot, "features", "status", "routes"), { recursive: true });
   await writeFile(path.join(serverRoot, "bootstrap", "create-app.ts"), "export const createApp = () => undefined;\n", "utf8");
-  await writeFile(path.join(serverRoot, "routes", "legacy.route.ts"), "export const createLegacyRouter = () => undefined;\n", "utf8");
-  await writeFile(path.join(serverRoot, "features", "status", "status.route.ts"), "export const createStatusRouter = () => undefined;\n", "utf8");
-  await writeFile(path.join(serverRoot, "features", "status", "index.ts"), "export { createStatusRouter } from './status.route.js';\n", "utf8");
+  await writeFile(path.join(serverRoot, "routes", "legacy.route.ts"), "export const createLegacyRoutes = () => undefined;\n", "utf8");
+  await writeFile(path.join(serverRoot, "features", "status", "routes", "status.route.ts"), "export const createStatusRoutes = (_request, response) => response.status(200).json({});\n", "utf8");
+  await writeFile(path.join(serverRoot, "features", "status", "routes", "index.ts"), "export { createStatusRoutes } from './status.route.js';\n", "utf8");
+  await writeFile(path.join(serverRoot, "features", "status", "index.ts"), "export { createStatusRoutes } from './routes/index.js';\n", "utf8");
 
   const issues = await checkServerFeatureArchitecture({
     root,
@@ -199,6 +200,7 @@ test("rejects misplaced and unregistered server feature routes", async (context)
   });
 
   assert.ok(issues.some((issue) => issue.message.includes("routes/legacy.route.ts must live")));
+  assert.ok(issues.some((issue) => issue.message.includes("delegate response orchestration to a controller")));
   assert.ok(issues.some((issue) => issue.message.includes("feature status must be explicitly registered")));
 });
 

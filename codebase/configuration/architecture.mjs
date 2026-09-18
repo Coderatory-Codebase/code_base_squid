@@ -222,7 +222,11 @@ export const validateArchitectureConfiguration = (architecture) => {
   if (architecture.featureModel?.ownership !== "feature-first" || architecture.featureModel?.serverLayout !== "flat-files-by-default"
     || typeof architecture.featureModel?.serverFeatureRoot !== "string"
     || typeof architecture.featureModel?.serverFeatureRegistrationFile !== "string"
-    || typeof architecture.featureModel?.serverRouteFileSuffix !== "string") {
+    || typeof architecture.featureModel?.serverRouteFileSuffix !== "string"
+    || architecture.featureModel?.serverFeatureLayers?.strategy !== "progressive-categorized-when-justified"
+    || architecture.featureModel?.serverFeatureLayers?.publicEntry !== "index.ts"
+    || !architecture.featureModel?.serverFeatureLayers?.optional
+    || typeof architecture.featureModel.serverFeatureLayers.optional !== "object") {
     issues.push({ level: "error", message: "Architecture feature model must be feature-first with flat server files by default." });
   }
   if (architecture.growthModel?.categorizationRule !== "meaningful-ownership-or-growth"

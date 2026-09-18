@@ -459,19 +459,27 @@ export const checkServerFeatureArchitecture = async (workspace) => {
     for (const routeFile of routeFiles) {
       const relative = path.relative(projectRoot, routeFile).split(path.sep).join("/");
       const segments = relative.split("/");
-      if (segments.length !== 3 || segments[0] !== featureRoot) {
-        issues.push({ level: "error", message: `${project.name} route ${relative} must live at ${featureRoot}/<feature>/<name>${routeSuffix}.` });
+      if (segments.length !== 4 || segments[0] !== featureRoot || segments[2] !== "routes") {
+        issues.push({ level: "error", message: `${project.name} route ${relative} must live at ${featureRoot}/<feature>/routes/<name>${routeSuffix}.` });
         continue;
       }
 
       const featureName = segments[1];
       const source = await readFile(routeFile, "utf8");
-      const factoryName = source.match(/export\s+const\s+(create[A-Z][A-Za-z0-9]*Router)\s*=/)?.[1];
+      const factoryName = source.match(/export\s+const\s+(create[A-Z][A-Za-z0-9]*Routes)\s*=/)?.[1];
       if (!factoryName) {
-        issues.push({ level: "error", message: `${project.name} route ${relative} must export a deterministic create*Router factory.` });
+        issues.push({ level: "error", message: `${project.name} route ${relative} must export a deterministic create*Routes factory.` });
         continue;
       }
+      if (/\b(?:response|res)\.(?:json|send|status)\s*\(/.test(source)) {
+        issues.push({ level: "error", message: `${project.name} route ${relative} contains HTTP response logic; delegate response orchestration to a controller.` });
+      }
 
+      const routeIndexPath = path.join(projectRoot, featureRoot, featureName, "routes", "index.ts");
+      const routeIndexSource = await pathExists(routeIndexPath) ? await readFile(routeIndexPath, "utf8") : "";
+      if (!routeIndexSource.includes(factoryName)) {
+        issues.push({ level: "error", message: `${project.name} feature ${featureName} routes must expose ${factoryName} from routes/index.ts.` });
+      }
       const indexPath = path.join(projectRoot, featureRoot, featureName, "index.ts");
       const indexSource = await pathExists(indexPath) ? await readFile(indexPath, "utf8") : "";
       if (!indexSource.includes(factoryName)) {

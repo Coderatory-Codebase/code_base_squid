@@ -308,6 +308,19 @@ export const validateArchitectureBoundaries = async (workspace) => {
       }
 
       const targetFeature = featureIdentity(targetSegments);
+      if (!sourceFeature && targetFeature && project.type === "server") {
+        const targetRemainder = targetSegments.slice(targetFeature.index + 2);
+        const targetsFeaturePublicApi = targetRemainder.length === 1 && /^index(?:\.[^.]+)?$/.test(targetRemainder[0]);
+        if (!targetsFeaturePublicApi) {
+          findings.push(issue(
+            workspace.root,
+            filePath,
+            specifier,
+            "feature-public-import",
+            `server consumers outside feature ${targetFeature.name} must import its root public API.`
+          ));
+        }
+      }
       if (sourceFeature && targetFeature && sourceFeature.name !== targetFeature.name) {
         const targetRemainder = targetSegments.slice(targetFeature.index + 2);
         const targetsPublicModule = targetRemainder.length === 1 && /^public(?:\.[^.]+)?$/.test(targetRemainder[0]);

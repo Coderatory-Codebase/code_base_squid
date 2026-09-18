@@ -12,6 +12,8 @@ UI REGISTRY AND TYPESCRIPT RECONCILIATION: 2026-09-17
 
 SERVER FEATURE AND SHARED CONFIG RECONCILIATION: 2026-09-17
 
+HEALTH FEATURE RESPONSIBILITY RECONCILIATION: 2026-09-18
+
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
@@ -35,6 +37,9 @@ SERVER FEATURE AND SHARED CONFIG RECONCILIATION: 2026-09-17
 - `packages/tsconfig` and `packages/eslint-config` are configuration-only workspace projects. Five TypeScript consumers inherit approved shared presets, and configuration projects participate in discovery and dependency planning without invented tasks.
 - The web root route is owned by `(public)`, while `(app)` establishes a minimal application layout boundary without authentication, guards, providers, or speculative feature code.
 - Package-local maintenance, prebuilt solution, enabler, and categorization contracts are now explicit and executable where static validation is meaningful.
+- Health is the reference categorized server feature: `routes/` composes HTTP delivery, `controllers/` translates the response, and `services/` owns the application operation. Every layer is functional, dependency-explicit, and exposed through controlled indexes; no unused domain, validation, persistence, model, or integration layer exists.
+- Health behavior tests now live with the feature and independently verify service, controller, and HTTP route contracts. The API-level suite retains the general not-found/error boundary test.
+- Server consumers outside a feature are rejected when they bypass the feature root public API, and route validation requires the justified `features/<feature>/routes/` boundary plus explicit bootstrap registration.
 
 ## Validated
 
@@ -49,7 +54,7 @@ SERVER FEATURE AND SHARED CONFIG RECONCILIATION: 2026-09-17
 - The package-local `ui:add` workflow and controlled UI package exports remain operational across tests and production builds.
 - The pinned shadcn 4.20.0 CLI successfully queried the official registry and generated all 53 components that expose `new-york` style artifacts. The reproducible catalog command excludes eight searchable entries whose registry style artifacts return not found: `attachment`, `bubble`, `combobox`, `direction`, `marker`, `message`, `message-scroller`, and `native-select`.
 - Registry aliases resolve generation into `packages/ui/src` without `baseUrl`; the private `#ui` import map resolves source during TypeScript compilation and compiled files at runtime. Strict UI type checking, scoped registry-source linting, the component test, and the UI build pass.
-- 55 control-plane tests pass, including shared TypeScript inheritance, config-project placement, server feature placement and registration, package-local maintenance scope, forbidden compiler options, and the pinned registry workflow. Fourteen workspace tests pass.
+- 56 control-plane tests pass, including shared TypeScript inheritance, config-project placement, server feature placement and registration, feature public API enforcement, package-local maintenance scope, forbidden compiler options, and the pinned registry workflow. Sixteen workspace tests pass.
 - Controlled failures detect invalid server feature location and registration, invalid shared TypeScript inheritance, invalid config-project placement, forbidden package-local maintenance behavior, duplicate shadcn primitives, feature UI inside `packages/ui`, and generic UI inside `apps/web`. Test fixtures are temporary and the real tree passes cleanly afterward.
 - Production runtime smoke checks returned HTTP 200 from the web application, rendered the expected UI-package-backed content, and returned the healthy API payload from `/health` with startup and request logging.
 - `git diff --check` passes.

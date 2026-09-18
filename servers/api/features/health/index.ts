@@ -1,2 +1,2 @@
-export { createHealthRouter } from "./health.route.js";
-export type { HealthRouteDependencies } from "./health.route.js";
+export { createHealthRoutes } from "./routes/index.js";
+export type { HealthRouteDependencies } from "./routes/index.js";
