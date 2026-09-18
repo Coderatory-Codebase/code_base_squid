@@ -40,6 +40,7 @@ HEALTH FEATURE RESPONSIBILITY RECONCILIATION: 2026-09-18
 - Health is the reference categorized server feature: `routes/` composes HTTP delivery, `controllers/` translates the response, and `services/` owns the application operation. Every layer is functional, dependency-explicit, and exposed through controlled indexes; no unused domain, validation, persistence, model, or integration layer exists.
 - Health behavior tests now live with the feature and independently verify service, controller, and HTTP route contracts. The API-level suite retains the general not-found/error boundary test.
 - Server consumers outside a feature are rejected when they bypass the feature root public API, and route validation requires the justified `features/<feature>/routes/` boundary plus explicit bootstrap registration.
+- Shared logging renders readable level-first, locally timestamped terminal output with indented context in non-production API environments; production output remains structured JSON for ingestion.
 
 ## Validated
 

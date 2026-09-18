@@ -6,7 +6,11 @@ import { apiRuntime } from "./constants/index.js";
 import { createMongoDbIntegration } from "./integrations/index.js";
 
 const config = createApiConfig(readApiEnvironment());
-const logger = createLogger({ service: apiRuntime.serviceName, level: config.logLevel });
+const logger = createLogger({
+  service: apiRuntime.serviceName,
+  level: config.logLevel,
+  format: config.environment === "production" ? "json" : "pretty"
+});
 const database = createMongoDbIntegration({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})

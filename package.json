@@ -24,6 +24,9 @@
     "ui:add:all": "pnpm --dir packages/ui run ui:add:all",
     "test": "pnpm run test:control-plane && pnpm run test:units"
   },
+  "devDependencies": {
+    "@workspace/tsconfig": "workspace:*"
+  },
   "engines": {
     "node": ">=20.19.0"
   }
