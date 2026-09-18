@@ -24,7 +24,7 @@ export const controlPlaneContracts = Object.freeze({
   "execution-plan": ["kind", "requestedTasks", "affectedUnits", "tasks"],
   "cache-entry": ["task", "fingerprint", "exitCode", "recordedAt"],
   "validation-result": ["kind", "ok", "issues"],
-  "tool-result": ["name", "engine", "status", "exitCode", "durationMs", "findingCount"],
+  "tool-result": ["name", "engine", "version", "status", "scanStatus", "exitCode", "durationMs", "findingCount"],
   "scan-result": ["kind", "ok", "tools", "issues"]
 });
 

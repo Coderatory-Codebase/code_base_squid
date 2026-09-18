@@ -44,11 +44,12 @@ as its foundation.
 
 The control plane orchestrates established technical tools instead of reimplementing them.
 pnpm owns package resolution and dependency auditing; `tsc` owns TypeScript analysis;
-ESLint owns lint analysis; project-declared runners own tests; and Gitleaks owns secret
+ESLint owns lint analysis; project-declared runners own tests; and TruffleHog owns secret
 detection. Custom checks are reserved for repository-specific architecture and governance.
 Missing required tools and tool execution failures must fail clearly rather than becoming
-successful scans. `pnpm run scan` requires Gitleaks 8.29.1 on `PATH` and contacts the
-configured package registry through `pnpm audit`.
+successful scans. `pnpm run scan` bootstraps the architecture-pinned TruffleHog release into
+the ignored repository cache after verifying its official SHA-256 checksum and version; it
+also contacts the configured package registry through `pnpm audit`.
 
 `architecture.yaml` uses the JSON-compatible subset of YAML so Node.js can load the
 authoritative policy without adding a parser dependency to the control plane.

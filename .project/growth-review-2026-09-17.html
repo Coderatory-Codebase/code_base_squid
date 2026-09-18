@@ -158,7 +158,7 @@ td:first-child{font-weight:600;white-space:nowrap}
 <tr><td>Testing</td><td><span class="chip miss">Unit only</span></td><td>node:test per unit, 50 control-plane tests</td><td>No DOM component tests, no database integration tests, no end-to-end suite</td><td><span class="chip now">Now</span></td></tr>
 <tr><td>Observability</td><td><span class="chip miss">Logging only</span></td><td>pino facade, enabler README</td><td>No request correlation, error tracking, metrics, or tracing</td><td><span class="chip next">Next</span></td></tr>
 <tr><td>Delivery</td><td><span class="chip miss">Missing</span></td><td>One CI workflow</td><td>No containers, environments, preview deploys, release process, or branch model record</td><td><span class="chip next">Next</span></td></tr>
-<tr><td>Security</td><td><span class="chip miss">Partial</span></td><td>pnpm audit, gitleaks, build-script allowlist</td><td>No headers, rate limits, CSRF model, SAST, dependency automation, or secrets manager</td><td><span class="chip next">Next</span></td></tr>
+<tr><td>Security</td><td><span class="chip miss">Partial</span></td><td>pnpm audit, TruffleHog, build-script allowlist</td><td>No headers, rate limits, CSRF model, SAST, dependency automation, or secrets manager</td><td><span class="chip next">Next</span></td></tr>
 <tr><td>Human docs</td><td><span class="chip miss">Missing</span></td><td>Agent-facing markdown</td><td>No README, onboarding, decision records, or runbooks</td><td><span class="chip now">Now</span></td></tr>
 <tr><td>Background work</td><td><span class="chip miss">Not needed yet</span></td><td>Nothing</td><td>Worker runtime and queue when a job exists</td><td><span class="chip trig">On trigger</span></td></tr>
 </tbody>
@@ -521,7 +521,7 @@ features.forEach((routes) =&gt; app.use("/v1", routes));</code></pre>
   <div class="tag"><span class="chip now">Now</span><span class="rid">DX-3</span></div>
   <div>
     <h4>A doctor command</h4>
-    <p><code>repo doctor</code> checks the Node and pnpm versions, the gitleaks binary, the presence of each <code>.env</code> against its example, database reachability, and line-ending configuration, and prints how to fix each. Today these failures surface only as confusing errors from later commands.</p>
+    <p><code>repo doctor</code> checks the Node and pnpm versions, the managed TruffleHog binary, the presence of each <code>.env</code> against its example, database reachability, and line-ending configuration, and prints how to fix each. Today these failures surface only as confusing errors from later commands.</p>
   </div>
 </div>
 <div class="rec">
@@ -549,7 +549,7 @@ features.forEach((routes) =&gt; app.use("/v1", routes));</code></pre>
   <div class="tag"><span class="chip next">Next</span><span class="rid">DX-7</span></div>
   <div>
     <h4>Editor and commit hygiene</h4>
-    <p><code>.editorconfig</code>, <code>.gitattributes</code>, a formatter such as Prettier or Biome, recommended VS Code extensions and settings, commit message linting, and a pre-commit hook running the formatter and gitleaks on staged files. Consider a dev container so Windows and Linux contributors share one toolchain.</p>
+    <p><code>.editorconfig</code>, <code>.gitattributes</code>, a formatter such as Prettier or Biome, recommended VS Code extensions and settings, commit message linting, and a pre-commit hook running the formatter and TruffleHog on staged files. Consider a dev container so Windows and Linux contributors share one toolchain.</p>
   </div>
 </div>
 </section>

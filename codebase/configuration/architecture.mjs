@@ -84,7 +84,7 @@ export const validateArchitectureConfiguration = (architecture) => {
       lint: "eslint",
       tests: "project-declared-runner",
       dependencySecurity: "pnpm-audit",
-      secretDetection: "gitleaks"
+      secretDetection: "trufflehog"
     })) {
       if (toolingModel.standardEngines?.[capability] !== engine) {
         issues.push({ level: "error", message: `Architecture tooling model must delegate ${capability} to ${engine}.` });
@@ -202,10 +202,15 @@ export const validateArchitectureConfiguration = (architecture) => {
       || !["low", "moderate", "high", "critical"].includes(security.dependencyAudit?.minimumSeverity)) {
       issues.push({ level: "error", message: "Architecture dependency security must configure pnpm audit with a valid minimum severity." });
     }
-    if (security.secretScan?.engine !== "gitleaks"
-      || typeof security.secretScan?.version !== "string"
-      || typeof security.secretScan?.configuration !== "string") {
-      issues.push({ level: "error", message: "Architecture secret security must configure a pinned Gitleaks engine and native configuration." });
+    if (security.secretScan?.engine !== "trufflehog"
+      || !/^\d+\.\d+\.\d+$/.test(security.secretScan?.version ?? "")
+      || typeof security.secretScan?.configuration !== "string"
+      || security.secretScan.configuration.length === 0
+      || security.secretScan?.execution !== "managed-binary"
+      || security.secretScan?.scanMode !== "filesystem"
+      || !Array.isArray(security.secretScan?.resultClasses)
+      || !["verified", "unknown", "unverified"].every((item) => security.secretScan.resultClasses.includes(item))) {
+      issues.push({ level: "error", message: "Architecture secret security must configure pinned, managed TruffleHog filesystem scanning for every result class." });
     }
   }
   if (architecture.contractOwnership?.sharedTypesRoot !== "packages/types"

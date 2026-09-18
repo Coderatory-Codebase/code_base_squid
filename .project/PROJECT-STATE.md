@@ -16,13 +16,15 @@ HEALTH FEATURE RESPONSIBILITY RECONCILIATION: 2026-09-18
 
 NEXT.JS AND PACKAGES ARCHITECTURE RECONCILIATION: 2026-09-18
 
+SECURITY SCANNER RECONCILIATION: 2026-09-18
+
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
 - `codebase/` owns repository discovery, dependency graphing, execution planning, task ordering, caching, repository-specific policy, result normalization, and the CLI. It delegates specialized analysis to standard engines rather than recreating them.
-- The homemade regex secret scanner was removed. Thin functional adapters now orchestrate `pnpm audit` for dependency vulnerabilities and Gitleaks 8.29.1 for secret detection, normalize their results, redact secret values, and fail closed on missing tools, malformed reports, registry failures, findings, or non-zero tool failures.
+- The homemade regex secret scanner remains absent. Thin functional adapters orchestrate `pnpm audit` for dependency vulnerabilities and TruffleHog 3.97.5 for secret detection, normalize their results, omit credential values, and fail closed on missing tools, invalid versions, malformed reports, registry failures, findings, or non-zero tool failures.
 - Type checking remains delegated to `tsc`, linting to ESLint, testing to project-declared runners, compilation to project build tools, and package resolution to pnpm. The custom dependency graph, planner, runner, cache, architecture validators, and generators remain repository-owned.
-- Gitleaks uses native `.gitleaks.toml` configuration. CI installs the pinned official release, verifies its published checksum, and exposes it to the control-plane scan.
+- The control plane manages the architecture-pinned TruffleHog release under `.repo-cache`, verifies the official release SHA-256 checksum and executable version, then scans the current repository filesystem for verified, unknown, and unverified findings. Local development and CI use this same bootstrap and scanner adapter.
 - pnpm 11.19.0 is the actual workspace package manager. `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `workspace:*` internal dependencies, package scripts, project tasks, CI, generator defaults, and operating guidance are aligned; the npm workspace field and `package-lock.json` were removed.
 - pnpm dependency build scripts are deny-by-default except for the explicit `esbuild` and `unrs-resolver` allowlist required by installed tooling.
 - `packages/ui` is an operational strict TypeScript workspace package with controlled compiled exports, package-local shadcn configuration, a generated shadcn Button primitive, generic PageHeader, PageShell, and MessageState compositions, and a component test.
@@ -55,8 +57,8 @@ NEXT.JS AND PACKAGES ARCHITECTURE RECONCILIATION: 2026-09-18
 - All five TypeScript workspaces pass independent ESLint tasks.
 - Production builds pass for web, API, UI, logging, and shared types. Next.js compiled and type-checked the app and generated `/` and `/_not-found`.
 - 48 control-plane tests pass. Fourteen workspace tests pass: four web, eight API, one UI, and one logging test.
-- `pnpm audit` reports zero dependency findings at every severity. The aggregate local scan fails closed because Gitleaks is not installed on this host; CI retains the pinned Gitleaks 8.29.1 installation and scan path.
-- Controlled standard-tool failures propagate correctly. ESLint rejected explicit `any`; `tsc` rejected an invalid assignment; the runner marked the owning task failed and skipped its dependent task; Gitleaks detected a synthetic nonfunctional AWS-style fixture without exposing its value; dependency advisory, malformed-report, and missing-tool fixtures all failed repository policy. All temporary files were removed.
+- `pnpm audit` reports zero dependency findings at every severity. The managed TruffleHog repository scan is clean, and aggregate local validation no longer depends on a globally installed secret scanner.
+- Controlled standard-tool failures propagate correctly. ESLint rejected explicit `any`; `tsc` rejected an invalid assignment; the runner marked the owning task failed and skipped its dependent task; TruffleHog detected a generated temporary private key without exposing its value; checksum, version, scanner-error, malformed-report, missing-tool, and dependency-advisory fixtures all failed repository policy. All temporary files were removed.
 - The package-local `ui:add` workflow and controlled UI package exports remain operational across tests and production builds.
 - The pinned shadcn 4.20.0 CLI successfully queried the official registry and generated all 53 components that expose `new-york` style artifacts. The reproducible catalog command excludes eight searchable entries whose registry style artifacts return not found: `attachment`, `bubble`, `combobox`, `direction`, `marker`, `message`, `message-scroller`, and `native-select`.
 - Registry aliases resolve generation into `packages/ui/src` without `baseUrl`; the private `#ui` import map resolves source during TypeScript compilation and compiled files at runtime. Strict UI type checking, scoped registry-source linting, the component test, and the UI build pass.
@@ -65,6 +67,7 @@ NEXT.JS AND PACKAGES ARCHITECTURE RECONCILIATION: 2026-09-18
 - Production runtime smoke checks returned HTTP 200 from the web application, rendered the expected UI-package-backed content, and returned the healthy API payload from `/health` with startup and request logging.
 - `git diff --check` passes.
 - M03.4 workspace discovery and the dependency graph remain valid and acyclic. Architecture checks, lint, strict type checking, production builds, 56 control-plane tests, and 17 workspace tests pass; the pinned shadcn CLI resolves the package-owned theme and all 53 installed registry components.
+- The security scanner reconciliation passes a clean managed TruffleHog scan, normalized JSON output, aggregate validation, checksum, cached-binary integrity, and version enforcement, a generated-credential integration test, 71 control-plane tests, all 17 workspace tests, lint, strict type checking, and every production build.
 
 ## Deferred
 

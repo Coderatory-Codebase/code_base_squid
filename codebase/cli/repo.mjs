@@ -68,6 +68,15 @@ const printIssues = (kind, issues, { json, ...details }) => {
   return result;
 };
 
+const printScanResult = (scan, json) => {
+  if (json) return printIssues("scan-result", scan.issues, { json: true, tools: scan.tools });
+  const secretScan = scan.tools.find(({ name }) => name === "secret-scan");
+  if (secretScan) {
+    print(`Security scan\nScanner: TruffleHog\nVersion: ${secretScan.version}\n\nStatus: ${secretScan.scanStatus.toUpperCase()}\n`);
+  }
+  return printIssues("scan-result", scan.issues, { json: false, tools: scan.tools });
+};
+
 const runTaskCommand = async ({ workspace, args, taskName }) => {
   const { plan, affected } = await createPlan(workspace, taskName, args);
   const results = await executePlan({
@@ -123,7 +132,7 @@ const commands = {
   check: async ({ workspace, args }) => printIssues("validation-result", await runWorkspaceChecks(workspace), { json: hasFlag(args, "json") }),
   scan: async ({ workspace, args }) => {
     const scan = await runWorkspaceScans(workspace);
-    printIssues("scan-result", scan.issues, { json: hasFlag(args, "json"), tools: scan.tools });
+    printScanResult(scan, hasFlag(args, "json"));
   },
   validate: async ({ workspace, args }) => {
     const [checks, scan] = await Promise.all([runWorkspaceChecks(workspace), runWorkspaceScans(workspace)]);

@@ -18,15 +18,6 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Install Gitleaks
-        env:
-          GITLEAKS_VERSION: 8.29.1
-        run: |
-          curl --fail --silent --show-error --location --output gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          curl --fail --silent --show-error --location --output checksums.txt "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
-          grep " gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz$" checksums.txt | sha256sum --check
-          tar --extract --gzip --file gitleaks.tar.gz gitleaks
-          install --mode 0755 gitleaks /usr/local/bin/gitleaks
       - run: pnpm run node:check
       - run: pnpm test
       - run: pnpm run repo -- profile ${{ github.event_name == 'pull_request' && 'pull-request' || 'main' }} --json

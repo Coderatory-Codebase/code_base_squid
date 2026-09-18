@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validateArchitectureConfiguration } from "./architecture.mjs";
+import { readArchitecture, validateArchitectureConfiguration } from "./architecture.mjs";
 
 test("validates architecture policy structure and workspace unit types", () => {
   const issues = validateArchitectureConfiguration({
@@ -12,4 +12,19 @@ test("validates architecture policy structure and workspace unit types", () => {
   assert.ok(issues.some((issue) => issue.message.includes("invalid type")));
   assert.ok(issues.some((issue) => issue.message.includes("requiredRoots must be an array")));
   assert.ok(issues.some((issue) => issue.message.includes("missing boundary")));
+});
+
+test("requires pinned managed TruffleHog filesystem policy", async () => {
+  const architecture = await readArchitecture(process.cwd());
+  const invalid = structuredClone(architecture);
+  invalid.security.secretScan = {
+    engine: "trufflehog",
+    version: "",
+    execution: "host-path",
+    scanMode: "git",
+    resultClasses: ["verified"],
+    configuration: ".trufflehog-exclude-paths.txt"
+  };
+  const issues = validateArchitectureConfiguration(invalid);
+  assert.ok(issues.some((issue) => issue.message.includes("managed TruffleHog filesystem")));
 });

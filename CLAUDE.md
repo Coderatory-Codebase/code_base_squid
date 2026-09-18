@@ -16,7 +16,7 @@ Use the repository CLI for discovery and validation instead of inventing ad hoc 
 ecosystem tools. Keep repository discovery, graphing, planning, caching, policy, and result
 aggregation custom; delegate package management and auditing to pnpm, type checking to
 `tsc`, linting to ESLint, tests to project-declared runners, and secret detection to
-Gitleaks. Do not implement homemade scanners, compilers, linters, formatters, test runners,
+TruffleHog. Do not implement homemade scanners, compilers, linters, formatters, test runners,
 or package resolvers inside the control plane.
 
 The repository is the workspace. Do not insert a project namespace between the root and

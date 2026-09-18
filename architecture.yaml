@@ -45,7 +45,7 @@
       "lint": "eslint",
       "tests": "project-declared-runner",
       "dependencySecurity": "pnpm-audit",
-      "secretDetection": "gitleaks"
+      "secretDetection": "trufflehog"
     }
   },
   "featureModel": {
@@ -198,9 +198,12 @@
       "minimumSeverity": "high"
     },
     "secretScan": {
-      "engine": "gitleaks",
-      "version": "8.29.1",
-      "configuration": ".gitleaks.toml"
+      "engine": "trufflehog",
+      "version": "3.97.5",
+      "execution": "managed-binary",
+      "scanMode": "filesystem",
+      "resultClasses": ["verified", "unknown", "unverified"],
+      "configuration": ".trufflehog-exclude-paths.txt"
     }
   },
   "moduleBoundaries": [
