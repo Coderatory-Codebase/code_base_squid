@@ -28,3 +28,11 @@ test("requires pinned managed TruffleHog filesystem policy", async () => {
   const issues = validateArchitectureConfiguration(invalid);
   assert.ok(issues.some((issue) => issue.message.includes("managed TruffleHog filesystem")));
 });
+
+test("requires the repository Git governance contract", async () => {
+  const architecture = await readArchitecture(process.cwd());
+  const invalid = structuredClone(architecture);
+  invalid.gitGovernance.hooks = "custom-hooks";
+  const issues = validateArchitectureConfiguration(invalid);
+  assert.ok(issues.some((issue) => issue.message.includes("Git governance")));
+});

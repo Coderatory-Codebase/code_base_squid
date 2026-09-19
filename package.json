@@ -18,14 +18,21 @@
     "typecheck": "node codebase/cli/repo.mjs run typecheck --concurrency 2",
     "check": "node codebase/cli/repo.mjs check",
     "scan": "node codebase/cli/repo.mjs scan",
-    "validate": "node codebase/cli/repo.mjs validate",
+    "validate": "pnpm run node:check && node codebase/cli/repo.mjs validate && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
     "node:check": "node codebase/checks/node-syntax.mjs",
+    "commitlint": "commitlint",
+    "lint:staged": "lint-staged",
+    "prepare": "husky",
     "ui:add": "pnpm --dir packages/ui run ui:add",
     "ui:add:all": "pnpm --dir packages/ui run ui:add:all",
     "test": "pnpm run test:control-plane && pnpm run test:units"
   },
   "devDependencies": {
-    "@workspace/tsconfig": "workspace:*"
+    "@commitlint/cli": "20.5.3",
+    "@commitlint/config-conventional": "20.5.3",
+    "@workspace/tsconfig": "workspace:*",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0"
   },
   "engines": {
     "node": ">=20.19.0"

@@ -18,6 +18,8 @@ NEXT.JS AND PACKAGES ARCHITECTURE RECONCILIATION: 2026-09-18
 
 SECURITY SCANNER RECONCILIATION: 2026-09-18
 
+GIT GOVERNANCE RECONCILIATION: 2026-09-18
+
 ## Implemented
 
 - The repository remains the workspace. The repository-owned control plane, project manifests, dependency graph, task runner, affected analysis, cache, checks, scans, and execution profiles remain the monorepo foundation.
@@ -48,6 +50,7 @@ SECURITY SCANNER RECONCILIATION: 2026-09-18
 - The public home route now composes an application-owned `workspace-foundation` feature through its root public API. Its feature UI moved out of the generic application component boundary, and the route remains a thin Server Component that owns environment-derived configuration.
 - `packages/ui` now owns its Tailwind theme and semantic design tokens through an exported stylesheet consumed by the web application. `PageHeader` is a generic component, while `PageShell` and the shell-dependent `MessageState` are compositions; all consumers continue through the package root API.
 - Shared API contracts are categorized under `packages/types/src/api/environment`, `errors`, and `health`, with category indexes and unchanged root-package imports for consumers.
+- Git governance uses repository-local Husky hooks, Commitlint Conventional Commits, lint-staged workspace ESLint routing, the existing managed TruffleHog scan, and the existing control-plane check contract. GitHub repository policy now includes CODEOWNERS, a pull request template, least-privilege immutable-action CI, documented branch and review standards, and a versioned `main` ruleset payload for administrator application.
 
 ## Validated
 
@@ -68,11 +71,13 @@ SECURITY SCANNER RECONCILIATION: 2026-09-18
 - `git diff --check` passes.
 - M03.4 workspace discovery and the dependency graph remain valid and acyclic. Architecture checks, lint, strict type checking, production builds, 56 control-plane tests, and 17 workspace tests pass; the pinned shadcn CLI resolves the package-owned theme and all 53 installed registry components.
 - The security scanner reconciliation passes a clean managed TruffleHog scan, normalized JSON output, aggregate validation, checksum, cached-binary integrity, and version enforcement, a generated-credential integration test, 71 control-plane tests, all 17 workspace tests, lint, strict type checking, and every production build.
+- Git governance contract tests cover valid, invalid, malformed, missing-subject, and breaking Conventional Commits; staged-only processing and command failure; hook thinness; workspace ESLint routing; immutable CI actions; pull request structure; CODEOWNERS; and the versioned ruleset policy. Repository-wide validation remains the authoritative CI path.
 
 ## Deferred
 
 - A required live MongoDB connection, feature repositories, models, and live-provider integration coverage remain deferred until a persistence-backed feature exists.
 - Remote artifact storage, distributed execution, deployment-specific standalone web packaging, and production observability infrastructure remain deferred until operational requirements justify them.
+- Applying `.github/rulesets/main.json` to GitHub remains an authenticated repository-administrator action; the current environment has no authenticated GitHub CLI session.
 
 ## Not applicable
 

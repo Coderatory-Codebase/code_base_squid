@@ -234,6 +234,27 @@ export const validateArchitectureConfiguration = (architecture) => {
     || typeof architecture.featureModel.serverFeatureLayers.optional !== "object") {
     issues.push({ level: "error", message: "Architecture feature model must be feature-first with flat server files by default." });
   }
+  const gitGovernance = architecture.gitGovernance;
+  if (!gitGovernance
+    || gitGovernance.hooks !== "husky"
+    || gitGovernance.commitMessages !== "commitlint"
+    || gitGovernance.commitConvention !== "conventional-commits"
+    || gitGovernance.stagedFiles !== "lint-staged"
+    || gitGovernance.defaultBranch !== "main"
+    || gitGovernance.mergeStrategy !== "squash"
+    || gitGovernance.requiredStatusCheck !== "validate"
+    || gitGovernance.signedCommits !== "optional"
+    || typeof gitGovernance.branchPattern !== "string"
+    || !Array.isArray(gitGovernance.codeOwners)
+    || !gitGovernance.tools || typeof gitGovernance.tools !== "object") {
+    issues.push({ level: "error", message: "Architecture Git governance must define the Husky, Commitlint, lint-staged, review, and main-branch contract." });
+  } else {
+    try {
+      new RegExp(gitGovernance.branchPattern);
+    } catch {
+      issues.push({ level: "error", message: "Architecture Git governance branchPattern must be a valid regular expression." });
+    }
+  }
   if (architecture.growthModel?.categorizationRule !== "meaningful-ownership-or-growth"
     || architecture.growthModel?.commonFileCountHeuristic !== 3
     || architecture.growthModel?.fileCountIsMandatoryThreshold !== false) {

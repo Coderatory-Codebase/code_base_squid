@@ -7,6 +7,7 @@ import { pathExists, readJsonFile, walkFiles } from "../utilities/fs.mjs";
 import { validateArchitectureBoundaries } from "../validators/architecture-boundaries.mjs";
 import { createExecutionPlan, listTasks } from "../execution/tasks.mjs";
 import { validateArchitectureConfiguration } from "../configuration/architecture.mjs";
+import { checkGitGovernance } from "./git-governance.mjs";
 
 export const checkWorkspaceStructure = async (workspace) => {
   const missingRoots = workspace.roots
@@ -550,6 +551,7 @@ export const runWorkspaceChecks = async (workspace) => [
   ...checkTaskGraph(workspace),
   ...(await checkReservedControlPlaneDependencies(workspace)),
   ...(await checkPackageManagerArchitecture(workspace)),
+  ...(await checkGitGovernance(workspace)),
   ...(await checkTypeScriptConfiguration(workspace)),
   ...(await checkUiRegistryWorkflow(workspace)),
   ...(await checkTypeScriptTaskCoverage(workspace)),

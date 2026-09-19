@@ -16,7 +16,7 @@
       "prebuilt": ["prebuilt"]
     },
     "requiredRoots": ["apps", "servers", "packages", "prebuilt", "codebase", "enablers", ".agent", ".project", ".github"],
-    "requiredFiles": ["AGENTS.md", "CLAUDE.md", "architecture.yaml", "package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+    "requiredFiles": ["AGENTS.md", "CLAUDE.md", ".editorconfig", ".gitattributes", "architecture.yaml", "commitlint.config.mjs", "lint-staged.config.mjs", "package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
     "disallowedOrchestrators": ["turbo", "turborepo", "nx", "lerna"],
     "ignoredDirectories": [".git", ".next", ".repo-cache", "node_modules", "dist", "build", "coverage"]
   },
@@ -204,6 +204,24 @@
       "scanMode": "filesystem",
       "resultClasses": ["verified", "unknown", "unverified"],
       "configuration": ".trufflehog-exclude-paths.txt"
+    }
+  },
+  "gitGovernance": {
+    "hooks": "husky",
+    "commitMessages": "commitlint",
+    "commitConvention": "conventional-commits",
+    "stagedFiles": "lint-staged",
+    "defaultBranch": "main",
+    "mergeStrategy": "squash",
+    "requiredStatusCheck": "validate",
+    "signedCommits": "optional",
+    "codeOwners": ["@adeelchainz"],
+    "branchPattern": "^(feature|fix|refactor|perf|test|docs|build|ci|chore|hotfix|release)/[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "tools": {
+      "husky": "9.1.7",
+      "@commitlint/cli": "20.5.3",
+      "@commitlint/config-conventional": "20.5.3",
+      "lint-staged": "16.4.0"
     }
   },
   "moduleBoundaries": [
