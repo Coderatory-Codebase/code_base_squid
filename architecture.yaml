@@ -186,7 +186,7 @@
     "packageManagerVersion": "11.19.0",
     "workspaceFile": "pnpm-workspace.yaml",
     "workspacePatterns": ["apps/*", "servers/*", "packages/*", "prebuilt/*", "prebuilt/*/*"],
-    "allowedBuildDependencies": ["esbuild", "unrs-resolver"],
+    "allowedBuildDependencies": ["esbuild", "mongodb-memory-server", "unrs-resolver"],
     "lockfile": "pnpm-lock.yaml",
     "forbiddenLockfiles": ["package-lock.json", "yarn.lock"],
     "internalDependencyProtocol": "workspace:"
