@@ -1,72 +1,86 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createMongooseOutboxLease, type OutboxLeaseModel } from "../integrations/index.js";
+import { createRedisOutboxLease, type LeaseRedisClient } from "../integrations/index.js";
 
-type Recorded = {
-  filter?: unknown;
-  update?: unknown;
-  options?: unknown;
-  deleted: unknown[];
-};
+type Call = Readonly<{ command: string; args: readonly unknown[] }>;
 
-type LeaseDocument = Readonly<{ _id: string; ownerId: string; expiresAt: number }>;
+type Answers = Readonly<{
+  set?: () => Promise<"OK" | null>;
+  evalResult?: () => Promise<unknown>;
+}>;
 
-const createModel = (outcome: () => Promise<LeaseDocument | null>): Readonly<{ model: OutboxLeaseModel; recorded: Recorded }> => {
-  const recorded: Recorded = { deleted: [] };
-  const fake = {
-    findOneAndUpdate: (filter: unknown, update: unknown, options: unknown) => {
-      recorded.filter = filter;
-      recorded.update = update;
-      recorded.options = options;
-      return { lean: outcome };
+const createClient = (answers: Answers = {}): Readonly<{ client: LeaseRedisClient; calls: Call[] }> => {
+  const calls: Call[] = [];
+  const client: LeaseRedisClient = {
+    set: (...args): Promise<"OK" | null> => {
+      calls.push({ command: "set", args });
+      return answers.set ? answers.set() : Promise.resolve("OK");
     },
-    deleteOne: (filter: unknown): Promise<unknown> => {
-      recorded.deleted.push(filter);
-      return Promise.resolve({});
+    eval: (...args): Promise<unknown> => {
+      calls.push({ command: "eval", args });
+      return answers.evalResult ? answers.evalResult() : Promise.resolve(1);
+    },
+    quit: (): Promise<unknown> => {
+      calls.push({ command: "quit", args: [] });
+      return Promise.resolve("OK");
     }
   };
-  // The fake implements only the slice of the Mongoose model the adapter calls.
-  return { model: fake as unknown as OutboxLeaseModel, recorded };
+  return { client, calls };
 };
 
-void test("takes or renews the lease with one conditional upsert that matches only its own or an expired lease", async (): Promise<void> => {
-  const { model, recorded } = createModel(() => Promise.resolve({ _id: "outbox-relay", ownerId: "me", expiresAt: 31_000 }));
-  const lease = createMongooseOutboxLease({ leaseName: "outbox-relay", model });
+const createLease = (client: LeaseRedisClient): ReturnType<typeof createRedisOutboxLease> =>
+  createRedisOutboxLease({ url: "redis://example.test", leaseName: "outbox-relay", commandTimeoutMs: 5_000, client });
 
-  const acquired = await lease.acquire({ ownerId: "me", ttlMs: 30_000, now: 1_000 });
+void test("takes a free lease with SET NX and a TTL, storing the owner id under the lease key", async (): Promise<void> => {
+  const { client, calls } = createClient({ set: () => Promise.resolve("OK") });
+
+  const acquired = await createLease(client).acquire({ ownerId: "me", ttlMs: 30_000 });
 
   assert.equal(acquired, true);
-  assert.deepEqual(recorded.filter, { _id: "outbox-relay", $or: [{ ownerId: "me" }, { expiresAt: { $lte: 1_000 } }] });
-  assert.deepEqual(recorded.update, { $set: { ownerId: "me", expiresAt: 31_000 } });
-  assert.deepEqual(recorded.options, { upsert: true, returnDocument: "after" });
+  assert.deepEqual(calls, [{ command: "set", args: ["outbox:lease:outbox-relay", "me", "PX", 30_000, "NX"] }]);
 });
 
-void test("reports the lease as held elsewhere when the unique _id index rejects the upsert", async (): Promise<void> => {
-  const { model } = createModel(() => Promise.reject(Object.assign(new Error("E11000 duplicate key"), { code: 11_000 })));
-  const lease = createMongooseOutboxLease({ leaseName: "outbox-relay", model });
+void test("renews the lease it already holds by extending the TTL only while the key still holds its owner id", async (): Promise<void> => {
+  const { client, calls } = createClient({ set: () => Promise.resolve(null), evalResult: () => Promise.resolve(1) });
 
-  assert.equal(await lease.acquire({ ownerId: "me", ttlMs: 30_000, now: 1_000 }), false);
+  const acquired = await createLease(client).acquire({ ownerId: "me", ttlMs: 30_000 });
+
+  assert.equal(acquired, true);
+  assert.deepEqual(calls.map((call) => call.command), ["set", "eval"]);
+  const renewal = calls.find((call) => call.command === "eval");
+  assert.ok(renewal);
+  assert.match(String(renewal.args[0]), /get.*== ARGV\[1\].*pexpire/);
+  assert.deepEqual(renewal.args.slice(1), [1, "outbox:lease:outbox-relay", "me", 30_000]);
 });
 
-void test("reports the lease as not held when the stored owner is someone else", async (): Promise<void> => {
-  const { model } = createModel(() => Promise.resolve({ _id: "outbox-relay", ownerId: "other", expiresAt: 31_000 }));
-  const lease = createMongooseOutboxLease({ leaseName: "outbox-relay", model });
+void test("reports the lease as held elsewhere when the key exists with another owner", async (): Promise<void> => {
+  const { client } = createClient({ set: () => Promise.resolve(null), evalResult: () => Promise.resolve(0) });
 
-  assert.equal(await lease.acquire({ ownerId: "me", ttlMs: 30_000, now: 1_000 }), false);
+  assert.equal(await createLease(client).acquire({ ownerId: "me", ttlMs: 30_000 }), false);
 });
 
-void test("surfaces database failures instead of treating them as a lost lease", async (): Promise<void> => {
-  const { model } = createModel(() => Promise.reject(new Error("mongo unavailable")));
-  const lease = createMongooseOutboxLease({ leaseName: "outbox-relay", model });
+void test("surfaces Redis failures instead of treating them as a lost lease", async (): Promise<void> => {
+  const { client } = createClient({ set: () => Promise.reject(new Error("redis unavailable")) });
 
-  await assert.rejects(lease.acquire({ ownerId: "me", ttlMs: 30_000, now: 1_000 }), /mongo unavailable/);
+  await assert.rejects(createLease(client).acquire({ ownerId: "me", ttlMs: 30_000 }), /redis unavailable/);
 });
 
 void test("releases only a lease the given owner holds", async (): Promise<void> => {
-  const { model, recorded } = createModel(() => Promise.resolve(null));
-  const lease = createMongooseOutboxLease({ leaseName: "outbox-relay", model });
+  const { client, calls } = createClient();
 
-  await lease.release({ ownerId: "me" });
+  await createLease(client).release({ ownerId: "me" });
 
-  assert.deepEqual(recorded.deleted, [{ _id: "outbox-relay", ownerId: "me" }]);
+  const [release] = calls;
+  assert.equal(calls.length, 1);
+  assert.ok(release);
+  assert.match(String(release.args[0]), /get.*== ARGV\[1\].*del/);
+  assert.deepEqual(release.args.slice(1), [1, "outbox:lease:outbox-relay", "me"]);
+});
+
+void test("closes the Redis connection", async (): Promise<void> => {
+  const { client, calls } = createClient();
+
+  await createLease(client).close();
+
+  assert.deepEqual(calls, [{ command: "quit", args: [] }]);
 });

@@ -2,6 +2,9 @@ import type { Clock } from "@workspace/kernel";
 import type { Logger } from "@workspace/logging";
 import type { OutboxCollection } from "../integrations/index.js";
 
+// Label that finds this alert in the logs. No on-call channel exists yet, so a warn log is the whole alert.
+const backlogAlertLabel = "signals-003";
+
 export type OutboxBacklogMonitorDependencies = Readonly<{
   collection: OutboxCollection;
   clock: Clock;
@@ -35,7 +38,9 @@ export const createOutboxBacklogMonitor = ({
       const oldestAgeMs = now - oldest.createdAt;
       if (oldestAgeMs > alertAfterMs && (lastAlertAt === undefined || now - lastAlertAt >= alertAfterMs)) {
         lastAlertAt = now;
+        // Runbook: runbook-001
         logger.warn("Outbox backlog is older than the alert threshold.", {
+          label: backlogAlertLabel,
           oldestRowId: oldest.id,
           oldestAgeMs,
           alertAfterMs

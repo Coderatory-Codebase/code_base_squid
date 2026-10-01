@@ -37,7 +37,8 @@ const createHarness = (): Harness => {
     },
     lease: {
       acquire: (): Promise<boolean> => Promise.resolve(true),
-      release: (): Promise<void> => { calls.push("lease:release"); return Promise.resolve(); }
+      release: (): Promise<void> => { calls.push("lease:release"); return Promise.resolve(); },
+      close: (): Promise<void> => { calls.push("lease:close"); return Promise.resolve(); }
     },
     backlogMonitor: { check: (): Promise<number | undefined> => Promise.resolve(undefined) },
     logger: {
@@ -54,7 +55,7 @@ const baseOptions = {
   batchSize: 10,
   publishTimeoutMs: 1_000,
   leaseTtlMs: 30_000,
-  backlogAlertAfterMs: 60_000,
+  backlogAlertAfterMs: 120_000,
   clock: createFixedClock(0)
 };
 
@@ -161,5 +162,5 @@ void test("stop cancels the schedule, waits for the in-flight batch, releases th
   finishBatch();
   await stopping;
 
-  assert.deepEqual(harness.calls, ["schedule:1000", "cancel", "batch:done", "lease:release", "queue:close"]);
+  assert.deepEqual(harness.calls, ["schedule:1000", "cancel", "batch:done", "lease:release", "lease:close", "queue:close"]);
 });

@@ -32,7 +32,7 @@ const createHarness = (): Harness => {
     warnings,
     setPending: (rows): void => { pending = rows; },
     setNow: (time): void => { now = time; },
-    monitor: createOutboxBacklogMonitor({ collection, clock, logger, alertAfterMs: 60_000 })
+    monitor: createOutboxBacklogMonitor({ collection, clock, logger, alertAfterMs: 120_000 })
   };
 };
 
@@ -46,24 +46,24 @@ void test("reports no backlog and raises no alert when nothing is pending", asyn
   assert.deepEqual(harness.warnings, []);
 });
 
-void test("does not alert while the oldest pending row is no older than 60 seconds", async (): Promise<void> => {
+void test("does not alert while the oldest pending row is no older than 120 seconds", async (): Promise<void> => {
   const harness = createHarness();
   harness.setPending([rowCreatedAt("01A", 1_000), rowCreatedAt("01B", 50_000)]);
-  harness.setNow(61_000);
+  harness.setNow(121_000);
 
-  assert.equal(await harness.monitor.check(), 60_000);
+  assert.equal(await harness.monitor.check(), 120_000);
   assert.deepEqual(harness.warnings, []);
 });
 
-void test("alerts once the oldest pending row is older than 60 seconds, naming the row and its age", async (): Promise<void> => {
+void test("alerts once the oldest pending row is older than 120 seconds, naming the row and its age", async (): Promise<void> => {
   const harness = createHarness();
   harness.setPending([rowCreatedAt("01A", 1_000), rowCreatedAt("01B", 50_000)]);
-  harness.setNow(61_001);
+  harness.setNow(121_001);
 
-  assert.equal(await harness.monitor.check(), 60_001);
+  assert.equal(await harness.monitor.check(), 120_001);
   assert.deepEqual(harness.warnings, [{
     message: "Outbox backlog is older than the alert threshold.",
-    context: { oldestRowId: "01A", oldestAgeMs: 60_001, alertAfterMs: 60_000 }
+    context: { label: "signals-003", oldestRowId: "01A", oldestAgeMs: 120_001, alertAfterMs: 120_000 }
   }]);
 });
 
@@ -71,13 +71,13 @@ void test("repeats the alert at most once per threshold interval while the backl
   const harness = createHarness();
   harness.setPending([rowCreatedAt("01A", 0)]);
 
-  harness.setNow(61_000);
+  harness.setNow(121_000);
   await harness.monitor.check();
-  harness.setNow(63_000);
+  harness.setNow(123_000);
   await harness.monitor.check();
   assert.equal(harness.warnings.length, 1);
 
-  harness.setNow(121_000);
+  harness.setNow(241_000);
   await harness.monitor.check();
   assert.equal(harness.warnings.length, 2);
 });
@@ -85,15 +85,15 @@ void test("repeats the alert at most once per threshold interval while the backl
 void test("alerts again for a new backlog after the previous one drained", async (): Promise<void> => {
   const harness = createHarness();
   harness.setPending([rowCreatedAt("01A", 0)]);
-  harness.setNow(61_000);
+  harness.setNow(121_000);
   await harness.monitor.check();
 
   harness.setPending([]);
-  harness.setNow(62_000);
+  harness.setNow(122_000);
   await harness.monitor.check();
 
   harness.setPending([rowCreatedAt("01B", 1_000)]);
-  harness.setNow(62_500 + 60_000);
+  harness.setNow(122_500 + 120_000);
   await harness.monitor.check();
 
   assert.equal(harness.warnings.length, 2);

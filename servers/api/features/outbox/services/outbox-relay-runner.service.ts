@@ -2,7 +2,7 @@ import { createIdGenerator, type Clock } from "@workspace/kernel";
 import type { Logger } from "@workspace/logging";
 import {
   createMongooseOutboxCollection,
-  createMongooseOutboxLease,
+  createRedisOutboxLease,
   createOutboxQueue,
   type OutboxCollection,
   type OutboxLease,
@@ -67,7 +67,9 @@ export const createOutboxRelayRunner = ({
     : undefined,
   collection = queue ? createMongooseOutboxCollection() : undefined,
   ownerId = createIdGenerator({ clock })(),
-  lease = queue ? createMongooseOutboxLease({ leaseName: relayLeaseName }) : undefined,
+  lease = redisUrl
+    ? createRedisOutboxLease({ url: redisUrl, leaseName: relayLeaseName, commandTimeoutMs: publishTimeoutMs })
+    : undefined,
   relay = queue && collection && lease
     ? createOutboxRelay({
       collection,
@@ -75,7 +77,7 @@ export const createOutboxRelayRunner = ({
       clock,
       logger,
       batchSize,
-      shouldContinue: () => lease.acquire({ ownerId, ttlMs: leaseTtlMs, now: clock.now() })
+      shouldContinue: () => lease.acquire({ ownerId, ttlMs: leaseTtlMs })
     })
     : undefined,
   backlogMonitor = collection
@@ -96,7 +98,7 @@ export const createOutboxRelayRunner = ({
   const holdLease = async (): Promise<boolean> => {
     let held = false;
     try {
-      held = await lease.acquire({ ownerId, ttlMs: leaseTtlMs, now: clock.now() });
+      held = await lease.acquire({ ownerId, ttlMs: leaseTtlMs });
     } catch (error) {
       logger.error("Outbox relay lease check failed.", { error: describeError(error) });
     }
@@ -143,6 +145,7 @@ export const createOutboxRelayRunner = ({
       } catch (error) {
         logger.error("Outbox relay lease release failed.", { error: describeError(error) });
       }
+      await lease.close();
       await queue.close();
     }
   });

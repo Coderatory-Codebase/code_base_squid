@@ -50,9 +50,10 @@ const createWorld = (ids: readonly string[]): World => {
       },
       close: (): Promise<void> => Promise.resolve()
     },
-    // Mirrors the MongoDB lease: take it when free, expired or already ours; otherwise it is held elsewhere.
+    // Mirrors the Redis lease (SET NX PX, renewed by its owner): take it when free, expired or already ours; otherwise it is held elsewhere.
     lease: {
-      acquire: ({ ownerId, ttlMs, now: at }): Promise<boolean> => {
+      acquire: ({ ownerId, ttlMs }): Promise<boolean> => {
+        const at = now;
         if (held && held.ownerId !== ownerId && held.expiresAt > at) return Promise.resolve(false);
         held = { ownerId, expiresAt: at + ttlMs };
         return Promise.resolve(true);
@@ -60,7 +61,8 @@ const createWorld = (ids: readonly string[]): World => {
       release: ({ ownerId }): Promise<void> => {
         if (held?.ownerId === ownerId) held = undefined;
         return Promise.resolve();
-      }
+      },
+      close: (): Promise<void> => Promise.resolve()
     }
   };
 };
@@ -91,7 +93,7 @@ const createConsumer = (
     batchSize: options.batchSize,
     publishTimeoutMs: 5_000,
     leaseTtlMs: 30_000,
-    backlogAlertAfterMs: 60_000,
+    backlogAlertAfterMs: 120_000,
     clock: world.clock,
     logger,
     ownerId,
@@ -189,7 +191,8 @@ void test("a leader that loses its lease part-way through a batch stops publishi
   const answers = [true, true];
   const lease: OutboxLease = {
     acquire: (): Promise<boolean> => Promise.resolve(answers.shift() ?? false),
-    release: (): Promise<void> => Promise.resolve()
+    release: (): Promise<void> => Promise.resolve(),
+    close: (): Promise<void> => Promise.resolve()
   };
   const consumer = createConsumer(world, "slow", { batchSize: 10, lease });
 
@@ -205,38 +208,39 @@ void test("a leader that loses its lease part-way through a batch stops publishi
 void test("treats a failed lease check as not leading, relays nothing, and logs the failure", async (): Promise<void> => {
   const world = createWorld(["01A"]);
   const lease: OutboxLease = {
-    acquire: (): Promise<boolean> => Promise.reject(new Error("mongo unavailable")),
-    release: (): Promise<void> => Promise.resolve()
+    acquire: (): Promise<boolean> => Promise.reject(new Error("redis unavailable")),
+    release: (): Promise<void> => Promise.resolve(),
+    close: (): Promise<void> => Promise.resolve()
   };
   const consumer = createConsumer(world, "blind", { batchSize: 10, lease });
 
   await consumer.tick();
 
   assert.deepEqual(world.published, []);
-  assert.ok(consumer.logs.includes("error:Outbox relay lease check failed.:mongo unavailable"));
+  assert.ok(consumer.logs.includes("error:Outbox relay lease check failed.:redis unavailable"));
 });
 
-void test("alerts when the backlog is older than 60 seconds even though the relay is failing", async (): Promise<void> => {
+void test("alerts when the backlog is older than 120 seconds even though the relay is failing", async (): Promise<void> => {
   const world = createWorld(["01A", "01B"]);
   world.failPublishFor.add("01A");
   const consumer = createConsumer(world, "stuck", { batchSize: 10 });
 
-  world.setNow(59_000);
+  world.setNow(119_000);
   await consumer.tick();
   assert.ok(!consumer.logs.includes("warn:Outbox backlog is older than the alert threshold."));
 
-  world.setNow(61_000);
+  world.setNow(121_000);
   await consumer.tick();
 
   assert.ok(consumer.logs.includes("warn:Outbox backlog is older than the alert threshold."));
-  assert.deepEqual(consumer.warnings, [{ oldestRowId: "01A", oldestAgeMs: 61_000, alertAfterMs: 60_000 }]);
+  assert.deepEqual(consumer.warnings, [{ label: "signals-003", oldestRowId: "01A", oldestAgeMs: 121_000, alertAfterMs: 120_000 }]);
 });
 
 void test("does not alert when the relay keeps up, however old the rows were when it caught up", async (): Promise<void> => {
   const world = createWorld(["01A", "01B"]);
   const consumer = createConsumer(world, "healthy", { batchSize: 10 });
 
-  world.setNow(61_000);
+  world.setNow(121_000);
   await consumer.tick();
 
   assert.deepEqual(world.published, ["01A", "01B"]);

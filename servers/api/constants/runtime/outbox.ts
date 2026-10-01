@@ -4,5 +4,5 @@ export const outboxRuntime = Object.freeze({
   batchSize: 25,
   publishTimeoutMs: 5_000,
   leaseTtlMs: 30_000,
-  backlogAlertAfterMs: 60_000
+  backlogAlertAfterMs: 120_000
 });
