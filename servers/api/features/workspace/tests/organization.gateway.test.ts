@@ -13,32 +13,32 @@ void test("gateway applies deletedAt exclusion and workspace scope last", async 
   let capturedWorkspaceFilter: unknown;
 
   const fakeQuery = {
-  where(path: string) {
-    calls.push(`where:${path}`);
-    return {
-      equals(value: unknown) {
-        calls.push("equals");
-        capturedDeletedAtFilter = value;
-        return fakeQuery;
-      },
-      in(values: readonly unknown[]) {
-        calls.push("in");
-        capturedWorkspaceFilter = values;
-        return fakeQuery;
-      }
-    };
-  },
-  or(conditions: readonly Record<string, unknown>[]) {
-    calls.push("or");
-    capturedOrFilter = conditions;
-    return fakeQuery;
-  },
-  sort() {
-    calls.push("sort");
-    return fakeQuery;
-  },
-  lean: (): Promise<OrganizationDocument[]> => Promise.resolve([])
-};
+    where(path: string) {
+      calls.push(`where:${path}`);
+      return {
+        equals(value: unknown) {
+          calls.push("equals");
+          capturedDeletedAtFilter = value;
+          return fakeQuery;
+        },
+        in(values: readonly unknown[]) {
+          calls.push("in");
+          capturedWorkspaceFilter = values;
+          return fakeQuery;
+        }
+      };
+    },
+    or(conditions: readonly Record<string, unknown>[]) {
+      calls.push("or");
+      capturedOrFilter = conditions;
+      return fakeQuery;
+    },
+    sort() {
+      calls.push("sort");
+      return fakeQuery;
+    },
+    lean: (): Promise<OrganizationDocument[]> => Promise.resolve([])
+  };
   const model = { find: () => fakeQuery as never };
   const gateway = createOrganizationGateway({ model });
 
@@ -132,3 +132,5 @@ void test("returns no organizations belonging to another workspace", async (cont
     "the query planner should use the workspaceIds_1 index"
   );
 });
+
+
