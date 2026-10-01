@@ -25,6 +25,8 @@ const relay = createOutboxRelayRunner({
   pollIntervalMs: outboxRuntime.pollIntervalMs,
   batchSize: outboxRuntime.batchSize,
   publishTimeoutMs: outboxRuntime.publishTimeoutMs,
+  leaseTtlMs: outboxRuntime.leaseTtlMs,
+  backlogAlertAfterMs: outboxRuntime.backlogAlertAfterMs,
   clock: systemClock,
   logger
 });

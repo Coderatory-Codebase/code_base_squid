@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createFixedClock } from "@workspace/kernel";
 import type { Logger } from "@workspace/logging";
-import type { OutboxQueue } from "../integrations/index.js";
-import { createOutboxRelayRunner, type OutboxRelay, type Scheduler } from "../services/index.js";
+import type { OutboxLease, OutboxQueue } from "../integrations/index.js";
+import { createOutboxRelayRunner, type OutboxBacklogMonitor, type OutboxRelay, type Scheduler } from "../services/index.js";
 
 type Harness = Readonly<{
   calls: string[];
@@ -11,6 +11,8 @@ type Harness = Readonly<{
   tick: () => void;
   scheduler: Scheduler;
   queue: OutboxQueue;
+  lease: OutboxLease;
+  backlogMonitor: OutboxBacklogMonitor;
   logger: Logger;
 }>;
 
@@ -33,6 +35,11 @@ const createHarness = (): Harness => {
       publish: (): Promise<void> => Promise.resolve(),
       close: (): Promise<void> => { calls.push("queue:close"); return Promise.resolve(); }
     },
+    lease: {
+      acquire: (): Promise<boolean> => Promise.resolve(true),
+      release: (): Promise<void> => { calls.push("lease:release"); return Promise.resolve(); }
+    },
+    backlogMonitor: { check: (): Promise<number | undefined> => Promise.resolve(undefined) },
     logger: {
       info: (message): void => { logs.push(`info:${message}`); },
       warn: (): void => undefined,
@@ -46,6 +53,8 @@ const baseOptions = {
   pollIntervalMs: 1_000,
   batchSize: 10,
   publishTimeoutMs: 1_000,
+  leaseTtlMs: 30_000,
+  backlogAlertAfterMs: 60_000,
   clock: createFixedClock(0)
 };
 
@@ -67,7 +76,7 @@ void test("relays pending rows on every scheduled tick", async (): Promise<void>
   let relayed = 0;
   const relay: OutboxRelay = { relayPending: (): Promise<number> => { relayed += 1; return Promise.resolve(0); } };
   const runner = createOutboxRelayRunner({
-    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, relay
+    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, lease: harness.lease, backlogMonitor: harness.backlogMonitor, relay
   });
 
   runner.start();
@@ -91,17 +100,19 @@ void test("skips a tick while the previous batch is still being relayed so batch
     }
   };
   const runner = createOutboxRelayRunner({
-    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, relay
+    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, lease: harness.lease, backlogMonitor: harness.backlogMonitor, relay
   });
 
   runner.start();
   harness.tick();
   harness.tick();
+  await flush();
   assert.equal(relayed, 1);
 
   finishBatch();
   await flush();
   harness.tick();
+  await flush();
   assert.equal(relayed, 2);
 });
 
@@ -115,7 +126,7 @@ void test("logs a failed batch and keeps relaying on later ticks", async (): Pro
     }
   };
   const runner = createOutboxRelayRunner({
-    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, relay
+    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, lease: harness.lease, backlogMonitor: harness.backlogMonitor, relay
   });
 
   runner.start();
@@ -128,7 +139,7 @@ void test("logs a failed batch and keeps relaying on later ticks", async (): Pro
   assert.ok(harness.logs.includes("error:Outbox relay tick failed.:redis unavailable"));
 });
 
-void test("stop cancels the schedule, waits for the in-flight batch, then closes the queue", async (): Promise<void> => {
+void test("stop cancels the schedule, waits for the in-flight batch, releases the lease, then closes the queue", async (): Promise<void> => {
   const harness = createHarness();
   let finishBatch: () => void = (): void => undefined;
   const relay: OutboxRelay = {
@@ -137,11 +148,12 @@ void test("stop cancels the schedule, waits for the in-flight batch, then closes
     })
   };
   const runner = createOutboxRelayRunner({
-    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, relay
+    ...baseOptions, logger: harness.logger, scheduler: harness.scheduler, queue: harness.queue, lease: harness.lease, backlogMonitor: harness.backlogMonitor, relay
   });
 
   runner.start();
   harness.tick();
+  await flush();
   const stopping = runner.stop();
   await flush();
   assert.ok(!harness.calls.includes("queue:close"));
@@ -149,5 +161,5 @@ void test("stop cancels the schedule, waits for the in-flight batch, then closes
   finishBatch();
   await stopping;
 
-  assert.deepEqual(harness.calls, ["schedule:1000", "cancel", "batch:done", "queue:close"]);
+  assert.deepEqual(harness.calls, ["schedule:1000", "cancel", "batch:done", "lease:release", "queue:close"]);
 });

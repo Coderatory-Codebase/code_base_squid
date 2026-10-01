@@ -109,3 +109,20 @@ void test("leaves a row pending when publishing succeeded but marking failed, so
 
   assert.deepEqual(harness.calls, ["publish:01A"]);
 });
+
+void test("ends the batch before publishing a row once the guard says the relay may no longer continue", async (): Promise<void> => {
+  const harness = createHarness([row("01A"), row("01B"), row("01C")]);
+  let asked = 0;
+  const relay = createOutboxRelay({
+    collection: harness.collection,
+    queue: harness.queue,
+    clock: createFixedClock(5),
+    logger: silentLogger,
+    batchSize: 10,
+    shouldContinue: (): Promise<boolean> => { asked += 1; return Promise.resolve(asked <= 2); }
+  });
+
+  assert.equal(await relay.relayPending(), 2);
+
+  assert.deepEqual(harness.calls, ["publish:01A", "mark:01A@5", "publish:01B", "mark:01B@5"]);
+});

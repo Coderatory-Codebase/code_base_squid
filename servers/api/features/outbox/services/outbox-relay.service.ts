@@ -8,6 +8,8 @@ export type OutboxRelayDependencies = Readonly<{
   clock: Clock;
   logger: Logger;
   batchSize: number;
+  // Asked before each row is published; resolving false ends the batch, e.g. when the relay lease was lost.
+  shouldContinue?: () => Promise<boolean>;
 }>;
 
 export type OutboxRelay = Readonly<{
@@ -21,12 +23,14 @@ export const createOutboxRelay = ({
   queue,
   clock,
   logger,
-  batchSize
+  batchSize,
+  shouldContinue = (): Promise<boolean> => Promise.resolve(true)
 }: OutboxRelayDependencies): OutboxRelay => Object.freeze({
   relayPending: async () => {
     const rows = await collection.findPending({ limit: batchSize });
     let published = 0;
     for (const row of rows) {
+      if (!await shouldContinue()) break;
       await queue.publish(row);
       await collection.markPublished({ ids: [row.id], publishedAt: clock.now() });
       published += 1;
