@@ -3,5 +3,7 @@ export const HTTP_STATUS = Object.freeze({
   noContent: 204,
   badRequest: 400,
   notFound: 404,
-  internalServerError: 500
+  unauthorized: 401,
+  internalServerError: 500,
+  serviceUnavailable: 503
 } as const);
