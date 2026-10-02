@@ -7,6 +7,7 @@ export type OrganizationDocument = Readonly<{
   workspaceIds: readonly string[];
   lastUsedAt: Date;
   deletedAt: Date | null;
+  settings: Readonly<Record<string, unknown>>;
 }>;
 
 const organizationSchema = new Schema<OrganizationDocument>(
@@ -15,11 +16,25 @@ const organizationSchema = new Schema<OrganizationDocument>(
     ownerId: { type: String, required: true, index: true },
     workspaceIds: { type: [String], required: true, index: true },
     lastUsedAt: { type: Date, required: true, default: () => new Date() },
-    deletedAt: { type: Date, default: null }
+    // Deletion is soft: retain the organization row and keep it out of live settings reads.
+    deletedAt: { type: Date, default: null },
+    settings: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: () => ({})
+    }
   },
   { timestamps: true }
 );
 
+organizationSchema.index(
+  { workspaceIds: 1, settings: 1 },
+  {
+    name: "workspace_settings_live_cover",
+    partialFilterExpression: { deletedAt: null }
+  }
+);
+
 export const OrganizationModel =
-  mongoose.models.Organization ??
+  (mongoose.models.Organization as mongoose.Model<OrganizationDocument> | undefined) ??
   mongoose.model<OrganizationDocument>("Organization", organizationSchema);
