@@ -1,7 +1,8 @@
 import mongoose, { Schema } from "mongoose";
+import type { Types as MongooseTypes } from "mongoose";
 
 export type OrganizationDocument = Readonly<{
-  _id: string;
+  _id: string | MongooseTypes.ObjectId;
   name: string;
   ownerId: string;
   workspaceIds: readonly string[];
@@ -22,4 +23,4 @@ const organizationSchema = new Schema<OrganizationDocument>(
 
 export const OrganizationModel =
   mongoose.models.Organization ??
-  mongoose.model<OrganizationDocument>("Organization", organizationSchema);
+  mongoose.model<OrganizationDocument>("Organization", organizationSchema, "organizations");

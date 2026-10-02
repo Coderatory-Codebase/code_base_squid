@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { performance } from "node:perf_hooks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import {
   buildOrganizationQueryForPrincipal,
@@ -14,11 +15,10 @@ import { createMongoDbIntegration } from "../../../integrations/mongodb/index.js
 import { OrganizationModel } from "../integrations/organization.model.js";
 import type { OrganizationDocument } from "../integrations/organization.model.js";
 
-void test("gateway applies deletedAt exclusion and workspace scope last", async (): Promise<void> => {
+void test("gateway scopes by ownership or membership and excludes deleted organizations", async (): Promise<void> => {
   const calls: string[] = [];
   let capturedDeletedAtFilter: null | undefined;
   let capturedOrFilter: readonly OrganizationCondition[] | undefined;
-  let capturedWorkspaceFilter: readonly string[] | undefined;
 
   const fakeQuery: OrganizationQuery = {
     where(path: string) {
@@ -35,17 +35,12 @@ void test("gateway applies deletedAt exclusion and workspace scope last", async 
       capturedOrFilter = conditions;
       return fakeQuery;
     },
-    in(values: readonly string[]) {
-      calls.push("in");
-      capturedWorkspaceFilter = values;
-      return fakeQuery;
-    },
     sort() {
       calls.push("sort");
       return fakeQuery;
     },
     lean: (): Promise<OrganizationDocument[]> => Promise.resolve([]),
-    explain: (): Promise<QueryPlanExplanation> => Promise.resolve({}),
+    explain: (): Promise<QueryPlanExplanation> => Promise.resolve({})
   };
   const model = { find: () => fakeQuery };
   const gateway = createOrganizationGateway({ model });
@@ -60,17 +55,13 @@ void test("gateway applies deletedAt exclusion and workspace scope last", async 
     { ownerId: "user-1" },
     { workspaceIds: { $in: ["ws-a", "ws-b"] } }
   ]);
-  assert.deepEqual(capturedWorkspaceFilter, ["ws-a", "ws-b"]);
-
   const deletedAtIndex = calls.indexOf("where:deletedAt");
   const orIndex = calls.indexOf("or");
-  const workspaceScopeIndex = calls.indexOf("where:workspaceIds");
-
-  assert.ok(deletedAtIndex < workspaceScopeIndex);
-  assert.ok(orIndex < workspaceScopeIndex);
+  assert.ok(deletedAtIndex < orIndex);
+  assert.equal(calls.includes("where:workspaceIds"), false);
 });
 
-void test("returns no organizations belonging to another workspace", async (context): Promise<void> => {
+void test("enforces tenant isolation and lists owned and member organizations in last-used order", async (context): Promise<void> => {
   const mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
   const mongoIntegration = createMongoDbIntegration({
     uri: mongo.getUri(),
@@ -87,6 +78,31 @@ void test("returns no organizations belonging to another workspace", async (cont
 
   await mongoIntegration.connect();
   await OrganizationModel.init();
+  const lastUsedAt = new Date("2026-09-30T12:00:00.000Z");
+  await OrganizationModel.create({
+    _id: "000000000000000000000001",
+    name: "Owned organization",
+    ownerId: "current-user",
+    workspaceIds: [],
+    lastUsedAt: new Date("2026-09-29T12:00:00.000Z")
+  });
+  await OrganizationModel.create({
+    _id: "000000000000000000000002",
+    name: "Member organization",
+    ownerId: "another-user",
+    workspaceIds: ["workspace-current"],
+    lastUsedAt
+  });
+  await OrganizationModel.insertMany(
+    Array.from({ length: 48 }, (_, index) => ({
+      _id: String(index + 2_000).padStart(24, "0"),
+      name: `Member organization ${String(index).padStart(2, "0")}`,
+      ownerId: `member-owner-${String(index)}`,
+      workspaceIds: ["workspace-current"],
+      lastUsedAt: new Date("2026-09-28T12:00:00.000Z"),
+      deletedAt: null
+    }))
+  );
   await OrganizationModel.create({
     name: "Other workspace organization",
     ownerId: "other-user",
@@ -95,7 +111,7 @@ void test("returns no organizations belonging to another workspace", async (cont
 
   await OrganizationModel.insertMany(
     Array.from({ length: 64 }, (_, index) => ({
-      _id: String(index).padStart(24, "0"),
+      _id: String(index + 1_000).padStart(24, "0"),
       name: `Unrelated organization ${String(index)}`,
       ownerId: `unrelated-user-${String(index)}`,
       workspaceIds: [`workspace-unrelated-${String(index)}`],
@@ -107,9 +123,27 @@ void test("returns no organizations belonging to another workspace", async (cont
     userId: "current-user",
     workspaceIds: ["workspace-current"]
   } as const;
-  const organizations = await createOrganizationGateway().listOrganizationsForPrincipal(principal);
+  const gateway = createOrganizationGateway();
+  const organizations = await gateway.listOrganizationsForPrincipal(principal);
 
-  assert.deepEqual(organizations, []);
+  assert.equal(organizations.length, 50);
+  assert.deepEqual(organizations.slice(0, 2).map(({ _id }) => String(_id)), [
+    "000000000000000000000002",
+    "000000000000000000000001"
+  ]);
+  assert.ok(organizations.every(({ ownerId, workspaceIds, deletedAt }) =>
+    (ownerId === principal.userId || workspaceIds.includes("workspace-current")) && deletedAt === null
+  ));
+
+  const durations: number[] = [];
+  for (let index = 0; index < 200; index += 1) {
+    const startedAt = performance.now();
+    await gateway.listOrganizationsForPrincipal(principal);
+    durations.push(performance.now() - startedAt);
+  }
+  durations.sort((left, right) => left - right);
+  const p95 = durations[Math.ceil(durations.length * 0.95) - 1];
+  assert.ok(p95 !== undefined && p95 < 700, `50-organization query p95 was ${String(p95)} ms.`);
 
   const explanation = await buildOrganizationQueryForPrincipal(principal).explain("queryPlanner");
   const winningPlanUsesWorkspaceIndex = (value: QueryPlanValue | undefined): boolean => {

@@ -20,7 +20,6 @@ export type OrganizationQuery = Readonly<{
   where: (path: string) => OrganizationQuery;
   equals: (value: null) => OrganizationQuery;
   or: (conditions: readonly OrganizationCondition[]) => OrganizationQuery;
-  in: (values: readonly string[]) => OrganizationQuery;
   sort: (order: Record<string, 1 | -1>) => OrganizationQuery;
   lean: () => Promise<OrganizationDocument[]>;
   explain: (verbosity?: "queryPlanner") => Promise<QueryPlanExplanation>;
@@ -28,6 +27,12 @@ export type OrganizationQuery = Readonly<{
 
 export type OrganizationModelDependency = Readonly<{
   find: () => OrganizationQuery;
+  create?: (organization: Readonly<Record<string, unknown>>) => Promise<OrganizationDocument>;
+  findOneAndUpdate?: (
+    filter: Readonly<Record<string, unknown>>,
+    update: Readonly<Record<string, unknown>>,
+    options: Readonly<Record<string, unknown>>
+  ) => Promise<OrganizationDocument | null>;
 }>;
 
 const isQueryPlanExplanation = (
@@ -58,10 +63,6 @@ const createOrganizationModelDependency = (
         mongooseQuery.or([...conditions]);
         return adapter;
       },
-      in(values) {
-        mongooseQuery.in([...values]);
-        return adapter;
-      },
       sort(order) {
         mongooseQuery.sort(order);
         return adapter;
@@ -89,7 +90,6 @@ const createOrganizationQuery = (
   const query = model.find();
   query.where("deletedAt").equals(null);
   query.or([{ ownerId: principal.userId }, { workspaceIds: { $in: workspaceIds } }]);
-  query.where("workspaceIds").in(workspaceIds);
   query.sort({ lastUsedAt: -1, name: 1 });
 
   return query;
@@ -103,6 +103,8 @@ export type OrganizationGatewayDependencies = Readonly<{
 
 export type OrganizationGateway = Readonly<{
   listOrganizationsForPrincipal: (principal: Principal) => Promise<readonly OrganizationDocument[]>;
+  createOrganizationForPrincipal: (principal: Principal, name: string) => Promise<OrganizationDocument>;
+  upsertPreviewOrganization: (id: string, values: Readonly<Record<string, unknown>>) => Promise<void>;
 }>;
 
 export const createOrganizationGateway = ({
@@ -116,5 +118,24 @@ export const createOrganizationGateway = ({
     return query.lean();
   };
 
-  return { listOrganizationsForPrincipal };
+  const createOrganizationForPrincipal = async (
+    principal: Principal,
+    name: string
+  ): Promise<OrganizationDocument> => {
+    if (!model.create) throw new Error("Organization creation is unavailable.");
+    return model.create({
+      name,
+      ownerId: principal.userId,
+      workspaceIds: [],
+      lastUsedAt: new Date(),
+      deletedAt: null
+    });
+  };
+
+  const upsertPreviewOrganization = async (id: string, values: Readonly<Record<string, unknown>>): Promise<void> => {
+    if (!model.findOneAndUpdate) throw new Error("Organization fixture upsert is unavailable.");
+    await model.findOneAndUpdate({ _id: id }, { $set: values }, { upsert: true, returnDocument: "after" });
+  };
+
+  return { listOrganizationsForPrincipal, createOrganizationForPrincipal, upsertPreviewOrganization };
 };
