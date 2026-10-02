@@ -120,3 +120,8 @@ collection allow-list, kernel ke liye 409 mapping service layer mein.
 - `restorePath.findById` and `restorePath.restore` are the only paths that include deleted rows, both bound to the caller's workspace. Public interface exports the `RestorePath` type.
 - Checks: `integrations/mongodb/tests/soft-delete.test.ts` (replica set).
 - Deferred: AC-4 performance benchmark (gateway overhead under 1 ms at p95), collection allow-list, policy-binding check.
+
+### Story 01.4.01-S2 acceptance checks (T2)
+- `servers/api/integrations/mongodb/tests/acceptance-01-4-01-s2.test.ts`: one check per acceptance criterion on a replica set. AC-1 soft-deleted row hidden from reads, AC-2 restore path by id within the caller's workspace, AC-3 caller `deletedAt` condition cannot override the filter, AC-4 p95 gateway overhead under 1 ms on an indexed find (10,000 gateway and 10,000 direct calls, interleaved).
+- Each check was shown to fail under a targeted mutation of `kernel/gateway/handle.ts` and to pass on the real code.
+- Deferred: move the AC-4 benchmark to a dedicated CI job if shared runners make it flaky, collection allow-list, policy-binding check, CI cache for the mongod binary.
