@@ -108,3 +108,8 @@ collection allow-list, kernel ke liye 409 mapping service layer mein.
 - `servers/api/integrations/mongodb/tests/pack-tenant.test.ts`: replica-set test (mongodb-memory-server) proving cross-tenant reads/writes are blocked and no-workspace calls make zero driver calls.
 - `mongodb-memory-server` build script is explicitly declined in `pnpm-workspace.yaml` (`allowBuilds: false`); the mongod binary downloads on first test run.
 - Deferred: collection allow-list, policy-binding check, CI cache for the mongod binary.
+
+### Story 01.4.01-S1 acceptance checks (T3)
+- `servers/api/integrations/mongodb/tests/acceptance-01-4-01-s1.test.ts`: one check per acceptance criterion on a replica set (AC-1 tenant scope, AC-2 missing scope with zero driver calls, AC-3 version-predicate conflict per ARC-008). Each was shown to fail under a targeted mutation of `kernel/gateway/handle.ts` and pass on the real code.
+- Outbox assertion not applicable: this story emits no events and no outbox exists.
+- Deferred: collection allow-list, policy-binding check, dependency guardrail in CI, CI cache for the mongod binary.
