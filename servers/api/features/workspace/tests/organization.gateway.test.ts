@@ -1,5 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import {
+  buildOrganizationSettingsQueryFor,
+  explainOrganizationSettingsQueryFor,
+  settingsOf
+} from "../db/organization-setting.gateway.js";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import {
   buildOrganizationQueryForPrincipal,
@@ -70,7 +75,7 @@ void test("gateway applies deletedAt exclusion and workspace scope last", async 
   assert.ok(orIndex < workspaceScopeIndex);
 });
 
-void test("returns no organizations belonging to another workspace", async (context): Promise<void> => {
+void test("returns live settings only for principal workspaces with a covered query", async (context): Promise<void> => {
   const mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
   const mongoIntegration = createMongoDbIntegration({
     uri: mongo.getUri(),
@@ -87,11 +92,27 @@ void test("returns no organizations belonging to another workspace", async (cont
 
   await mongoIntegration.connect();
   await OrganizationModel.init();
-  await OrganizationModel.create({
-    name: "Other workspace organization",
-    ownerId: "other-user",
-    workspaceIds: ["workspace-other"]
-  });
+  await OrganizationModel.create([
+    {
+      name: "Other workspace organization",
+      ownerId: "other-user",
+      workspaceIds: ["workspace-other"],
+      settings: { timeZone: "America/New_York" }
+    },
+    {
+      name: "Acme Design",
+      ownerId: "current-user",
+      workspaceIds: ["workspace-current"],
+      settings: { timeZone: "Europe/London" }
+    },
+    {
+      name: "Deleted current workspace organization",
+      ownerId: "current-user",
+      workspaceIds: ["workspace-current"],
+      settings: { timeZone: "Asia/Karachi" },
+      deletedAt: new Date()
+    }
+  ]);
 
   await OrganizationModel.insertMany(
     Array.from({ length: 64 }, (_, index) => ({
@@ -109,25 +130,93 @@ void test("returns no organizations belonging to another workspace", async (cont
   } as const;
   const organizations = await createOrganizationGateway().listOrganizationsForPrincipal(principal);
 
-  assert.deepEqual(organizations, []);
+  assert.equal(organizations.length, 1);
+  assert.equal(organizations[0]?.name, "Acme Design");
+
+  const settings = await settingsOf(principal);
+  assert.deepEqual(settings, [
+    {
+      timeZone: { value: "Europe/London", source: "owner" },
+      weekStart: { value: "Monday", source: "default" },
+      dateFormat: { value: "DD/MM/YYYY", source: "default" },
+      workspaceSetupRule: { value: "any member", source: "default" }
+    }
+  ]);
+  assert.equal(
+    await OrganizationModel.countDocuments({ name: "Deleted current workspace organization" }),
+    1,
+    "the settings read excludes soft-deleted rows without purging retained organization data"
+  );
 
   const explanation = await buildOrganizationQueryForPrincipal(principal).explain("queryPlanner");
-  const winningPlanUsesWorkspaceIndex = (value: QueryPlanValue | undefined): boolean => {
+  const planContainsIndex = (
+    value: QueryPlanValue | undefined,
+    expectedIndexName: string
+  ): boolean => {
     if (Array.isArray(value)) {
-      return value.some(winningPlanUsesWorkspaceIndex);
+      const children = value as readonly QueryPlanValue[];
+      return children.some((child) => planContainsIndex(child, expectedIndexName));
     }
     if (value === null || value === undefined || !isQueryPlanNode(value)) {
       return false;
     }
 
     return (
-      (value.stage === "IXSCAN" && value.indexName === "workspaceIds_1") ||
-      Object.values(value).some(winningPlanUsesWorkspaceIndex)
+      (value.stage === "IXSCAN" && value.indexName === expectedIndexName) ||
+      Object.values(value).some((child) => planContainsIndex(child, expectedIndexName))
+    );
+  };
+
+  const planContainsStage = (
+    value: QueryPlanValue | undefined,
+    expectedStage: string
+  ): boolean => {
+    if (Array.isArray(value)) {
+      const children = value as readonly QueryPlanValue[];
+      return children.some((child) => planContainsStage(child, expectedStage));
+    }
+    if (value === null || value === undefined || !isQueryPlanNode(value)) {
+      return false;
+    }
+
+    return (
+      value.stage === expectedStage ||
+      Object.values(value).some((child) => planContainsStage(child, expectedStage))
     );
   };
 
   assert.ok(
-    winningPlanUsesWorkspaceIndex(explanation.queryPlanner?.winningPlan),
-    "the query planner should use the workspaceIds_1 index"
+    planContainsIndex(explanation.queryPlanner?.winningPlan, "workspaceIds_1") ||
+      planContainsIndex(explanation.queryPlanner?.winningPlan, "workspace_settings_live_cover"),
+    "the organization query planner should use an index beginning with workspaceIds"
+  );
+  const settingsQuery = buildOrganizationSettingsQueryFor(principal);
+  const settingsQueryFilter = settingsQuery.getFilter();
+  assert.deepEqual(Object.keys(settingsQueryFilter), ["deletedAt", "workspaceIds"]);
+  assert.deepEqual(settingsQueryFilter, {
+    deletedAt: null,
+    workspaceIds: { $in: [...principal.workspaceIds] }
+  });
+  assert.deepEqual(settingsQuery.projection(), { settings: 1, _id: 0 });
+
+  assert.equal(OrganizationModel.collection.name, "organizations");
+
+  const indexes = await OrganizationModel.collection.indexes();
+  const settingsIndex = indexes.find(({ name }) => name === "workspace_settings_live_cover");
+  assert.ok(settingsIndex);
+  assert.deepEqual(settingsIndex.key, { workspaceIds: 1, settings: 1 });
+  assert.deepEqual(settingsIndex.partialFilterExpression, { deletedAt: null });
+
+  const settingsExplanation = await explainOrganizationSettingsQueryFor(principal);
+  const settingsWinningPlan = settingsExplanation.queryPlanner?.winningPlan;
+
+  assert.ok(
+    planContainsIndex(settingsWinningPlan, "workspace_settings_live_cover"),
+    "the settings query planner should use the settings covering index"
+  );
+  assert.equal(
+    planContainsStage(settingsWinningPlan, "FETCH"),
+    false,
+    `the settings query should be covered without fetching organization documents: ${JSON.stringify(settingsWinningPlan)}`
   );
 });
