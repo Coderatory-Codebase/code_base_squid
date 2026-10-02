@@ -113,3 +113,10 @@ collection allow-list, kernel ke liye 409 mapping service layer mein.
 - `servers/api/integrations/mongodb/tests/acceptance-01-4-01-s1.test.ts`: one check per acceptance criterion on a replica set (AC-1 tenant scope, AC-2 missing scope with zero driver calls, AC-3 version-predicate conflict per ARC-008). Each was shown to fail under a targeted mutation of `kernel/gateway/handle.ts` and pass on the real code.
 - Outbox assertion not applicable: this story emits no events and no outbox exists.
 - Deferred: collection allow-list, policy-binding check, dependency guardrail in CI, CI cache for the mongod binary.
+
+### Soft-delete filter and restore path (S2-T1)
+- `kernel/gateway/handle.ts`: every read excludes `deletedAt` rows; the filter is applied last so a caller's own `deletedAt` condition cannot override it (ARC-009).
+- `softDelete(id, expectedVersion, cause)` stamps `deletedAt` and `deletedCause` and stays version-conditional (ARC-008).
+- `restorePath.findById` and `restorePath.restore` are the only paths that include deleted rows, both bound to the caller's workspace. Public interface exports the `RestorePath` type.
+- Checks: `integrations/mongodb/tests/soft-delete.test.ts` (replica set).
+- Deferred: AC-4 performance benchmark (gateway overhead under 1 ms at p95), collection allow-list, policy-binding check.
