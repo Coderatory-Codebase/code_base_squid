@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./config/dns-override.js";
 import { createLogger } from "@workspace/logging";
 import { createApp, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
@@ -20,7 +21,15 @@ const server = createServer({ app, config, logger });
 
 const shutdown = createShutdown({ database, logger, server });
 
-await database.connect();
+try {
+  await database.connect();
+} catch (error: unknown) {
+  if (config.environment === "production") throw error;
+
+  logger.warn("MongoDB connection failed; starting without persistence in development.", {
+    error: error instanceof Error ? error.message : String(error)
+  });
+}
 await server.start();
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
