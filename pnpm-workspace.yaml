@@ -11,3 +11,8 @@ allowBuilds:
 
 audit:
   level: high
+
+overrides:
+  "@next/eslint-plugin-next>fast-glob": "workspace:@workspace/fast-glob-compat@*"
+  "@ts-morph/common>fast-glob": "workspace:@workspace/fast-glob-compat@*"
+  "shadcn>fast-glob": "workspace:@workspace/fast-glob-compat@*"

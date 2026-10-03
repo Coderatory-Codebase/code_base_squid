@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { createLogger } from "@workspace/logging";
-import { createApp, createServer, createShutdown } from "./bootstrap/index.js";
+import { createApp, createIdentityRuntime, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
 import { apiRuntime } from "./constants/index.js";
 import { createMongoDbIntegration } from "./integrations/index.js";
@@ -15,7 +15,13 @@ const database = createMongoDbIntegration({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})
 });
-const app = createApp({ config, logger });
+const identity = config.mongodbUri ? createIdentityRuntime(database, config) : undefined;
+const app = createApp({
+  config,
+  logger,
+  ...(identity ? { identity: identity.profile } : {}),
+  ...(identity?.authentication ? { authentication: identity.authentication } : {})
+});
 const server = createServer({ app, config, logger });
 
 const shutdown = createShutdown({ database, logger, server });
