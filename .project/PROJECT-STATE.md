@@ -126,3 +126,8 @@ collection allow-list, kernel ke liye 409 mapping service layer mein.
 - `servers/api/integrations/mongodb/tests/acceptance-01-4-01-s2.test.ts`: one check per acceptance criterion on a replica set. AC-1 soft-deleted row hidden from reads, AC-2 restore path by id within the caller's workspace, AC-3 caller `deletedAt` condition cannot override the filter, AC-4 p95 gateway overhead under 1 ms on an indexed find (10,000 gateway and 10,000 direct calls, interleaved).
 - Each check was shown to fail under a targeted mutation of `kernel/gateway/handle.ts` and to pass on the real code.
 - Deferred: move the AC-4 benchmark to a dedicated CI job if shared runners make it flaky, collection allow-list, policy-binding check, CI cache for the mongod binary.
+
+### Command bus with mandatory policy decision (01.4.04-S1-T1)
+- `servers/api/kernel/bus/command-bus.ts`: `Principal`, `PolicyDecision`, `createCommandFactory` (attaches the decision; fails closed with a retryable `policy_unavailable` 503) and `createCommandBus` (refuses and logs any command without principal or decision, and any deny; handlers only ever receive an allow). Exported through the kernel public index (ARC-005).
+- Tests: `kernel/tests/command-bus.test.ts`.
+- Deferred: the real policy module behind `PolicyEvaluator`, a timeout on the policy call, wiring the bus into features, policy-binding check, collection allow-list.
