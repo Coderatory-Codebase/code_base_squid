@@ -78,6 +78,7 @@ GIT GOVERNANCE RECONCILIATION: 2026-09-18
 - A required live MongoDB connection, feature repositories, models, and live-provider integration coverage remain deferred until a persistence-backed feature exists.
 - Remote artifact storage, distributed execution, deployment-specific standalone web packaging, and production observability infrastructure remain deferred until operational requirements justify them.
 - Applying `.github/rulesets/main.json` to GitHub remains an authenticated repository-administrator action; the current environment has no authenticated GitHub CLI session.
+- GHSA-vfj7-8cjw-p6xm is temporarily waived until 2026-11-03 because braces has no upstream fix. Exposure is limited to dev tooling (`eslint-config-next` and the shadcn CLI); neither `servers/api` nor `apps/web` includes braces in its production dependency closure. Remove the waiver when braces or micromatch publishes a fix, or fast-glob stops depending on braces.
 
 ## Not applicable
 

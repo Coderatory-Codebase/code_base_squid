@@ -12,3 +12,9 @@ allowBuilds:
 
 audit:
   level: high
+  # GHSA-vfj7-8cjw-p6xm: no upstream patch yet; dev tooling only (eslint-config-next and shadcn CLI); expires 2026-11-03.
+  ignore:
+    - GHSA-vfj7-8cjw-p6xm
+
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
