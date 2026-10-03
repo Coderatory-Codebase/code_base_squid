@@ -131,3 +131,9 @@ collection allow-list, kernel ke liye 409 mapping service layer mein.
 - `servers/api/kernel/bus/command-bus.ts`: `Principal`, `PolicyDecision`, `createCommandFactory` (attaches the decision; fails closed with a retryable `policy_unavailable` 503) and `createCommandBus` (refuses and logs any command without principal or decision, and any deny; handlers only ever receive an allow). Exported through the kernel public index (ARC-005).
 - Tests: `kernel/tests/command-bus.test.ts`.
 - Deferred: the real policy module behind `PolicyEvaluator`, a timeout on the policy call, wiring the bus into features, policy-binding check, collection allow-list.
+
+### PACK-POLICY contract suite (01.4.04-S1-T2)
+- Entry point inventory (2026-10): the API registers one route, `GET /health`, which is intentionally public. There are no server actions and no web route handlers. So there are no Wave 1 command entry points yet.
+- `servers/api/tests/entry-points.test.ts`: walks the real Express app and fails if a route is registered that is neither listed as public nor as a command entry point, or if a declared entry point no longer exists.
+- `servers/api/kernel/tests/pack-policy.test.ts`: refusal contract for a member without rights, a guest and an API key, the no-decision refusal, and fail-closed with the policy module stopped. Runs against `contract.probe` until the first real command route is added to `WAVE_1_COMMANDS`.
+- Deferred: adding each real command to `WAVE_1_COMMANDS` and `COMMAND_ENTRY_POINTS` as routes are wired to the bus; the bus cannot prove a decision came from policy (decisions are not signed); `kind` on `Principal` and `resolvePrincipal` (Identity); policy call timeout; routes mounted under a path prefix are not prefixed by the inventory walk.
