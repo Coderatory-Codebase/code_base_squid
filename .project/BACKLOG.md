@@ -2,8 +2,8 @@
 
 Items still outstanding:
 
-- [ ] Open or use the branch's pull request to trigger GitHub CI, then record dependency guardrail, policy-binding, and collection allow-list results. Feature-branch pushes alone do not trigger the current workflow.
-- [ ] Run the acceptance suites in an environment where the `tsx` runner can start; this workspace currently fails at Node `os.userInfo()` with `ENOMEM` before tests execute.
+- [x] Run the branch's pull request through GitHub CI and record dependency guardrail, policy-binding, collection allow-list, and acceptance-test results. [PR #5 validate job passed](https://github.com/Coderatory-Codebase/code_base_squid/actions/runs/37146423798/job/111271208564).
+- [x] Execute the acceptance suites in CI; `pnpm run validate` passed in the PR job. The local `tsx` runner limitation remains specific to this environment.
 - [ ] Rotate the verified MongoDB credential present in the ignored local `servers/api/.env` at its provider, then rerun managed TruffleHog and record a clean scan. Do not copy the credential into source control or task comments.
 - [ ] Configure production alerting for the new asynchronous organization query path; no alert provider is configured in this workspace.
 - [x] Confirm the Next.js 16.3.6 dependency is installed, then run Web typecheck and production build. Both checks pass in this workspace.

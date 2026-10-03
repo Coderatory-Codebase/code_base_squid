@@ -13,3 +13,9 @@ See [the workspace feature contract and runbook](servers/api/features/workspace/
 ## Repository commands
 
 Use `pnpm run projects`, `pnpm run graph`, `pnpm run tasks`, `pnpm run check`, `pnpm run validate`, and `pnpm test` from the repository root to inspect and validate the workspace.
+
+## Task 1 and Task 2 validation
+
+GitHub Actions validation passed for [PR #5](https://github.com/Coderatory-Codebase/code_base_squid/pull/5), commit `b6774abaacd22f4c2f7041b1fe5cf40c1c847cff`. The [validate job](https://github.com/Coderatory-Codebase/code_base_squid/actions/runs/37146423798/job/111271208564) completed successfully, including the frozen-lockfile install, PR commit validation, and `pnpm run validate` (tests, lint, typecheck, and build).
+
+See the [Task 2 acceptance review](.project/TASK-2-ACCEPTANCE.md) for test coverage and remaining Definition of Done items.
