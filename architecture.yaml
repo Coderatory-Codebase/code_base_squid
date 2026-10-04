@@ -227,10 +227,11 @@
   "moduleBoundaries": [
     { "project": "web", "root": "features/workspace-foundation", "categories": ["components"], "rootExports": ["components"] },
     { "project": "web", "root": "types", "categories": ["configuration", "routing"], "rootExports": ["configuration", "routing"] },
-    { "project": "api", "root": "integrations", "categories": ["mongodb"], "rootExports": ["mongodb"] },
+    { "project": "api", "root": "integrations", "categories": ["mongodb", "redis"], "rootExports": ["mongodb", "redis"] },
     { "project": "api", "root": "constants", "categories": ["errors", "http", "runtime"], "rootExports": ["errors", "http", "runtime"] },
     { "project": "api", "root": "types", "categories": ["configuration"], "rootExports": ["configuration"] },
     { "project": "api", "root": "features/health", "categories": ["controllers", "routes", "services"], "rootExports": ["routes"] },
+    { "project": "api", "root": "kernel", "categories": ["bus", "gateway", "principal"], "rootExports": ["bus", "gateway", "principal"] },
     { "project": "types", "root": "src", "categories": ["api"], "rootExports": ["api"] },
     { "project": "types", "root": "src/api", "categories": ["environment", "errors", "health"], "rootExports": ["environment", "errors", "health"] },
     { "project": "ui", "root": "src", "categories": ["components", "compositions", "hooks", "primitives", "utilities"], "rootExports": ["components", "compositions", "hooks", "primitives"] }
