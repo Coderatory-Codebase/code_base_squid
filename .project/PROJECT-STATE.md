@@ -144,3 +144,10 @@ collection allow-list, kernel ke liye 409 mapping service layer mein.
 - `servers/api/integrations/redis/principal-cache.ts`: Redis implementation of the cache port over a structural client (no `redis` dependency yet).
 - Tests: `kernel/tests/principal.test.ts`, `kernel/tests/principal-budget.test.ts` (AC-4 volume fixture, in-memory ports), `integrations/redis/tests/principal-cache.test.ts`.
 - Deferred: Identity and Workspace implementations of the ports; the Redis client, env validation and wiring; calling `invalidateAfterCommit` from Identity and Workspace after their commits, including workspace-wide and org-wide status changes (needs every affected (user, workspace) pair or a prefix delete); a stale entry can be re-cached by a request that read before a commit and wrote after the delete, bounded by the 60 s TTL; AC-4 against real Redis with the 10-minute run in a dedicated CI job; tightening the bus `Principal` to `ResolvedPrincipal`; wiring the resolver into the request pipeline and routes.
+
+### Principal resolution budget measured (01.4.04-S2-T2)
+- `servers/api/integrations/mongodb/tests/principal-resolution-budget.test.ts`: a workspace seeded with 500 members (indexed on workspaceId and userId) in a replica set; Workspace.membershipOf is answered through the data gateway on the real database, the session and the cache are in memory.
+- Recorded (date 2026-10-04, local run): miss p95 <MISS_P95> ms against a 20 ms budget (n=2000); cache hit p95 <HIT_P95> ms against a 5 ms budget (n=5000).
+- The miss test asserts every timed sample went to the source, the hit test asserts none did. Each check was shown to fail under a targeted mutation of `kernel/principal/principal.ts`.
+- Limits: the cache is in memory, so the hit figure excludes the Redis network round trip; Identity.principalFor is in memory, so the miss figure excludes its real latency. TC-S2-4 (1,000 members, 50 workspaces, 10 minutes) is not covered by this task.
+- Deferred: re-measure with the real Redis and the real Identity and Workspace modules in a dedicated CI job; the 10-minute soak for TC-S2-4.
