@@ -6,7 +6,10 @@ export type ApiErrorCode =
   | "VERSION_CONFLICT"
   | "policy_decision_required"
   | "policy_denied"
-  | "policy_unavailable";
+  | "policy_unavailable"
+  | "unauthenticated"
+  | "forbidden"
+  | "principal_unavailable";
 
 export type ApiErrorDetails = Readonly<Record<string, unknown>> | readonly unknown[];
 
