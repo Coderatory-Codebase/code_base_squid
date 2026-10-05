@@ -65,6 +65,8 @@ void test("Mongo-backed sign-in creates, resolves, and revokes a session", async
   const passwordHash = await hashPassword("preview-password");
   const gateway = createAuthGateway();
   const user = await gateway.upsertUser("member@example.test", passwordHash, ["workspace-1"]);
+  assert.equal(typeof user.id, "string");
+  assert.match(user.id, /^[a-f0-9]{24}$/);
   const service = createAuthService(gateway);
   const session = await service.signIn("member@example.test", "preview-password");
   assert.deepEqual(await service.resolvePrincipal(session.token), {

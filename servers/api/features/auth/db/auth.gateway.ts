@@ -40,7 +40,7 @@ export const createAuthGateway = (): AuthGateway => {
   const users = UserModel as unknown as UserModelDependency;
   const sessions = SessionModel as unknown as SessionModelDependency;
   const mapUser = (user: UserRecord | null): AuthUser | null => user
-    ? { id: user._id, email: user.email, passwordHash: user.passwordHash, workspaceIds: user.workspaceIds }
+    ? { id: String(user._id), email: user.email, passwordHash: user.passwordHash, workspaceIds: user.workspaceIds }
     : null;
   return {
     findUserByEmail: async (email) => mapUser(await users.findOne({ email }).lean<UserRecord | null>()),

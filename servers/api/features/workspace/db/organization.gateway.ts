@@ -47,40 +47,49 @@ const isQueryPlanExplanation = (
 
 const createOrganizationModelDependency = (
   model: typeof OrganizationModel
-): OrganizationModelDependency => ({
-  find: () => {
-    const mongooseQuery = model.find();
-    const adapter: OrganizationQuery = {
-      where(path) {
-        mongooseQuery.where(path);
-        return adapter;
-      },
-      equals(value) {
-        mongooseQuery.equals(value);
-        return adapter;
-      },
-      or(conditions) {
-        mongooseQuery.or([...conditions]);
-        return adapter;
-      },
-      sort(order) {
-        mongooseQuery.sort(order);
-        return adapter;
-      },
-      lean: () => mongooseQuery.lean().exec(),
-      explain: async (verbosity = "queryPlanner") => {
-        const result = await mongooseQuery.explain(verbosity).exec();
-        if (!isQueryPlanExplanation(result)) {
-          throw new Error("MongoDB explain returned an unexpected query plan shape");
+): OrganizationModelDependency => {
+  const findOneAndUpdate = model.findOneAndUpdate.bind(model) as unknown as NonNullable<OrganizationModelDependency["findOneAndUpdate"]>;
+  return {
+    find: () => {
+      const mongooseQuery = model.find();
+      const adapter: OrganizationQuery = {
+        where(path) {
+          mongooseQuery.where(path);
+          return adapter;
+        },
+        equals(value) {
+          mongooseQuery.equals(value);
+          return adapter;
+        },
+        or(conditions) {
+          mongooseQuery.or([...conditions]);
+          return adapter;
+        },
+        sort(order) {
+          mongooseQuery.sort(order);
+          return adapter;
+        },
+        lean: () => mongooseQuery.lean().exec(),
+        explain: async (verbosity = "queryPlanner") => {
+          const result = await mongooseQuery.explain(verbosity).exec();
+          if (!isQueryPlanExplanation(result)) {
+            throw new Error("MongoDB explain returned an unexpected query plan shape");
+          }
+          return result;
         }
-        return result;
-      }
-    };
+      };
 
-    return adapter;
-  }
-});
-
+      return adapter;
+    },
+    create: async (organization) => {
+      const created = await model.create({ ...organization });
+      return created.toObject() as OrganizationDocument;
+    },
+    findOneAndUpdate: async (filter, update, options) => {
+      return await findOneAndUpdate({ ...filter }, { ...update }, { ...options });
+    }
+  };
+};
 const createOrganizationQuery = (
   model: OrganizationModelDependency,
   principal: Principal

@@ -10,3 +10,5 @@ Items still outstanding:
 - [ ] Get approval from at least one other engineer and record the reviewer in the pull request.
 - [ ] Perform and record a real browser keyboard walk through sign-in, the organization list/empty/error states, and organization creation.
 - [ ] Reconcile the task tracker implementation steps (5/5), gateway test cases (4/4), and Definition of Done evidence with this acceptance review.
+
+- [ ] Task 3 follow-up: perform and record the preview keyboard/screen-reader walk for organization setup; obtain engineer approval; run CI when the change is submitted; track upstream remediation for high-severity braces@3.0.3 advisory GHSA-vfj7-8cjw-p6xm (no patched release listed in the advisory as of 2026-10-05).

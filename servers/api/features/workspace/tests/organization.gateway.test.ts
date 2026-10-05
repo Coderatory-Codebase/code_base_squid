@@ -61,7 +61,7 @@ void test("gateway scopes by ownership or membership and excludes deleted organi
   assert.equal(calls.includes("where:workspaceIds"), false);
 });
 
-void test("enforces tenant isolation and lists owned and member organizations in last-used order", async (context): Promise<void> => {
+void test("persists organization operations and enforces tenant isolation in last-used order", async (context): Promise<void> => {
   const mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
   const mongoIntegration = createMongoDbIntegration({
     uri: mongo.getUri(),
@@ -124,6 +124,23 @@ void test("enforces tenant isolation and lists owned and member organizations in
     workspaceIds: ["workspace-current"]
   } as const;
   const gateway = createOrganizationGateway();
+  const created = await gateway.createOrganizationForPrincipal(
+    { userId: "created-user", workspaceIds: [] },
+    "Gateway-created organization"
+  );
+  assert.equal(created.name, "Gateway-created organization");
+  assert.equal(created.ownerId, "created-user");
+
+  await gateway.upsertPreviewOrganization("000000000000000000000003", {
+    name: "Preview fixture organization",
+    ownerId: "fixture-owner",
+    workspaceIds: [],
+    lastUsedAt,
+    deletedAt: null
+  });
+  const fixtures = await gateway.listOrganizationsForPrincipal({ userId: "fixture-owner", workspaceIds: [] });
+  assert.equal(fixtures[0]?.name, "Preview fixture organization");
+
   const organizations = await gateway.listOrganizationsForPrincipal(principal);
 
   assert.equal(organizations.length, 50);
