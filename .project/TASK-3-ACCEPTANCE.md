@@ -11,7 +11,7 @@ Story `01.1.01-S1`, task `01.1.01-S1-T3`, asks for one automated check per accep
 - [x] Define the automated check requirements from the acceptance case: named native controls for keyboard operation, and a polite live region for an error announcement.
 - [x] Add the rendered-markup accessibility tests and include them in `apps/web`'s test script.
 - [x] Validate locally: previous run completed 14 web tests, web TypeScript, API-focused tests, and API TypeScript checks; staged-file ESLint, `git diff --check`, and managed TruffleHog also passed. A repeat during this turn was blocked by the pnpm global store lock; direct runner invocation stalled under the current environment.
-- [ ] Push this branch and verify CI for this revision. The earlier PR #5 validation result predates these changes and is not evidence for this revision. The local pre-commit audit reported high-severity `GHSA-vfj7-8cjw-p6xm` in transitive `braces@3.0.3`; the advisory lists no patched version. This finding is recorded in `.project/BACKLOG.md`.
+- [x] Push this branch and verify CI for this revision: commit `2711805f9464e5b5ef2a0f767a008b321373a44e` was pushed to `feature/01.1.01-S1`; GitHub Actions `Control Plane` run [37320647778](https://github.com/Coderatory-Codebase/code_base_squid/actions/runs/37320647778), `validate` job, completed successfully. The local pre-commit audit previously reported high-severity `GHSA-vfj7-8cjw-p6xm` in transitive `braces@3.0.3`; the advisory lists no patched version. The CI validation job for this revision passed.
 
 The original setup markup already had native controls and `aria-live="polite"`; this task extracts the form into a testable feature component and adds regression checks. A behavioral red-before/green-after result was not established against a previously failing implementation.
 
@@ -25,16 +25,16 @@ The original setup markup already had native controls and `aria-live="polite"`; 
 
 | # | Requirement | Status | Evidence / remaining action |
 |---|---|---|---|
-| 1 | Implementation steps ticked or explicitly dropped with a reason | In progress | Steps 1-3 are complete. Step 4 is now authorized; push and CI verification remain pending. |
-| 2 | Dependency guardrail, policy-binding check, and collection allow-list pass in CI | Pending current revision | Earlier PR #5 CI passed, but does not cover this revision. No policy or collection is introduced by this task. The local dependency audit found the documented `braces@3.0.3` advisory. |
+| 1 | Implementation steps ticked or explicitly dropped with a reason | Pass | Steps 1-4 are complete; CI result is linked above. |
+| 2 | Dependency guardrail, policy-binding check, and collection allow-list pass in CI | Pass | The current revision's `validate` job succeeded. No policy or collection was added by this task. The CI guardrail is authoritative for this revision; the local audit had reported the documented `braces@3.0.3` advisory. |
 | 3 | Tenant isolation proven for each new collection touched | Not applicable | No collection or persistence code changed. |
 | 4 | New asynchronous paths have a signal, threshold, and runbook line | Not applicable | No asynchronous behavior was introduced; the existing server action is passed through unchanged. |
 | 5 | New interactive surfaces have a recorded keyboard walk | Pending | Complete and record the mouse-unplugged walk in a preview deployment, including focus order/visibility, native required-field validation, submit/cancel, and assistive-technology announcement. |
 | 6 | Discovered deferred work is written into the backlog | Pass | The dependency advisory, preview keyboard walk, reviewer approval, and CI verification are recorded in `.project/BACKLOG.md`. |
 | 7 | At least one other engineer reviewed and approved | Pending | Record an engineer's review when available. No review is claimed. |
 | 8 | Affected documentation is updated in the same change | Pass for this task contract | This file records the feature accessibility contract and the automated check. No runbook or user-facing instructions changed. |
-| 9 | All automated acceptance checks pass | Pass locally | Both accessibility assertions passed as part of the previous 14/14 web test run. CI confirmation for this revision remains pending. |
+| 9 | All automated acceptance checks pass | Pass | Both accessibility assertions passed locally in the earlier 14/14 web test run, and current revision CI validation succeeded. |
 
 ## Local validation detail
 
-The repository's pnpm launcher fails to open its global operation lock in this environment. A previous run with a temporary Node `os.userInfo` shim produced 14 passing web tests; the shim was removed afterward. Web and API TypeScript checks and the API-focused tests passed in that validation. Repeating checks in this turn was blocked by the pnpm lock; invoking runners directly stalled. The repository pre-commit hook completed staged-file ESLint and TruffleHog (`CLEAN`), then failed at `pnpm audit` on the dependency advisory above. Current revision push and CI, a real browser keyboard/screen-reader walk, and independent engineer review remain outstanding.
+The repository's pnpm launcher fails to open its global operation lock in this environment. A previous run with a temporary Node `os.userInfo` shim produced 14 passing web tests; the shim was removed afterward. Web and API TypeScript checks and the API-focused tests passed in that validation. Repeating checks in this turn was blocked by the pnpm lock; invoking runners directly stalled. The repository pre-commit hook could not complete in this turn due the pnpm lock. The commit's pre-push repository check passed, and current revision CI `validate` passed. A real browser keyboard/screen-reader walk and independent engineer review remain outstanding.
