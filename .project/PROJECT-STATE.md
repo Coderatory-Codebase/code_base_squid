@@ -78,6 +78,7 @@ GIT GOVERNANCE RECONCILIATION: 2026-09-18
 - A required live MongoDB connection, feature repositories, models, and live-provider integration coverage remain deferred until a persistence-backed feature exists.
 - Remote artifact storage, distributed execution, deployment-specific standalone web packaging, and production observability infrastructure remain deferred until operational requirements justify them.
 - Applying `.github/rulesets/main.json` to GitHub remains an authenticated repository-administrator action; the current environment has no authenticated GitHub CLI session.
+- GHSA-vfj7-8cjw-p6xm is temporarily waived until 2026-11-03 because braces has no upstream fix. Exposure is limited to dev tooling (`eslint-config-next` and the shadcn CLI); neither `servers/api` nor `apps/web` includes braces in its production dependency closure. Remove the waiver when braces or micromatch publishes a fix, or fast-glob stops depending on braces.
 
 ## Not applicable
 
@@ -88,3 +89,72 @@ GIT GOVERNANCE RECONCILIATION: 2026-09-18
 ## Next milestone
 
 M03.3 - Auth Vertical Slice Design. Authentication is not implemented in the current workspace.
+
+
+### Kernel scoped collection handle (servers/api/kernel/gateway)
+- `createScopedHandle`: workspace-bound find/insert/update/softDelete, koi unscoped method nahi.
+- Updates version-conditional (ARC-008), conflict par `version_conflict`.
+- Workspace ke bagair query se pehle throw (`workspace_required`).
+- New error codes `ApiErrorCode` mein (packages/types).
+
+Deferred: `RawCollection` ka Mongo adapter (integrations/mongodb), policy-binding check,
+collection allow-list, kernel ke liye 409 mapping service layer mein.
+
+
+
+
+
+### Tenant isolation proof (PACK-TENANT)
+- `servers/api/integrations/mongodb/scoped-collection.ts`: Mongo implementation of the kernel `RawCollection` port.
+- `servers/api/integrations/mongodb/tests/pack-tenant.test.ts`: replica-set test (mongodb-memory-server) proving cross-tenant reads/writes are blocked and no-workspace calls make zero driver calls.
+- `mongodb-memory-server` build script is explicitly declined in `pnpm-workspace.yaml` (`allowBuilds: false`); the mongod binary downloads on first test run.
+- Deferred: collection allow-list, policy-binding check, CI cache for the mongod binary.
+
+### Story 01.4.01-S1 acceptance checks (T3)
+- `servers/api/integrations/mongodb/tests/acceptance-01-4-01-s1.test.ts`: one check per acceptance criterion on a replica set (AC-1 tenant scope, AC-2 missing scope with zero driver calls, AC-3 version-predicate conflict per ARC-008). Each was shown to fail under a targeted mutation of `kernel/gateway/handle.ts` and pass on the real code.
+- Outbox assertion not applicable: this story emits no events and no outbox exists.
+- Deferred: collection allow-list, policy-binding check, dependency guardrail in CI, CI cache for the mongod binary.
+
+### Soft-delete filter and restore path (S2-T1)
+- `kernel/gateway/handle.ts`: every read excludes `deletedAt` rows; the filter is applied last so a caller's own `deletedAt` condition cannot override it (ARC-009).
+- `softDelete(id, expectedVersion, cause)` stamps `deletedAt` and `deletedCause` and stays version-conditional (ARC-008).
+- `restorePath.findById` and `restorePath.restore` are the only paths that include deleted rows, both bound to the caller's workspace. Public interface exports the `RestorePath` type.
+- Checks: `integrations/mongodb/tests/soft-delete.test.ts` (replica set).
+- Deferred: AC-4 performance benchmark (gateway overhead under 1 ms at p95), collection allow-list, policy-binding check.
+
+### Story 01.4.01-S2 acceptance checks (T2)
+- `servers/api/integrations/mongodb/tests/acceptance-01-4-01-s2.test.ts`: one check per acceptance criterion on a replica set. AC-1 soft-deleted row hidden from reads, AC-2 restore path by id within the caller's workspace, AC-3 caller `deletedAt` condition cannot override the filter, AC-4 p95 gateway overhead under 1 ms on an indexed find (10,000 gateway and 10,000 direct calls, interleaved).
+- Each check was shown to fail under a targeted mutation of `kernel/gateway/handle.ts` and to pass on the real code.
+- Deferred: move the AC-4 benchmark to a dedicated CI job if shared runners make it flaky, collection allow-list, policy-binding check, CI cache for the mongod binary.
+
+### Command bus with mandatory policy decision (01.4.04-S1-T1)
+- `servers/api/kernel/bus/command-bus.ts`: `Principal`, `PolicyDecision`, `createCommandFactory` (attaches the decision; fails closed with a retryable `policy_unavailable` 503) and `createCommandBus` (refuses and logs any command without principal or decision, and any deny; handlers only ever receive an allow). Exported through the kernel public index (ARC-005).
+- Tests: `kernel/tests/command-bus.test.ts`.
+- Deferred: the real policy module behind `PolicyEvaluator`, a timeout on the policy call, wiring the bus into features, policy-binding check, collection allow-list.
+
+### PACK-POLICY contract suite (01.4.04-S1-T2)
+- Entry point inventory (2026-10): the API registers one route, `GET /health`, which is intentionally public. There are no server actions and no web route handlers. So there are no Wave 1 command entry points yet.
+- `servers/api/tests/entry-points.test.ts`: walks the real Express app and fails if a route is registered that is neither listed as public nor as a command entry point, or if a declared entry point no longer exists.
+- `servers/api/kernel/tests/pack-policy.test.ts`: refusal contract for a member without rights, a guest and an API key, the no-decision refusal, and fail-closed with the policy module stopped. Runs against `contract.probe` until the first real command route is added to `WAVE_1_COMMANDS`.
+- Deferred: adding each real command to `WAVE_1_COMMANDS` and `COMMAND_ENTRY_POINTS` as routes are wired to the bus; the bus cannot prove a decision came from policy (decisions are not signed); `kind` on `Principal` and `resolvePrincipal` (Identity); policy call timeout; routes mounted under a path prefix are not prefixed by the inventory walk.
+
+### Principal resolution in the request pipeline (01.4.04-S2-T1)
+- `servers/api/kernel/principal/principal.ts`: `createPrincipalResolver` turns `{ sessionId, workspaceId }` into a complete `ResolvedPrincipal` only from a live session (Identity.principalFor, checked on every request, even on a cache hit) and an ACTIVE membership (Workspace.membershipOf). Expired or unknown session gives 401, no membership gives 403, an unavailable or malformed input gives a retryable 503; a partial principal is never returned.
+- Cache per (user, workspace), 60 s TTL; a cache failure falls back to the source. `createPrincipalInvalidator.invalidateAfterCommit` deletes entries only after the change commits.
+- `servers/api/integrations/redis/principal-cache.ts`: Redis implementation of the cache port over a structural client (no `redis` dependency yet).
+- Tests: `kernel/tests/principal.test.ts`, `kernel/tests/principal-budget.test.ts` (AC-4 volume fixture, in-memory ports), `integrations/redis/tests/principal-cache.test.ts`.
+- Deferred: Identity and Workspace implementations of the ports; the Redis client, env validation and wiring; calling `invalidateAfterCommit` from Identity and Workspace after their commits, including workspace-wide and org-wide status changes (needs every affected (user, workspace) pair or a prefix delete); a stale entry can be re-cached by a request that read before a commit and wrote after the delete, bounded by the 60 s TTL; AC-4 against real Redis with the 10-minute run in a dedicated CI job; tightening the bus `Principal` to `ResolvedPrincipal`; wiring the resolver into the request pipeline and routes.
+
+### Principal resolution budget measured (01.4.04-S2-T2)
+- `servers/api/integrations/mongodb/tests/principal-resolution-budget.test.ts`: a workspace seeded with 500 members (indexed on workspaceId and userId) in a replica set; Workspace.membershipOf is answered through the data gateway on the real database, the session and the cache are in memory.
+- Recorded (date 2026-10-04, local run): miss p95 <MISS_P95> ms against a 20 ms budget (n=2000); cache hit p95 <HIT_P95> ms against a 5 ms budget (n=5000).
+- The miss test asserts every timed sample went to the source, the hit test asserts none did. Each check was shown to fail under a targeted mutation of `kernel/principal/principal.ts`.
+- Limits: the cache is in memory, so the hit figure excludes the Redis network round trip; Identity.principalFor is in memory, so the miss figure excludes its real latency. TC-S2-4 (1,000 members, 50 workspaces, 10 minutes) is not covered by this task.
+- Deferred: re-measure with the real Redis and the real Identity and Workspace modules in a dedicated CI job; the 10-minute soak for TC-S2-4.
+
+### Story 01.4.04-S2 acceptance checks (T3)
+- `servers/api/integrations/mongodb/tests/acceptance-01-4-04-s2.test.ts`: one check per acceptance criterion, run through the whole pipeline (session, principal, command with a policy decision, bus, handler) with memberships and tasks on a replica set through the data gateway. AC-1 complete principal reaches the handler; AC-2 expired session gives 401 with no principal, no membership read, no command, and a warm cache never keeps a revoked session alive; AC-3 a Design-only member asking for Marketing gets 403 with zero reads of Marketing tasks; removed member (soft-deleted with invalidation after commit, and status REMOVED) gets 403; an archived workspace is carried as ARCHIVED in the principal; AC-4 scaled to 10,000 resolutions on in-memory ports.
+- Each check was shown to fail under a targeted mutation of `kernel/principal/principal.ts` and to pass on the real code. No production code changed in this task.
+- Interpretation: the story and its ACs do not say an archived workspace is refused by the resolver, and the principal carries `workspaceStatus` for policy to decide, so the resolver does not refuse it. To be confirmed with the story owner.
+- Limits: sessions and cache are in memory (Identity and Redis do not exist yet); the 10-minute run for AC-4 (TC-S2-4) is not covered.
+- Deferred: re-run these checks against the real Identity, Workspace and Redis; the 10-minute soak; tightening the bus `Principal` to `ResolvedPrincipal` so policy can read `workspaceStatus` and `role` type-safely.

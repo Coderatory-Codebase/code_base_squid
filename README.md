@@ -9,3 +9,11 @@
 
 Deferred: `RawCollection` ka Mongo adapter (integrations/mongodb), policy-binding check,
 collection allow-list, kernel ke liye 409 mapping service layer mein.
+
+
+
+### Tenant isolation proof (PACK-TENANT)
+- `integrations/mongodb/scoped-collection.ts`: Mongo implementation of the kernel `RawCollection` port.
+- `integrations/mongodb/tests/pack-tenant.test.ts`: replica-set test (mongodb-memory-server) proving cross-tenant reads/writes are blocked and no-workspace calls make zero driver calls.
+- `mongodb-memory-server` build script is explicitly declined in `pnpm-workspace.yaml` (`allowBuilds: false`); the mongod binary downloads on first test run.
+- Deferred: collection allow-list, policy-binding check, CI cache for the mongod binary.
