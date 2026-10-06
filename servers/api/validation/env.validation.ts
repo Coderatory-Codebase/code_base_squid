@@ -7,6 +7,7 @@ export const apiEnvironmentSchema = z.object({
   API_PORT: z.coerce.number().int().min(1).max(65_535),
   WEB_ORIGIN: z.url(),
   MONGODB_URI: z.string().min(1).optional(),
+  REDIS_URL: z.string().min(1).optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
 }) satisfies z.ZodType<ValidatedApiEnvironment>;
 
