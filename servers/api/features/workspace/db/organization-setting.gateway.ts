@@ -1,3 +1,4 @@
+import type { Logger } from "@workspace/logging";
 import { OrganizationModel } from "../integrations/organization.model.js";
 import type { QueryPlanExplanation } from "./organization.gateway.js";
 import type { Principal } from "../types.js";
@@ -65,15 +66,25 @@ export const buildOrganizationSettingsQueryFor = (principal: Principal) => {
 export const organizationSettingsFor = (principal: Principal) =>
   buildOrganizationSettingsQueryFor(principal).lean().exec();
 
-export const settingsOf = async (principal: Principal): Promise<readonly OrganizationSettings[]> => {
+export const settingsOf = async (
+  principal: Principal,
+  logger: Logger,
+): Promise<readonly OrganizationSettings[]> => {
   const organizations = await organizationSettingsFor(principal);
 
-  return organizations.map(({ settings }) => ({
-    timeZone: hasValue(settings, "timeZone", "UTC", isTimeZone),
-    weekStart: hasValue(settings, "weekStart", "Monday", isWeekStart),
-    dateFormat: hasValue(settings, "dateFormat", "DD/MM/YYYY", isDateFormat),
-    workspaceSetupRule: hasValue(settings, "workspaceSetupRule", "any member", isWorkspaceSetupRule)
-  }));
+  try {
+    return organizations.map(({ settings }) => ({
+      timeZone: hasValue(settings, "timeZone", "UTC", isTimeZone),
+      weekStart: hasValue(settings, "weekStart", "Monday", isWeekStart),
+      dateFormat: hasValue(settings, "dateFormat", "DD/MM/YYYY", isDateFormat),
+      workspaceSetupRule: hasValue(settings, "workspaceSetupRule", "any member", isWorkspaceSetupRule),
+    }));
+  } catch (error) {
+    logger.error("Invalid organization settings", {
+      reason: error instanceof Error ? error.message : "unknown",
+    });
+    throw error;
+  }
 };
 
 export const explainOrganizationSettingsQueryFor = async (
