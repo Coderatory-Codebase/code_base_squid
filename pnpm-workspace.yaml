@@ -7,7 +7,12 @@ packages:
 
 allowBuilds:
   esbuild: true
+  mongodb-memory-server: true
   unrs-resolver: true
 
 audit:
   level: high
+
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm

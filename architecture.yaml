@@ -186,7 +186,7 @@
     "packageManagerVersion": "11.19.0",
     "workspaceFile": "pnpm-workspace.yaml",
     "workspacePatterns": ["apps/*", "servers/*", "packages/*", "prebuilt/*", "prebuilt/*/*"],
-    "allowedBuildDependencies": ["esbuild", "unrs-resolver"],
+    "allowedBuildDependencies": ["esbuild", "mongodb-memory-server", "unrs-resolver"],
     "lockfile": "pnpm-lock.yaml",
     "forbiddenLockfiles": ["package-lock.json", "yarn.lock"],
     "internalDependencyProtocol": "workspace:"
@@ -231,6 +231,7 @@
     { "project": "api", "root": "constants", "categories": ["errors", "http", "runtime"], "rootExports": ["errors", "http", "runtime"] },
     { "project": "api", "root": "types", "categories": ["configuration"], "rootExports": ["configuration"] },
     { "project": "api", "root": "features/health", "categories": ["controllers", "routes", "services"], "rootExports": ["routes"] },
+    { "project": "api", "root": "kernel", "categories": ["gateway"], "rootExports": ["gateway"] },
     { "project": "types", "root": "src", "categories": ["api"], "rootExports": ["api"] },
     { "project": "types", "root": "src/api", "categories": ["environment", "errors", "health"], "rootExports": ["environment", "errors", "health"] },
     { "project": "ui", "root": "src", "categories": ["components", "compositions", "hooks", "primitives", "utilities"], "rootExports": ["components", "compositions", "hooks", "primitives"] }
