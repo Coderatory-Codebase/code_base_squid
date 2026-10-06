@@ -29,7 +29,8 @@ export const createApp = ({ config, logger, resolvePrincipal, organizationGatewa
     serviceName: apiRuntime.serviceName
   }), createAuthRoutes(authService), createOrganizationRoutes({
     resolvePrincipal: resolvePrincipal ?? ((request) => authService.resolvePrincipal(readBearerToken(request))),
-    ...(organizationGateway ? { gateway: organizationGateway } : {})
+    ...(organizationGateway ? { gateway: organizationGateway } : {}),
+    logger
   })];
   for (const featureRouter of featureRouters) app.use(featureRouter);
   app.use(createNotFoundHandler());

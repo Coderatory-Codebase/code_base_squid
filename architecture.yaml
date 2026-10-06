@@ -177,6 +177,9 @@
       "mayBypassPolicy": false
     }
   },
+  "qualityAttributes": {
+    "organizationList": { "principalOrganizationsAtLeast": 50, "p95BudgetMs": 700, "requestCount": 200, "requiredIndex": "workspaceIds_1", "measurementCommand": "pnpm --filter @workspace/api measure:organization-budget", "measurementArtifact": "servers/api/performance-results/organization-list-<date>.json" }
+  },
   "integrations": {
     "serverDirectory": "integrations",
     "externalImplementationPackages": ["mongoose", "redis", "stripe"]

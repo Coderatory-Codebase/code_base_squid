@@ -18,12 +18,13 @@ const principal: Principal = { userId: "user-1", workspaceIds: ["workspace-1"] }
 
 const startApi = async (
   context: TestContext,
-  options: Readonly<{ gateway: OrganizationGateway; authenticated?: boolean }>
+  options: Readonly<{ gateway: OrganizationGateway; authenticated?: boolean; logger?: Logger }>
 ): Promise<string> => {
+  const requestLogger = options.logger ?? logger;
   const server = createServer({
     app: createApp({
       config,
-      logger,
+      logger: requestLogger,
       organizationGateway: options.gateway,
       resolvePrincipal: () => options.authenticated === false ? null : principal
     }),
@@ -78,9 +79,16 @@ void test("organization query returns only gateway results for an authenticated 
   assert.deepEqual(await response.json(), [{ id: "organization-1", name: "Member organization" }]);
 });
 
-void test("organization query rejects requests without an authenticated principal", async (context) => {
+void test("organization query rejects unauthenticated requests and emits a failed boundary signal", async (context) => {
+  const signals: Array<{ message: string; context: Record<string, unknown> }> = [];
+  const signalLogger: Logger = {
+    info: (message, values = {}) => signals.push({ message, context: values }),
+    warn: () => undefined,
+    error: () => undefined
+  };
   const url = await startApi(context, {
     authenticated: false,
+    logger: signalLogger,
     gateway: gatewayFor(() => Promise.reject(new Error("Gateway must not be called")))
   });
   const response = await fetch(url);
@@ -88,6 +96,13 @@ void test("organization query rejects requests without an authenticated principa
   assert.deepEqual(await response.json(), {
     error: { code: "unauthorized", message: "Sign in to view your organizations." }
   });
+  const signal = signals.find(({ message }) => message === "organization.request.signal");
+  assert.ok(signal);
+  assert.equal(signal.context.workspace, "Platform");
+  assert.equal(signal.context.module, "workspace");
+  assert.equal(signal.context.statusCode, 401);
+  assert.equal(signal.context.outcome, "error");
+  assert.equal(typeof signal.context.durationMs, "number");
 });
 
 void test("organization query returns an error without partial results when the gateway fails", async (context) => {
