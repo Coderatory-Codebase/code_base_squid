@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
-import mongoose from "mongoose";
+import { createMongoTestConnection, createUserProfileModel, createUserProfileQueryAdapter } from "../integrations/mongodb/index.js";
 import {
   createUserProfileGateway,
   USER_PROFILE_VIEW_INDEX_NAME,
   type UserProfileRecord
 } from "../features/identity/index.js";
-import { createUserProfileModel } from "../integrations/mongodb/identity/user-profile.model.js";
-import { createUserProfileQueryAdapter } from "../integrations/mongodb/identity/profile-query.adapter.js";
 
 const PROFILE_COUNT = 10_000;
 const MEASURED_REQUESTS = 200;
@@ -43,7 +41,7 @@ const run = async (): Promise<void> => {
   const workspaceId = `profile-perf-workspace-${runId}`;
   const targetUserId = `profile-perf-user-${runId}-0`;
   const uri = createIsolatedLocalUri(sourceUri, databaseName);
-  const connection = await mongoose.createConnection(uri, { serverSelectionTimeoutMS: 5_000 }).asPromise();
+  const connection = await createMongoTestConnection({ uri, databaseName });
 
   try {
     const profileModel = createUserProfileModel(connection);
