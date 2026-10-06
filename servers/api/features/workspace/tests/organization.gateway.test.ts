@@ -1,11 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import type { LogContext, Logger } from "@workspace/logging";
 import {
   buildOrganizationSettingsQueryFor,
   explainOrganizationSettingsQueryFor,
   settingsOf
 } from "../db/organization-setting.gateway.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
 import {
   buildOrganizationQueryForPrincipal,
   createOrganizationGateway,
@@ -75,8 +76,11 @@ void test("gateway applies deletedAt exclusion and workspace scope last", async 
   assert.ok(orIndex < workspaceScopeIndex);
 });
 
-void test("returns live settings only for principal workspaces with a covered query", async (context): Promise<void> => {
-  const mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
+void test("a workspace member sees the owner's setting and defaults against a replica set", async (context): Promise<void> => {
+  const mongo = await MongoMemoryReplSet.create({
+    replSet: { count: 1 },
+    instanceOpts: [{ launchTimeout: 60_000 }]
+  });
   const mongoIntegration = createMongoDbIntegration({
     uri: mongo.getUri(),
     logger: {
@@ -101,7 +105,7 @@ void test("returns live settings only for principal workspaces with a covered qu
     },
     {
       name: "Acme Design",
-      ownerId: "current-user",
+      ownerId: "organization-owner",
       workspaceIds: ["workspace-current"],
       settings: { timeZone: "Europe/London" }
     },
@@ -125,15 +129,21 @@ void test("returns live settings only for principal workspaces with a covered qu
     }))
   );
   const principal = {
-    userId: "current-user",
+    userId: "workspace-member",
     workspaceIds: ["workspace-current"]
   } as const;
   const organizations = await createOrganizationGateway().listOrganizationsForPrincipal(principal);
+  const signals: { level: "info" | "error"; message: string; context: LogContext | undefined }[] = [];
+  const logger: Logger = {
+    info: (message, context) => { signals.push({ level: "info", message, context }); },
+    warn: (): void => undefined,
+    error: (message, context) => { signals.push({ level: "error", message, context }); }
+  };
 
   assert.equal(organizations.length, 1);
   assert.equal(organizations[0]?.name, "Acme Design");
 
-  const settings = await settingsOf(principal);
+  const settings = await settingsOf(principal, logger);
   assert.deepEqual(settings, [
     {
       timeZone: { value: "Europe/London", source: "owner" },
@@ -142,6 +152,18 @@ void test("returns live settings only for principal workspaces with a covered qu
       workspaceSetupRule: { value: "any member", source: "default" }
     }
   ]);
+  assert.equal(signals.length, 1);
+  const signal = signals[0];
+  assert.ok(signal);
+  assert.ok(signal.context);
+  assert.equal(signal.level, "info");
+  assert.equal(signal.message, "Organization settings read completed.");
+  assert.equal(signal.context.module, "workspace");
+  assert.equal(signal.context.feature, "organization-settings");
+  assert.deepEqual(signal.context.workspaceIds, ["workspace-current"]);
+  assert.equal(signal.context.outcome, "success");
+  assert.equal(typeof signal.context.durationMs, "number");
+  assert.ok(Number(signal.context.durationMs) >= 0);
   assert.equal(
     await OrganizationModel.countDocuments({ name: "Deleted current workspace organization" }),
     1,
@@ -218,5 +240,12 @@ void test("returns live settings only for principal workspaces with a covered qu
     planContainsStage(settingsWinningPlan, "FETCH"),
     false,
     `the settings query should be covered without fetching organization documents: ${JSON.stringify(settingsWinningPlan)}`
+  );
+
+  await OrganizationModel.deleteOne({ name: "Acme Design" });
+  assert.deepEqual(
+    await settingsOf(principal, logger),
+    [],
+    "a principal scoped to the current workspace gets no rows when only other-workspace organizations remain"
   );
 });
