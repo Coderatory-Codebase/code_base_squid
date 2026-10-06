@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { systemClock } from "@workspace/kernel";
+import "./config/dns-override.js";
 import { createLogger } from "@workspace/logging";
 import { createApp, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
@@ -33,7 +34,15 @@ const relay = createOutboxRelayRunner({
 
 const shutdown = createShutdown({ database, logger, relay, server });
 
-await database.connect();
+try {
+  await database.connect();
+} catch (error: unknown) {
+  if (config.environment === "production") throw error;
+
+  logger.warn("MongoDB connection failed; starting without persistence in development.", {
+    error: error instanceof Error ? error.message : String(error)
+  });
+}
 await server.start();
 relay.start();
 

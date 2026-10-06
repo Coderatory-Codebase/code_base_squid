@@ -16,10 +16,14 @@ export const createApp = ({ config, logger }: AppDependencies): Express => {
   }));
   app.use(createCorsMiddleware({ origin: config.webOrigin }));
   app.use(express.json({ limit: apiRuntime.jsonBodyLimit }));
-  const featureRouters = [createHealthRoutes({
-    environment: config.environment,
-    serviceName: apiRuntime.serviceName
-  })];
+
+  const featureRouters = [
+    createHealthRoutes({
+      environment: config.environment,
+      serviceName: apiRuntime.serviceName
+    })
+  ];
+
   for (const featureRouter of featureRouters) app.use(featureRouter);
   app.use(createNotFoundHandler());
   app.use(createErrorHandler({ logger }));
