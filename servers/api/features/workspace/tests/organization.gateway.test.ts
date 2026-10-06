@@ -114,7 +114,7 @@ void test("a workspace member sees the owner's setting and defaults against a re
       ownerId: "current-user",
       workspaceIds: ["workspace-current"],
       settings: { timeZone: "Asia/Karachi" },
-      deletedAt: new Date()
+      deletedAt: new Date("2026-10-06T00:00:00.000Z")
     }
   ]);
 
@@ -124,7 +124,7 @@ void test("a workspace member sees the owner's setting and defaults against a re
       name: `Unrelated organization ${String(index)}`,
       ownerId: `unrelated-user-${String(index)}`,
       workspaceIds: [`workspace-unrelated-${String(index)}`],
-      lastUsedAt: new Date(),
+      lastUsedAt: new Date("2026-10-06T00:00:00.000Z"),
       deletedAt: null
     }))
   );
@@ -248,4 +248,45 @@ void test("a workspace member sees the owner's setting and defaults against a re
     [],
     "a principal scoped to the current workspace gets no rows when only other-workspace organizations remain"
   );
+});
+
+void test("TC-01.1.03-S1-T1 scoping: a principal from another workspace reads zero organization settings", async (context): Promise<void> => {
+  const mongo = await MongoMemoryReplSet.create({
+    replSet: { count: 1 },
+    instanceOpts: [{ launchTimeout: 60_000 }]
+  });
+  const mongoIntegration = createMongoDbIntegration({
+    uri: mongo.getUri(),
+    logger: {
+      info: (): void => undefined,
+      warn: (): void => undefined,
+      error: (): void => undefined
+    }
+  });
+  context.after(async () => {
+    await mongoIntegration.disconnect();
+    await mongo.stop();
+  });
+
+  await mongoIntegration.connect();
+  await OrganizationModel.init();
+  await OrganizationModel.create({
+    name: "Acme Design",
+    ownerId: "organization-owner",
+    workspaceIds: ["workspace-acme"],
+    settings: { timeZone: "Europe/London" }
+  });
+
+  const otherWorkspacePrincipal = {
+    userId: "unrelated-member",
+    workspaceIds: ["workspace-other"]
+  } as const;
+  const logger: Logger = {
+    info: (): void => undefined,
+    warn: (): void => undefined,
+    error: (): void => undefined
+  };
+
+  assert.deepEqual(await settingsOf(otherWorkspacePrincipal, logger), []);
+  assert.equal(await OrganizationModel.countDocuments({}), 1, "scoped reads do not remove the foreign organization");
 });
