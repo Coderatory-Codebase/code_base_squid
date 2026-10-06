@@ -27,6 +27,11 @@ export interface UserInvitationGateway {
     principal: Principal,
     input: PendingInvitationInput
   ) => Promise<UserInvitation>;
+  readonly replacePending: (
+    principal: Principal,
+    email: string,
+    input: PendingInvitationInput
+  ) => Promise<UserInvitation | null>;
 
 }
 
@@ -124,6 +129,29 @@ export const createUserInvitationGateway = (): UserInvitationGateway => {
       });
 
       return toUserInvitation(document);
+    },
+
+    replacePending: async (
+      principal: Principal,
+      email: string,
+      input: PendingInvitationInput
+    ): Promise<UserInvitation | null> => {
+      const document = await UserInvitationModel.findOneAndUpdate(
+        buildScopedFilter(principal, {
+          email: email.toLowerCase().trim(),
+          status: "pending"
+        }),
+        {
+          $set: {
+            tokenHash: input.tokenHash,
+            role: input.role,
+            expiresAt: input.expiresAt
+          }
+        },
+        { new: true }
+      ).lean().exec();
+
+      return document ? toUserInvitation(document) : null;
     },
 
   };

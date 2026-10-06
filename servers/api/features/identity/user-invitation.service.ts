@@ -24,12 +24,22 @@ export interface InvitationAuditEvent {
   readonly actorId: string;
 }
 
+export interface InvitationOperationSignal {
+  readonly module: "identity";
+  readonly operation: "invite-to-workspace";
+  readonly outcome: "succeeded" | "refused" | "failed";
+  readonly workspaceId: string;
+  readonly actorId: string;
+  readonly reason?: InvitationCommandFailure;
+}
+
 export interface InvitationServiceDependencies {
-  readonly gateway: Pick<UserInvitationGateway, "findPendingByEmail" | "createPending">;
+  readonly gateway: Pick<UserInvitationGateway, "findPendingByEmail" | "createPending" | "replacePending">;
   readonly now: () => Date;
   readonly createToken: () => string;
   readonly createInvitationUrl: (token: string) => string;
   readonly auditRefusal: (event: InvitationAuditEvent) => Promise<void>;
+  readonly emitOperationSignal: (signal: InvitationOperationSignal) => void;
 }
 
 export interface InvitationCommandResult {
@@ -51,7 +61,8 @@ export const createInvitationService = ({
   now,
   createToken,
   createInvitationUrl,
-  auditRefusal
+  auditRefusal,
+  emitOperationSignal
 }: InvitationServiceDependencies) => {
   const invite = async (
     principal: Principal,
@@ -64,23 +75,53 @@ export const createInvitationService = ({
         workspaceId: principal.workspaceId,
         actorId: principal.userId
       });
+      emitOperationSignal({
+        module: "identity",
+        operation: "invite-to-workspace",
+        outcome: "refused",
+        workspaceId: principal.workspaceId,
+        actorId: principal.userId,
+        reason: "forbidden"
+      });
       throw new InvitationCommandError("forbidden");
     }
 
     const parsedInput = invitationInputSchema.safeParse(input);
-    if (!parsedInput.success) throw new InvitationCommandError("invalid-email");
-
-    const email = parsedInput.data.email.toLowerCase();
-    if (await gateway.findPendingByEmail(principal, email)) {
-      throw new InvitationCommandError("duplicate-invitation");
+    if (!parsedInput.success) {
+      emitOperationSignal({
+        module: "identity",
+        operation: "invite-to-workspace",
+        outcome: "refused",
+        workspaceId: principal.workspaceId,
+        actorId: principal.userId,
+        reason: "invalid-email"
+      });
+      throw new InvitationCommandError("invalid-email");
     }
 
+    const email = parsedInput.data.email.toLowerCase();
     const token = createToken();
-    await gateway.createPending(principal, {
+    const pendingInvitation = {
       email,
       role: parsedInput.data.role,
       tokenHash: hashToken(token),
       expiresAt: createExpiry(now())
+    };
+    const existing = await gateway.findPendingByEmail(principal, email);
+
+    if (existing) {
+      const replacement = await gateway.replacePending(principal, email, pendingInvitation);
+      if (!replacement) throw new InvitationCommandError("duplicate-invitation");
+    } else {
+      await gateway.createPending(principal, pendingInvitation);
+    }
+
+    emitOperationSignal({
+      module: "identity",
+      operation: "invite-to-workspace",
+      outcome: "succeeded",
+      workspaceId: principal.workspaceId,
+      actorId: principal.userId
     });
 
     return Object.freeze({ invitationUrl: createInvitationUrl(token) });

@@ -46,7 +46,9 @@ export const ErrorState = ({ error }: { error: unknown }) => {
       <AlertCircle aria-hidden="true" className="mx-auto mb-4 size-12 text-destructive" />
       <h2 className="text-lg font-semibold">Failed to load invitations</h2>
       <p className="mx-auto mt-2 max-w-md text-muted-foreground">{detail}</p>
-      <p className="mt-4 text-sm text-muted-foreground">Refresh the page to try again.</p>
+      <a className="mt-4 inline-block text-sm text-muted-foreground underline underline-offset-4" href="">
+        Refresh the page to try again.
+      </a>
     </section>
   );
 };

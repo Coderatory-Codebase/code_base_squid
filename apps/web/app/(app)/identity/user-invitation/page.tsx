@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { listInvitationItems } from "@/lib/api/user-invitation";
+import { listInvitationItems } from "@/lib/api/list-invitation-items.server";
 import {
   EmptyState,
   ErrorState,

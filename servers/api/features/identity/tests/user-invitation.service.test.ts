@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
 import { createInvitationService, InvitationCommandError } from "../user-invitation.service.js";
-import type { InvitationAuditEvent } from "../user-invitation.service.js";
+import type { InvitationAuditEvent, InvitationOperationSignal } from "../user-invitation.service.js";
 import type { UserInvitationGateway } from "../user-invitation.gateway.js";
 import type { Principal } from "../types.js";
 
@@ -20,15 +20,17 @@ const member: Principal = Object.freeze({
   permissions: ["workspace:invite"]
 });
 
-type PendingGateway = Pick<UserInvitationGateway, "findPendingByEmail" | "createPending">;
+type PendingGateway = Pick<UserInvitationGateway, "findPendingByEmail" | "createPending" | "replacePending">;
 
 const createGateway = (existingPending = false): Readonly<{
   gateway: PendingGateway;
   calls: string[];
   created: Record<string, unknown>[];
+  replaced: Record<string, unknown>[];
 }> => {
   const calls: string[] = [];
   const created: Record<string, unknown>[] = [];
+  const replaced: Record<string, unknown>[] = [];
   const gateway: PendingGateway = {
     findPendingByEmail: () => {
       calls.push("find-pending");
@@ -57,13 +59,29 @@ const createGateway = (existingPending = false): Readonly<{
         updatedAt: new Date(),
         ...input
       }));
+    },
+    replacePending: (_principal, _email, input) => {
+      calls.push("replace-pending");
+      replaced.push(input);
+      return Promise.resolve(Object.freeze({
+        workspaceId: "design",
+        invitedBy: "lena",
+        status: "pending" as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...input
+      }));
     }
   };
 
-  return Object.freeze({ gateway, calls, created });
+  return Object.freeze({ gateway, calls, created, replaced });
 };
 
-const createService = (gateway: PendingGateway, events: InvitationAuditEvent[] = []) =>
+const createService = (
+  gateway: PendingGateway,
+  events: InvitationAuditEvent[] = [],
+  signals: InvitationOperationSignal[] = []
+) =>
   createInvitationService({
     gateway,
     now: () => new Date("2030-01-01T00:00:00.000Z"),
@@ -72,21 +90,30 @@ const createService = (gateway: PendingGateway, events: InvitationAuditEvent[] =
     auditRefusal: (event) => {
       events.push(event);
       return Promise.resolve();
-    }
+    },
+    emitOperationSignal: (signal) => { signals.push(signal); }
   });
 
-void test("AC1 creates one pending invitation with a seven-day expiry and returns its link once", async () => {
+void test("TC-02.1.02-S1-1 AC-1 creates one pending invitation with a seven-day expiry and returns its link once", async () => {
   const { gateway, created } = createGateway();
-  const result = await createService(gateway).invite(admin, { email: "omar@acme.test", role: "member" });
+  const signals: InvitationOperationSignal[] = [];
+  const result = await createService(gateway, [], signals).invite(admin, { email: "omar@acme.test", role: "member" });
 
   assert.equal(result.invitationUrl, "https://web.example.test/invitations/accept?token=raw-token-for-lena-only");
   assert.equal(created.length, 1);
   assert.equal(created[0].email, "omar@acme.test");
   assert.equal(created[0].expiresAt instanceof Date, true);
   assert.equal((created[0].expiresAt as Date).toISOString(), "2030-01-08T00:00:00.000Z");
+  assert.deepEqual(signals, [{
+    module: "identity",
+    operation: "invite-to-workspace",
+    outcome: "succeeded",
+    workspaceId: "design",
+    actorId: "lena"
+  }]);
 });
 
-void test("AC2 persists only a SHA-256 token hash", async () => {
+void test("TC-02.1.02-S1-2 AC-2 persists only a SHA-256 token hash", async () => {
   const { gateway, created } = createGateway();
   await createService(gateway).invite(admin, { email: "omar@acme.test", role: "member" });
 
@@ -97,22 +124,25 @@ void test("AC2 persists only a SHA-256 token hash", async () => {
   assert.equal("token" in created[0], false);
 });
 
-void test("AC3 refuses a duplicate pending invitation without creating another link", async () => {
-  const { gateway, calls } = createGateway(true);
+void test("TC-02.1.02-S1-3 AC-3 replaces a pending invitation so its first link is refused", async () => {
+  const { gateway, calls, created, replaced } = createGateway(true);
 
-  await assert.rejects(
-    () => createService(gateway).invite(admin, { email: "omar@acme.test", role: "member" }),
-    (error: unknown) => error instanceof InvitationCommandError && error.code === "duplicate-invitation"
-  );
-  assert.deepEqual(calls, ["find-pending"]);
+  const result = await createService(gateway).invite(admin, { email: "omar@acme.test", role: "member" });
+
+  assert.equal(result.invitationUrl, "https://web.example.test/invitations/accept?token=raw-token-for-lena-only");
+  assert.deepEqual(calls, ["find-pending", "replace-pending"]);
+  assert.equal(created.length, 0);
+  assert.equal(replaced.length, 1);
+  assert.notEqual(replaced[0].tokenHash, "a".repeat(64));
 });
 
-void test("AC4 refuses a non-admin invitation, writes nothing, and audits the refusal", async () => {
+void test("TC-02.1.02-S1-4 AC-4 refuses a non-admin invitation, writes nothing, and audits the refusal", async () => {
   const { gateway, calls } = createGateway();
   const events: InvitationAuditEvent[] = [];
+  const signals: InvitationOperationSignal[] = [];
 
   await assert.rejects(
-    () => createService(gateway, events).invite(member, { email: "omar@acme.test", role: "member" }),
+    () => createService(gateway, events, signals).invite(member, { email: "omar@acme.test", role: "member" }),
     (error: unknown) => error instanceof InvitationCommandError && error.code === "forbidden"
   );
   assert.deepEqual(calls, []);
@@ -122,9 +152,17 @@ void test("AC4 refuses a non-admin invitation, writes nothing, and audits the re
     workspaceId: "design",
     actorId: "sam"
   }]);
+  assert.deepEqual(signals, [{
+    module: "identity",
+    operation: "invite-to-workspace",
+    outcome: "refused",
+    workspaceId: "design",
+    actorId: "sam",
+    reason: "forbidden"
+  }]);
 });
 
-void test("AC5 rejects an invalid email without writing an invitation", async () => {
+void test("TC-02.1.02-S1-5 AC-5 rejects an invalid email without writing an invitation", async () => {
   const { gateway, calls } = createGateway();
 
   await assert.rejects(
@@ -134,14 +172,15 @@ void test("AC5 rejects an invalid email without writing an invitation", async ()
   assert.deepEqual(calls, []);
 });
 
-void test("AC6 processes the stated 12,000-invitation volume with a command p95 below 300ms", async () => {
+void test("TC-02.1.02-S1-6 AC-6 supporting unit regression processes invitations within the local p95 guardrail", async () => {
   const { gateway } = createGateway();
   const service = createInvitationService({
     gateway,
     now: () => new Date("2030-01-01T00:00:00.000Z"),
     createToken: () => "load-test-token",
     createInvitationUrl: (token) => `https://web.example.test/invitations/accept?token=${token}`,
-    auditRefusal: () => Promise.resolve()
+    auditRefusal: () => Promise.resolve(),
+    emitOperationSignal: () => undefined
   });
   const durations: number[] = [];
 

@@ -17,7 +17,7 @@ const mockPrincipal: Principal = Object.freeze({
   permissions: ["workspace:invite"]
 });
 
-void test("gateway enforces workspace scoping on queries", async () => {
+void test("TC-02.1.02-S1-X-data gateway enforces workspace scoping on queries", async () => {
   const gateway = createUserInvitationGateway();
 
   // Mock the model's find method to verify filter
@@ -44,7 +44,7 @@ void test("gateway enforces workspace scoping on queries", async () => {
   UserInvitationModel.find = originalFind;
 });
 
-void test("gateway prevents cross-workspace reads", async () => {
+void test("TC-02.1.02-S1-X-data gateway prevents cross-workspace reads", async () => {
   const gateway = createUserInvitationGateway();
 
   // Mock the model to simulate data from different workspaces
@@ -71,7 +71,7 @@ void test("gateway prevents cross-workspace reads", async () => {
   UserInvitationModel.find = originalFind;
 });
 
-void test("gateway findOneByEmail enforces workspace scope", async () => {
+void test("TC-02.1.02-S1-X-data gateway findOneByEmail enforces workspace scope", async () => {
   const gateway = createUserInvitationGateway();
 
   let capturedFilter: Record<string, unknown> | null = null;
@@ -96,7 +96,7 @@ void test("gateway findOneByEmail enforces workspace scope", async () => {
   UserInvitationModel.findOne = originalFindOne;
 });
 
-void test("gateway excludes soft-deleted records by default", async () => {
+void test("TC-02.1.02-S1-X-data gateway excludes soft-deleted records by default", async () => {
   const gateway = createUserInvitationGateway();
 
   const originalFind = Reflect.get(UserInvitationModel, "find");
@@ -118,7 +118,7 @@ void test("gateway excludes soft-deleted records by default", async () => {
   UserInvitationModel.find = originalFind;
 });
 
-void test("invitation schema declares covering indexes for scoped listings", () => {
+void test("TC-02.1.02-S1-X-data invitation schema declares covering indexes for scoped listings", () => {
   const indexes = UserInvitationModel.schema.indexes().map(([keys]) => keys);
 
   assert.ok(

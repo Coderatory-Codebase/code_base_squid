@@ -1,6 +1,4 @@
-import "server-only";
 import { z } from "zod";
-import { createApiConfiguration, readWebEnvironment } from "@/config";
 
 export interface InvitationListItem {
   readonly id: string;
@@ -18,9 +16,9 @@ type InvitationListResponse = Readonly<{
   }>[];
 }>;
 
-type InvitationListRequest = (url: string) => Promise<InvitationListResponse>;
+export type InvitationListRequest = (url: string) => Promise<InvitationListResponse>;
 
-const invitationListResponseSchema = z.object({
+export const invitationListResponseSchema = z.object({
   invitations: z.array(z.object({
     id: z.string().min(1),
     email: z.email(),
@@ -37,21 +35,3 @@ export const createInvitationListQuery = (request: InvitationListRequest) =>
     const response = await request(`${baseUrl}/identity/user-invitations`);
     return Object.freeze(response.invitations.map(toInvitationListItem));
   };
-
-const requestInvitationList = async (url: string): Promise<InvitationListResponse> => {
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: { accept: "application/json" }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Unable to load invitations (${response.status}).`);
-  }
-
-  return invitationListResponseSchema.parse(await response.json());
-};
-
-export const listInvitationItems = (): Promise<readonly InvitationListItem[]> => {
-  const api = createApiConfiguration(readWebEnvironment());
-  return createInvitationListQuery(requestInvitationList)(api.baseUrl);
-};
