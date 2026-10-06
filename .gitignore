@@ -11,3 +11,6 @@ coverage/
 .test-tmp-*/
 
 validate.log
+servers/api/.env
+servers/api/.env
+servers/api/.env

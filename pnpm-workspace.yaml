@@ -12,3 +12,7 @@ allowBuilds:
 
 audit:
   level: high
+
+minimumReleaseAgeExclude:
+  - braces@3.0.4
+  - source-map-js@1.2.2
