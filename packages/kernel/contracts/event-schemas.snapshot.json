@@ -1,0 +1,976 @@
+{
+  "schemaVersion": 1,
+  "release": 1,
+  "events": {
+    "OrganizationCreated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OrganizationCreated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "OrganizationUpdated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OrganizationUpdated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "OrganizationArchived": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OrganizationArchived"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "OrganizationRestored": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OrganizationRestored"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "OrganizationDeletionScheduled": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OrganizationDeletionScheduled"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "OrganizationDeletionCancelled": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OrganizationDeletionCancelled"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "WorkspaceCreated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "WorkspaceCreated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "WorkspaceUpdated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "WorkspaceUpdated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "WorkspaceArchived": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "WorkspaceArchived"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "WorkspaceRestored": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "WorkspaceRestored"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "WorkspaceDeleted": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "WorkspaceDeleted"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "WorkspacePurged": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "WorkspacePurged"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "MemberAdded": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "MemberAdded"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "MemberRoleChanged": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "MemberRoleChanged"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "MemberRemoved": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "MemberRemoved"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "OwnershipTransferred": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "OwnershipTransferred"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "UserCreated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "UserCreated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "UserClosed": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "UserClosed"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "UserRestored": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "UserRestored"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "UserDeleted": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "UserDeleted"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "InvitationCreated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "InvitationCreated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "InvitationAccepted": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "InvitationAccepted"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "SessionRevoked": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "SessionRevoked"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "TeamChanged": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "TeamChanged"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "TeamMembershipChanged": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "TeamMembershipChanged"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    },
+    "TaskUpdated": {
+      "1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "TaskUpdated"
+          },
+          "version": {
+            "const": 1
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      },
+      "2": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "version",
+          "workspaceId",
+          "actor",
+          "occurredAt",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "const": "TaskUpdated"
+          },
+          "version": {
+            "const": 2
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "actor": {},
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {}
+        }
+      }
+    }
+  }
+}
