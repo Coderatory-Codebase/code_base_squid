@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
-import { createInvitationService, InvitationCommandError } from "../user-invitation.service.js";
-import type { InvitationAuditEvent, InvitationOperationSignal } from "../user-invitation.service.js";
-import type { UserInvitationGateway } from "../user-invitation.gateway.js";
-import type { Principal } from "../types.js";
+import {
+  createInvitationService,
+  InvitationCommandError,
+  type InvitationAuditEvent,
+  type InvitationOperationSignal,
+  type UserInvitationGateway
+} from "../gateways/index.js";
+import type { Principal } from "../types/index.js";
 
 const admin: Principal = Object.freeze({
   userId: "lena",

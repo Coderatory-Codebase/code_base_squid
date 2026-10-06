@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from "../../../integrations/mongodb/index.js";
 
 export interface UserInvitation {
   readonly workspaceId: string;

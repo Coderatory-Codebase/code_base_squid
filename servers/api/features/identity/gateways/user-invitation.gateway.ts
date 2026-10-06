@@ -1,6 +1,6 @@
-import type { UserInvitation } from "./user-invitation.model.js";
-import { UserInvitationModel } from "./user-invitation.model.js";
-import type { Principal, InvitationQueryOptions, PendingInvitationInput } from "./types.js";
+import type { UserInvitation } from "../models/index.js";
+import { UserInvitationModel } from "../models/index.js";
+import type { Principal, InvitationQueryOptions, PendingInvitationInput } from "../types/index.js";
 
 /**
  * Gateway for scoped user-invitation queries.

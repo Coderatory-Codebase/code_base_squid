@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decideInvitationResend, decideInvitationRevocation, type ManagedInvitation } from "../user-invitation-management.domain.js";
+import { decideInvitationResend, decideInvitationRevocation, type ManagedInvitation } from "../gateways/index.js";
 
 const pending: ManagedInvitation = Object.freeze({ status: "pending", expiresAt: new Date("2030-01-02T00:00:00.000Z") });
 

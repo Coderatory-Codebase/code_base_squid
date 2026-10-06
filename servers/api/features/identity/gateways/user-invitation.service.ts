@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { z } from "zod";
 import { canInviteToWorkspace } from "./user-invitation.policy.js";
 import type { UserInvitationGateway } from "./user-invitation.gateway.js";
-import type { InvitationCommandInput, Principal } from "./types.js";
+import type { InvitationCommandInput, Principal } from "../types/index.js";
 
 const invitationInputSchema = z.object({
   email: z.email(),

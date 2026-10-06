@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decideInvitationAcceptance, type InvitationForAcceptance } from "../user-invitation-acceptance.domain.js";
+import { decideInvitationAcceptance, type InvitationForAcceptance } from "../gateways/index.js";
 
 const pendingInvitation: InvitationForAcceptance = Object.freeze({
   email: "omar@acme.test",

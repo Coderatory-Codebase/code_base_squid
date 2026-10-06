@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { Logger } from "@workspace/logging";
-import { createInvitationOperationSignalEmitter } from "../user-invitation.telemetry.js";
+import { createInvitationOperationSignalEmitter } from "../gateways/index.js";
 
 void test("TC-02.1.02-S1-1 telemetry signal is structured, labelled, and excludes invitation secrets", () => {
   const records: Readonly<{ message: string; context: unknown }>[] = [];

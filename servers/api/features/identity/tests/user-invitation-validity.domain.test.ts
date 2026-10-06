@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { invalidInvitationMessage, refuseInvalidInvitationLink } from "../user-invitation-validity.domain.js";
+import { invalidInvitationMessage, refuseInvalidInvitationLink } from "../gateways/index.js";
 
 const now = new Date("2030-01-08T00:01:00.000Z");
 

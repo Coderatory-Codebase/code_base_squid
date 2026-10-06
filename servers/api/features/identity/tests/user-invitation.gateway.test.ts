@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createUserInvitationGateway } from "../user-invitation.gateway.js";
-import { UserInvitationModel } from "../user-invitation.model.js";
-import type { Principal } from "../types.js";
+import { createUserInvitationGateway } from "../gateways/index.js";
+import { UserInvitationModel } from "../models/index.js";
+import type { Principal } from "../types/index.js";
 
 const captured = <T>(value: T | null, message: string): T => {
   assert.ok(value, message);
