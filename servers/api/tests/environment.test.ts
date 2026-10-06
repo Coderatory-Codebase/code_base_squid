@@ -16,6 +16,7 @@ void test("derives API configuration from validated environment input", () => {
     host: "0.0.0.0",
     port: 8080,
     webOrigin: "https://example.test",
+    logFormat: "json",
     logLevel: "warn"
   });
 });

@@ -18,6 +18,7 @@ export type ApiConfig = Readonly<{
   host: string;
   port: number;
   webOrigin: string;
+  logFormat: "json" | "pretty";
   mongodbUri?: string;
   oidc?: OidcApiConfiguration;
   logLevel: LogLevel;

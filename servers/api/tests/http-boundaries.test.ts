@@ -15,6 +15,7 @@ const config: ApiConfig = {
   host: "127.0.0.1",
   port: 0,
   webOrigin: "http://localhost:3000",
+  logFormat: "json",
   logLevel: "silent"
 };
 

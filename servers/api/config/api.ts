@@ -5,6 +5,7 @@ export const createApiConfig = (environment: ValidatedApiEnvironment): ApiConfig
   host: environment.API_HOST,
   port: environment.API_PORT,
   webOrigin: environment.WEB_ORIGIN,
+  logFormat: environment.LOG_FORMAT ?? (environment.NODE_ENV === "production" ? "json" : "pretty"),
   logLevel: environment.LOG_LEVEL,
   ...(environment.MONGODB_URI ? { mongodbUri: environment.MONGODB_URI } : {}),
   ...(environment.OIDC_CALLBACK_BASE_URL

@@ -9,7 +9,10 @@ const config = createApiConfig(readApiEnvironment());
 const logger = createLogger({
   service: apiRuntime.serviceName,
   level: config.logLevel,
-  format: config.environment === "production" ? "json" : "pretty"
+  format: config.logFormat,
+  ...(config.environment === "development"
+    ? { structuredHttpEndpoint: "http://127.0.0.1:3101/loki/api/v1/raw" }
+    : {})
 });
 const database = createMongoDbIntegration({
   logger,

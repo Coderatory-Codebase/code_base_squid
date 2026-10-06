@@ -8,6 +8,7 @@ export type ValidatedApiEnvironment = Readonly<{
   API_HOST: string;
   API_PORT: number;
   WEB_ORIGIN: string;
+  LOG_FORMAT?: "json" | "pretty" | undefined;
   MONGODB_URI?: string | undefined;
   OIDC_CALLBACK_BASE_URL?: string | undefined;
   OIDC_FLOW_COOKIE_KEY?: string | undefined;

@@ -10,6 +10,7 @@ export const readApiEnvironment = (
   API_HOST: source.API_HOST,
   API_PORT: source.API_PORT,
   WEB_ORIGIN: source.WEB_ORIGIN,
+  LOG_FORMAT: source.LOG_FORMAT,
   MONGODB_URI: source.MONGODB_URI,
   OIDC_CALLBACK_BASE_URL: source.OIDC_CALLBACK_BASE_URL,
   OIDC_FLOW_COOKIE_KEY: source.OIDC_FLOW_COOKIE_KEY,

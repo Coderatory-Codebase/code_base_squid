@@ -6,6 +6,7 @@ export const apiEnvironmentSchema = z.object({
   API_HOST: z.string().min(1),
   API_PORT: z.coerce.number().int().min(1).max(65_535),
   WEB_ORIGIN: z.url(),
+  LOG_FORMAT: z.enum(["json", "pretty"]).optional(),
   MONGODB_URI: z.string().min(1).optional(),
   OIDC_CALLBACK_BASE_URL: z.url().optional(),
   OIDC_FLOW_COOKIE_KEY: z.string().optional(),

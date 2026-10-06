@@ -6,7 +6,7 @@
   "externalDependencies": ["dotenv", "express", "mongoose", "zod"],
   "capabilities": ["http-api", "health", "mongodb-integration"],
   "tasks": {
-    "dev": { "command": "pnpm run dev", "environment": ["API_HOST", "API_PORT", "WEB_ORIGIN", "MONGODB_URI"], "cache": false },
+    "dev": { "command": "pnpm run dev", "environment": ["API_HOST", "API_PORT", "WEB_ORIGIN", "MONGODB_URI", "LOG_FORMAT"], "cache": false },
     "build": { "command": "pnpm run build", "outputs": ["dist"], "cache": true },
     "test": { "command": "pnpm test", "cache": false },
     "lint": { "command": "pnpm run lint", "cache": false },

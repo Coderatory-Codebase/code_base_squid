@@ -1,0 +1,57 @@
+// Identity-only log pipeline for Grafana Cloud Loki.
+// Set these in the Alloy process environment; never put credentials in this file.
+// GRAFANA_CLOUD_LOKI_URL=https://logs-prod-035.grafana.net/loki/api/v1/push
+// LOKI_USERNAME=<Grafana Cloud Logs user ID>
+// GRAFANA_CLOUD_API_KEY=<Cloud Access Policy token with logs:write>
+
+loki.source.api "identity_api" {
+  http {
+    listen_address = "127.0.0.1"
+    listen_port    = 3101
+  }
+
+  forward_to = [loki.process.identity_signals.receiver]
+}
+
+loki.process "identity_signals" {
+  forward_to = [loki.write.grafana_cloud.receiver]
+
+  stage.json {
+    expressions = {
+      module      = "module",
+      event       = "event",
+      outcome     = "outcome",
+      workspaceId = "workspaceId",
+    }
+  }
+
+  // Use bounded values as Loki labels. workspaceId remains structured metadata.
+  stage.labels {
+    values = {
+      module  = "module",
+      event   = "event",
+      outcome = "outcome",
+    }
+  }
+
+  // Drop malformed and non-Identity application logs before sending to Cloud.
+  stage.match {
+    selector = "{event!~\"identity.*\"}"
+    action   = "drop"
+  }
+
+  stage.structured_metadata {
+    values = { workspace_id = "workspaceId" }
+  }
+}
+
+loki.write "grafana_cloud" {
+  endpoint {
+    url = sys.env("GRAFANA_CLOUD_LOKI_URL")
+
+    basic_auth {
+      username = sys.env("LOKI_USERNAME")
+      password = sys.env("GRAFANA_CLOUD_API_KEY")
+    }
+  }
+}

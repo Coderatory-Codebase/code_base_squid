@@ -24,7 +24,6 @@ export const createSessionCookieResolver = ({
   async (cookieHeader) => {
     const token = getSessionToken(cookieHeader);
     if (!token) return null;
-
     const tokenHash = createHash("sha256").update(token).digest("hex");
     return sessions.findAndTouchActiveByTokenHash(tokenHash, now());
   };
