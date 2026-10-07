@@ -179,6 +179,7 @@
   },
   "qualityAttributes": {
     "organizationList": { "principalOrganizationsAtLeast": 50, "p95BudgetMs": 700, "requestCount": 200, "requiredIndex": "workspaceIds_1", "measurementCommand": "pnpm --filter @workspace/api measure:organization-budget", "measurementArtifact": "servers/api/performance-results/organization-list-<date>.json" },
+    "organizationSettingsView": { "workspaceOrganizations": 200, "p95BudgetMs": 700, "requestCount": 200, "requiredIndex": "workspace_settings_live_cover", "measurementCommand": "pnpm --filter @workspace/api measure:organization-settings-budget", "measurementArtifact": "servers/api/performance-results/organization-settings-<date>.json" },
     "organizationSetup": { "requestsPerSecond": 20, "durationMs": 600000, "p95BudgetMs": 300, "measurementCommand": "pnpm --filter @workspace/api measure:organization-setup-budget", "measurementArtifact": "servers/api/performance-results/organization-setup-<date>.json" },
     "workspaceDashboard": { "activeTeamMembers": 21, "recentActivityEvents": 10, "requestCount": 200, "p95BudgetMs": 700, "payloadBudgetBytes": 102400, "measurementCommand": "pnpm --filter @workspace/api measure:workspace-dashboard-budget", "measurementArtifact": "servers/api/performance-results/workspace-dashboard-<date>.json" }
   },
