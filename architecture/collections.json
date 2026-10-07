@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "modules": {
+    "identity": {
+      "collections": [
+        "sessions",
+        "user_profiles"
+      ]
+    },
+    "workspace": {
+      "collections": [
+        "memberships",
+        "workspaces",
+        "organizations"
+      ]
+    }
+  }
+}

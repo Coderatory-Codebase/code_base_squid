@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { createLogger } from "@workspace/logging";
-import { createApp, createServer, createShutdown } from "./bootstrap/index.js";
+import { createApp, createIdentityRuntime, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
 import { apiRuntime } from "./constants/index.js";
 import { createMongoDbIntegration } from "./integrations/index.js";
@@ -9,13 +9,23 @@ const config = createApiConfig(readApiEnvironment());
 const logger = createLogger({
   service: apiRuntime.serviceName,
   level: config.logLevel,
-  format: config.environment === "production" ? "json" : "pretty"
+  format: config.logFormat,
+  ...(config.environment === "development"
+    ? { structuredHttpEndpoint: "http://127.0.0.1:3101/loki/api/v1/raw" }
+    : {})
 });
 const database = createMongoDbIntegration({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})
 });
-const app = createApp({ config, logger });
+const identity = config.mongodbUri ? createIdentityRuntime(database, config) : undefined;
+const app = createApp({
+  config,
+  logger,
+  ...(identity ? { identity: identity.profile } : {}),
+  ...(identity ? { identitySessions: identity.sessionManagement } : {}),
+  ...(identity?.authentication ? { authentication: identity.authentication } : {})
+});
 const server = createServer({ app, config, logger });
 
 const shutdown = createShutdown({ database, logger, server });
