@@ -1,0 +1,15 @@
+{
+  "measuredAt": "2026-10-07T10:21:54.364Z",
+  "surface": "GET /organizations/:organizationId/dashboard over loopback with isolated in-memory MongoDB",
+  "dataset": {
+    "activeTeamMembers": 21,
+    "linkedWorkspaces": 10,
+    "recentActivityEvents": 10,
+    "requests": 200
+  },
+  "p95Ms": 9.55,
+  "budgetMs": 700,
+  "payloadBytes": 3954,
+  "payloadBudgetBytes": 102400,
+  "passed": true
+}

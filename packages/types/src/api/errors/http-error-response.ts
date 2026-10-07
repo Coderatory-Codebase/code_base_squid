@@ -8,8 +8,11 @@ export type ApiErrorCode =
   | "policy_denied"
   | "policy_unavailable"
   | "unauthenticated"
+  | "unauthorized"
   | "forbidden"
-  | "principal_unavailable";
+  | "principal_unavailable"
+  | "not_found"
+  | "conflict";
 
 export type ApiErrorDetails = Readonly<Record<string, unknown>> | readonly unknown[];
 

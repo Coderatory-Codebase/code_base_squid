@@ -8,6 +8,9 @@ export const ERROR_MESSAGES = Object.freeze({
   policyDenied: "The policy decision does not allow this command.",
   policyUnavailable: "Policy is temporarily unavailable. Retry the request.",
   unauthenticated: "Authentication is required.",
-  forbidden: "You do not have access to this workspace.",
-  principalUnavailable: "Identity or workspace data is temporarily unavailable. Retry the request."
+  unauthorized: "Sign in to view your organizations.",
+  forbidden: "You are not allowed to perform this action.",
+  principalUnavailable: "Identity or workspace data is temporarily unavailable. Retry the request.",
+  notFound: "The requested resource was not found.",
+  conflict: "The resource conflicts with the current state."
 } as const);

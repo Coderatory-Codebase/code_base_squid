@@ -13,13 +13,13 @@ allowBuilds:
 
 audit:
   level: high
-  # GHSA-vfj7-8cjw-p6xm: no upstream patch yet; dev tooling only (eslint-config-next and shadcn CLI); expires 2026-11-03.
+  # GHSA-vfj7-8cjw-p6xm: dev tooling only; remove this temporary waiver by 2026-11-03.
   ignore:
     - GHSA-vfj7-8cjw-p6xm
 
-auditConfig:
-  ignoreGhsas:
-    - GHSA-vfj7-8cjw-p6xm
+minimumReleaseAgeExclude:
+  - braces@3.0.4
+  - source-map-js@1.2.2
 
 patchedDependencies:
   braces@3.0.3: patches/braces@3.0.3.patch

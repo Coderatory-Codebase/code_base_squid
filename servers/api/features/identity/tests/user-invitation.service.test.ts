@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
+import { systemClock } from "@workspace/kernel";
 import {
   createInvitationService,
   InvitationCommandError,
@@ -46,9 +47,9 @@ const createGateway = (existingPending = false): Readonly<{
           tokenHash: "a".repeat(64),
           status: "pending" as const,
           role: "member",
-          expiresAt: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
+          expiresAt: new Date(systemClock.now()),
+          createdAt: new Date(systemClock.now()),
+          updatedAt: new Date(systemClock.now())
         })
         : null);
     },
@@ -59,8 +60,8 @@ const createGateway = (existingPending = false): Readonly<{
         workspaceId: "design",
         invitedBy: "lena",
         status: "pending" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date(systemClock.now()),
+        updatedAt: new Date(systemClock.now()),
         ...input
       }));
     },
@@ -71,8 +72,8 @@ const createGateway = (existingPending = false): Readonly<{
         workspaceId: "design",
         invitedBy: "lena",
         status: "pending" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date(systemClock.now()),
+        updatedAt: new Date(systemClock.now()),
         ...input
       }));
     }
