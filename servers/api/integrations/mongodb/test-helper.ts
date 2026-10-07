@@ -1,5 +1,58 @@
 import mongoose, { Types } from "mongoose";
 
+export type MigrationTestDatabase = Readonly<{
+  connection: Readonly<Pick<mongoose.Connection, "collection">>;
+  insertMany: (collection: string, documents: Record<string, unknown>[]) => Promise<void>;
+  findAll: (collection: string) => Promise<unknown[]>;
+  listIndexes: (collection: string) => Promise<unknown[]>;
+  explain: (collection: string, filter: Record<string, unknown>, indexName?: string) => Promise<unknown>;
+  close: () => Promise<void>;
+}>;
+
+export const createMigrationTestDatabase = async (uri: string, dbName: string): Promise<MigrationTestDatabase> => {
+  const connection = await mongoose.createConnection(uri, { dbName }).asPromise();
+  const database = connection.db;
+  if (!database) {
+    await connection.close();
+    throw new Error("Could not get migration test database");
+  }
+  return Object.freeze({
+    connection,
+    insertMany: async (collection, documents) => {
+      const idFields = ["_id", "organizationProfileId", "workspaceId"];
+      const mapped = documents.map(document => {
+        const result = { ...document };
+        for (const field of idFields) {
+          const value = result[field];
+          if (typeof value === "string" && Types.ObjectId.isValid(value)) result[field] = new Types.ObjectId(value);
+        }
+        return result;
+      });
+      await database.collection(collection).insertMany(mapped);
+    },
+    findAll: async collection => database.collection(collection).find().sort({ _id: 1 }).toArray(),
+    listIndexes: async collection => database.collection(collection).listIndexes().toArray(),
+    explain: async (collection, filter, indexName) => {
+      const mongoFilter = { ...filter };
+      for (const [field, value] of Object.entries(mongoFilter)) {
+        if (typeof value === "string" && Types.ObjectId.isValid(value)) mongoFilter[field] = new Types.ObjectId(value);
+      }
+      let cursor = database.collection(collection).find(mongoFilter);
+      if (indexName) cursor = cursor.hint(indexName);
+      return cursor.explain();
+    },
+    close: async () => connection.close()
+  });
+};
+
+export const toMongoObjectId = (value: string): unknown => new Types.ObjectId(value);
+
+export const runMongoCommand = async (command: Record<string, unknown>): Promise<Record<string, unknown>> => {
+  const database = mongoose.connection.db;
+  if (!database) throw new Error("Could not get db");
+  return database.admin().command(command);
+};
+
 export const generateTestId = (): string => new Types.ObjectId().toString();
 
 export const setupTestDatabase = async (uri: string): Promise<void> => {

@@ -1,6 +1,5 @@
 import { createServer } from "node:http";
 import express from "express";
-import mongoose from "mongoose";
 import test, { after, before } from "node:test";
 import assert from "node:assert/strict";
 import { MongoMemoryReplSet } from "mongodb-memory-server";
@@ -14,7 +13,9 @@ import {
   generateTestId,
   getExplainPlan,
   insertTestDocuments,
+  runMongoCommand,
   setupTestDatabase,
+  toMongoObjectId,
   teardownTestDatabase
 } from "../../../integrations/mongodb/index.js";
 import { createWorkspaceRoutes } from "../index.js";
@@ -70,9 +71,7 @@ const createProfileRepository = () => createWorkspaceRepository({
 });
 
 const assertReplicaSet = async (): Promise<void> => {
-  const db = mongoose.connection.db;
-  assert.ok(db);
-  const topology = await db.admin().command({ hello: 1 });
+  const topology = await runMongoCommand({ hello: 1 });
   assert.ok(typeof topology.setName === "string", "acceptance integration requires a MongoDB replica set");
 };
 
@@ -168,16 +167,12 @@ const measureOrganizationProfileAtTargetVolume = async (testCase: string): Promi
       "workspace query should use the organization lookup index"
     );
 
-    const db = mongoose.connection.db;
-    assert.ok(db);
-    const membershipExplainPlan = await db.collection("memberships")
-      .find({
-        workspaceId: { $in: workspaceDocs.map(({ _id }) => new mongoose.Types.ObjectId(String(_id))) },
-        status: "ACTIVE",
-        deletedAt: { $exists: false }
-      })
-      .explain();
-    const membershipExplain = JSON.stringify(membershipExplainPlan);
+    const membershipExplainPlan = await getExplainPlan("memberships", {
+      workspaceId: { $in: workspaceDocs.map(({ _id }) => toMongoObjectId(String(_id))) },
+      status: "ACTIVE",
+      deletedAt: { $exists: false }
+    });
+    const membershipExplain = membershipExplainPlan;
     assert.ok(membershipExplain.includes("IXSCAN"), "membership query should use an index");
     assert.ok(!membershipExplain.includes("COLLSCAN"), "membership query should not scan the collection");
     assert.ok(

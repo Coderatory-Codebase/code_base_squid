@@ -5,5 +5,5 @@ export {
   organizationProfileSchema,
   organizationProfileWorkspaceIndex,
   organizationProfileWorkspaceIndexOptions
-} from "./integrations/index.js";
-export type { OrganizationProfileDocument, OrganizationWorkspaceState } from "./integrations/index.js";
+} from "./organization-profile.schema.js";
+export type { OrganizationProfileDocument, OrganizationWorkspaceState } from "./organization-profile.schema.js";
