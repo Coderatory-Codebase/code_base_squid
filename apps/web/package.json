@@ -6,7 +6,7 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/user-invitation-page.test.tsx tests/integration/organization-profile.test.tsx tests/e2e/organization-profile-owner-unavailable.test.ts tests/environment.test.ts",
+    "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/user-invitation-page.test.tsx tests/integration/organization-profile.test.tsx tests/e2e/organization-profile-owner-unavailable.test.ts tests/environment.test.ts tests/organization-branding-page-data.test.ts tests/integration/organization-branding.acceptance.test.tsx",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },

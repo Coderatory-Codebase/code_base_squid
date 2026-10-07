@@ -1,5 +1,6 @@
 export type Principal = Readonly<{
   userId: string;
+  workspaceIds?: readonly string[];
 }>;
 
 export type OrganizationState =
