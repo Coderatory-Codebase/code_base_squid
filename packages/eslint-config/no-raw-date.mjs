@@ -9,7 +9,9 @@ export const noRawDateRules = {
       message
     },
     {
-      selector: "NewExpression[callee.name='Date']",
+      // Explicit values (for example parsing an API timestamp) do not read the
+      // system clock. Only the zero-argument constructor does.
+      selector: "NewExpression[callee.name='Date'][arguments.length=0]",
       message
     },
     {

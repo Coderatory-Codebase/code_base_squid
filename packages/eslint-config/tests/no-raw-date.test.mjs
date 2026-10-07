@@ -32,10 +32,9 @@ void test("forbids new Date()", () => {
   assert.equal(messages[0]?.ruleId, "no-restricted-syntax");
 });
 
-void test("forbids new Date(value) with arguments", () => {
+void test("allows new Date(value) with an explicit time", () => {
   const messages = lint("const now = new Date(1700000000000);");
-  assert.equal(messages.length, 1);
-  assert.equal(messages[0]?.ruleId, "no-restricted-syntax");
+  assert.deepEqual(messages, []);
 });
 
 void test("forbids calling Date() without new", () => {
