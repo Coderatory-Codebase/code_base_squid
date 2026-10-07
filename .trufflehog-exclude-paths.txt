@@ -1,2 +1,2 @@
 (^|[\\/])(\.git|\.next|\.repo-cache|node_modules|dist|build|coverage)([\\/]|$)
-(^|[\\/])\.env$
+(^|[\\/])\.env(\.local)?$

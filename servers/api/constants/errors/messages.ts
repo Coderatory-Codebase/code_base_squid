@@ -2,7 +2,7 @@ export const ERROR_MESSAGES = Object.freeze({
   internal: "An unexpected error occurred.",
   routeNotFound: "Route was not found.",
   validation: "Request validation failed.",
-  unauthenticated: "Sign in to view this profile.",
+  unauthenticated: "Authentication is required.",
   noActiveWorkspace: "No active workspace is available for this account.",
   workspaceSelectionRequired: "Select an active workspace before viewing this profile.",
   userProfileNotFound: "The user profile could not be found.",
@@ -11,5 +11,12 @@ export const ERROR_MESSAGES = Object.freeze({
   accountClosed: "This account is closed. Contact your organization administrator.",
   conflict: "This profile changed after you opened it. Reload and try again.",
   profileUpdateForbidden: "You can only update your own profile.",
-  sessionNotFound: "The session could not be found."
+  sessionNotFound: "The session could not be found.",
+  workspaceRequired: "A workspace is required.",
+  versionConflict: "The resource was changed by another request.",
+  policyDecisionRequired: "Command was refused because it carries no principal or policy decision.",
+  policyDenied: "The policy decision does not allow this command.",
+  policyUnavailable: "Policy is temporarily unavailable. Retry the request.",
+  forbidden: "You do not have access to this workspace.",
+  principalUnavailable: "Identity or workspace data is temporarily unavailable. Retry the request."
 } as const);

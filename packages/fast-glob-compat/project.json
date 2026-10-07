@@ -1,9 +1,0 @@
-{
-  "name": "fast-glob-compat",
-  "type": "package",
-  "description": "Compatibility adapter replacing the fast-glob APIs used by development tooling with tinyglobby.",
-  "internalDependencies": [],
-  "externalDependencies": ["tinyglobby"],
-  "capabilities": ["glob-compatibility"],
-  "tasks": {}
-}
