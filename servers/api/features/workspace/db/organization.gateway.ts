@@ -1,5 +1,8 @@
-import { OrganizationModel, type OrganizationDocument } from "../integrations/organization.model.js";
-import type { Principal } from "../types.js";
+import { normalizeOrganizationId, OrganizationModel, type OrganizationDocument } from "../integrations/organization.model.js";
+import type { OrganizationPage, Principal } from "../types.js";
+
+export const organizationPageSize = 50;
+export type OrganizationListDocument = Pick<OrganizationDocument, "_id" | "name">;
 
 export type WorkspaceCondition = Readonly<{ workspaceIds: Readonly<{ $in: readonly string[] }> }>;
 export type MemberCondition = Readonly<{ members: Readonly<{ $elemMatch: Readonly<{ userId: string }> }> }>;
@@ -21,8 +24,11 @@ export type OrganizationQuery = Readonly<{
   where: (path: string) => OrganizationQuery;
   equals: (value: null) => OrganizationQuery;
   or: (conditions: readonly OrganizationCondition[]) => OrganizationQuery;
+  select: (projection: Readonly<Record<string, 1>>) => OrganizationQuery;
   sort: (order: Record<string, 1 | -1>) => OrganizationQuery;
-  lean: () => Promise<OrganizationDocument[]>;
+  skip: (offset: number) => OrganizationQuery;
+  limit: (count: number) => OrganizationQuery;
+  lean: () => Promise<OrganizationListDocument[]>;
   explain: (verbosity?: "queryPlanner") => Promise<QueryPlanExplanation>;
 }>;
 
@@ -46,6 +52,20 @@ const isQueryPlanExplanation = (
   return value.queryPlanner !== undefined;
 };
 
+const parseOrganizationListDocuments = (value: unknown): OrganizationListDocument[] => {
+  if (!Array.isArray(value)) throw new Error("MongoDB returned an invalid organization list result.");
+  return value.map((entry: unknown): OrganizationListDocument => {
+    if (typeof entry !== "object" || entry === null || !("_id" in entry) || !("name" in entry)) {
+      throw new Error("MongoDB returned an invalid organization list document.");
+    }
+    const name = entry.name;
+    if (typeof name !== "string") {
+      throw new Error("MongoDB returned an invalid organization list document.");
+    }
+    return { _id: normalizeOrganizationId(entry._id), name };
+  });
+};
+
 const createOrganizationModelDependency = (
   model: typeof OrganizationModel
 ): OrganizationModelDependency => {
@@ -66,11 +86,23 @@ const createOrganizationModelDependency = (
           mongooseQuery.or([...conditions]);
           return adapter;
         },
+        select(projection) {
+          mongooseQuery.select({ ...projection });
+          return adapter;
+        },
         sort(order) {
           mongooseQuery.sort(order);
           return adapter;
         },
-        lean: () => mongooseQuery.lean().exec(),
+        skip(offset) {
+          mongooseQuery.skip(offset);
+          return adapter;
+        },
+        limit(count) {
+          mongooseQuery.limit(count);
+          return adapter;
+        },
+        lean: async () => parseOrganizationListDocuments(await mongooseQuery.lean().exec()),
         explain: async (verbosity = "queryPlanner") => {
           const result = await mongooseQuery.explain(verbosity).exec();
           if (!isQueryPlanExplanation(result)) {
@@ -84,7 +116,7 @@ const createOrganizationModelDependency = (
     },
     create: async (organization) => {
       const created = await model.create({ ...organization });
-      return created.toObject() as OrganizationDocument;
+      return created.toObject();
     },
     findOneAndUpdate: async (filter, update, options) => {
       return await findOneAndUpdate({ ...filter }, { ...update }, { ...options });
@@ -93,7 +125,8 @@ const createOrganizationModelDependency = (
 };
 const createOrganizationQuery = (
   model: OrganizationModelDependency,
-  principal: Principal
+  principal: Principal,
+  offset: number
 ): OrganizationQuery => {
   const workspaceIds = [...principal.workspaceIds];
 
@@ -104,19 +137,21 @@ const createOrganizationQuery = (
     { workspaceIds: { $in: workspaceIds } },
     { members: { $elemMatch: { userId: principal.userId } } }
   ]);
-  query.sort({ lastUsedAt: -1, name: 1 });
+  query.select({ _id: 1, name: 1 });
+  query.sort({ lastUsedAt: -1, name: 1, _id: 1 });
+  query.skip(offset).limit(organizationPageSize + 1);
 
   return query;
 };
 
-export const buildOrganizationQueryForPrincipal = (principal: Principal): OrganizationQuery =>
-  createOrganizationQuery(createOrganizationModelDependency(OrganizationModel), principal);
+export const buildOrganizationQueryForPrincipal = (principal: Principal, offset = 0): OrganizationQuery =>
+  createOrganizationQuery(createOrganizationModelDependency(OrganizationModel), principal, offset);
 export type OrganizationGatewayDependencies = Readonly<{
   model?: OrganizationModelDependency;
 }>;
 
 export type OrganizationGateway = Readonly<{
-  listOrganizationsForPrincipal: (principal: Principal) => Promise<readonly OrganizationDocument[]>;
+  listOrganizationsForPrincipal: (principal: Principal, offset: number) => Promise<OrganizationPage<OrganizationListDocument>>;
   createOrganizationForPrincipal: (principal: Principal, name: string) => Promise<OrganizationDocument>;
   upsertPreviewOrganization: (id: string, values: Readonly<Record<string, unknown>>) => Promise<void>;
 }>;
@@ -125,11 +160,16 @@ export const createOrganizationGateway = ({
   model = createOrganizationModelDependency(OrganizationModel)
 }: OrganizationGatewayDependencies = {}): OrganizationGateway => {
   const listOrganizationsForPrincipal = async (
-    principal: Principal
-  ): Promise<readonly OrganizationDocument[]> => {
-    const query = createOrganizationQuery(model, principal);
-
-    return query.lean();
+    principal: Principal,
+    offset: number
+  ): Promise<OrganizationPage<OrganizationListDocument>> => {
+    const query = createOrganizationQuery(model, principal, offset);
+    const results = await query.lean();
+    const hasMore = results.length > organizationPageSize;
+    return {
+      organizations: results.slice(0, organizationPageSize),
+      nextOffset: hasMore ? offset + organizationPageSize : null
+    };
   };
 
   const createOrganizationForPrincipal = async (

@@ -6,12 +6,13 @@ import { performance } from "node:perf_hooks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { createApp, createServer } from "../bootstrap/index.js";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
-import { buildOrganizationQueryForPrincipal, OrganizationModel } from "../features/workspace/index.js";
+import { buildOrganizationQueryForPrincipal, organizationPageSize, OrganizationModel } from "../features/workspace/index.js";
 
 const budgetMs = 700;
 const requests = 200;
-const targetOrganizationCount = 50;
-const principal = { userId: "budget-owner", workspaceIds: ["workspace-budget"] } as const;
+const targetOrganizationCount = 500;
+const pageSize = organizationPageSize;
+const principal = { userId: "budget-owner", workspaceIds: [] } as const;
 const logger = {
   info: (_message: string, _context?: Record<string, unknown>): void => undefined,
   warn: (_message: string, _context?: Record<string, unknown>): void => undefined,
@@ -54,14 +55,20 @@ const measureOrganizationBudget = async (): Promise<void> => {
       _id: String(index + 1).padStart(24, "0"),
       name: `Budget organization ${String(index + 1)}`,
       ownerId: index % 2 === 0 ? principal.userId : `member-owner-${String(index)}`,
-      workspaceIds: ["workspace-budget"],
+      workspaceIds: [],
+      members: [{
+        userId: principal.userId,
+        email: "budget-owner@example.test",
+        role: "member",
+        joinedAt: new Date(Date.now() - index * 60_000)
+      }],
       lastUsedAt: new Date(Date.now() - index * 60_000),
       deletedAt: null
     })));
 
     const explanation = await buildOrganizationQueryForPrincipal(principal).explain("queryPlanner");
     const usedIndexes = [...collectUsedIndexes(explanation.queryPlanner?.winningPlan)].sort();
-    const usesWorkspaceIndex = usedIndexes.includes("workspaceIds_1");
+    const usesMemberIndex = usedIndexes.includes("member_list_page");
     await server.start();
     const address = server.raw.address();
     if (!address || typeof address === "string") throw new Error("The organization measurement server did not bind to a TCP port.");
@@ -73,19 +80,22 @@ const measureOrganizationBudget = async (): Promise<void> => {
       const response = await fetch(url);
       if (!response.ok) throw new Error(`Organization endpoint failed with HTTP ${String(response.status)}.`);
       const organizations: unknown = await response.json();
-      if (!Array.isArray(organizations) || organizations.length !== targetOrganizationCount) {
-        throw new Error(`Expected ${String(targetOrganizationCount)} organizations; received ${String(Array.isArray(organizations) ? organizations.length : "invalid response")}.`);
+      if (typeof organizations !== "object" || organizations === null
+        || !("organizations" in organizations) || !Array.isArray(organizations.organizations)
+        || organizations.organizations.length !== pageSize
+        || !("nextOffset" in organizations) || organizations.nextOffset !== pageSize) {
+        throw new Error(`Expected a ${String(pageSize)}-organization first page with offset ${String(pageSize)}; the endpoint returned an invalid page.`);
       }
       durations.push(performance.now() - startedAt);
     }
 
     durations.sort((left, right) => left - right);
     const p95Ms = Number((durations[Math.ceil(durations.length * 0.95) - 1] ?? 0).toFixed(2));
-    const passed = p95Ms < budgetMs && usesWorkspaceIndex;
+    const passed = p95Ms < budgetMs && usesMemberIndex;
     const result = {
       measuredAt: new Date().toISOString(),
       surface: "GET /organizations over loopback HTTP with isolated in-memory MongoDB",
-      dataset: { principalOrganizations: targetOrganizationCount, requests },
+      dataset: { principalOrganizations: targetOrganizationCount, pageSize, renderedOrganizations: pageSize, requests },
       p95Ms,
       budgetMs,
       passed,
@@ -93,7 +103,7 @@ const measureOrganizationBudget = async (): Promise<void> => {
       queryPlanner: explanation.queryPlanner?.winningPlan ?? null
     };
     const date = result.measuredAt.slice(0, 10);
-    const outputPath = resolve(dirname(fileURLToPath(import.meta.url)), `../performance-results/organization-list-${date}.json`);
+    const outputPath = resolve(dirname(fileURLToPath(import.meta.url)), `../performance-results/organization-list-story-5-${date}.json`);
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, { flag: "wx" }).catch(async (error: unknown) => {
       if (error instanceof Error && "code" in error && error.code === "EEXIST") {

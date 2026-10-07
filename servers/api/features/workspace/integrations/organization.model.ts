@@ -15,6 +15,12 @@ export type OrganizationDocument = Readonly<{
   activity?: readonly OrganizationActivity[];
 }>;
 
+export const normalizeOrganizationId = (value: unknown): string => {
+  if (typeof value === "string") return value;
+  if (value instanceof mongoose.Types.ObjectId) return value.toHexString();
+  throw new Error("MongoDB returned an invalid organization identifier.");
+};
+
 export type OrganizationMember = Readonly<{
   userId: string;
   email: string;
@@ -89,6 +95,18 @@ const organizationSchema = new Schema<OrganizationDocument>(
 
 organizationSchema.index({ "members.userId": 1 });
 organizationSchema.index({ "invitations.tokenHash": 1, "invitations.email": 1 });
+organizationSchema.index(
+  { ownerId: 1, deletedAt: 1, lastUsedAt: -1, name: 1, _id: 1 },
+  { name: "owner_list_page" }
+);
+organizationSchema.index(
+  { workspaceIds: 1, deletedAt: 1, lastUsedAt: -1, name: 1, _id: 1 },
+  { name: "workspace_list_page" }
+);
+organizationSchema.index(
+  { "members.userId": 1, deletedAt: 1, lastUsedAt: -1, name: 1, _id: 1 },
+  { name: "member_list_page" }
+);
 
 export const OrganizationModel =
   mongoose.models.Organization ??

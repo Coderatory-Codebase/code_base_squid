@@ -15,13 +15,14 @@ test("organization gateway requests the API server-side with the session token a
       receivedUrl = String(input);
       receivedAuthorization = new Headers(init?.headers).get("authorization");
       receivedCache = init?.cache;
-      return Response.json([{ id: "org-1", name: "Workspace organization" }]);
+      return Response.json({ organizations: [{ id: "org-1", name: "Workspace organization" }], nextOffset: null });
     }
   });
 
   assert.deepEqual(await gateway.listOrganizations("session-token"), {
     ok: true,
-    organizations: [{ id: "org-1", name: "Workspace organization" }]
+    organizations: [{ id: "org-1", name: "Workspace organization" }],
+    nextOffset: null
   });
   assert.equal(receivedUrl, "https://api.example.test/organizations");
   assert.equal(receivedAuthorization, "Bearer session-token");
@@ -43,7 +44,7 @@ test("organization gateway reports API failures without returning partial result
 test("organization gateway rejects malformed API results", async () => {
   const gateway = createOrganizationsGateway({
     getApiBaseUrl: () => "https://api.example.test",
-    fetchApi: async () => Response.json([{ id: "org-1", name: 42 }])
+    fetchApi: async () => Response.json({ organizations: [{ id: "org-1", name: 42 }], nextOffset: null })
   });
 
   assert.deepEqual(await gateway.listOrganizations("session-token"), {
@@ -65,7 +66,7 @@ test("organization gateway reports connection failures", async () => {
 });
 
 test("empty organization state offers the setup action in the list surface", () => {
-  const markup = renderToStaticMarkup(<OrganizationResults result={{ ok: true, organizations: [] }} />);
+  const markup = renderToStaticMarkup(<OrganizationResults result={{ ok: true, organizations: [], nextOffset: null }} />);
   assert.match(markup, /You don’t belong to an organization yet/);
   assert.match(markup, /Set up an organization/);
   assert.match(markup, /href="\/workspace\/organization\/new"/);
@@ -86,7 +87,8 @@ test("successful organization results preserve gateway order", () => {
     organizations: [
       { id: "member", name: "Workspace organization" },
       { id: "owned", name: "Owned organization" }
-    ]
+    ],
+    nextOffset: null
   }} />);
   assert.ok(markup.indexOf("Workspace organization") < markup.indexOf("Owned organization"));
 });
@@ -94,16 +96,43 @@ test("successful organization results preserve gateway order", () => {
 test("50-organization server-rendered list stays within the rendering budget", () => {
   const result = {
     ok: true as const,
-    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}` }))
+    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}` })),
+    nextOffset: 50
   };
   const durations: number[] = [];
   for (let index = 0; index < 200; index += 1) {
     const startedAt = performance.now();
     const markup = renderToStaticMarkup(<OrganizationResults result={result} />);
     assert.match(markup, /Organization 49/);
+    if (index === 0) assert.match(markup, /Load more organizations/);
     durations.push(performance.now() - startedAt);
   }
   durations.sort((left, right) => left - right);
   const p95 = durations[Math.ceil(durations.length * 0.95) - 1];
-  assert.ok(p95 !== undefined && p95 < 700, `50-organization render p95 was ${String(p95)} ms.`);
+  assert.ok(p95 !== undefined && p95 < 700, `first 50 organizations render p95 was ${String(p95)} ms.`);
+});
+
+test("organization gateway requests subsequent pages only through their validated offset", async () => {
+  let requestedUrl = "";
+  const gateway = createOrganizationsGateway({
+    getApiBaseUrl: () => "https://api.example.test",
+    fetchApi: async (input) => {
+      requestedUrl = String(input);
+      return Response.json({ organizations: [], nextOffset: null });
+    }
+  });
+  const result = await gateway.listOrganizations("session-token", 50);
+  assert.deepEqual(result, { ok: true, organizations: [], nextOffset: null });
+  assert.equal(requestedUrl, "https://api.example.test/organizations?offset=50");
+});
+
+test("a terminal 50-organization page renders no request control for an empty second page", () => {
+  const result = {
+    ok: true as const,
+    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}` })),
+    nextOffset: null
+  };
+  const markup = renderToStaticMarkup(<OrganizationResults result={result} />);
+  assert.match(markup, /Organization 49/);
+  assert.doesNotMatch(markup, /Load more organizations/);
 });

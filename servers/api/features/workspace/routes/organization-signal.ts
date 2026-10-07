@@ -14,10 +14,18 @@ const resolveOperation = (request: Pick<Request, "method">): "listOrganizations"
 };
 
 export const createOrganizationRequestSignal = ({ logger }: OrganizationSignalDependencies) =>
-  (request: Pick<Request, "method" | "path">, response: Pick<Response, "statusCode" | "once">, next: NextFunction): void => {
+  (request: Pick<Request, "method" | "path" | "query">, response: Pick<Response, "statusCode" | "once">, next: NextFunction): void => {
     const startedAt = performance.now();
     response.once("finish", () => {
       const statusCode = response.statusCode;
+      const rawOffset = request.query.offset;
+      const pageOffset = request.method === "GET"
+        && request.path === "/organizations"
+        && (rawOffset === undefined
+          || (typeof rawOffset === "string" && /^\d+$/u.test(rawOffset)
+            && Number.isSafeInteger(Number(rawOffset)) && Number(rawOffset) <= 500_000))
+        ? Number(rawOffset ?? 0)
+        : null;
       logger.info("organization.request.signal", {
         workspace: "Platform",
         module: "workspace",
@@ -26,7 +34,8 @@ export const createOrganizationRequestSignal = ({ logger }: OrganizationSignalDe
         path: request.path,
         statusCode,
         outcome: statusCode >= 400 ? "error" : "success",
-        durationMs: Number((performance.now() - startedAt).toFixed(2))
+        durationMs: Number((performance.now() - startedAt).toFixed(2)),
+        ...(pageOffset === null ? {} : { pageOffset })
       });
     });
     next();

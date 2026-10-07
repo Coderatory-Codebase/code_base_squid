@@ -32,6 +32,28 @@
       "targets": [{ "expr": "quantile_over_time(0.95, {service=\"api\"} | json | msg=\"organization.request.signal\" | unwrap durationMs | __error__=\"\" [$__range])", "refId": "A" }],
       "title": "Organization request latency p95",
       "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 700 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "targets": [{ "expr": "quantile_over_time(0.95, {service=\"api\"} | json | msg=\"organization.request.signal\" | operation=\"listOrganizations\" | pageOffset=\"0\" | unwrap durationMs | __error__=\"\" [$__range])", "refId": "A" }],
+      "title": "Organization list first-page latency p95 (700 ms budget)",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",

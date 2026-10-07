@@ -3,10 +3,14 @@ import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../../../constants/ind
 import { createApplicationError } from "../../../errors/index.js";
 import type { OrganizationService } from "../services/organization.service.js";
 import type { Principal } from "../types.js";
+import { z } from "zod";
 
 export type PrincipalResolver = (request: Request) => Principal | null | Promise<Principal | null>;
 
 type OrganizationResponse = Pick<Response, "json" | "status">;
+const organizationListQuerySchema = z.object({
+  offset: z.coerce.number().int().min(0).max(500_000).default(0)
+}).strict();
 
 export const createOrganizationController = ({
   service,
@@ -26,5 +30,13 @@ export const createOrganizationController = ({
       response.status(HTTP_STATUS.created).json(await service.createOrganization(principal, name));
       return;
     }
-    response.status(HTTP_STATUS.ok).json(await service.listOrganizations(principal));
+    const parsedQuery = organizationListQuerySchema.safeParse(request.query);
+    if (!parsedQuery.success) {
+      throw createApplicationError({
+        code: ERROR_CODES.validation,
+        message: ERROR_MESSAGES.validation,
+        status: HTTP_STATUS.badRequest
+      }) as Error;
+    }
+    response.status(HTTP_STATUS.ok).json(await service.listOrganizations(principal, parsedQuery.data.offset));
   };

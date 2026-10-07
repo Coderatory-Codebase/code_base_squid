@@ -8,7 +8,7 @@ void test("command bus refuses a create command without a policy decision", asyn
   const principal: Principal = { userId: "user-1", workspaceIds: [] };
   let createCalled = false;
   const gateway: OrganizationGateway = {
-    listOrganizationsForPrincipal: () => Promise.resolve([]),
+    listOrganizationsForPrincipal: () => Promise.resolve({ organizations: [], nextOffset: null }),
     createOrganizationForPrincipal: () => {
       createCalled = true;
       return Promise.reject(new Error("Must not reach persistence"));
@@ -26,7 +26,7 @@ void test("command bus binds policy decisions to the requested action and princi
   const principal: Principal = { userId: "user-1", workspaceIds: [] };
   let createCalled = false;
   const gateway: OrganizationGateway = {
-    listOrganizationsForPrincipal: () => Promise.resolve([]),
+    listOrganizationsForPrincipal: () => Promise.resolve({ organizations: [], nextOffset: null }),
     createOrganizationForPrincipal: () => {
       createCalled = true;
       return Promise.reject(new Error("Must not reach persistence"));

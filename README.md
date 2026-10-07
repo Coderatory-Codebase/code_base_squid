@@ -4,13 +4,15 @@ This repository is a pnpm monorepo with a Next.js web app in `apps/web` and an E
 
 ## Organization workspace
 
-The organization workspace is available at `/workspace/organization` after signing in at `/sign-in`. It lists organizations owned by the signed-in user or connected to one of that user's workspaces. If the list is empty, use **Set up an organization** to create one. The organization list is loaded by the web server and does not expose the session token to browser-side JavaScript.
+The organization workspace is available at `/workspace/organization` after signing in at `/sign-in`. It lists organizations owned by the signed-in user, connected to one of that user's workspaces, or joined as an organization member, 50 at a time. Further pages load as you scroll, with a keyboard-accessible **Load more organizations** control; lists of exactly 50 do not request or show an empty second page. The list is loaded through authenticated server requests and does not expose the session token to browser-side JavaScript. If the list is empty, use **Set up an organization** to create one.
 
 Open an organization to view its dashboard at `/workspace/dashboard/<organization-id>`. Owners and admins can invite members using a seven-day single-use link, change member roles, and remove members. Invitees must sign in with the invited email address. Dashboard counts reflect stored team memberships and linked workspace IDs; this repository does not yet store resource-consumption telemetry or define a separate Workspace entity.
 
 For a local preview account, configure `MONGODB_URI`, `PREVIEW_USER_EMAIL`, `PREVIEW_USER_PASSWORD`, and `PREVIEW_WORKSPACE_ID` in the API environment, start the API, then run `pnpm --filter @workspace/api seed:preview`. Set `NEXT_PUBLIC_API_BASE_URL` in the web environment to the API base URL. Keep real credentials in ignored environment files; `.env.example` documents the variable names.
 
 See [the workspace feature contract and runbook](servers/api/features/workspace/README.md) for API behavior and operational guidance.
+
+See the [Story 5 acceptance review](.project/STORY-5-ACCEPTANCE.md) for first-page performance, pagination, and organization-list telemetry status.
 
 ## Repository commands
 

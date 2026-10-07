@@ -25,9 +25,10 @@ void test("sign-in session authenticates organization queries and sign-out revok
     }
   };
   const gateway: OrganizationGateway = {
-    listOrganizationsForPrincipal: (receivedPrincipal) => {
+    listOrganizationsForPrincipal: (receivedPrincipal, offset) => {
       assert.deepEqual(receivedPrincipal, principal);
-      return Promise.resolve([]);
+      assert.equal(offset, 0);
+      return Promise.resolve({ organizations: [], nextOffset: null });
     },
     createOrganizationForPrincipal: () => Promise.reject(new Error("Not used")),
     upsertPreviewOrganization: () => Promise.resolve()
@@ -50,7 +51,7 @@ void test("sign-in session authenticates organization queries and sign-out revok
     headers: { authorization: `Bearer ${session.token}` }
   });
   assert.equal(organizationResponse.status, 200);
-  assert.deepEqual(await organizationResponse.json(), []);
+  assert.deepEqual(await organizationResponse.json(), { organizations: [], nextOffset: null });
 
   const signOutResponse = await fetch(`${baseUrl}/auth/sign-out`, {
     method: "POST", headers: { authorization: `Bearer ${session.token}` }

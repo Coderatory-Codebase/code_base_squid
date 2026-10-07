@@ -24,9 +24,10 @@ void test("organization request signal includes workspace metadata and outcome f
     }
   };
 
-  const request: Pick<Request, "method" | "path"> = {
+  const request: Pick<Request, "method" | "path" | "query"> = {
     method: "GET",
-    path: "/organizations"
+    path: "/organizations",
+    query: {}
   };
   const middleware = createOrganizationRequestSignal({ logger });
   middleware(request, response as unknown as Pick<Response, "statusCode" | "once">, () => undefined);
@@ -44,6 +45,7 @@ void test("organization request signal includes workspace metadata and outcome f
   assert.equal(firstCall.context.operation, "listOrganizations");
   assert.equal(firstCall.context.statusCode, 401);
   assert.equal(firstCall.context.outcome, "error");
+  assert.equal(firstCall.context.pageOffset, 0);
   assert.equal(typeof firstCall.context.durationMs, "number");
   assert.ok(Number(firstCall.context.durationMs) >= 0);
 });

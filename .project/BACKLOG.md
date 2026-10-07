@@ -34,6 +34,22 @@ Repository implementation is complete; acceptance/sign-off remains open for exte
 
 The Story 3 model is organization-scoped because this repository has no first-class Workspace entity; linked workspace count is the available persisted usage metric, not CPU/storage telemetry. Email delivery is not configured; admins share generated invitation links. See `.project/STORY-3-ACCEPTANCE.md` for details and evidence.
 
+## Story 5 — organization list performance
+
+Repository implementation is in place; database-backed performance evidence and external DoD items remain pending:
+
+- [x] Return organization summaries in bounded 50-item pages, with a look-ahead result so an exactly-50 list has no next page.
+- [x] Load subsequent pages as the list scrolls and provide an accessible manual Load more control; keep session-token use server-side.
+- [x] Add owner/workspace/member compound list indexes and deterministic ordering.
+- [x] Add API and web checks for pagination shape, malformed offsets, terminal pages, and 50-item rendering.
+- [x] Emit validated first-page offset in the existing organization request signal and add a dedicated first-page p95 dashboard panel with the 700 ms budget.
+- [x] Run the Mongo-backed 500-membership query test and `measure:organization-budget`: 2/2 gateway tests passed; 200-request p95 was 8.91 ms (<700 ms) and explain used `member_list_page` and `owner_list_page`. Result: `servers/api/performance-results/organization-list-story-5-2026-10-07.json`.
+- [ ] Run fresh repository validation and CI for this revision.
+- [ ] Record real-browser scrolling/keyboard accessibility review and independent engineer approval.
+- [ ] Ratify/activate production alerting and confirm log-retention configuration with the responsible platform owners.
+
+See `.project/STORY-5-ACCEPTANCE.md` for the endpoint contract, test evidence, and remaining Definition of Done items.
+
 Repository-complete evidence:
 
 - Web dashboard/accessibility checks: 5/5 passed in the focused run.

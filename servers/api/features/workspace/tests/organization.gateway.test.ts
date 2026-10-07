@@ -13,12 +13,13 @@ import {
 } from "../db/organization.gateway.js";
 import { createMongoDbIntegration } from "../../../integrations/mongodb/index.js";
 import { OrganizationModel } from "../integrations/organization.model.js";
-import type { OrganizationDocument } from "../integrations/organization.model.js";
-
 void test("gateway scopes by ownership or membership and excludes deleted organizations", async (): Promise<void> => {
   const calls: string[] = [];
   let capturedDeletedAtFilter: null | undefined;
   let capturedOrFilter: readonly OrganizationCondition[] | undefined;
+  let capturedOffset: number | undefined;
+  let capturedLimit: number | undefined;
+  let capturedProjection: Readonly<Record<string, 1>> | undefined;
 
   const fakeQuery: OrganizationQuery = {
     where(path: string) {
@@ -35,11 +36,23 @@ void test("gateway scopes by ownership or membership and excludes deleted organi
       capturedOrFilter = conditions;
       return fakeQuery;
     },
+    select(projection) {
+      capturedProjection = projection;
+      return fakeQuery;
+    },
     sort() {
       calls.push("sort");
       return fakeQuery;
     },
-    lean: (): Promise<OrganizationDocument[]> => Promise.resolve([]),
+    skip(offset) {
+      capturedOffset = offset;
+      return fakeQuery;
+    },
+    limit(count) {
+      capturedLimit = count;
+      return fakeQuery;
+    },
+    lean: () => Promise.resolve([]),
     explain: (): Promise<QueryPlanExplanation> => Promise.resolve({})
   };
   const model = { find: () => fakeQuery };
@@ -48,7 +61,7 @@ void test("gateway scopes by ownership or membership and excludes deleted organi
   await gateway.listOrganizationsForPrincipal({
     userId: "user-1",
     workspaceIds: ["ws-a", "ws-b"]
-  });
+  }, 100);
 
   assert.equal(capturedDeletedAtFilter, null);
   assert.deepEqual(capturedOrFilter, [
@@ -60,6 +73,9 @@ void test("gateway scopes by ownership or membership and excludes deleted organi
   const orIndex = calls.indexOf("or");
   assert.ok(deletedAtIndex < orIndex);
   assert.equal(calls.includes("where:workspaceIds"), false);
+  assert.equal(capturedOffset, 100);
+  assert.equal(capturedLimit, 51);
+  assert.deepEqual(capturedProjection, { _id: 1, name: 1 });
 });
 
 void test("persists organization operations and enforces tenant isolation in last-used order", async (context): Promise<void> => {
@@ -95,12 +111,28 @@ void test("persists organization operations and enforces tenant isolation in las
     lastUsedAt
   });
   await OrganizationModel.insertMany(
-    Array.from({ length: 48 }, (_, index) => ({
+    Array.from({ length: 498 }, (_, index) => ({
       _id: String(index + 2_000).padStart(24, "0"),
       name: `Member organization ${String(index).padStart(2, "0")}`,
       ownerId: `member-owner-${String(index)}`,
-      workspaceIds: ["workspace-current"],
+      workspaceIds: [],
+      members: [{
+        userId: "current-user",
+        email: "current-user@example.test",
+        role: "member",
+        joinedAt: new Date("2026-09-28T12:00:00.000Z")
+      }],
       lastUsedAt: new Date("2026-09-28T12:00:00.000Z"),
+      deletedAt: null
+    }))
+  );
+  await OrganizationModel.insertMany(
+    Array.from({ length: 50 }, (_, index) => ({
+      _id: String(index + 4_000).padStart(24, "0"),
+      name: `Exactly fifty organization ${String(index).padStart(2, "0")}`,
+      ownerId: `exact-owner-${String(index)}`,
+      workspaceIds: ["workspace-exactly-fifty"],
+      lastUsedAt: new Date("2026-09-27T12:00:00.000Z"),
       deletedAt: null
     }))
   );
@@ -139,47 +171,57 @@ void test("persists organization operations and enforces tenant isolation in las
     lastUsedAt,
     deletedAt: null
   });
-  const fixtures = await gateway.listOrganizationsForPrincipal({ userId: "fixture-owner", workspaceIds: [] });
-  assert.equal(fixtures[0]?.name, "Preview fixture organization");
+  const fixtures = await gateway.listOrganizationsForPrincipal({ userId: "fixture-owner", workspaceIds: [] }, 0);
+  assert.equal(fixtures.organizations[0]?.name, "Preview fixture organization");
 
-  const organizations = await gateway.listOrganizationsForPrincipal(principal);
+  const firstPage = await gateway.listOrganizationsForPrincipal(principal, 0);
 
-  assert.equal(organizations.length, 50);
-  assert.deepEqual(organizations.slice(0, 2).map(({ _id }) => String(_id)), [
+  assert.equal(firstPage.organizations.length, 50);
+  assert.equal(firstPage.nextOffset, 50);
+  assert.deepEqual(firstPage.organizations.slice(0, 2).map(({ _id }) => String(_id)), [
     "000000000000000000000002",
     "000000000000000000000001"
   ]);
-  assert.ok(organizations.every(({ ownerId, workspaceIds, deletedAt }) =>
-    (ownerId === principal.userId || workspaceIds.includes("workspace-current")) && deletedAt === null
-  ));
+  assert.ok(firstPage.organizations.every(({ name }) => name !== "Unrelated organization"));
+  const secondPage = await gateway.listOrganizationsForPrincipal(principal, 50);
+  assert.equal(secondPage.organizations.length, 50);
+  assert.equal(secondPage.nextOffset, 100);
+  assert.equal(new Set([...firstPage.organizations, ...secondPage.organizations].map(({ _id }) => String(_id))).size, 100);
+
+  const exactFiftyPage = await gateway.listOrganizationsForPrincipal({
+    userId: "exact-fifty-user",
+    workspaceIds: ["workspace-exactly-fifty"]
+  }, 0);
+  assert.equal(exactFiftyPage.organizations.length, 50);
+  assert.equal(exactFiftyPage.nextOffset, null, "exactly 50 results must not advertise another page");
 
   const durations: number[] = [];
   for (let index = 0; index < 200; index += 1) {
     const startedAt = performance.now();
-    await gateway.listOrganizationsForPrincipal(principal);
+    await gateway.listOrganizationsForPrincipal(principal, 0);
     durations.push(performance.now() - startedAt);
   }
   durations.sort((left, right) => left - right);
   const p95 = durations[Math.ceil(durations.length * 0.95) - 1];
-  assert.ok(p95 !== undefined && p95 < 700, `50-organization query p95 was ${String(p95)} ms.`);
+  assert.ok(p95 !== undefined && p95 < 700, `first-page query p95 for 500 organizations was ${String(p95)} ms.`);
 
   const explanation = await buildOrganizationQueryForPrincipal(principal).explain("queryPlanner");
-  const winningPlanUsesWorkspaceIndex = (value: QueryPlanValue | undefined): boolean => {
+  const winningPlanUsesMembershipIndex = (value: QueryPlanValue | undefined): boolean => {
     if (Array.isArray(value)) {
-      return value.some(winningPlanUsesWorkspaceIndex);
+      return value.some(winningPlanUsesMembershipIndex);
     }
     if (value === null || value === undefined || !isQueryPlanNode(value)) {
       return false;
     }
 
     return (
-      (value.stage === "IXSCAN" && value.indexName === "workspaceIds_1") ||
-      Object.values(value).some(winningPlanUsesWorkspaceIndex)
+      (value.stage === "IXSCAN" && (value.indexName === "workspace_list_page" || value.indexName === "member_list_page")) ||
+      Object.values(value).some(winningPlanUsesMembershipIndex)
     );
   };
 
   assert.ok(
-    winningPlanUsesWorkspaceIndex(explanation.queryPlanner?.winningPlan),
-    "the query planner should use the workspaceIds_1 index"
+    winningPlanUsesMembershipIndex(explanation.queryPlanner?.winningPlan),
+    "the query planner should use an organization membership list-page index"
   );
 });

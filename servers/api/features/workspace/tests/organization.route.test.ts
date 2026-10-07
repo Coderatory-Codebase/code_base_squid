@@ -54,32 +54,57 @@ const gatewayFor = (query: OrganizationGateway["listOrganizationsForPrincipal"])
   upsertPreviewOrganization: () => Promise.resolve()
 });
 
-void test("organization query returns an empty list for an authenticated principal", async (context) => {
+void test("organization query returns a terminal empty page for an authenticated principal", async (context) => {
   const url = await startApi(context, {
-    gateway: gatewayFor((receivedPrincipal) => {
+    gateway: gatewayFor((receivedPrincipal, offset) => {
       assert.deepEqual(receivedPrincipal, principal);
-      return Promise.resolve([]);
+      assert.equal(offset, 0);
+      return Promise.resolve({ organizations: [], nextOffset: null });
     })
   });
   const response = await fetch(url);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), []);
+  assert.deepEqual(await response.json(), { organizations: [], nextOffset: null });
 });
 
-void test("organization query returns only gateway results for an authenticated principal", async (context) => {
+void test("organization query returns a validated page for an authenticated principal", async (context) => {
   const url = await startApi(context, {
-    gateway: gatewayFor(() => Promise.resolve([{
-      _id: "organization-1",
-      name: "Member organization",
-      ownerId: "owner-2",
-      workspaceIds: ["workspace-1"],
-      lastUsedAt: new Date("2026-09-30T12:00:00Z"),
-      deletedAt: null
-    }]))
+    gateway: gatewayFor((_receivedPrincipal, offset) => {
+      assert.equal(offset, 50);
+      return Promise.resolve({
+        organizations: [{
+          _id: "organization-1",
+          name: "Member organization",
+          ownerId: "owner-2",
+          workspaceIds: ["workspace-1"],
+          lastUsedAt: new Date("2026-09-30T12:00:00Z"),
+          deletedAt: null
+        }],
+        nextOffset: null
+      });
+    })
   });
-  const response = await fetch(url);
+  const response = await fetch(`${url}?offset=50`);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), [{ id: "organization-1", name: "Member organization" }]);
+  assert.deepEqual(await response.json(), {
+    organizations: [{ id: "organization-1", name: "Member organization" }],
+    nextOffset: null
+  });
+});
+
+void test("organization query rejects invalid page offsets without calling its gateway", async (context) => {
+  let gatewayCalls = 0;
+  const url = await startApi(context, {
+    gateway: gatewayFor(() => {
+      gatewayCalls += 1;
+      return Promise.resolve({ organizations: [], nextOffset: null });
+    })
+  });
+  for (const offset of ["-1", "1.5", "500001", "not-a-number", "0&unexpected=true"]) {
+    const response = await fetch(`${url}?offset=${encodeURIComponent(offset)}`);
+    assert.equal(response.status, 400);
+  }
+  assert.equal(gatewayCalls, 0);
 });
 
 void test("organization query rejects unauthenticated requests and emits a failed boundary signal", async (context) => {
@@ -94,7 +119,7 @@ void test("organization query rejects unauthenticated requests and emits a faile
     logger: signalLogger,
     gateway: gatewayFor(() => Promise.reject(new Error("Gateway must not be called")))
   });
-  const response = await fetch(url);
+  const response = await fetch(`${url}?offset=50`);
   assert.equal(response.status, 401);
   assert.deepEqual(await response.json(), {
     error: { code: "unauthorized", message: "Sign in to view your organizations." }
@@ -105,6 +130,7 @@ void test("organization query rejects unauthenticated requests and emits a faile
   assert.equal(signal.context.module, "workspace");
   assert.equal(signal.context.statusCode, 401);
   assert.equal(signal.context.outcome, "error");
+  assert.equal(signal.context.pageOffset, 50);
   assert.equal(typeof signal.context.durationMs, "number");
 });
 
@@ -121,7 +147,7 @@ void test("organization query returns an error without partial results when the 
 
 void test("organization setup requires an authenticated policy-bearing command and returns the created organization", async (context) => {
   const url = await startApi(context, {
-    gateway: gatewayFor(() => Promise.resolve([]))
+    gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null }))
   });
   const response = await fetch(url, {
     method: "POST",
@@ -135,7 +161,7 @@ void test("organization setup requires an authenticated policy-bearing command a
 void test("organization setup rejects empty and overlong names before persistence", async (context) => {
   let createCalls = 0;
   const gateway: OrganizationGateway = {
-    ...gatewayFor(() => Promise.resolve([])),
+    ...gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })),
     createOrganizationForPrincipal: () => {
       createCalls += 1;
       return Promise.reject(new Error("Invalid names must not reach persistence"));
@@ -160,22 +186,22 @@ void test("organization setup rejects empty and overlong names before persistenc
 void test("member role is denied invitation creation with HTTP 403 before mutation", async (context) => {
   let mutationCalls = 0;
   const membersService: MembersService = {
-    getDashboard: async () => ({
+    getDashboard: () => Promise.resolve({
       organization: { id: "000000000000000000000041", name: "Member organization" },
       metrics: { activeTeamMembers: 2, linkedWorkspaces: 0 },
       viewerRole: "member",
       members: [],
       activity: []
     }),
-    inviteMember: async () => {
+    inviteMember: () => {
       mutationCalls += 1;
-      return { token: "a".repeat(43), expiresAt: new Date() };
+      return Promise.resolve({ token: "a".repeat(43), expiresAt: new Date() });
     },
-    acceptInvitation: async () => ({ id: "000000000000000000000041", name: "Member organization" }),
-    updateMemberRole: async () => { mutationCalls += 1; },
-    removeMember: async () => { mutationCalls += 1; }
+    acceptInvitation: () => Promise.resolve({ id: "000000000000000000000041", name: "Member organization" }),
+    updateMemberRole: () => { mutationCalls += 1; return Promise.resolve(); },
+    removeMember: () => { mutationCalls += 1; return Promise.resolve(); }
   };
-  const root = await startApi(context, { gateway: gatewayFor(() => Promise.resolve([])), membersService });
+  const root = await startApi(context, { gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })), membersService });
   const basePath = `${root}/000000000000000000000041`;
   const responses = await Promise.all([
     fetch(`${basePath}/invitations`, {
@@ -197,22 +223,28 @@ void test("member role is denied invitation creation with HTTP 403 before mutati
 void test("admin role can create an invitation link", async (context) => {
   const mutations: string[] = [];
   const membersService: MembersService = {
-    getDashboard: async () => ({
+    getDashboard: () => Promise.resolve({
       organization: { id: "000000000000000000000042", name: "Admin organization" },
       metrics: { activeTeamMembers: 2, linkedWorkspaces: 0 },
       viewerRole: "admin",
       members: [],
       activity: []
     }),
-    inviteMember: async () => ({
+    inviteMember: () => Promise.resolve({
       token: "a".repeat(43),
       expiresAt: new Date("2026-10-14T12:00:00.000Z")
     }),
-    acceptInvitation: async () => ({ id: "000000000000000000000042", name: "Admin organization" }),
-    updateMemberRole: async (_organizationId, _principal, memberId, role) => { mutations.push(`role:${memberId}:${role}`); },
-    removeMember: async (_organizationId, _principal, memberId) => { mutations.push(`remove:${memberId}`); }
+    acceptInvitation: () => Promise.resolve({ id: "000000000000000000000042", name: "Admin organization" }),
+    updateMemberRole: (_organizationId, _principal, memberId, role) => {
+      mutations.push(`role:${memberId}:${role}`);
+      return Promise.resolve();
+    },
+    removeMember: (_organizationId, _principal, memberId) => {
+      mutations.push(`remove:${memberId}`);
+      return Promise.resolve();
+    }
   };
-  const root = await startApi(context, { gateway: gatewayFor(() => Promise.resolve([])), membersService });
+  const root = await startApi(context, { gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })), membersService });
   const response = await fetch(`${root}/000000000000000000000042/invitations`, {
     method: "POST",
     headers: { "content-type": "application/json" },
