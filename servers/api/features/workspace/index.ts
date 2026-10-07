@@ -13,5 +13,5 @@ export type {
 } from "./domain/workspace-creation.js";
 export { createWorkspaceService } from "./workspace.js";
 export type { WorkspaceLanding, WorkspacePort, WorkspaceService, WorkspaceSummary } from "./workspace.js";
-export { createWorkspaceRoutes } from "./routes/workspace.route.js";
-export type { WorkspaceRouteDependencies } from "./routes/workspace.route.js";
+export { createWorkspaceRoutes } from "./routes/index.js";
+export type { WorkspaceRouteDependencies } from "./routes/index.js";

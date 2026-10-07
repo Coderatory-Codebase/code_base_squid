@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
-import { createIdentityUserModel, createMongoTestConnection } from "../integrations/mongodb/index.js";
+import { createIdentityUserModel, createMongoTestConnection, createUserProfileQueryAdapter } from "../integrations/mongodb/index.js";
 import { createUserProfileGateway, type IdentityUserRecord } from "../features/identity/index.js";
-import { createUserProfileQueryAdapter } from "../integrations/mongodb/identity/profile-query.adapter.js";
 
 const PROFILE_COUNT = 10_000;
 const TARGET_REQUESTS_PER_SECOND = 20;
