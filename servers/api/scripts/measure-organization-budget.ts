@@ -6,8 +6,7 @@ import { performance } from "node:perf_hooks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { createApp, createServer } from "../bootstrap/index.js";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
-import { OrganizationModel } from "../features/workspace/integrations/organization.model.js";
-import { buildOrganizationQueryForPrincipal } from "../features/workspace/db/organization.gateway.js";
+import { buildOrganizationQueryForPrincipal, OrganizationModel } from "../features/workspace/index.js";
 
 const budgetMs = 700;
 const requests = 200;

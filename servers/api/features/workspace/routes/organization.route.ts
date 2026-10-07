@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { Logger } from "@workspace/logging";
 import { createOrganizationGateway, type OrganizationGateway } from "../db/organization.gateway.js";
 import { createOrganizationController, type PrincipalResolver } from "../controllers/organization.controller.js";
-import { createOrganizationRequestSignal } from "../observability/index.js";
+import { createOrganizationRequestSignal } from "./organization-signal.js";
 import { createOrganizationService } from "../services/organization.service.js";
 
 export const createOrganizationRoutes = ({

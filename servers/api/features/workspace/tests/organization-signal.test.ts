@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import type { Request, Response } from "express";
-import { createOrganizationRequestSignal } from "../observability/organization-signal.js";
+import { createOrganizationRequestSignal } from "../routes/organization-signal.js";
 
 void test("organization request signal includes workspace metadata and outcome for failed requests", () => {
   const calls: Array<{ message: string; context: Record<string, unknown> }> = [];

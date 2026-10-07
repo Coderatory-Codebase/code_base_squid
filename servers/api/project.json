@@ -9,6 +9,7 @@
     "dev": { "command": "pnpm run dev", "environment": ["API_HOST", "API_PORT", "WEB_ORIGIN", "MONGODB_URI"], "cache": false },
     "seed:preview": { "command": "pnpm run seed:preview", "environment": ["MONGODB_URI", "PREVIEW_USER_EMAIL", "PREVIEW_USER_PASSWORD", "PREVIEW_WORKSPACE_ID"], "cache": false },
     "measure:organization-budget": { "command": "pnpm run measure:organization-budget", "cache": false },
+    "measure:organization-setup-budget": { "command": "pnpm run measure:organization-setup-budget", "cache": false },
     "build": { "command": "pnpm run build", "outputs": ["dist"], "cache": true },
     "test": { "command": "pnpm test", "cache": false },
     "lint": { "command": "pnpm run lint", "cache": false },

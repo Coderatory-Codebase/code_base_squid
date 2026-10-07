@@ -128,3 +128,28 @@ void test("organization setup requires an authenticated policy-bearing command a
   assert.equal(response.status, 201);
   assert.deepEqual(await response.json(), { id: "organization-created", name: "New organization" });
 });
+
+void test("organization setup rejects empty and overlong names before persistence", async (context) => {
+  let createCalls = 0;
+  const gateway: OrganizationGateway = {
+    ...gatewayFor(() => Promise.resolve([])),
+    createOrganizationForPrincipal: () => {
+      createCalls += 1;
+      return Promise.reject(new Error("Invalid names must not reach persistence"));
+    }
+  };
+  const url = await startApi(context, { gateway });
+
+  for (const name of ["", "a".repeat(81)]) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name })
+    });
+    assert.equal(response.status, 400);
+    const payload: unknown = await response.json();
+    assert.equal(typeof payload, "object");
+    assert.notEqual(payload, null);
+    assert.equal(createCalls, 0);
+  }
+});

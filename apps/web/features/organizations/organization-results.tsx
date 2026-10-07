@@ -3,10 +3,13 @@ import { Building2, RotateCw } from "lucide-react";
 import { Button } from "@workspace/ui";
 import type { OrganizationListResult } from "./organizations.gateway";
 
-type OrganizationResultsProps = Readonly<{ result: OrganizationListResult }>;
+type OrganizationResultsProps = Readonly<{ result: OrganizationListResult; createdId?: string }>;
 
-export const OrganizationResults = ({ result }: OrganizationResultsProps): ReactElement => (
+export const OrganizationResults = ({ result, createdId }: OrganizationResultsProps): ReactElement => (
   <>
+    {createdId && result.ok && result.organizations.some(({ id }) => id === createdId)
+      ? <p aria-live="polite" className="rounded-md border border-primary/30 bg-card p-4 text-sm" role="status">Organization created. It is now available in your organization list.</p>
+      : null}
     {!result.ok ? (
       <section aria-labelledby="organizations-error-title" className="rounded-xl border border-destructive/30 bg-card p-6">
         <h2 className="text-lg font-semibold" id="organizations-error-title">Organizations could not be loaded</h2>
@@ -25,7 +28,7 @@ export const OrganizationResults = ({ result }: OrganizationResultsProps): React
     ) : (
       <ul aria-label="Organizations" className="grid gap-3">
         {result.organizations.map((organization) => (
-          <li className="rounded-xl border bg-card p-5" key={organization.id}>
+          <li className="rounded-xl border bg-card p-5" id={`organization-${organization.id}`} key={organization.id}>
             <h2 className="font-medium">{organization.name}</h2>
           </li>
         ))}

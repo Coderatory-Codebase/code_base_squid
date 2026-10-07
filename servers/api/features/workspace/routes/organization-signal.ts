@@ -8,14 +8,12 @@ export type OrganizationSignalDependencies = Readonly<{
   logger: OrganizationSignalLogger;
 }>;
 
-const resolveOperation = (request: Pick<Request, "method" | "path">): "listOrganizations" | "createOrganization" => {
+const resolveOperation = (request: Pick<Request, "method">): "listOrganizations" | "createOrganization" => {
   if (request.method === "POST") return "createOrganization";
   return "listOrganizations";
 };
 
-export const createOrganizationRequestSignal = ({
-  logger
-}: OrganizationSignalDependencies) =>
+export const createOrganizationRequestSignal = ({ logger }: OrganizationSignalDependencies) =>
   (request: Pick<Request, "method" | "path">, response: Pick<Response, "statusCode" | "once">, next: NextFunction): void => {
     const startedAt = performance.now();
     response.once("finish", () => {

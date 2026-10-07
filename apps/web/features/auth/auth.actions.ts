@@ -3,8 +3,25 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
+import { organizationNameSchema, type OrganizationSetupActionState } from "@/features/organizations/public";
 
 const sessionCookie = "workspace_session";
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const readConflictName = (payload: unknown): string | null => {
+  if (!isRecord(payload)) return null;
+  const error = isRecord(payload.error) ? payload.error : null;
+  const details = error && isRecord(error.details) ? error.details : null;
+  const current = isRecord(payload.current)
+    ? payload.current
+    : error && isRecord(error.current)
+      ? error.current
+      : details && isRecord(details.current)
+        ? details.current
+        : null;
+  return current && typeof current.name === "string" ? current.name : null;
+};
 
 export const signIn = async (formData: FormData): Promise<void> => {
   const email = formData.get("email");
@@ -68,26 +85,43 @@ export const signOut = async (): Promise<void> => {
   redirect("/sign-in");
 };
 
-export const createOrganization = async (formData: FormData): Promise<void> => {
-  const name = formData.get("name");
+export const createOrganization = async (
+  _previousState: OrganizationSetupActionState,
+  formData: FormData
+): Promise<OrganizationSetupActionState> => {
+  const parsedName = organizationNameSchema.safeParse(formData.get("name"));
+  if (!parsedName.success) {
+    return { status: "invalid", message: parsedName.error.issues[0]?.message ?? "Enter a valid organization name." };
+  }
   const cookieStore = await cookies();
   const token = cookieStore.get(sessionCookie)?.value;
   if (!token) redirect("/sign-in");
-  if (typeof name !== "string" || !name.trim()) redirect("/workspace/organization/new?error=name");
 
   const api = createApiConfiguration(readWebEnvironment());
-  let failed = false;
+  let organizationId: string | null = null;
   try {
     const response = await fetch(new URL("/organizations", api.baseUrl), {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name: parsedName.data }),
       cache: "no-store"
     });
-    failed = !response.ok;
+    if (response.status === 409) {
+      const payload: unknown = await response.json().catch(() => null);
+      return { status: "conflict", currentName: readConflictName(payload) };
+    }
+    if (!response.ok) {
+      return { status: "failure", message: "The organization could not be created. Try again." };
+    }
+    const payload: unknown = await response.json();
+    if (typeof payload !== "object" || payload === null || !("id" in payload) || typeof payload.id !== "string") {
+      return { status: "failure", message: "The organization service returned an invalid response." };
+    }
+    organizationId = payload.id;
   } catch {
-    failed = true;
+    return { status: "failure", message: "The organization service could not be reached. Try again." };
   }
-  if (failed) redirect("/workspace/organization/new?error=create");
-  redirect("/workspace/organization");
+  if (!organizationId) return { status: "failure", message: "The organization service returned an invalid response." };
+  const encodedId = encodeURIComponent(organizationId);
+  redirect(`/workspace/organization?created=${encodedId}#organization-${encodedId}`);
 };
