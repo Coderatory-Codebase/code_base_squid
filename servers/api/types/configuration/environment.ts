@@ -9,5 +9,10 @@ export type ValidatedApiEnvironment = Readonly<{
   API_PORT: number;
   WEB_ORIGIN: string;
   MONGODB_URI?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_ENABLED?: "true" | undefined;
+  TEMP_ORG_BRANDING_DEMO_EMAIL?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_PASSWORD?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_WORKSPACE_ID?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_SESSION_SECRET?: string | undefined;
   LOG_LEVEL: LogLevel;
 }>;

@@ -3,7 +3,7 @@ import { createLogger } from "@workspace/logging";
 import { createApp, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
 import { apiRuntime } from "./constants/index.js";
-import { createMongoDbIntegration } from "./integrations/index.js";
+import { createMongoDbIntegration, workspaceBrandingMongoQueries } from "./integrations/index.js";
 
 const config = createApiConfig(readApiEnvironment());
 const logger = createLogger({
@@ -15,7 +15,11 @@ const database = createMongoDbIntegration({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})
 });
-const app = createApp({ config, logger });
+const app = createApp({
+  config,
+  logger,
+  ...(config.temporaryOrganizationBrandingDemo ? { temporaryBrandingDemoReader: workspaceBrandingMongoQueries } : {})
+});
 const server = createServer({ app, config, logger });
 
 const shutdown = createShutdown({ database, logger, server });

@@ -7,5 +7,11 @@ export type ApiConfig = Readonly<{
   port: number;
   webOrigin: string;
   mongodbUri?: string;
+  temporaryOrganizationBrandingDemo?: Readonly<{
+    email: string;
+    password: string;
+    workspaceId: string;
+    sessionSecret: string;
+  }>;
   logLevel: LogLevel;
 }>;
