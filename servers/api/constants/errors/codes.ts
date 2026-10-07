@@ -11,5 +11,8 @@ export const ERROR_CODES = Object.freeze({
   policyUnavailable: "policy_unavailable",
   unauthenticated: "unauthenticated",
   forbidden: "forbidden",
-  principalUnavailable: "principal_unavailable"
+  principalUnavailable: "principal_unavailable",
+  unauthorized: "unauthorized",
+  notFound: "not_found",
+  serviceUnavailable: "service_unavailable"
 } as const satisfies Readonly<Record<string, ApiErrorCode>>);

@@ -7,3 +7,18 @@ required. No provider-specific operational configuration is justified yet.
 Reusable application and HTTP logging implementation belongs to `packages/logging`.
 Workspace runtimes consume that package and do not duplicate logging under local
 `observability/` directories.
+
+## Organization-profile signal
+
+The API emits the structured event `organization_profile.run` from the organization-profile
+controller after each invocation. The event uses the stable fields `workspace=api`,
+`module=organization-profile`, and `outcome=success|failure`; it excludes organization and
+member identifiers and profile data.
+
+This repository has no module dashboard or alert configuration to update. No alert threshold,
+evaluation window, or owner/on-call rotation approval is recorded here, so none is asserted as
+approved. The exact operational dependency is an approved dashboard/alerting platform
+configuration and a named on-call owner/rotation to agree the threshold and evaluation window.
+Until that dependency is supplied, no automated threshold alert is active. The designated
+on-call owner must be identified to acknowledge and investigate qualifying failures, then
+document the approved threshold, evaluation window, and response procedure here.

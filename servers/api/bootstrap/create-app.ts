@@ -5,6 +5,10 @@ import { apiRuntime } from "../constants/index.js";
 import { createHealthRoutes } from "../features/health/index.js";
 import { createCorsMiddleware, createErrorHandler, createNotFoundHandler } from "../middleware/index.js";
 
+import { createWorkspaceRoutes, createWorkspaceRepository } from "../features/workspace/index.js";
+import { createReadableCollection } from "../integrations/mongodb/index.js";
+import type { Request } from "express";
+
 type AppDependencies = Readonly<{ config: ApiConfig; logger: Logger }>;
 
 export const createApp = ({ config, logger }: AppDependencies): Express => {
@@ -17,13 +21,25 @@ export const createApp = ({ config, logger }: AppDependencies): Express => {
   app.use(createCorsMiddleware({ origin: config.webOrigin }));
   app.use(express.json({ limit: apiRuntime.jsonBodyLimit }));
 
+  // Note: The real Identity.principalFor / request pipeline must supply the actual implementation in the future.
+  const resolveWorkspacePrincipal = (_request: Request) => null;
+  const users = createReadableCollection<{ _id: string; displayName?: string }>("users", ["_id"]);
   const featureRouters = [
     createHealthRoutes({
       environment: config.environment,
       serviceName: apiRuntime.serviceName
+    }),
+    createWorkspaceRoutes({
+      repository: createWorkspaceRepository({
+        organizations: createReadableCollection("organizations", ["_id", "ownerId"]),
+        workspaces: createReadableCollection("workspaces", ["_id", "orgId"]),
+        memberships: createReadableCollection("memberships", ["_id", "workspaceId", "userId"]),
+        userById: async userId => users.findOne({ _id: userId })
+      }),
+      resolveWorkspacePrincipal,
+      logger
     })
   ];
-
   for (const featureRouter of featureRouters) app.use(featureRouter);
   app.use(createNotFoundHandler());
   app.use(createErrorHandler({ logger }));

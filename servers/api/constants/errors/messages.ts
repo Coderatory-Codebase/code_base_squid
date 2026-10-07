@@ -9,5 +9,8 @@ export const ERROR_MESSAGES = Object.freeze({
   policyUnavailable: "Policy is temporarily unavailable. Retry the request.",
   unauthenticated: "Authentication is required.",
   forbidden: "You do not have access to this workspace.",
-  principalUnavailable: "Identity or workspace data is temporarily unavailable. Retry the request."
+  principalUnavailable: "Identity or workspace data is temporarily unavailable. Retry the request.",
+  unauthorized: "Sign in required.",
+  notFound: "Resource not found.",
+  serviceUnavailable: "Service unavailable."
 } as const);

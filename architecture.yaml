@@ -234,7 +234,7 @@
     { "project": "api", "root": "kernel", "categories": ["bus", "gateway", "principal"], "rootExports": ["bus", "gateway", "principal"] },
     { "project": "api", "root": "features/identity", "categories": ["gateways", "models", "types"], "rootExports": ["gateways", "types"] },
     { "project": "types", "root": "src", "categories": ["api"], "rootExports": ["api"] },
-    { "project": "types", "root": "src/api", "categories": ["environment", "errors", "health"], "rootExports": ["environment", "errors", "health"] },
+    { "project": "types", "root": "src/api", "categories": ["environment", "errors", "health", "organization-profile"], "rootExports": ["environment", "errors", "health", "organization-profile"] },
     { "project": "ui", "root": "src", "categories": ["components", "compositions", "hooks", "primitives", "utilities"], "rootExports": ["components", "compositions", "hooks", "primitives"] }
   ],
   "contractOwnership": {

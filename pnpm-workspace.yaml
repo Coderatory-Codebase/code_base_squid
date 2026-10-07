@@ -11,9 +11,13 @@ allowBuilds:
   msgpackr-extract: false
   unrs-resolver: true
 
+overrides:
+  source-map-js: "1.2.2"
+  sharp: "0.35.5"
+  "@modelcontextprotocol/sdk": "1.31.0"
+
 audit:
   level: high
-  # GHSA-vfj7-8cjw-p6xm: no upstream patch yet; dev tooling only (eslint-config-next and shadcn CLI); expires 2026-11-03.
   ignore:
     - GHSA-vfj7-8cjw-p6xm
 
@@ -23,6 +27,3 @@ auditConfig:
 
 patchedDependencies:
   braces@3.0.3: patches/braces@3.0.3.patch
-
-overrides:
-  '@modelcontextprotocol/sdk': '^1.31.0'

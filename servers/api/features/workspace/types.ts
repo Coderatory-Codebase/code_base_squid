@@ -1,6 +1,25 @@
-// TEMPORARY: minimal Principal shape until the real Auth module (M03.3) exists.
-// Replace with the shared Principal type from the Auth feature once it lands.
 export type Principal = Readonly<{
   userId: string;
-  workspaceIds: readonly string[];
+}>;
+
+export type OrganizationState =
+  | Readonly<{ kind: "ACTIVE" }>
+  | Readonly<{ kind: "ARCHIVED" }>
+  | Readonly<{ kind: "DELETION_SCHEDULED"; effectiveOn: Date }>;
+
+export type OrganizationProfile = Readonly<{
+  id: string;
+  name: string;
+  ownerId: string;
+  ownerDisplayName?: string | null;
+  ownerName?: string | null;
+  ownerUnavailable?: boolean;
+  createdAt: Date;
+  state: OrganizationState;
+  workspaces: readonly Readonly<{
+    id: string;
+    name: string;
+    state: "ACTIVE" | "ARCHIVED";
+    activeMemberCount: number;
+  }>[];
 }>;
