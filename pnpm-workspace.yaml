@@ -8,6 +8,7 @@ packages:
 allowBuilds:
   esbuild: true
   mongodb-memory-server: false
+  msgpackr-extract: false
   unrs-resolver: true
 
 audit:

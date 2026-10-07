@@ -1,2 +1,4 @@
 (^|[\\/])(\.git|\.next|\.repo-cache|node_modules|dist|build|coverage)([\\/]|$)
 (^|[\\/])\.env(\.local)?$
+servers/api/.env
+apps/web/.env.local

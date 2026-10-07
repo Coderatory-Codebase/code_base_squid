@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import type { Logger } from "@workspace/logging";
 import { createShutdown } from "../bootstrap/index.js";
 
-void test("graceful shutdown stops HTTP traffic before disconnecting persistence", async (): Promise<void> => {
+void test("graceful shutdown stops HTTP traffic, then the outbox relay, before disconnecting persistence", async (): Promise<void> => {
   const calls: string[] = [];
   const logger: Logger = {
     info: (message, context): void => { calls.push(`${message}:${String(context?.signal)}`); },
@@ -13,6 +13,7 @@ void test("graceful shutdown stops HTTP traffic before disconnecting persistence
   const shutdown = createShutdown({
     logger,
     server: { stop: (): Promise<void> => { calls.push("server:stop"); return Promise.resolve(); } },
+    relay: { stop: (): Promise<void> => { calls.push("relay:stop"); return Promise.resolve(); } },
     database: { disconnect: (): Promise<void> => { calls.push("database:disconnect"); return Promise.resolve(); } }
   });
 
@@ -21,6 +22,7 @@ void test("graceful shutdown stops HTTP traffic before disconnecting persistence
   assert.deepEqual(calls, [
     "API shutdown requested.:SIGTERM",
     "server:stop",
+    "relay:stop",
     "database:disconnect"
   ]);
 });

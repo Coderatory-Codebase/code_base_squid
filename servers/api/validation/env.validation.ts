@@ -15,6 +15,7 @@ export const apiEnvironmentSchema = z.object({
   MICROSOFT_OIDC_ISSUER: z.url().optional(),
   MICROSOFT_OIDC_CLIENT_ID: z.string().min(1).optional(),
   MICROSOFT_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
+  REDIS_URL: z.string().min(1).optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
 }).superRefine((environment, context) => {
   const googleConfigured = Boolean(environment.GOOGLE_OIDC_CLIENT_ID || environment.GOOGLE_OIDC_CLIENT_SECRET);

@@ -20,6 +20,7 @@ export type ApiConfig = Readonly<{
   webOrigin: string;
   logFormat: "json" | "pretty";
   mongodbUri?: string;
+  redisUrl?: string;
   oidc?: OidcApiConfiguration;
   logLevel: LogLevel;
 }>;

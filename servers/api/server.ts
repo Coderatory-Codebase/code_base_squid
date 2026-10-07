@@ -1,8 +1,10 @@
 import "dotenv/config";
+import { systemClock } from "@workspace/kernel";
 import { createLogger } from "@workspace/logging";
 import { createApp, createIdentityRuntime, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
-import { apiRuntime } from "./constants/index.js";
+import { apiRuntime, outboxRuntime } from "./constants/index.js";
+import { createOutboxRelayRunner } from "./features/outbox/index.js";
 import { createMongoDbIntegration } from "./integrations/index.js";
 
 const config = createApiConfig(readApiEnvironment());
@@ -28,11 +30,23 @@ const app = createApp({
   ...(identity ? { workspace: identity.workspace } : {})
 });
 const server = createServer({ app, config, logger });
+const relay = createOutboxRelayRunner({
+  ...(config.mongodbUri && config.redisUrl ? { redisUrl: config.redisUrl } : {}),
+  queueName: outboxRuntime.queueName,
+  pollIntervalMs: outboxRuntime.pollIntervalMs,
+  batchSize: outboxRuntime.batchSize,
+  publishTimeoutMs: outboxRuntime.publishTimeoutMs,
+  leaseTtlMs: outboxRuntime.leaseTtlMs,
+  backlogAlertAfterMs: outboxRuntime.backlogAlertAfterMs,
+  clock: systemClock,
+  logger
+});
 
-const shutdown = createShutdown({ database, logger, server });
+const shutdown = createShutdown({ database, logger, relay, server });
 
 await database.connect();
 await server.start();
+relay.start();
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.once(signal, () => {
