@@ -1,1 +1,7 @@
-export type { ApiOrganizationState, ApiOrganizationProfile, ApiOrganizationProfileResponse } from "./organization-profile.js";
+export type {
+  ApiOrganizationState,
+  ApiOrganizationWorkspaceState,
+  ApiOrganizationWorkspace,
+  ApiOrganizationProfile,
+  ApiOrganizationProfileResponse
+} from "./organization-profile.js";

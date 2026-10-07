@@ -1,5 +1,6 @@
 import { isValidObjectId, type ReadableCollection } from "../../integrations/mongodb/index.js";
 import type { Principal, OrganizationProfile, OrganizationState } from "./types.js";
+import { buildOrganizationProfile, type OrganizationWorkspaceProfile } from "./domain/organization-profile.js";
 
 // This repository currently owns the scoped query and is intentionally structured
 // so the future shared Workspace gateway (01.4.01) can replace it later.
@@ -16,7 +17,9 @@ type OrganizationDocument = {
 type WorkspaceDocument = {
   _id: string;
   orgId: string;
+  name: string;
   status: string;
+  deletedAt?: Date;
 };
 
 type MembershipDocument = {
@@ -24,12 +27,19 @@ type MembershipDocument = {
   workspaceId: string;
   userId: string;
   status: "ACTIVE" | "SUSPENDED" | "REMOVED";
+  deletedAt?: Date;
+};
+
+type UserDocument = {
+  _id: string;
+  displayName?: string;
 };
 
 export type WorkspaceRepositoryDependencies = Readonly<{
   organizations: ReadableCollection<OrganizationDocument>;
   workspaces: ReadableCollection<WorkspaceDocument>;
   memberships: ReadableCollection<MembershipDocument>;
+  userById: (userId: string) => Promise<UserDocument | null>;
 }>;
 
 export type WorkspaceRepository = Readonly<{
@@ -39,7 +49,8 @@ export type WorkspaceRepository = Readonly<{
 export const createWorkspaceRepository = ({
   organizations,
   workspaces,
-  memberships
+  memberships,
+  userById
 }: WorkspaceRepositoryDependencies): WorkspaceRepository => {
   return Object.freeze({
     findOrganizationProfile: async (principal: Principal, orgId: string): Promise<OrganizationProfile | null> => {
@@ -47,28 +58,34 @@ export const createWorkspaceRepository = ({
       if (!isValidObjectId(principal.userId)) return null;
 
       const eligibleWorkspaces = await workspaces.find({
-        orgId: orgId,
-        status: { $ne: "DELETED" }
+        status: { $ne: "DELETED" },
+        deletedAt: { $exists: false },
+        orgId
       });
-
-      if (eligibleWorkspaces.length === 0) return null;
-
-      const workspaceIds = eligibleWorkspaces.map(w => w._id);
-
-      const activeMembership = await memberships.findOne({
-        userId: principal.userId,
-        workspaceId: { $in: workspaceIds },
-        status: "ACTIVE"
-      });
-
-      if (!activeMembership) return null;
 
       const organization = await organizations.findOne({
         _id: orgId,
-        status: { $ne: "DELETED" }
+        status: { $ne: "DELETED" },
+        deletedAt: { $exists: false }
       });
 
       if (!organization) return null;
+
+      const workspaceIds = eligibleWorkspaces.map(w => w._id);
+      const activeMemberships = workspaceIds.length === 0 ? [] : await memberships.find({
+          workspaceId: { $in: workspaceIds },
+          status: "ACTIVE",
+          deletedAt: { $exists: false }
+        });
+      const activeMemberWorkspaceIds = [...new Set(activeMemberships
+        .filter(membership => membership.userId === principal.userId)
+        .map(membership => membership.workspaceId))];
+      const activeMemberCountByWorkspace = new Map<string, Set<string>>();
+      for (const membership of activeMemberships) {
+        const workspaceMembers = activeMemberCountByWorkspace.get(membership.workspaceId) ?? new Set<string>();
+        workspaceMembers.add(membership.userId);
+        activeMemberCountByWorkspace.set(membership.workspaceId, workspaceMembers);
+      }
 
       let state: OrganizationState;
       if (organization.status === "ACTIVE") {
@@ -81,12 +98,40 @@ export const createWorkspaceRepository = ({
         return null;
       }
 
+      const workspaceProfiles: OrganizationWorkspaceProfile[] = eligibleWorkspaces.map(workspace => ({
+        id: workspace._id,
+        name: workspace.name,
+        state: workspace.status === "ARCHIVED" ? "ARCHIVED" : "ACTIVE",
+        activeMemberCount: activeMemberCountByWorkspace.get(workspace._id)?.size ?? 0
+      }));
+      const profileResult = buildOrganizationProfile({
+        principal,
+        organization: {
+          id: organization._id,
+          name: organization.name,
+          ownerId: organization.ownerId,
+          createdAt: organization.createdAt,
+          state
+        },
+        workspaces: workspaceProfiles,
+        activeMemberWorkspaceIds
+      });
+      if (!profileResult.ok) return null;
+
+      let ownerDisplayName: string | null = null;
+      try {
+        const owner = await userById(organization.ownerId);
+        const displayName = owner?.displayName?.trim();
+        ownerDisplayName = displayName ? displayName : null;
+      } catch {
+        // Identity availability must not prevent an authorized viewer from seeing the organization.
+      }
+
       return {
-        id: organization._id,
-        name: organization.name,
-        ownerId: organization.ownerId,
-        createdAt: organization.createdAt,
-        state
+        ...profileResult.value,
+        ownerDisplayName,
+        ownerUnavailable: ownerDisplayName === null,
+        workspaces: profileResult.value.workspaces
       };
     }
   });

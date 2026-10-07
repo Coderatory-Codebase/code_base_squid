@@ -23,6 +23,7 @@ export const createApp = ({ config, logger }: AppDependencies): Express => {
 
   // Note: The real Identity.principalFor / request pipeline must supply the actual implementation in the future.
   const resolveWorkspacePrincipal = (_request: Request) => null;
+  const users = createReadableCollection<{ _id: string; displayName?: string }>("users", ["_id"]);
 
   const featureRouters = [
     createHealthRoutes({
@@ -33,9 +34,11 @@ export const createApp = ({ config, logger }: AppDependencies): Express => {
       repository: createWorkspaceRepository({
         organizations: createReadableCollection("organizations", ["_id", "ownerId"]),
         workspaces: createReadableCollection("workspaces", ["_id", "orgId"]),
-        memberships: createReadableCollection("memberships", ["_id", "workspaceId", "userId"])
+        memberships: createReadableCollection("memberships", ["_id", "workspaceId", "userId"]),
+        userById: async userId => users.findOne({ _id: userId })
       }),
-      resolveWorkspacePrincipal
+      resolveWorkspacePrincipal,
+      logger
     })
   ];
   for (const featureRouter of featureRouters) app.use(featureRouter);

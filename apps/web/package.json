@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/organization-profile.test.tsx tests/environment.test.ts",
+    "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/organization-profile.test.tsx tests/e2e/organization-profile-owner-unavailable.test.ts tests/environment.test.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
@@ -20,6 +20,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.20.3",
     "@types/react": "^19.3.0",

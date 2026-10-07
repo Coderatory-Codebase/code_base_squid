@@ -1,18 +1,41 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdir } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import test, { after, before } from "node:test";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
+import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { generateTestId, setupTestDatabase, teardownTestDatabase, createTestIndex, insertTestDocuments, getExplainPlan, createReadableCollection } from "../../../integrations/mongodb/index.js";
 import { createWorkspaceRepository } from "../workspace.repository.js";
 
-const uri = process.env.TEST_MONGODB_URI;
+let uri = process.env.TEST_MONGODB_URI;
+let memoryReplicaSet: MongoMemoryReplSet | undefined;
+const workspaceMongoCache = fileURLToPath(new URL("../../../../../.repo-cache/mongodb-memory-server", import.meta.url));
+process.env.MONGOMS_DOWNLOAD_DIR ??= workspaceMongoCache;
+process.env.MONGOMS_MD5_CHECK ??= "false";
 
-if (!uri) {
-  void test("Live MongoDB integration test (workspace repository) [SKIPPED - TEST_MONGODB_URI not configured]", { skip: true }, () => {});
-} else {
-  void test("Workspace Repository Live MongoDB Integration", async () => {
-    await setupTestDatabase(uri);
+before(async () => {
+  if (uri) return;
+  await mkdir(workspaceMongoCache, { recursive: true });
+  const databasePath = join(workspaceMongoCache, `workspace-integration-${randomUUID()}`);
+  await mkdir(databasePath, { recursive: true });
+  memoryReplicaSet = await MongoMemoryReplSet.create({
+    replSet: { count: 1, storageEngine: "wiredTiger" },
+    instanceOpts: [{ dbPath: databasePath }]
+  });
+  uri = memoryReplicaSet.getUri();
+});
 
+after(async () => {
+  await memoryReplicaSet?.stop();
+});
+
+void test("Workspace Repository MongoDB Integration", async () => {
+  assert.ok(uri);
+  await setupTestDatabase(uri);
+  try {
     // Create indexes
-    await createTestIndex("workspaces", { orgId: 1 });
+    await createTestIndex("workspaces", { orgId: 1, deletedAt: 1, status: 1 });
     await createTestIndex("memberships", { workspaceId: 1, userId: 1 }, { unique: true });
     await createTestIndex("memberships", { userId: 1 });
 
@@ -31,8 +54,8 @@ if (!uri) {
     ]);
 
     await insertTestDocuments("workspaces", [
-      { _id: workspaceId, orgId: orgId, status: "ACTIVE" },
-      { _id: otherWorkspaceId, orgId: otherOrgId, status: "ACTIVE" }
+      { _id: workspaceId, orgId: orgId, name: "Integration Workspace", status: "ACTIVE" },
+      { _id: otherWorkspaceId, orgId: otherOrgId, name: "Other Workspace", status: "ACTIVE" }
     ]);
 
     await insertTestDocuments("memberships", [
@@ -44,13 +67,15 @@ if (!uri) {
     const repo = createWorkspaceRepository({
       organizations: createReadableCollection("organizations", ["_id", "ownerId"]),
       workspaces: createReadableCollection("workspaces", ["_id", "orgId"]),
-      memberships: createReadableCollection("memberships", ["_id", "workspaceId", "userId"])
+      memberships: createReadableCollection("memberships", ["_id", "workspaceId", "userId"]),
+      userById: userId => Promise.resolve({ _id: userId, displayName: "Priya" })
     });
 
     // Valid active member
     const profile1 = await repo.findOrganizationProfile({ userId }, orgId);
     assert.ok(profile1);
     assert.equal(profile1.name, "Integration Org");
+    assert.equal(profile1.ownerDisplayName, "Priya");
 
     // Non-member
     const profile2 = await repo.findOrganizationProfile({ userId: otherUserId }, orgId);
@@ -69,10 +94,10 @@ if (!uri) {
     assert.equal(profile5, null);
 
     // Explain plan verification
-    const wsExplain = await getExplainPlan("workspaces", { orgId: orgId, status: { $ne: "DELETED" } });
+    const wsExplain = await getExplainPlan("workspaces", { status: { $ne: "DELETED" }, deletedAt: { $exists: false }, orgId });
     assert.ok(wsExplain.includes("IXSCAN"));
     assert.ok(!wsExplain.includes("COLLSCAN"));
-
+  } finally {
     await teardownTestDatabase();
-  });
-}
+  }
+});

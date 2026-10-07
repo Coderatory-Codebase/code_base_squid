@@ -37,7 +37,7 @@ const startWorkspaceApp = async (
   resolveWorkspacePrincipal: Parameters<typeof createWorkspaceRoutes>[0]["resolveWorkspacePrincipal"]
 ): Promise<string> => {
   const app = express();
-  app.use(createWorkspaceRoutes({ repository, resolveWorkspacePrincipal }));
+  app.use(createWorkspaceRoutes({ repository, resolveWorkspacePrincipal, logger }));
   return startExpressApp(context, app);
 };
 
@@ -95,7 +95,8 @@ void test("GET organization profile returns the shared serialized profile contra
         name: "Example Organization",
         ownerId: "owner-1",
         createdAt,
-        state: { kind: "DELETION_SCHEDULED", effectiveOn }
+        state: { kind: "DELETION_SCHEDULED", effectiveOn },
+        workspaces: [{ id: "workspace-1", name: "Studio", state: "ACTIVE", activeMemberCount: 12 }]
       });
     }
   };
@@ -108,7 +109,8 @@ void test("GET organization profile returns the shared serialized profile contra
     name: "Example Organization",
     ownerId: "owner-1",
     createdAt: createdAt.toISOString(),
-    state: { kind: "DELETION_SCHEDULED", effectiveOn: effectiveOn.toISOString() }
+    state: { kind: "DELETION_SCHEDULED", effectiveOn: effectiveOn.toISOString() },
+    workspaces: [{ id: "workspace-1", name: "Studio", state: "ACTIVE", activeMemberCount: 12 }]
   });
 });
 
@@ -124,4 +126,42 @@ void test("GET organization profile returns the same 404 response for every unav
       error: { code: "not_found", message: "Resource not found." }
     });
   }
+});
+
+void test("AC-3 contract: another-organization member and unknown id return identical Not found responses without organization data", async (context) => {
+  const repository: WorkspaceRepository = { findOrganizationProfile: () => Promise.resolve(null) };
+  const baseUrl = await startWorkspaceApp(context, repository, () => ({ userId: "user-other-org" }));
+
+  const requests = [
+    `${baseUrl}/workspace/organization-profile/organization-1`,
+    `${baseUrl}/workspace/organization-profile/unknown-organization-id`
+  ];
+
+  const payloads: unknown[] = [];
+  for (const url of requests) {
+    const response = await fetch(url);
+    assert.equal(response.status, HTTP_STATUS.notFound);
+    const body = await response.json();
+    payloads.push(body);
+
+    assert.deepEqual(body, {
+      error: { code: "not_found", message: "Resource not found." }
+    });
+    assert.equal("id" in body, false);
+    assert.equal("name" in body, false);
+    assert.equal("ownerId" in body, false);
+  }
+
+  assert.deepEqual(payloads[0], payloads[1]);
+});
+
+void test("permission refusal: signed-in user cannot retrieve a different organization profile", async (context) => {
+  const repository: WorkspaceRepository = { findOrganizationProfile: () => Promise.resolve(null) };
+  const baseUrl = await startWorkspaceApp(context, repository, () => ({ userId: "user-2" }));
+  const response = await fetch(`${baseUrl}/workspace/organization-profile/organization-1`);
+
+  assert.equal(response.status, HTTP_STATUS.notFound);
+  assert.deepEqual(await response.json(), {
+    error: { code: "not_found", message: "Resource not found." }
+  });
 });

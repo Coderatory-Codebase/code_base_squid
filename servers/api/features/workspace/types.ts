@@ -11,6 +11,15 @@ export type OrganizationProfile = Readonly<{
   id: string;
   name: string;
   ownerId: string;
+  ownerDisplayName?: string | null;
+  ownerName?: string | null;
+  ownerUnavailable?: boolean;
   createdAt: Date;
   state: OrganizationState;
+  workspaces: readonly Readonly<{
+    id: string;
+    name: string;
+    state: "ACTIVE" | "ARCHIVED";
+    activeMemberCount: number;
+  }>[];
 }>;

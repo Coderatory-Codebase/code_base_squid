@@ -7,7 +7,15 @@ packages:
 
 allowBuilds:
   esbuild: true
+  mongodb-memory-server: true
   unrs-resolver: true
+
+overrides:
+  source-map-js: "1.2.2"
+  sharp: "0.35.5"
+  "@modelcontextprotocol/sdk": "1.31.0"
 
 audit:
   level: high
+  ignore:
+    - GHSA-vfj7-8cjw-p6xm

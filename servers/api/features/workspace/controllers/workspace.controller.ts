@@ -4,14 +4,17 @@ import { createApplicationError } from "../../../errors/index.js";
 import type { WorkspaceService } from "../services/index.js";
 import type { Principal } from "../types.js";
 import type { ApiOrganizationProfileResponse } from "@workspace/types";
+import type { Logger } from "@workspace/logging";
 
 export type WorkspaceControllerDependencies = Readonly<{
   service: Pick<WorkspaceService, "getOrganizationProfile">;
   resolveWorkspacePrincipal: (request: Request) => Principal | null;
+  logger: Logger;
 }>;
 
-export const createWorkspaceController = ({ service, resolveWorkspacePrincipal }: WorkspaceControllerDependencies) =>
+export const createWorkspaceController = ({ service, resolveWorkspacePrincipal, logger }: WorkspaceControllerDependencies) =>
   async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    let outcome: "success" | "failure" = "failure";
     try {
       const principal = resolveWorkspacePrincipal(request);
       if (!principal) {
@@ -42,13 +45,18 @@ export const createWorkspaceController = ({ service, resolveWorkspacePrincipal }
         id: profile.id,
         name: profile.name,
         ownerId: profile.ownerId,
+        ...(profile.ownerDisplayName === undefined ? {} : { ownerDisplayName: profile.ownerDisplayName }),
+        ...(profile.ownerName === undefined ? {} : { ownerName: profile.ownerName }),
+        ...(profile.ownerUnavailable === undefined ? {} : { ownerUnavailable: profile.ownerUnavailable }),
         createdAt: profile.createdAt.toISOString(),
         state: profile.state.kind === "DELETION_SCHEDULED"
           ? { kind: "DELETION_SCHEDULED", effectiveOn: profile.state.effectiveOn.toISOString() }
-          : profile.state
+          : profile.state,
+        workspaces: profile.workspaces
       };
 
       response.status(HTTP_STATUS.ok).json(apiResponse);
+      outcome = "success";
     } catch (error) {
       if (error instanceof Error && error.message === "Database not connected") {
          next(createApplicationError({
@@ -59,5 +67,12 @@ export const createWorkspaceController = ({ service, resolveWorkspacePrincipal }
          return;
       }
       next(error);
+    } finally {
+      logger.info("organization_profile.run", {
+        event: "organization_profile.run",
+        workspace: "api",
+        module: "organization-profile",
+        outcome
+      });
     }
   };

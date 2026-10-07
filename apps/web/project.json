@@ -3,7 +3,7 @@
   "type": "app",
   "description": "Primary Next.js web application.",
   "internalDependencies": ["eslint-config", "tsconfig", "types", "ui"],
-  "externalDependencies": ["lucide-react", "next", "react", "react-dom", "tailwindcss", "zod"],
+  "externalDependencies": ["@playwright/test", "lucide-react", "next", "react", "react-dom", "tailwindcss", "zod"],
   "capabilities": ["web", "app-router", "shadcn-ui", "tailwind"],
   "tasks": {
     "dev": { "command": "pnpm run dev", "cache": false },
