@@ -395,7 +395,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/eslint-config
       '@workspace/tsconfig':
-        specifier: 'workspace:'
+        specifier: workspace:*
         version: link:../../packages/tsconfig
       eslint:
         specifier: 9.39.5
