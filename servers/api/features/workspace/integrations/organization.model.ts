@@ -1,25 +1,94 @@
 import mongoose, { Schema } from "mongoose";
 import type { Types as MongooseTypes } from "mongoose";
+import type { OrganizationRole } from "../types.js";
 
 export type OrganizationDocument = Readonly<{
   _id: string | MongooseTypes.ObjectId;
   name: string;
   ownerId: string;
+  ownerEmail?: string;
   workspaceIds: readonly string[];
   lastUsedAt: Date;
   deletedAt: Date | null;
+  members?: readonly OrganizationMember[];
+  invitations?: readonly OrganizationInvitation[];
+  activity?: readonly OrganizationActivity[];
 }>;
+
+export type OrganizationMember = Readonly<{
+  userId: string;
+  email: string;
+  role: OrganizationRole;
+  joinedAt: Date;
+}>;
+export type OrganizationInvitation = Readonly<{
+  email: string;
+  role: OrganizationRole;
+  tokenHash: string;
+  expiresAt: Date;
+  invitedBy: string;
+  createdAt: Date;
+  acceptedAt: Date | null;
+}>;
+export type OrganizationActivityAction =
+  | "invitation_sent"
+  | "invitation_accepted"
+  | "member_role_changed"
+  | "member_removed";
+export type OrganizationActivity = Readonly<{
+  actorId: string;
+  actorEmail?: string | null;
+  action: OrganizationActivityAction;
+  target: string;
+  createdAt: Date;
+}>;
+
+const memberSchema = new Schema<OrganizationMember>({
+  userId: { type: String, required: true },
+  email: { type: String, required: true },
+  role: { type: String, enum: ["admin", "member"], required: true },
+  joinedAt: { type: Date, required: true }
+}, { _id: false });
+
+const invitationSchema = new Schema<OrganizationInvitation>({
+  email: { type: String, required: true, lowercase: true },
+  role: { type: String, enum: ["admin", "member"], required: true },
+  tokenHash: { type: String, required: true },
+  expiresAt: { type: Date, required: true },
+  invitedBy: { type: String, required: true },
+  createdAt: { type: Date, required: true },
+  acceptedAt: { type: Date, default: null }
+}, { _id: false });
+
+const activitySchema = new Schema<OrganizationActivity>({
+  actorId: { type: String, required: true },
+  actorEmail: { type: String, lowercase: true, trim: true, default: null },
+  action: {
+    type: String,
+    enum: ["invitation_sent", "invitation_accepted", "member_role_changed", "member_removed"],
+    required: true
+  },
+  target: { type: String, required: true },
+  createdAt: { type: Date, required: true }
+}, { _id: false });
 
 const organizationSchema = new Schema<OrganizationDocument>(
   {
     name: { type: String, required: true, minlength: 1, maxlength: 80 },
     ownerId: { type: String, required: true, index: true },
+    ownerEmail: { type: String, lowercase: true, trim: true },
     workspaceIds: { type: [String], required: true, index: true },
     lastUsedAt: { type: Date, required: true, default: () => new Date() },
-    deletedAt: { type: Date, default: null }
+    deletedAt: { type: Date, default: null },
+    members: { type: [memberSchema], default: [] },
+    invitations: { type: [invitationSchema], default: [] },
+    activity: { type: [activitySchema], default: [] }
   },
   { timestamps: true }
 );
+
+organizationSchema.index({ "members.userId": 1 });
+organizationSchema.index({ "invitations.tokenHash": 1, "invitations.email": 1 });
 
 export const OrganizationModel =
   mongoose.models.Organization ??

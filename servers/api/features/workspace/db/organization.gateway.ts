@@ -2,7 +2,8 @@ import { OrganizationModel, type OrganizationDocument } from "../integrations/or
 import type { Principal } from "../types.js";
 
 export type WorkspaceCondition = Readonly<{ workspaceIds: Readonly<{ $in: readonly string[] }> }>;
-export type OrganizationCondition = Readonly<{ ownerId: string }> | WorkspaceCondition;
+export type MemberCondition = Readonly<{ members: Readonly<{ $elemMatch: Readonly<{ userId: string }> }> }>;
+export type OrganizationCondition = Readonly<{ ownerId: string }> | WorkspaceCondition | MemberCondition;
 export type QueryPlanValue = string | number | boolean | null | QueryPlanNode | readonly QueryPlanValue[];
 export type QueryPlanNode = Readonly<{
   stage?: string;
@@ -98,7 +99,11 @@ const createOrganizationQuery = (
 
   const query = model.find();
   query.where("deletedAt").equals(null);
-  query.or([{ ownerId: principal.userId }, { workspaceIds: { $in: workspaceIds } }]);
+  query.or([
+    { ownerId: principal.userId },
+    { workspaceIds: { $in: workspaceIds } },
+    { members: { $elemMatch: { userId: principal.userId } } }
+  ]);
   query.sort({ lastUsedAt: -1, name: 1 });
 
   return query;
@@ -135,6 +140,7 @@ export const createOrganizationGateway = ({
     return model.create({
       name,
       ownerId: principal.userId,
+      ...(principal.email ? { ownerEmail: principal.email } : {}),
       workspaceIds: [],
       lastUsedAt: new Date(),
       deletedAt: null

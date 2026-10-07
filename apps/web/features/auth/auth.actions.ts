@@ -2,10 +2,14 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import type { Route } from "next";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
 import { organizationNameSchema, type OrganizationSetupActionState } from "@/features/organizations/public";
 
 const sessionCookie = "workspace_session";
+const isInvitationReturnPath = (value: unknown): value is string =>
+  typeof value === "string"
+  && /^\/workspace\/invitations\/accept\?token=[A-Za-z0-9_-]{40,60}$/u.test(value);
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
@@ -26,6 +30,7 @@ const readConflictName = (payload: unknown): string | null => {
 export const signIn = async (formData: FormData): Promise<void> => {
   const email = formData.get("email");
   const password = formData.get("password");
+  const returnTo = formData.get("returnTo");
   if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
     redirect("/sign-in?error=credentials");
   }
@@ -63,6 +68,7 @@ export const signIn = async (formData: FormData): Promise<void> => {
     path: "/",
     maxAge: 8 * 60 * 60
   });
+  if (isInvitationReturnPath(returnTo)) redirect(returnTo as Route);
   redirect("/workspace/organization");
 };
 

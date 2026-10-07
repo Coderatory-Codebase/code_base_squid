@@ -58,7 +58,7 @@ export const createAuthService = (gateway: AuthGateway = createAuthGateway()): A
     const session = await gateway.findActiveSession(hashToken(token), new Date());
     if (!session) return null;
     const user = await gateway.findUserById(session.userId);
-    return user ? { userId: user.id, workspaceIds: user.workspaceIds } : null;
+    return user ? { userId: user.id, email: user.email, workspaceIds: user.workspaceIds } : null;
   },
   signOut: async (token) => {
     if (token) await gateway.deleteSession(hashToken(token));

@@ -4,7 +4,7 @@ import type { ApiConfig } from "../types/index.js";
 import { apiRuntime } from "../constants/index.js";
 import { createHealthRoutes } from "../features/health/index.js";
 import { createAuthRoutes, createAuthService, readBearerToken, type AuthService } from "../features/auth/index.js";
-import { createOrganizationRoutes, type OrganizationGateway, type PrincipalResolver } from "../features/workspace/index.js";
+import { createOrganizationRoutes, type MembersService, type OrganizationGateway, type PrincipalResolver } from "../features/workspace/index.js";
 import { createCorsMiddleware, createErrorHandler, createNotFoundHandler } from "../middleware/index.js";
 
 type AppDependencies = Readonly<{
@@ -12,10 +12,11 @@ type AppDependencies = Readonly<{
   logger: Logger;
   resolvePrincipal?: PrincipalResolver;
   organizationGateway?: OrganizationGateway;
+  membersService?: MembersService;
   authService?: AuthService;
 }>;
 
-export const createApp = ({ config, logger, resolvePrincipal, organizationGateway, authService = createAuthService() }: AppDependencies): Express => {
+export const createApp = ({ config, logger, resolvePrincipal, organizationGateway, membersService, authService = createAuthService() }: AppDependencies): Express => {
   const app = express();
   app.disable("x-powered-by");
   app.use(createHttpLogger({
@@ -28,8 +29,10 @@ export const createApp = ({ config, logger, resolvePrincipal, organizationGatewa
     environment: config.environment,
     serviceName: apiRuntime.serviceName
   }), createAuthRoutes(authService), createOrganizationRoutes({
+    webOrigin: config.webOrigin,
     resolvePrincipal: resolvePrincipal ?? ((request) => authService.resolvePrincipal(readBearerToken(request))),
     ...(organizationGateway ? { gateway: organizationGateway } : {}),
+    ...(membersService ? { membersService } : {}),
     logger
   })];
   for (const featureRouter of featureRouters) app.use(featureRouter);

@@ -29,6 +29,7 @@ void test("sign-in stores only a token hash and resolves the server-owned princi
   assert.notEqual(storedSession.tokenHash, session.token);
   assert.deepEqual(await service.resolvePrincipal(session.token), {
     userId: "user-1",
+    email: "member@example.test",
     workspaceIds: ["workspace-1"]
   });
   await service.signOut(session.token);
@@ -71,6 +72,7 @@ void test("Mongo-backed sign-in creates, resolves, and revokes a session", async
   const session = await service.signIn("member@example.test", "preview-password");
   assert.deepEqual(await service.resolvePrincipal(session.token), {
     userId: user.id,
+    email: "member@example.test",
     workspaceIds: ["workspace-1"]
   });
   await service.signOut(session.token);

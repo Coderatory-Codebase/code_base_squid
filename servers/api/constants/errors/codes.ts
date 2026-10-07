@@ -5,5 +5,7 @@ export const ERROR_CODES = Object.freeze({
   routeNotFound: "route_not_found",
   validation: "validation_error",
   unauthorized: "unauthorized",
-  forbidden: "forbidden"
+  forbidden: "forbidden",
+  notFound: "not_found",
+  conflict: "conflict"
 } as const satisfies Readonly<Record<string, ApiErrorCode>>);

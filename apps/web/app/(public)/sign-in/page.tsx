@@ -3,14 +3,17 @@ import { LogIn } from "lucide-react";
 import { PageHeader, PageShell } from "@workspace/ui";
 import { signIn } from "@/features/auth/auth.actions";
 
-type SignInPageProps = Readonly<{ searchParams: Promise<Readonly<{ error?: string }>> }>;
+type SignInPageProps = Readonly<{ searchParams: Promise<Readonly<{ error?: string; returnTo?: string }>> }>;
 
 const SignInPage = async ({ searchParams }: SignInPageProps): Promise<ReactElement> => {
-  const { error } = await searchParams;
+  const { error, returnTo } = await searchParams;
   return (
     <PageShell width="narrow">
       <PageHeader description="Sign in to see the organizations connected to your workspaces." eyebrow="Workspace" icon={<LogIn aria-hidden="true" className="size-5" />} title="Welcome back" />
       <form action={signIn} className="grid gap-4 rounded-xl border bg-card p-6">
+        {returnTo?.startsWith("/workspace/invitations/accept?token=")
+          ? <input name="returnTo" type="hidden" value={returnTo} />
+          : null}
         {error ? <p aria-live="polite" className="text-sm text-destructive">{error === "credentials" ? "Email or password is incorrect." : "Sign in is temporarily unavailable. Try again."}</p> : null}
         <label className="grid gap-2 text-sm font-medium" htmlFor="email">
           Email

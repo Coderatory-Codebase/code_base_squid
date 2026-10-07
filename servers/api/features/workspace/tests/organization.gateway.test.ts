@@ -53,7 +53,8 @@ void test("gateway scopes by ownership or membership and excludes deleted organi
   assert.equal(capturedDeletedAtFilter, null);
   assert.deepEqual(capturedOrFilter, [
     { ownerId: "user-1" },
-    { workspaceIds: { $in: ["ws-a", "ws-b"] } }
+    { workspaceIds: { $in: ["ws-a", "ws-b"] } },
+    { members: { $elemMatch: { userId: "user-1" } } }
   ]);
   const deletedAtIndex = calls.indexOf("where:deletedAt");
   const orIndex = calls.indexOf("or");

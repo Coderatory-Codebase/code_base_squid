@@ -29,7 +29,7 @@ export const OrganizationResults = ({ result, createdId }: OrganizationResultsPr
       <ul aria-label="Organizations" className="grid gap-3">
         {result.organizations.map((organization) => (
           <li className="rounded-xl border bg-card p-5" id={`organization-${organization.id}`} key={organization.id}>
-            <h2 className="font-medium">{organization.name}</h2>
+            <h2 className="font-medium"><a className="underline-offset-4 hover:underline" href={`/workspace/dashboard/${encodeURIComponent(organization.id)}`}>{organization.name}</a></h2>
           </li>
         ))}
       </ul>
