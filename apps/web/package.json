@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/organization-profile.test.tsx tests/e2e/organization-profile-owner-unavailable.test.ts tests/environment.test.ts",
