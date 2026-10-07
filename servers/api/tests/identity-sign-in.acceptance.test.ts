@@ -226,7 +226,7 @@ void test("permission refusal: profile route returns 403 when the principal has 
   const app = express();
   app.use(createUserProfileRoutes({
     principalResolver: { resolve: () => Promise.resolve({ kind: "no-active-workspace" }) },
-    gateway: { getUserProfile: () => Promise.resolve({ name: "Must not be read" }) }
+    gateway: { getUserProfile: () => Promise.resolve({ email: "private@example.test", name: "Must not be read", version: 0 }) }
   }));
   app.use(createErrorHandler({ logger }));
   const server = await startServer(app);

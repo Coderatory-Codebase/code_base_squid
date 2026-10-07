@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import { createHttpLogger, type Logger } from "@workspace/logging";
 import type { ApiConfig } from "../types/index.js";
 import { apiRuntime } from "../constants/index.js";
-import { createUserProfileRoutes, type UserProfileRouteDependencies } from "../features/identity/index.js";
+import { createUserProfileRoutes, createUserSessionsRoutes, type UserProfileRouteDependencies, type UserSessionsRouteDependencies } from "../features/identity/index.js";
 import { createOidcSignInRoutes, type OidcSignInControllerDependencies } from "../features/authentication/index.js";
 import { createHealthRoutes } from "../features/health/index.js";
 import { createCorsMiddleware, createErrorHandler, createNotFoundHandler } from "../middleware/index.js";
@@ -11,10 +11,11 @@ type AppDependencies = Readonly<{
   config: ApiConfig;
   logger: Logger;
   identity?: UserProfileRouteDependencies;
+  identitySessions?: UserSessionsRouteDependencies;
   authentication?: OidcSignInControllerDependencies;
 }>;
 
-export const createApp = ({ config, logger, identity, authentication }: AppDependencies): Express => {
+export const createApp = ({ config, logger, identity, identitySessions, authentication }: AppDependencies): Express => {
   const app = express();
   app.disable("x-powered-by");
   app.use(createHttpLogger({
@@ -33,9 +34,19 @@ export const createApp = ({ config, logger, identity, authentication }: AppDepen
         }
       })
     : undefined;
+  const sessionRoutes = identitySessions
+    ? createUserSessionsRoutes({
+        ...identitySessions,
+        recordSessionAudit: (event) => {
+          identitySessions.recordSessionAudit?.(event);
+          logger.warn("Identity session revocation attempted.", event);
+        }
+      })
+    : undefined;
   const featureRouters = [
     createHealthRoutes({ environment: config.environment, serviceName: apiRuntime.serviceName }),
     ...(profileRoutes ? [profileRoutes] : []),
+    ...(sessionRoutes ? [sessionRoutes] : []),
     ...(authentication ? [createOidcSignInRoutes({
       ...authentication,
       recordInvalidSignIn: () => {

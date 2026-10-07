@@ -8,7 +8,10 @@ export type ApiErrorCode =
   | "user_profile_not_found"
   | "invalid_sign_in"
   | "provider_unavailable"
-  | "account_closed";
+  | "account_closed"
+  | "conflict"
+  | "profile_update_forbidden"
+  | "session_not_found";
 
 export type ApiErrorDetails = Readonly<Record<string, unknown>> | readonly unknown[];
 

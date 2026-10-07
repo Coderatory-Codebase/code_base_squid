@@ -23,6 +23,7 @@ const app = createApp({
   config,
   logger,
   ...(identity ? { identity: identity.profile } : {}),
+  ...(identity ? { identitySessions: identity.sessionManagement } : {}),
   ...(identity?.authentication ? { authentication: identity.authentication } : {})
 });
 const server = createServer({ app, config, logger });

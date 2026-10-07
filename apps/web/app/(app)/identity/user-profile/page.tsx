@@ -5,14 +5,15 @@ import { z } from "zod";
 import { Button, MessageState, PageHeader, PageShell } from "@workspace/ui";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
 import { UserProfileErrorState } from "@/features/identity/components/user-profile-error-state";
+import { UserProfileEditor } from "@/features/identity/components/user-profile-editor";
 
-const UserProfileResponseSchema = z.object({ name: z.string().min(1).max(80) });
+const UserProfileResponseSchema = z.object({ email: z.string().email(), name: z.string().min(1).max(80), version: z.number().int().nonnegative() });
 const ApiErrorResponseSchema = z.object({
   error: z.object({ code: z.string(), message: z.string() })
 });
 
 type ProfilePageState =
-  | Readonly<{ kind: "ready"; name: string }>
+  | Readonly<{ kind: "ready"; email: string; name: string; version: number }>
   | Readonly<{ kind: "empty"; message: string }>
   | Readonly<{ kind: "error"; message: string; retryable: boolean }>;
 
@@ -86,7 +87,7 @@ const loadUserProfile = async (): Promise<ProfilePageState> => {
       };
     }
 
-    return { kind: "ready", name: profile.data.name };
+    return { kind: "ready", email: profile.data.email, name: profile.data.name, version: profile.data.version };
   } catch {
     return {
       kind: "error",
@@ -129,10 +130,10 @@ const UserProfilePage = async (): Promise<ReactElement> => {
         icon={<UserRound aria-hidden="true" className="size-5" />}
         title="User profile"
       />
-      <dl className="mt-8 grid gap-2">
-        <dt className="text-sm font-medium text-muted-foreground">Display name</dt>
-        <dd className="text-base text-foreground">{state.name}</dd>
-      </dl>
+      <UserProfileEditor email={state.email} name={state.name} version={state.version} />
+      <div className="mt-4">
+        <Button asChild variant="outline"><a href="/identity/sessions">Manage active sessions</a></Button>
+      </div>
     </PageShell>
   );
 };

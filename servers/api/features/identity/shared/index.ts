@@ -1,23 +1,18 @@
 export { createUserProfileGateway } from "./repositories/user-profile.gateway.js";
 export { SESSION_COLLECTION, SESSION_LIFETIME_MS } from "./models/session.js";
 export { USER_COLLECTION } from "./models/user.js";
-export {
-  USER_PROFILE_COLLECTION,
-  USER_PROFILE_VIEW_INDEX_KEYS,
-  USER_PROFILE_VIEW_INDEX_NAME
-} from "./models/user-profile.js";
 export type {
   UserProfile,
   UserProfileDocument,
   UserProfileQuery,
-  UserProfileRecord
+  UserProfileUpdateResult
 } from "./models/user-profile.js";
 export type {
   UserProfileGateway,
   UserProfileGatewayDependencies,
   UserProfilePrincipal
 } from "./repositories/user-profile.gateway.js";
-export type { ActiveSession, SessionRecord } from "./models/session.js";
+export type { ActiveSession, SessionRecord, UserSession } from "./models/session.js";
 export type { IdentityUserRecord } from "./models/user.js";
 export type { IdentityProvider, VerifiedIdentity } from "./models/oidc.js";
 export type { Principal } from "./models/principal.js";

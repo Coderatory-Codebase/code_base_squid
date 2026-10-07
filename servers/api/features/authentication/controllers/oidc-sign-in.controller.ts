@@ -2,6 +2,7 @@ import type { RequestHandler, Response } from "express";
 import { performance } from "node:perf_hooks";
 import type { IdentityProvider, SignInCompletionPort } from "../../identity/public.js";
 import type { IdentitySignal } from "../../identity/public.js";
+import type { SessionQueryPort } from "../../identity/public.js";
 import { SESSION_LIFETIME_MS } from "../../identity/public.js";
 import type { OidcFlowCookie, OidcProviderPort } from "../index.js";
 import { OIDC_FLOW_COOKIE_NAME, OIDC_FLOW_COOKIE_TTL_SECONDS, SESSION_COOKIE_NAME } from "../index.js";
@@ -18,6 +19,9 @@ export type OidcSignInControllerDependencies = Readonly<{
   callbackBaseUrl: string;
   webOrigin: string;
   secureCookies: boolean;
+  sessions?: SessionQueryPort;
+  resolveSession?: (cookieHeader: string | undefined) => Promise<Readonly<{ sessionId: string; userId: string }> | null>;
+  invalidatePrincipalSession?: (sessionId: string) => void;
   recordInvalidSignIn?: () => void;
   recordSignInSignal?: (signal: Extract<IdentitySignal, { event: "identity.sign_in.completion" }>) => void;
 }>;
@@ -37,6 +41,9 @@ export const createOidcSignInController = ({
   callbackBaseUrl,
   webOrigin,
   secureCookies,
+  sessions,
+  resolveSession,
+  invalidatePrincipalSession = () => undefined,
   recordInvalidSignIn = () => undefined,
   recordSignInSignal = () => undefined
 }: OidcSignInControllerDependencies) => {
@@ -170,5 +177,24 @@ export const createOidcSignInController = ({
     }
   };
 
-  return Object.freeze({ start, callback });
+  const signOut: RequestHandler = async (request, response, next) => {
+    try {
+      const activeSession = await resolveSession?.(request.headers.cookie);
+      if (activeSession && sessions) {
+        await sessions.revokeActiveSession(activeSession.sessionId, activeSession.userId, new Date());
+        invalidatePrincipalSession(activeSession.sessionId);
+      }
+      response.clearCookie(SESSION_COOKIE_NAME, {
+        httpOnly: true,
+        secure: secureCookies,
+        sameSite: "lax",
+        path: "/"
+      });
+      response.status(HTTP_STATUS.noContent).end();
+    } catch (error: unknown) {
+      next(error);
+    }
+  };
+
+  return Object.freeze({ start, callback, signOut });
 };

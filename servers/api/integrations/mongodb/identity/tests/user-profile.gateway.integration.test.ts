@@ -3,13 +3,12 @@ import mongoose from "mongoose";
 import test from "node:test";
 import {
   createUserProfileGateway,
-  USER_PROFILE_VIEW_INDEX_NAME,
-  type UserProfileRecord
+  type IdentityUserRecord
 } from "../../../../features/identity/index.js";
-import { createUserProfileModel } from "../user-profile.model.js";
+import { createIdentityUserModel } from "../user.model.js";
 import { createUserProfileQueryAdapter } from "../profile-query.adapter.js";
 
-void test("user profile gateway enforces workspace and deletion scope using its index", async (context) => {
+void test("user profile update writes the canonical Identity user and supports a fresh userById read", async (context) => {
   const databaseName = `identity_gateway_test_${String(process.pid)}_${String(Date.now())}`;
   let connection: mongoose.Connection;
 
@@ -24,63 +23,35 @@ void test("user profile gateway enforces workspace and deletion scope using its 
   }
 
   try {
-    const model = createUserProfileModel(connection);
-    await model.init();
+    const users = createIdentityUserModel(connection);
+    await users.init();
+    const user: IdentityUserRecord = {
+      userId: "user-1",
+      email: "lena@example.test",
+      name: "Lena Park (Acme)",
+      provider: "google",
+      subject: "google-subject-1",
+      status: "ACTIVE",
+      closedAt: null
+    };
+    await users.create(user);
 
-    const profiles: UserProfileRecord[] = Array.from({ length: 1_000 }, (_, index) => ({
-      userProfileId: `other-user-${String(index)}`,
-      userId: `other-user-${String(index)}`,
-      workspaceId: "workspace-a",
-      name: `Other User ${String(index)}`,
-      updatedAt: new Date(1_700_000_000_000 + index),
-      version: 0,
-      deletedAt: null
-    }));
-    profiles.push(
-      {
-        userProfileId: "user-1",
-        userId: "user-1",
-        workspaceId: "workspace-a",
-        name: "Lena in A",
-        updatedAt: new Date("2026-09-01T00:00:00.000Z"),
-        version: 0,
-        deletedAt: null
-      },
-      {
-        userProfileId: "deleted-user",
-        userId: "deleted-user",
-        workspaceId: "workspace-a",
-        name: "Deleted User",
-        updatedAt: new Date("2026-09-02T00:00:00.000Z"),
-        version: 1,
-        deletedAt: new Date("2026-09-03T00:00:00.000Z")
-      }
-    );
-    await model.insertMany(profiles);
+    const gateway = createUserProfileGateway({ queryPort: createUserProfileQueryAdapter(users) });
+    const lena = { userId: "user-1", workspaceId: "workspace-a" };
+    const profile = await gateway.getUserProfile("user-1", lena);
+    assert.deepEqual(profile, { email: "lena@example.test", name: "Lena Park (Acme)", version: 0 });
 
-    const gateway = createUserProfileGateway({ queryPort: createUserProfileQueryAdapter(model) });
-    const profile = await gateway.getUserProfile("user-1", { userId: "actor-1", workspaceId: "workspace-a" });
-    const crossWorkspaceProfile = await gateway.getUserProfile("user-1", {
-      userId: "actor-1",
-      workspaceId: "workspace-b"
-    });
-    const deletedProfile = await gateway.getUserProfile("deleted-user", {
-      userId: "actor-1",
-      workspaceId: "workspace-a"
+    const update = await gateway.updateUserProfile("user-1", lena, "Lena Park", 0);
+    assert.deepEqual(update, {
+      kind: "updated",
+      profile: { email: "lena@example.test", name: "Lena Park", version: 1 }
     });
 
-    assert.deepEqual(profile, { name: "Lena in A" });
-    assert.equal(crossWorkspaceProfile, null);
-    assert.equal(deletedProfile, null);
-
-    const explanation = await model.collection.find({
-      workspaceId: "workspace-a",
-      userProfileId: "user-1",
-      deletedAt: null
-    }).sort({ updatedAt: -1 }).explain("executionStats");
-    const queryPlanner = explanation.queryPlanner as { winningPlan: unknown };
-    const winningPlan = JSON.stringify(queryPlanner.winningPlan);
-    assert.ok(winningPlan.includes(USER_PROFILE_VIEW_INDEX_NAME), winningPlan);
+    const userById = await users.findOne({ userId: "user-1" }).lean().exec();
+    assert.ok(userById);
+    assert.equal(userById.name, "Lena Park");
+    assert.equal(userById.email, "lena@example.test");
+    assert.equal(userById.profileVersion, 1);
   } finally {
     await connection.dropDatabase();
     await connection.close();

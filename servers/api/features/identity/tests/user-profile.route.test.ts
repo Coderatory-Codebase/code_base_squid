@@ -59,7 +59,7 @@ void test("profile API resolves the cookie principal before calling the gateway"
       getUserProfile: (userId, principal) => {
         assert.equal(userId, "user-1");
         receivedGatewayPrincipal = principal;
-        return Promise.resolve({ name: "Lena Park" });
+        return Promise.resolve({ email: "lena@example.test", name: "Lena Park", version: 0 });
       }
     },
     recordProfileSignal: (signal) => { profileSignals.push(signal); }
@@ -73,7 +73,7 @@ void test("profile API resolves the cookie principal before calling the gateway"
   });
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { name: "Lena Park" });
+  assert.deepEqual(await response.json(), { email: "lena@example.test", name: "Lena Park", version: 0 });
   assert.equal(receivedCookie, "squid_session=opaque-session-token");
   assert.deepEqual(receivedGatewayPrincipal, {
     userId: "user-1",
@@ -133,7 +133,7 @@ void test("profile API refuses unauthenticated requests before reading the gatew
     gateway: {
       getUserProfile: () => {
         gatewayWasCalled = true;
-        return Promise.resolve({ name: "Should not be returned" });
+        return Promise.resolve({ email: "private@example.test", name: "Should not be returned", version: 0 });
       }
     }
   }));
@@ -147,4 +147,123 @@ void test("profile API refuses unauthenticated requests before reading the gatew
   assert.equal(response.status, 401);
   assert.equal(body.error.code, "unauthenticated");
   assert.equal(gatewayWasCalled, false);
+});
+
+void test("profile update accepts a versioned display name and returns the saved version", async (context) => {
+  let receivedUpdate: unknown;
+  const app = express();
+  app.use(express.json());
+  app.use(createUserProfileRoutes({
+    principalResolver: { resolve: () => Promise.resolve({
+      kind: "resolved",
+      principal: { userId: "user-1", sessionId: "session-1", workspaceId: "workspace-1" }
+    }) },
+    gateway: {
+      getUserProfile: () => Promise.resolve({ email: "lena@example.test", name: "Lena Park", version: 0 }),
+      updateUserProfile: (userId, principal, name, version) => {
+        receivedUpdate = { userId, principal, name, version };
+        return Promise.resolve({ kind: "updated", profile: { email: "lena@example.test", name, version: version + 1 } });
+      }
+    }
+  }));
+  app.use(createErrorHandler({ logger }));
+  const server = await startServer(app);
+  context.after(server.close);
+
+  const response = await fetch(`${server.origin}/identity/user-profile`, {
+    method: "PUT",
+    headers: { cookie: "squid_session=opaque-session-token", "content-type": "application/json" },
+    body: JSON.stringify({ name: "  Lena Park  ", version: 0 })
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { email: "lena@example.test", name: "Lena Park", version: 1 });
+  assert.deepEqual(receivedUpdate, {
+    userId: "user-1",
+    principal: { userId: "user-1", sessionId: "session-1", workspaceId: "workspace-1" },
+    name: "Lena Park",
+    version: 0
+  });
+});
+
+void test("profile update refuses empty, overlong, and provider-owned email input", async (context) => {
+  let updateCalls = 0;
+  const app = express();
+  app.use(express.json());
+  app.use(createUserProfileRoutes({
+    principalResolver: { resolve: () => Promise.resolve({
+      kind: "resolved",
+      principal: { userId: "user-1", sessionId: "session-1", workspaceId: "workspace-1" }
+    }) },
+    gateway: {
+      getUserProfile: () => Promise.resolve({ email: "lena@example.test", name: "Lena Park", version: 0 }),
+      updateUserProfile: () => {
+        updateCalls += 1;
+        return Promise.resolve({ kind: "updated", profile: { email: "lena@example.test", name: "Changed", version: 1 } });
+      }
+    }
+  }));
+  app.use(createErrorHandler({ logger }));
+  const server = await startServer(app);
+  context.after(server.close);
+
+  const invalidInputs = [
+    { name: "", version: 0 },
+    { name: "x".repeat(81), version: 0 },
+    { name: "Lena Park", version: 0, email: "attacker@example.test" }
+  ];
+  for (const input of invalidInputs) {
+    const response = await fetch(`${server.origin}/identity/user-profile`, {
+      method: "PUT",
+      headers: { cookie: "squid_session=opaque-session-token", "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+    assert.equal(response.status, 400);
+    assert.equal((await response.json() as ApiErrorResponse).error.code, "validation_error");
+  }
+  assert.equal(updateCalls, 0);
+
+  for (const acceptedName of ["A", "x".repeat(80)]) {
+    const response = await fetch(`${server.origin}/identity/user-profile`, {
+      method: "PUT",
+      headers: { cookie: "squid_session=opaque-session-token", "content-type": "application/json" },
+      body: JSON.stringify({ name: acceptedName, version: 0 })
+    });
+    assert.equal(response.status, 200);
+  }
+  assert.equal(updateCalls, 2);
+});
+
+void test("profile update conflict returns the latest canonical profile for the editor", async (context) => {
+  const app = express();
+  app.use(express.json());
+  app.use(createUserProfileRoutes({
+    principalResolver: { resolve: () => Promise.resolve({
+      kind: "resolved",
+      principal: { userId: "user-1", sessionId: "session-1", workspaceId: "workspace-1" }
+    }) },
+    gateway: {
+      getUserProfile: () => Promise.resolve({ email: "lena@example.test", name: "Lena Park", version: 2 }),
+      updateUserProfile: () => Promise.resolve({
+        kind: "conflict",
+        currentProfile: { email: "lena@example.test", name: "Lena in Acme", version: 2 }
+      })
+    }
+  }));
+  app.use(createErrorHandler({ logger }));
+  const server = await startServer(app);
+  context.after(server.close);
+
+  const response = await fetch(`${server.origin}/identity/user-profile`, {
+    method: "PUT",
+    headers: { cookie: "squid_session=opaque-session-token", "content-type": "application/json" },
+    body: JSON.stringify({ name: "Lena Park", version: 1 })
+  });
+  const body = await response.json() as ApiErrorResponse;
+
+  assert.equal(response.status, 409);
+  assert.equal(body.error.code, "conflict");
+  assert.deepEqual(body.error.details, {
+    currentProfile: { email: "lena@example.test", name: "Lena in Acme", version: 2 }
+  });
 });

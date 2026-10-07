@@ -15,7 +15,7 @@ export type UserProfileControllerDependencies = Readonly<{
       | Readonly<{ kind: "resolved"; principal: Principal }>
     >;
   }>;
-  gateway: Pick<UserProfileGateway, "getUserProfile">;
+  gateway: Pick<UserProfileGateway, "getUserProfile"> & Partial<Pick<UserProfileGateway, "updateUserProfile">>;
   recordProfileSignal?: (signal: UserProfileSignal) => void;
 }>;
 

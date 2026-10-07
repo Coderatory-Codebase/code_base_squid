@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/user-profile-error-state.test.tsx tests/environment.test.ts",
+    "test": "tsx --test tests/integration/home-page.test.tsx tests/integration/user-profile-error-state.test.tsx tests/integration/display-name-validation.test.ts tests/integration/user-profile-editor.test.tsx tests/environment.test.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },

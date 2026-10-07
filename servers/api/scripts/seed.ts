@@ -1,18 +1,18 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
-import { createMongoTestConnection, createUserProfileModel, createUserProfileQueryAdapter } from "../integrations/mongodb/index.js";
-import {
-  createUserProfileGateway,
-  USER_PROFILE_VIEW_INDEX_NAME,
-  type UserProfileRecord
-} from "../features/identity/index.js";
+import { createIdentityUserModel, createMongoTestConnection } from "../integrations/mongodb/index.js";
+import { createUserProfileGateway, type IdentityUserRecord } from "../features/identity/index.js";
+import { createUserProfileQueryAdapter } from "../integrations/mongodb/identity/profile-query.adapter.js";
 
 const PROFILE_COUNT = 10_000;
-const MEASURED_REQUESTS = 200;
-const CONCURRENCY = 10;
+const TARGET_REQUESTS_PER_SECOND = 20;
+const DURATION_SECONDS = 10 * 60;
+const UPDATES_PER_USER = DURATION_SECONDS;
+const CONCURRENCY = TARGET_REQUESTS_PER_SECOND;
 const P95_BUDGET_MS = 300;
 const BATCH_SIZE = 1_000;
+const INDEX_NAME = "users_by_user_id";
 
 const percentile = (values: readonly number[], fraction: number): number => {
   const sorted = [...values].sort((left, right) => left - right);
@@ -32,90 +32,101 @@ const createIsolatedLocalUri = (source: string, databaseName: string): string =>
   return parsed.toString();
 };
 
+const waitUntil = async (targetTime: number): Promise<void> => {
+  const delay = targetTime - performance.now();
+  if (delay > 0) await new Promise<void>((resolve) => setTimeout(resolve, delay));
+};
+
 const run = async (): Promise<void> => {
   const sourceUri = process.env.IDENTITY_PROFILE_PERF_MONGODB_URI;
   assert(sourceUri, "Set IDENTITY_PROFILE_PERF_MONGODB_URI to a local MongoDB connection string.");
 
   const runId = randomUUID().replaceAll("-", "");
   const databaseName = `identity_profile_perf_${runId}`;
-  const workspaceId = `profile-perf-workspace-${runId}`;
-  const targetUserId = `profile-perf-user-${runId}-0`;
   const uri = createIsolatedLocalUri(sourceUri, databaseName);
   const connection = await createMongoTestConnection({ uri, databaseName });
 
   try {
-    const profileModel = createUserProfileModel(connection);
-    await profileModel.createIndexes();
-
-    const updatedAt = new Date("2026-10-01T00:00:00.000Z");
+    const users = createIdentityUserModel(connection);
+    await users.createIndexes();
     for (let offset = 0; offset < PROFILE_COUNT; offset += BATCH_SIZE) {
-      const batch = Array.from({ length: Math.min(BATCH_SIZE, PROFILE_COUNT - offset) }, (_, batchIndex): UserProfileRecord => {
+      const batch = Array.from({ length: Math.min(BATCH_SIZE, PROFILE_COUNT - offset) }, (_, batchIndex): IdentityUserRecord => {
         const sequence = offset + batchIndex;
-        const userId = `profile-perf-user-${runId}-${String(sequence)}`;
         return {
-          userProfileId: userId,
-          userId,
-          workspaceId,
+          userId: `profile-perf-user-${runId}-${String(sequence)}`,
+          email: `profile-perf-${String(sequence)}@example.test`,
           name: `Performance Fixture ${String(sequence)}`,
-          updatedAt,
-          version: 0,
-          deletedAt: null
+          profileVersion: 0,
+          provider: "google",
+          subject: `profile-perf-subject-${runId}-${String(sequence)}`,
+          status: "ACTIVE",
+          closedAt: null
         };
       });
-      await profileModel.insertMany(batch, { ordered: true });
+      await users.insertMany(batch, { ordered: true });
     }
 
-    const count = await profileModel.countDocuments({ workspaceId });
-    assert.equal(count, PROFILE_COUNT, "Seeded profile count does not match the requested target volume.");
+    const count = await users.countDocuments({ userId: { $regex: `^profile-perf-user-${runId}-` } });
+    assert.equal(count, PROFILE_COUNT, "Seeded Identity user count does not match the requested target volume.");
 
-    const gateway = createUserProfileGateway({ queryPort: createUserProfileQueryAdapter(profileModel) });
-    const principal = { userId: targetUserId, workspaceId };
-    const warmupCount = 100;
-    await Promise.all(Array.from({ length: warmupCount }, () => gateway.getUserProfile(targetUserId, principal)));
-
+    const gateway = createUserProfileGateway({ queryPort: createUserProfileQueryAdapter(users) });
+    const userIds = Array.from({ length: CONCURRENCY }, (_, index) => `profile-perf-user-${runId}-${String(index)}`);
     const samples: number[] = [];
-    let nextRequest = 0;
-    const workers = Array.from({ length: CONCURRENCY }, async () => {
-      while (nextRequest < MEASURED_REQUESTS) {
-        nextRequest += 1;
-        const startedAt = performance.now();
-        const profile = await gateway.getUserProfile(targetUserId, principal);
-        samples.push(performance.now() - startedAt);
-        assert.deepEqual(profile, { name: "Performance Fixture 0" });
+    const startedAt = performance.now();
+    const workers = userIds.map(async (userId, workerIndex) => {
+      const principal = { userId, workspaceId: `profile-perf-workspace-${runId}` };
+      for (let sequence = 0; sequence < UPDATES_PER_USER; sequence += 1) {
+        const requestNumber = sequence * CONCURRENCY + workerIndex;
+        await waitUntil(startedAt + requestNumber * (1_000 / TARGET_REQUESTS_PER_SECOND));
+        const requestStartedAt = performance.now();
+        const result = await gateway.updateUserProfile(
+          userId,
+          principal,
+          `Performance ${String(requestNumber)}`,
+          sequence
+        );
+        samples.push(performance.now() - requestStartedAt);
+        assert.equal(result.kind, "updated", `Profile update ${String(requestNumber)} did not save.`);
       }
     });
     await Promise.all(workers);
+    const elapsedMs = performance.now() - startedAt;
+    const p95Ms = percentile(samples, 0.95);
 
-    const explanation = await profileModel.collection.find({
-      userProfileId: targetUserId,
-      deletedAt: null,
-      workspaceId
-    }).sort({ updatedAt: -1 }).explain("executionStats");
+    const explanation = await users.collection.find({
+      userId: userIds[0],
+      status: "ACTIVE",
+      closedAt: null
+    }).explain("executionStats");
     const queryPlanner = explanation.queryPlanner as unknown as Readonly<{ winningPlan: unknown }>;
     const winningPlan = JSON.stringify(queryPlanner.winningPlan);
-    const indexServedQuery = winningPlan.includes(USER_PROFILE_VIEW_INDEX_NAME);
-    const p95Ms = percentile(samples, 0.95);
-    const result = indexServedQuery && p95Ms <= P95_BUDGET_MS ? "PASS" : "FAIL";
+    const indexServedQuery = winningPlan.includes(INDEX_NAME);
+    const actualRequestsPerSecond = samples.length / (elapsedMs / 1_000);
+    const result = indexServedQuery && p95Ms <= P95_BUDGET_MS && actualRequestsPerSecond >= TARGET_REQUESTS_PER_SECOND * 0.99
+      ? "PASS"
+      : "FAIL";
 
     console.log(JSON.stringify({
-      task: "02.1.01-S1-T5",
+      task: "02.1.01-S4-T4",
       result,
       environment: "isolated local MongoDB",
-      workspaceId,
-      seededProfiles: count,
-      measuredRequests: samples.length,
+      seededUsers: count,
+      measuredUpdates: samples.length,
+      targetRequestsPerSecond: TARGET_REQUESTS_PER_SECOND,
+      actualRequestsPerSecond: Number(actualRequestsPerSecond.toFixed(2)),
+      durationSeconds: Number((elapsedMs / 1_000).toFixed(2)),
       concurrency: CONCURRENCY,
-      warmupRequests: warmupCount,
       p95Ms: Number(p95Ms.toFixed(2)),
       p95BudgetMs: P95_BUDGET_MS,
-      index: USER_PROFILE_VIEW_INDEX_NAME,
+      index: INDEX_NAME,
       indexServedQuery,
       database: databaseName
     }, null, 2));
 
-    assert.equal(samples.length, MEASURED_REQUESTS, "Not every profile query was measured.");
-    assert.ok(indexServedQuery, `MongoDB did not select ${USER_PROFILE_VIEW_INDEX_NAME}: ${winningPlan}`);
-    assert.ok(p95Ms <= P95_BUDGET_MS, `Profile query p95 ${p95Ms.toFixed(2)}ms exceeded ${String(P95_BUDGET_MS)}ms.`);
+    assert.equal(samples.length, TARGET_REQUESTS_PER_SECOND * DURATION_SECONDS, "Not every scheduled profile update was measured.");
+    assert.ok(indexServedQuery, `MongoDB did not select ${INDEX_NAME}: ${winningPlan}`);
+    assert.ok(p95Ms <= P95_BUDGET_MS, `Profile update p95 ${p95Ms.toFixed(2)}ms exceeded ${String(P95_BUDGET_MS)}ms.`);
+    assert.ok(actualRequestsPerSecond >= TARGET_REQUESTS_PER_SECOND * 0.99, "Measured update rate fell below the 20 requests/second target.");
   } finally {
     await connection.dropDatabase();
     await connection.close();

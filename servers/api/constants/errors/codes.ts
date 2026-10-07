@@ -10,5 +10,8 @@ export const ERROR_CODES = Object.freeze({
   userProfileNotFound: "user_profile_not_found",
   invalidSignIn: "invalid_sign_in",
   providerUnavailable: "provider_unavailable",
-  accountClosed: "account_closed"
+  accountClosed: "account_closed",
+  conflict: "conflict",
+  profileUpdateForbidden: "profile_update_forbidden",
+  sessionNotFound: "session_not_found"
 } as const satisfies Readonly<Record<string, ApiErrorCode>>);

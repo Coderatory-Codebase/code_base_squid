@@ -1,47 +1,47 @@
 import type { Model } from "mongoose";
-import type {
-  UserProfileDocument,
-  UserProfileQuery,
-  UserProfileRecord
-} from "../../../features/identity/index.js";
+import type { UserProfileDocument, UserProfileQuery } from "../../../features/identity/index.js";
+import type { UserProfileUpdateResult } from "../../../features/identity/shared/models/user-profile.js";
 import type { IdentityUserRecord } from "../../../features/identity/index.js";
 import type { UserProfileQueryPort } from "../../../features/identity/index.js";
 
-export const createUserProfileQueryAdapter = (
-  model: Model<UserProfileRecord>,
-  users?: Model<IdentityUserRecord>
-): UserProfileQueryPort => ({
+export const createUserProfileQueryAdapter = (users: Model<IdentityUserRecord>): UserProfileQueryPort => ({
   findOne: async (query: UserProfileQuery): Promise<UserProfileDocument | null> => {
-    const profile = await model.findOne(query).sort({ updatedAt: -1 }).lean().exec();
-    if (profile) {
-      return {
-        userProfileId: profile.userProfileId,
-        userId: profile.userId,
-        workspaceId: profile.workspaceId,
-        name: profile.name,
-        version: profile.version,
-        deletedAt: profile.deletedAt
-      };
-    }
-
-    // First sign-in creates the canonical Identity user in the same transaction as its session/outbox.
-    // The principal resolver has already verified workspace membership; use the principal's user id
-    // as the scoped fallback when a workspace profile projection has not been materialized.
-    if (!users) return null;
     const user = await users.findOne({
-      userId: query.userProfileId,
-      status: "ACTIVE",
-      closedAt: null
-    }).select({ userId: 1, name: 1 }).lean().exec();
+      ...query
+    }).select({ userId: 1, email: 1, name: 1, profileVersion: 1, _id: 0 }).lean().exec();
     if (!user) return null;
 
     return {
-      userProfileId: user.userId,
       userId: user.userId,
-      workspaceId: query.workspaceId,
+      email: user.email,
       name: user.name,
-      version: 0,
-      deletedAt: null
+      version: user.profileVersion ?? 0
+    };
+  },
+  updateOne: async ({ query, name, expectedVersion }): Promise<UserProfileUpdateResult> => {
+    const versionMatch = expectedVersion === 0
+      ? { $or: [{ profileVersion: 0 }, { profileVersion: { $exists: false } }] }
+      : { profileVersion: expectedVersion };
+    const updated = await users.findOneAndUpdate(
+      { ...query, ...versionMatch },
+      { $set: { name, profileVersion: expectedVersion + 1 } },
+      { returnDocument: "after", projection: { userId: 1, email: 1, name: 1, profileVersion: 1, _id: 0 } }
+    ).lean().exec();
+    if (updated) {
+      return {
+        kind: "updated",
+        profile: { email: updated.email, name: updated.name, version: updated.profileVersion ?? expectedVersion + 1 }
+      };
+    }
+
+    const current = await users.findOne(query)
+      .select({ userId: 1, email: 1, name: 1, profileVersion: 1, _id: 0 })
+      .lean()
+      .exec();
+    if (!current) return { kind: "not-found" };
+    return {
+      kind: "conflict",
+      currentProfile: { email: current.email, name: current.name, version: current.profileVersion ?? 0 }
     };
   }
 });

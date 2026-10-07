@@ -7,5 +7,6 @@ export const createOidcSignInRoutes = (dependencies: OidcSignInControllerDepende
 
   router.get("/identity/sign-in/:provider", controller.start);
   router.get("/identity/callback/:provider", controller.callback);
+  router.delete("/identity/session", controller.signOut);
   return router;
 };

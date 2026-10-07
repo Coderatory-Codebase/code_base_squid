@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUserProfileController, type UserProfileControllerDependencies } from "../controllers/index.js";
+import { createUserProfileController, createUpdateUserProfileController, type UserProfileControllerDependencies } from "../controllers/index.js";
 
 export type UserProfileRouteDependencies = UserProfileControllerDependencies;
 
@@ -10,5 +10,6 @@ export const createUserProfileRoutes = ({ principalResolver, gateway, recordProf
     gateway,
     ...(recordProfileSignal ? { recordProfileSignal } : {})
   }));
+  router.put("/identity/user-profile", createUpdateUserProfileController({ principalResolver, gateway }));
   return router;
 };

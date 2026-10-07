@@ -1,17 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { userProfileSchema } from "../user-profile.model.js";
+import { identityUserSchema } from "../user.model.js";
 
-void test("user profile schema declares its compound view index", () => {
-  const indexes = userProfileSchema.indexes();
-  assert.ok(indexes.some(([keys]) =>
-    keys.workspaceId === 1 && keys.userProfileId === 1 && keys.updatedAt === 1
-  ));
+void test("Identity users schema indexes the canonical userById profile record", () => {
+  const indexes = identityUserSchema.indexes();
+  assert.ok(indexes.some(([keys, options]) => keys.userId === 1 && options.name === "users_by_user_id"));
 });
 
-void test("user profile schema supports optimistic concurrency and soft deletion", () => {
-  assert.ok(userProfileSchema.path("version"));
-  assert.ok(userProfileSchema.path("deletedAt"));
-  assert.equal(userProfileSchema.options.versionKey, "version");
-  assert.equal(userProfileSchema.options.optimisticConcurrency, true);
+void test("Identity user schema stores an explicit profile version for conflict detection", () => {
+  assert.ok(identityUserSchema.path("profileVersion"));
+  assert.equal(identityUserSchema.path("profileVersion").options.default, 0);
+  assert.equal(identityUserSchema.path("profileVersion").options.min, 0);
 });

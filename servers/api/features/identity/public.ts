@@ -1,4 +1,14 @@
 export { createIdentityUserBootstrap } from "./sign-in.js";
+export { createUserProfileGateway } from "./shared/repositories/user-profile.gateway.js";
+export type {
+  UserProfile,
+  UserProfileGateway,
+  UserProfileGatewayDependencies,
+  UserProfilePrincipal,
+  UserProfileQuery,
+  UserProfileQueryPort,
+  UserProfileUpdateResult
+} from "./shared/index.js";
 export { SESSION_LIFETIME_MS } from "./shared/models/session.js";
 export type { ActiveSession } from "./shared/models/session.js";
 export type { IdentityProvider, VerifiedIdentity } from "./shared/models/oidc.js";

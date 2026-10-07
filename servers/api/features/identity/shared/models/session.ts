@@ -15,3 +15,11 @@ export type ActiveSession = Readonly<{
   sessionId: string;
   userId: string;
 }>;
+
+export type UserSession = Readonly<{
+  sessionId: string;
+  userId: string;
+  device: string;
+  lastUsedAt: Date;
+  expiresAt: Date;
+}>;

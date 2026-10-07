@@ -20,5 +20,25 @@ export const createSessionQueryAdapter = (model: Model<SessionRecord>): SessionQ
       { $set: { status: "EXPIRED" } }
     ).exec();
     return null;
+  },
+  revokeActiveSession: async (sessionId: string, userId: string, now: Date): Promise<boolean> => {
+    const result = await model.updateOne(
+      { sessionId, userId, status: "ACTIVE", expiresAt: { $gt: now } },
+      { $set: { status: "REVOKED" } }
+    ).exec();
+    return result.modifiedCount === 1;
+  },
+  listActiveByUserId: async (userId, now) => {
+    const sessions = await model.find({ userId, status: "ACTIVE", expiresAt: { $gt: now } })
+      .sort({ lastUsedAt: -1 })
+      .select({ sessionId: 1, userId: 1, device: 1, lastUsedAt: 1, expiresAt: 1, _id: 0 })
+      .lean().exec();
+    return sessions.map((session) => ({
+      sessionId: session.sessionId,
+      userId: session.userId,
+      device: session.device,
+      lastUsedAt: session.lastUsedAt,
+      expiresAt: session.expiresAt
+    }));
   }
 });

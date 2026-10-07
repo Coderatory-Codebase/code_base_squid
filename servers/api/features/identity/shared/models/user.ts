@@ -6,6 +6,7 @@ export type IdentityUserRecord = Readonly<{
   userId: string;
   email: string;
   name: string;
+  profileVersion?: number;
   provider: IdentityProvider;
   subject: string;
   status: "ACTIVE" | "CLOSED";

@@ -1,7 +1,8 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import type { ApiConfig, OidcApiConfiguration } from "../types/index.js";
-import { createIdentityUserBootstrap, createUserProfileGateway } from "../features/identity/index.js";
+import { createIdentityUserBootstrap, createIdentitySessionManager, createUserProfileGateway } from "../features/identity/index.js";
 import type { UserProfileRouteDependencies } from "../features/identity/index.js";
+import type { UserSessionsRouteDependencies } from "../features/identity/index.js";
 import {
   createOidcFlowCookie,
   createPrincipalResolver,
@@ -14,7 +15,6 @@ import {
   createIdentityUserModel,
   createSessionModel,
   createSessionQueryAdapter,
-  createUserProfileModel,
   createUserProfileQueryAdapter,
   createWorkspaceMembershipQueryAdapter,
   createMongoSignInTransactionRunner
@@ -32,12 +32,13 @@ const unavailableIdentityProvider: OidcProviderPort = Object.freeze({
 export type IdentityRuntime = Readonly<{
   profile: UserProfileRouteDependencies;
   authentication: OidcSignInControllerDependencies;
+  sessionManagement: UserSessionsRouteDependencies;
 }>;
 
 export const createIdentityRuntime = (database: MongoDbIntegration, config: ApiConfig): IdentityRuntime => {
   const sessions = createSessionModel(database.connection);
+  const sessionPort = createSessionQueryAdapter(sessions);
   const users = createIdentityUserModel(database.connection);
-  const profiles = createUserProfileModel(database.connection);
   const membershipPort = createWorkspaceMembershipQueryAdapter(database.connection);
   const transactionRunner = createMongoSignInTransactionRunner(database.connection);
   const identityProvisioning = createIdentityUserBootstrap({
@@ -46,12 +47,19 @@ export const createIdentityRuntime = (database: MongoDbIntegration, config: ApiC
     now: () => new Date(),
     deviceLabel: "Unknown device"
   });
+  const resolveSession = createSessionCookieResolver({ sessions: sessionPort });
+  const principalResolver = createPrincipalResolver({
+    resolveSession,
+    invalidateResolvedSession: resolveSession.invalidateSession,
+    memberships: membershipPort
+  });
   const profileDependencies = {
-    principalResolver: createPrincipalResolver({
-      resolveSession: createSessionCookieResolver({ sessions: createSessionQueryAdapter(sessions) }),
-      memberships: membershipPort
-    }),
-    gateway: createUserProfileGateway({ queryPort: createUserProfileQueryAdapter(profiles, users) })
+    principalResolver,
+    gateway: createUserProfileGateway({ queryPort: createUserProfileQueryAdapter(users) })
+  };
+  const sessionManagement = {
+    principalResolver,
+    manager: createIdentitySessionManager(sessionPort)
   };
 
   const workspaceBootstrap = createWorkspaceBootstrap({
@@ -70,13 +78,17 @@ export const createIdentityRuntime = (database: MongoDbIntegration, config: ApiC
 
   return Object.freeze({
     profile: profileDependencies,
+    sessionManagement,
     authentication: Object.freeze({
       provider: oidcProvider,
       flowCookie,
       completion: workspaceBootstrap,
       callbackBaseUrl: config.oidc?.callbackBaseUrl ?? `http://${config.host}:${String(config.port)}`,
       webOrigin: config.webOrigin,
-      secureCookies: config.environment === "production"
+      secureCookies: config.environment === "production",
+      sessions: sessionPort,
+      resolveSession,
+      invalidatePrincipalSession: principalResolver.invalidateSession
     })
   });
 };

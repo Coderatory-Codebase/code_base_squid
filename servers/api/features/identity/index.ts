@@ -2,13 +2,14 @@ export { createUserProfileGateway } from "./shared/index.js";
 export {
   SESSION_COLLECTION,
   SESSION_LIFETIME_MS,
-  USER_COLLECTION,
-  USER_PROFILE_COLLECTION,
-  USER_PROFILE_VIEW_INDEX_KEYS,
-  USER_PROFILE_VIEW_INDEX_NAME
+  USER_COLLECTION
 } from "./shared/index.js";
 export { createIdentityUserBootstrap } from "./sign-in.js";
 export { createUserProfileRoutes } from "./routes/index.js";
+export { createUserSessionsRoutes } from "./routes/index.js";
+export { createIdentitySessionManager } from "./sessions.js";
+export type { IdentitySessionManager, ManagedSession, SessionAudit } from "./sessions.js";
+export type { UserSessionsRouteDependencies } from "./routes/index.js";
 export type { UserProfileRouteDependencies, UserProfileSignal } from "./routes/index.js";
 export type {
   ActiveSession,
@@ -16,6 +17,7 @@ export type {
   Principal,
   SessionQueryPort,
   SessionRecord,
+  UserSession,
   IdentityProvider,
   IdentityUserRecord,
   IdentitySessionInsert,
@@ -35,5 +37,5 @@ export type {
   UserProfilePrincipal,
   UserProfileQuery,
   UserProfileQueryPort,
-  UserProfileRecord
+  UserProfileUpdateResult
 } from "./shared/index.js";

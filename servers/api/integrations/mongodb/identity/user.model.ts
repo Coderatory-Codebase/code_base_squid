@@ -7,6 +7,7 @@ export const identityUserSchema = new Schema<IdentityUserRecord>(
     userId: { type: String, required: true },
     email: { type: String, required: true, trim: true, lowercase: true },
     name: { type: String, required: true, trim: true, minlength: 1, maxlength: 80 },
+    profileVersion: { type: Number, required: true, default: 0, min: 0 },
     provider: { type: String, required: true, enum: ["google", "microsoft"] },
     subject: { type: String, required: true },
     status: { type: String, required: true, enum: ["ACTIVE", "CLOSED"] },
