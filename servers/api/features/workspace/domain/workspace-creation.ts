@@ -1,6 +1,4 @@
 export type WorkspaceCreation = Readonly<{
-  organizationId: string;
-  ownerId: string;
   name: string;
 }>;
 
@@ -29,6 +27,6 @@ export const createWorkspaceCreation = (
 
   return {
     ok: true,
-    value: { ...input, name }
+    value: { name }
   };
 };

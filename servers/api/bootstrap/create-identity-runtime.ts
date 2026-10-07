@@ -9,13 +9,15 @@ import {
   createSessionCookieResolver
 } from "../features/authentication/index.js";
 import type { OidcProviderPort, OidcSignInControllerDependencies } from "../features/authentication/index.js";
-import { createWorkspaceBootstrap } from "../features/workspace/index.js";
+import { createWorkspaceBootstrap, createWorkspaceService } from "../features/workspace/index.js";
+import type { ActiveSession } from "../features/identity/index.js";
 import type { MongoDbIntegration } from "../integrations/index.js";
 import {
   createIdentityUserModel,
   createSessionModel,
   createSessionQueryAdapter,
   createUserProfileQueryAdapter,
+  createMongoWorkspaceAdapter,
   createWorkspaceMembershipQueryAdapter,
   createMongoSignInTransactionRunner
 } from "../integrations/mongodb/index.js";
@@ -33,6 +35,10 @@ export type IdentityRuntime = Readonly<{
   profile: UserProfileRouteDependencies;
   authentication: OidcSignInControllerDependencies;
   sessionManagement: UserSessionsRouteDependencies;
+  workspace: Readonly<{
+    resolveSession: (cookieHeader: string | undefined) => Promise<ActiveSession | null>;
+    service: ReturnType<typeof createWorkspaceService>;
+  }>;
 }>;
 
 export const createIdentityRuntime = (database: MongoDbIntegration, config: ApiConfig): IdentityRuntime => {
@@ -67,6 +73,13 @@ export const createIdentityRuntime = (database: MongoDbIntegration, config: ApiC
     identity: identityProvisioning,
     createId: randomUUID
   });
+  const workspace = {
+    resolveSession,
+    service: createWorkspaceService({
+      workspaces: createMongoWorkspaceAdapter(database.connection),
+      createId: randomUUID
+    })
+  };
   const oidcProvider = config.oidc
     ? createVerifiedIdentityProvider(config.oidc)
     : unavailableIdentityProvider;
@@ -79,6 +92,7 @@ export const createIdentityRuntime = (database: MongoDbIntegration, config: ApiC
   return Object.freeze({
     profile: profileDependencies,
     sessionManagement,
+    workspace,
     authentication: Object.freeze({
       provider: oidcProvider,
       flowCookie,

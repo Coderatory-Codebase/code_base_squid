@@ -5,6 +5,7 @@ import { apiRuntime } from "../constants/index.js";
 import { createUserProfileRoutes, createUserSessionsRoutes, type UserProfileRouteDependencies, type UserSessionsRouteDependencies } from "../features/identity/index.js";
 import { createOidcSignInRoutes, type OidcSignInControllerDependencies } from "../features/authentication/index.js";
 import { createHealthRoutes } from "../features/health/index.js";
+import { createWorkspaceRoutes, type WorkspaceRouteDependencies } from "../features/workspace/index.js";
 import { createCorsMiddleware, createErrorHandler, createNotFoundHandler } from "../middleware/index.js";
 
 type AppDependencies = Readonly<{
@@ -13,9 +14,10 @@ type AppDependencies = Readonly<{
   identity?: UserProfileRouteDependencies;
   identitySessions?: UserSessionsRouteDependencies;
   authentication?: OidcSignInControllerDependencies;
+  workspace?: WorkspaceRouteDependencies;
 }>;
 
-export const createApp = ({ config, logger, identity, identitySessions, authentication }: AppDependencies): Express => {
+export const createApp = ({ config, logger, identity, identitySessions, authentication, workspace }: AppDependencies): Express => {
   const app = express();
   app.disable("x-powered-by");
   app.use(createHttpLogger({
@@ -47,6 +49,7 @@ export const createApp = ({ config, logger, identity, identitySessions, authenti
     createHealthRoutes({ environment: config.environment, serviceName: apiRuntime.serviceName }),
     ...(profileRoutes ? [profileRoutes] : []),
     ...(sessionRoutes ? [sessionRoutes] : []),
+    ...(workspace ? [createWorkspaceRoutes(workspace)] : []),
     ...(authentication ? [createOidcSignInRoutes({
       ...authentication,
       recordInvalidSignIn: () => {

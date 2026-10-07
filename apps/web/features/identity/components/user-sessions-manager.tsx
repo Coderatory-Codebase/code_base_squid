@@ -56,7 +56,7 @@ export const UserSessionsManager = ({ initialSessions }: UserSessionsManagerProp
                 <p className="font-medium">{session.device}{session.isCurrent ? <span className="ml-2 text-sm text-muted-foreground">This device</span> : null}</p>
                 <p className="text-sm text-muted-foreground">Last active {new Date(session.lastUsedAt).toLocaleString()}</p>
               </div>
-              <Button disabled={revoking !== null} onClick={() => void revoke(session)} type="button" variant="outline">
+              <Button aria-label={`Sign out ${session.device}`} disabled={revoking !== null} onClick={() => void revoke(session)} type="button" variant="outline">
                 {revoking === session.sessionId ? "Signing out…" : "Sign out"}
               </Button>
             </li>

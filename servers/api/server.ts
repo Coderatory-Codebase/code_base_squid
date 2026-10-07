@@ -24,7 +24,8 @@ const app = createApp({
   logger,
   ...(identity ? { identity: identity.profile } : {}),
   ...(identity ? { identitySessions: identity.sessionManagement } : {}),
-  ...(identity?.authentication ? { authentication: identity.authentication } : {})
+  ...(identity?.authentication ? { authentication: identity.authentication } : {}),
+  ...(identity ? { workspace: identity.workspace } : {})
 });
 const server = createServer({ app, config, logger });
 

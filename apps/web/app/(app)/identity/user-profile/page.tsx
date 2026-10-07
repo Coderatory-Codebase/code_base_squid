@@ -15,6 +15,7 @@ const ApiErrorResponseSchema = z.object({
 type ProfilePageState =
   | Readonly<{ kind: "ready"; email: string; name: string; version: number }>
   | Readonly<{ kind: "empty"; message: string }>
+  | Readonly<{ kind: "workspace-needed" }>
   | Readonly<{ kind: "error"; message: string; retryable: boolean }>;
 
 const loadUserProfile = async (): Promise<ProfilePageState> => {
@@ -54,6 +55,15 @@ const loadUserProfile = async (): Promise<ProfilePageState> => {
       return { kind: "empty", message: "Sign in with Google or Microsoft to view your profile." };
     }
     if (response.status === 403) {
+      let error: ReturnType<typeof ApiErrorResponseSchema.safeParse> | undefined;
+      try {
+        error = ApiErrorResponseSchema.safeParse(await response.json());
+      } catch {
+        error = undefined;
+      }
+      if (error?.success && error.data.error.code === "no_active_workspace") {
+        return { kind: "workspace-needed" };
+      }
       return {
         kind: "error",
         message: "Your account has no active workspace. Ask your workspace administrator to finish setting it up before trying again.",
@@ -120,6 +130,18 @@ const UserProfilePage = async (): Promise<ReactElement> => {
 
   if (state.kind === "error") {
     return <UserProfileErrorState message={state.message} retryable={state.retryable} />;
+  }
+
+  if (state.kind === "workspace-needed") {
+    return (
+      <MessageState
+        action={<div className="mt-6"><Button asChild><a href="/workspace">Create your workspace</a></Button></div>}
+        description="Your organization does not have a workspace for you yet. Create one to continue."
+        eyebrow="Workspace setup"
+        icon={<UserRound aria-hidden="true" className="size-8 text-muted-foreground" />}
+        title="Set up your workspace"
+      />
+    );
   }
 
   return (
