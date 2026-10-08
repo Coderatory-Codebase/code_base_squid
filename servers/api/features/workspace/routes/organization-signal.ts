@@ -8,7 +8,11 @@ export type OrganizationSignalDependencies = Readonly<{
   logger: OrganizationSignalLogger;
 }>;
 
-const resolveOperation = (request: Pick<Request, "method">): "listOrganizations" | "createOrganization" => {
+const isSettingsUpdate = (request: Pick<Request, "method" | "path">): boolean =>
+  request.method === "PATCH" && /^\/organizations\/[^/]+\/settings$/u.test(request.path);
+
+const resolveOperation = (request: Pick<Request, "method" | "path">): "listOrganizations" | "createOrganization" | "update" => {
+  if (isSettingsUpdate(request)) return "update";
   if (request.method === "POST") return "createOrganization";
   return "listOrganizations";
 };
@@ -30,6 +34,7 @@ export const createOrganizationRequestSignal = ({ logger }: OrganizationSignalDe
         workspace: "Platform",
         module: "workspace",
         operation: resolveOperation(request),
+        ...(isSettingsUpdate(request) ? { feature: "organization-settings" } : {}),
         method: request.method,
         path: request.path,
         statusCode,

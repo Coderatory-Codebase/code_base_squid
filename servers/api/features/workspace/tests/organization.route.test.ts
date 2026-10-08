@@ -6,6 +6,7 @@ import { createApp, createServer } from "../../../bootstrap/index.js";
 import type { ApiConfig } from "../../../types/index.js";
 import type { OrganizationGateway } from "../db/organization.gateway.js";
 import type { MembersService } from "../services/members.service.js";
+import type { OrganizationSettingsReader } from "../controllers/organization-settings.controller.js";
 import type { Principal } from "../types.js";
 
 const logger: Logger = { info: () => undefined, warn: () => undefined, error: () => undefined };
@@ -20,7 +21,13 @@ const principal: Principal = { userId: "user-1", workspaceIds: ["workspace-1"] }
 
 const startApi = async (
   context: TestContext,
-  options: Readonly<{ gateway: OrganizationGateway; membersService?: MembersService; authenticated?: boolean; logger?: Logger }>
+  options: Readonly<{
+    gateway: OrganizationGateway;
+    membersService?: MembersService;
+    settingsReader?: OrganizationSettingsReader;
+    authenticated?: boolean;
+    logger?: Logger;
+  }>
 ): Promise<string> => {
   const requestLogger = options.logger ?? logger;
   const server = createServer({
@@ -29,6 +36,7 @@ const startApi = async (
       logger: requestLogger,
       organizationGateway: options.gateway,
       ...(options.membersService ? { membersService: options.membersService } : {}),
+      ...(options.settingsReader ? { organizationSettingsReader: options.settingsReader } : {}),
       resolvePrincipal: () => options.authenticated === false ? null : principal
     }),
     config,
@@ -42,6 +50,50 @@ const startApi = async (
   return `http://127.0.0.1:${String(address.port)}/organizations`;
 };
 
+void test("organization settings route reads through the authenticated workspace principal", async (context) => {
+  const settings = [{
+    organizationId: "000000000000000000000001",
+    name: "Acme Design",
+    version: 1,
+    canUpdate: false,
+    timeZone: { value: "Europe/London", source: "owner" as const },
+    weekStart: { value: "Monday" as const, source: "default" as const },
+    dateFormat: { value: "DD/MM/YYYY" as const, source: "default" as const },
+    workspaceSetupRule: { value: "any member" as const, source: "default" as const }
+  }];
+  let receivedPrincipal: Principal | undefined;
+  const organizationsUrl = await startApi(context, {
+    gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })),
+    settingsReader: (resolvedPrincipal) => {
+      receivedPrincipal = resolvedPrincipal;
+      return Promise.resolve(settings);
+    }
+  });
+  const url = organizationsUrl.replace("/organizations", "/workspace/organization-settings");
+  const response = await fetch(url, { headers: { authorization: "Bearer test-session" } });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { settings });
+  assert.deepEqual(receivedPrincipal, principal);
+});
+
+void test("organization settings route refuses an unauthenticated request before reading settings", async (context) => {
+  let readerCalls = 0;
+  const organizationsUrl = await startApi(context, {
+    gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })),
+    authenticated: false,
+    settingsReader: () => {
+      readerCalls += 1;
+      return Promise.resolve([]);
+    }
+  });
+  const url = organizationsUrl.replace("/organizations", "/workspace/organization-settings");
+  const response = await fetch(url);
+
+  assert.equal(response.status, 401);
+  assert.equal(readerCalls, 0);
+});
+
 const gatewayFor = (query: OrganizationGateway["listOrganizationsForPrincipal"]): OrganizationGateway => ({
   listOrganizationsForPrincipal: query,
   createOrganizationForPrincipal: (_receivedPrincipal, name) => Promise.resolve({
@@ -50,6 +102,7 @@ const gatewayFor = (query: OrganizationGateway["listOrganizationsForPrincipal"])
     ownerId: principal.userId,
     workspaceIds: [],
     lastUsedAt: new Date(systemClock.now()),
+    settings: {},
     deletedAt: null
   }),
   upsertPreviewOrganization: () => Promise.resolve()

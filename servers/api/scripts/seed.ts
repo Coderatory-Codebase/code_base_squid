@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { systemClock } from "@workspace/kernel";
 import { createLogger } from "@workspace/logging";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
-import { OrganizationModel } from "../features/workspace/index.js";
+import { OrganizationModel, type OrganizationSettingsValues } from "../features/workspace/index.js";
 
 const getArgument = (name: string): string | undefined => {
   const index = process.argv.indexOf(name);
@@ -58,6 +58,12 @@ const seed = async (): Promise<void> => {
     const operations = Array.from({ length: targetVolume }, (_, index) => {
       const ordinal = String(index + 1).padStart(6, "0");
       const name = `${seedNamePrefix}${ordinal}`;
+      const settings: OrganizationSettingsValues = {
+        timeZone: "Europe/London",
+        weekStart: "Monday",
+        dateFormat: "DD/MM/YYYY",
+        workspaceSetupRule: "any member"
+      };
       return {
         updateOne: {
           filter: { name, ownerId: "organization-settings-load-test-owner", workspaceIds: workspaceId },
@@ -68,12 +74,7 @@ const seed = async (): Promise<void> => {
               workspaceIds: [workspaceId],
               lastUsedAt: now,
               deletedAt: null,
-              settings: {
-                timeZone: "Europe/London",
-                weekStart: "Monday",
-                dateFormat: "DD/MM/YYYY",
-                workspaceSetupRule: "any member"
-              }
+              settings
             }
           },
           upsert: true

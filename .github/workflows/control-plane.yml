@@ -34,6 +34,8 @@ jobs:
       - name: Validate main commit
         if: github.event_name == 'push'
         run: pnpm run commitlint --last --verbose
+      - name: Test invitation accepted consumer
+        run: pnpm --filter @workspace/api exec tsx --test features/workspace/tests/invitation-accepted.consumer.test.ts
       - name: Run validate
         run: pnpm run validate
         continue-on-error: true

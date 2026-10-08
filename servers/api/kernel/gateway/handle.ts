@@ -68,7 +68,10 @@ const withoutProtectedFields = (patch: Filter): Filter =>
 const conflict: MutationResult = { status: "conflict", code: ERROR_CODES.versionConflict };
 
 export const createScopedHandle =
-  <T extends ScopedDocument>({ collection, clock = systemClock }: { readonly collection: RawCollection<T>; readonly clock?: Clock }) =>
+  <T extends ScopedDocument>({ collection, clock = systemClock }: {
+    readonly collection: RawCollection<T>;
+    readonly clock?: Clock;
+  }) =>
   (context: WorkspaceContext): ScopedHandle<T> => {
     const { workspaceId } = context;
 

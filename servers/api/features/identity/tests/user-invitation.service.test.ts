@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
-import { systemClock } from "@workspace/kernel";
 import {
   createInvitationService,
   InvitationCommandError,
@@ -9,7 +8,7 @@ import {
   type InvitationOperationSignal,
   type UserInvitationGateway
 } from "../gateways/index.js";
-import type { Principal } from "../types/index.js";
+import type { PendingInvitationInput, Principal } from "../types/index.js";
 
 const admin: Principal = Object.freeze({
   userId: "lena",
@@ -26,16 +25,17 @@ const member: Principal = Object.freeze({
 });
 
 type PendingGateway = Pick<UserInvitationGateway, "findPendingByEmail" | "createPending" | "replacePending">;
+const fixtureDate = (): Date => new Date("2030-01-01T00:00:00.000Z");
 
 const createGateway = (existingPending = false): Readonly<{
   gateway: PendingGateway;
   calls: string[];
-  created: Record<string, unknown>[];
-  replaced: Record<string, unknown>[];
+  created: PendingInvitationInput[];
+  replaced: PendingInvitationInput[];
 }> => {
   const calls: string[] = [];
-  const created: Record<string, unknown>[] = [];
-  const replaced: Record<string, unknown>[] = [];
+  const created: PendingInvitationInput[] = [];
+  const replaced: PendingInvitationInput[] = [];
   const gateway: PendingGateway = {
     findPendingByEmail: () => {
       calls.push("find-pending");
@@ -47,9 +47,9 @@ const createGateway = (existingPending = false): Readonly<{
           tokenHash: "a".repeat(64),
           status: "pending" as const,
           role: "member",
-          expiresAt: new Date(systemClock.now()),
-          createdAt: new Date(systemClock.now()),
-          updatedAt: new Date(systemClock.now())
+          expiresAt: fixtureDate(),
+          createdAt: fixtureDate(),
+          updatedAt: fixtureDate()
         })
         : null);
     },
@@ -60,8 +60,8 @@ const createGateway = (existingPending = false): Readonly<{
         workspaceId: "design",
         invitedBy: "lena",
         status: "pending" as const,
-        createdAt: new Date(systemClock.now()),
-        updatedAt: new Date(systemClock.now()),
+        createdAt: fixtureDate(),
+        updatedAt: fixtureDate(),
         ...input
       }));
     },
@@ -72,8 +72,8 @@ const createGateway = (existingPending = false): Readonly<{
         workspaceId: "design",
         invitedBy: "lena",
         status: "pending" as const,
-        createdAt: new Date(systemClock.now()),
-        updatedAt: new Date(systemClock.now()),
+        createdAt: fixtureDate(),
+        updatedAt: fixtureDate(),
         ...input
       }));
     }
@@ -106,9 +106,10 @@ void test("TC-02.1.02-S1-1 AC-1 creates one pending invitation with a seven-day 
 
   assert.equal(result.invitationUrl, "https://web.example.test/invitations/accept?token=raw-token-for-lena-only");
   assert.equal(created.length, 1);
-  assert.equal(created[0].email, "omar@acme.test");
-  assert.equal(created[0].expiresAt instanceof Date, true);
-  assert.equal((created[0].expiresAt as Date).toISOString(), "2030-01-08T00:00:00.000Z");
+  const [createdInvitation] = created;
+  assert.ok(createdInvitation);
+  assert.equal(createdInvitation.email, "omar@acme.test");
+  assert.equal(createdInvitation.expiresAt.toISOString(), "2030-01-08T00:00:00.000Z");
   assert.deepEqual(signals, [{
     module: "identity",
     operation: "invite-to-workspace",
@@ -122,11 +123,13 @@ void test("TC-02.1.02-S1-2 AC-2 persists only a SHA-256 token hash", async () =>
   const { gateway, created } = createGateway();
   await createService(gateway).invite(admin, { email: "omar@acme.test", role: "member" });
 
-  const tokenHash = created[0].tokenHash;
+  const [createdInvitation] = created;
+  assert.ok(createdInvitation);
+  const tokenHash = createdInvitation.tokenHash;
   assert.equal(typeof tokenHash, "string");
   assert.match(tokenHash, /^[a-f0-9]{64}$/);
   assert.notEqual(tokenHash, "raw-token-for-lena-only");
-  assert.equal("token" in created[0], false);
+  assert.equal("token" in createdInvitation, false);
 });
 
 void test("TC-02.1.02-S1-3 AC-3 replaces a pending invitation so its first link is refused", async () => {
@@ -138,7 +141,9 @@ void test("TC-02.1.02-S1-3 AC-3 replaces a pending invitation so its first link 
   assert.deepEqual(calls, ["find-pending", "replace-pending"]);
   assert.equal(created.length, 0);
   assert.equal(replaced.length, 1);
-  assert.notEqual(replaced[0].tokenHash, "a".repeat(64));
+  const [replacement] = replaced;
+  assert.ok(replacement);
+  assert.notEqual(replacement.tokenHash, "a".repeat(64));
 });
 
 void test("TC-02.1.02-S1-4 AC-4 refuses a non-admin invitation, writes nothing, and audits the refusal", async () => {

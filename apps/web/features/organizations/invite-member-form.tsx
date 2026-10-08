@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState, type ReactElement } from "react";
-import { createOrganizationInvitation, initialInvitationActionState } from "./team.actions";
+import { createOrganizationInvitation } from "./team.actions";
+import { initialInvitationActionState } from "./team.action-state";
 
 type InviteMemberFormProps = Readonly<{ organizationId: string }>;
 

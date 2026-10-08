@@ -7,6 +7,8 @@ import { createAuthRoutes, createAuthService, readBearerToken, type AuthService 
 import {
   createOrganizationRoutes,
   type MembersService,
+  type OrganizationSettingsReader,
+  type OrganizationSettingsUpdater,
   type OrganizationGateway,
   type PrincipalResolver
 } from "../features/workspace/index.js";
@@ -18,6 +20,8 @@ type AppDependencies = Readonly<{
   resolvePrincipal?: PrincipalResolver;
   organizationGateway?: OrganizationGateway;
   membersService?: MembersService;
+  organizationSettingsReader?: OrganizationSettingsReader;
+  organizationSettingsUpdater?: OrganizationSettingsUpdater;
   authService?: AuthService;
 }>;
 
@@ -27,6 +31,8 @@ export const createApp = ({
   resolvePrincipal,
   organizationGateway,
   membersService,
+  organizationSettingsReader,
+  organizationSettingsUpdater,
   authService = createAuthService()
 }: AppDependencies): Express => {
   const app = express();
@@ -49,6 +55,8 @@ export const createApp = ({
       resolvePrincipal: resolvePrincipal ?? ((request) => authService.resolvePrincipal(readBearerToken(request))),
       ...(organizationGateway ? { gateway: organizationGateway } : {}),
       ...(membersService ? { membersService } : {}),
+      ...(organizationSettingsReader ? { settingsReader: organizationSettingsReader } : {}),
+      ...(organizationSettingsUpdater ? { settingsUpdater: organizationSettingsUpdater } : {}),
       logger
     })
   ];

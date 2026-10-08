@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createOrganizationsGateway, type OrganizationListResult } from "./organizations.gateway.js";
+import { createOrganizationsGateway, type OrganizationListResult } from "./organizations.gateway";
 
 export const loadMoreOrganizations = async (offset: number): Promise<OrganizationListResult> => {
   if (!Number.isSafeInteger(offset) || offset <= 0 || offset > 500_000) {

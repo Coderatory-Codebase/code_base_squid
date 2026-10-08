@@ -34,6 +34,13 @@ export type OrganizationActivity = Readonly<{
   createdAt: Date;
 }>;
 
+export type OrganizationSettingsValues = Readonly<Record<string, unknown>> & Readonly<{
+  timeZone?: string;
+  weekStart?: "Monday" | "Sunday";
+  dateFormat?: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
+  workspaceSetupRule?: "owner only" | "any member";
+}>;
+
 export type OrganizationDocument = Readonly<{
   _id: string | MongooseTypes.ObjectId;
   name: string;
@@ -42,10 +49,11 @@ export type OrganizationDocument = Readonly<{
   workspaceIds: readonly string[];
   lastUsedAt: Date;
   deletedAt: Date | null;
+  version?: number;
   members?: readonly OrganizationMember[];
   invitations?: readonly OrganizationInvitation[];
   activity?: readonly OrganizationActivity[];
-  settings: Readonly<Record<string, unknown>>;
+  settings: OrganizationSettingsValues;
 }>;
 
 export const normalizeOrganizationId = (value: unknown): string => {
@@ -83,6 +91,13 @@ const activitySchema = new Schema<OrganizationActivity>({
   createdAt: { type: Date, required: true }
 }, { _id: false });
 
+const organizationSettingsSchema = new Schema<OrganizationSettingsValues>({
+  timeZone: { type: String, trim: true },
+  weekStart: { type: String, enum: ["Monday", "Sunday"] },
+  dateFormat: { type: String, enum: ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"] },
+  workspaceSetupRule: { type: String, enum: ["owner only", "any member"] }
+}, { _id: false, strict: false });
+
 const organizationSchema = new Schema<OrganizationDocument>(
   {
     name: { type: String, required: true, minlength: 1, maxlength: 80 },
@@ -90,17 +105,19 @@ const organizationSchema = new Schema<OrganizationDocument>(
     ownerEmail: { type: String, lowercase: true, trim: true },
     workspaceIds: { type: [String], required: true, index: true },
     lastUsedAt: { type: Date, required: true, default: () => new Date(systemClock.now()) },
+    // Deletion is soft: retain the organization row and keep it out of live settings reads.
     deletedAt: { type: Date, default: null },
+    version: { type: Number, required: true, default: 1, min: 1 },
     members: { type: [memberSchema], default: [] },
     invitations: { type: [invitationSchema], default: [] },
     activity: { type: [activitySchema], default: [] },
     settings: {
-      type: Schema.Types.Mixed,
+      type: organizationSettingsSchema,
       required: true,
       default: () => ({})
     }
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 organizationSchema.index({ "members.userId": 1 });
@@ -118,9 +135,16 @@ organizationSchema.index(
   { name: "member_list_page" }
 );
 organizationSchema.index(
-  { workspaceIds: 1, settings: 1 },
+  { workspaceIds: 1, settings: 1, _id: 1, ownerId: 1, version: 1, name: 1 },
   {
     name: "workspace_settings_live_cover",
+    partialFilterExpression: { deletedAt: null }
+  }
+);
+organizationSchema.index(
+  { ownerId: 1, settings: 1, _id: 1, version: 1, name: 1 },
+  {
+    name: "owner_settings_live_cover",
     partialFilterExpression: { deletedAt: null }
   }
 );

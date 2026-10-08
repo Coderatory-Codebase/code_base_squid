@@ -13,7 +13,7 @@ import {
 
 // Add each real Wave 1 command here as its route is wired to the bus.
 // Public routes (for example /health) are not commands and are not listed.
-const WAVE_1_COMMANDS: ReadonlyArray<string> = [];
+const WAVE_1_COMMANDS: ReadonlyArray<string> = ["workspace.organization-settings.update"];
 // "contract.probe" exercises the bus refusal contract until real commands exist.
 const COMMANDS_UNDER_TEST: ReadonlyArray<string> = [...WAVE_1_COMMANDS, "contract.probe"];
 

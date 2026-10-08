@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 import { Building2, RotateCw } from "lucide-react";
 import { Button } from "@workspace/ui";
-import { loadMoreOrganizations } from "./organizations.actions.js";
-import type { OrganizationListResult, OrganizationSummary } from "./organizations.gateway.js";
+import { loadMoreOrganizations } from "./organizations.actions";
+import type { OrganizationListResult, OrganizationSummary } from "./organizations.gateway";
 
 type OrganizationResultsProps = Readonly<{ result: OrganizationListResult; createdId?: string }>;
 

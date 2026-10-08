@@ -9,7 +9,8 @@ const allowedModels = new Map([
   ["features/auth/integrations/session.model.ts", { name: "Session", collection: "sessions" }],
   ["features/auth/integrations/user.model.ts", { name: "User", collection: "users" }],
   ["features/identity/models/user-invitation.model.ts", { name: "UserInvitation", collection: "user_invitations" }],
-  ["features/workspace/integrations/organization.model.ts", { name: "Organization", collection: "organizations" }]
+  ["features/workspace/integrations/organization.model.ts", { name: "Organization", collection: "organizations" }],
+  ["features/workspace/integrations/workspace.model.ts", { name: "Workspace", collection: "workspaces" }]
 ]);
 
 const findModelFiles = async (directory: string): Promise<readonly string[]> => {

@@ -8,6 +8,7 @@
     "seed:preview": "tsx scripts/seed-preview.ts",
     "measure:organization-budget": "tsx scripts/measure-organization-budget.ts",
     "measure:organization-settings-budget": "tsx scripts/measure-organization-settings-budget.ts",
+    "measure:organization-settings-updates-budget": "tsx scripts/measure-organization-settings-updates-budget.ts",
     "measure:organization-setup-budget": "tsx scripts/measure-organization-setup-budget.ts",
     "measure:workspace-dashboard-budget": "tsx scripts/measure-workspace-dashboard-budget.ts",
     "build": "tsc -p tsconfig.build.json",

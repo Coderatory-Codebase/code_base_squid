@@ -11,6 +11,7 @@ const PUBLIC_ENTRY_POINTS: ReadonlyArray<EntryPoint> = ["GET /health", "POST /au
 
 /** Routes that resolve a server-owned principal before reading or mutating tenant data. */
 const PRINCIPAL_ENTRY_POINTS: ReadonlyArray<EntryPoint> = [
+  "GET /workspace/organization-settings",
   "GET /organizations",
   "POST /organizations",
   "GET /organizations/:organizationId/dashboard",
@@ -24,7 +25,7 @@ const PRINCIPAL_ENTRY_POINTS: ReadonlyArray<EntryPoint> = [
  * Routes that dispatch a command. Each one needs its command listed in
  * WAVE_1_COMMANDS in kernel/tests/pack-policy.test.ts.
  */
-const COMMAND_ENTRY_POINTS: ReadonlyArray<EntryPoint> = [];
+const COMMAND_ENTRY_POINTS: ReadonlyArray<EntryPoint> = ["PATCH /organizations/:organizationId/settings"];
 
 const logger: Logger = {
   info: () => undefined,
