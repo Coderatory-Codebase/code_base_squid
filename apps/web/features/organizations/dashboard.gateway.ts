@@ -16,6 +16,7 @@ export type DashboardActivity = Readonly<{
 }>;
 export type OrganizationDashboard = Readonly<{
   organization: Readonly<{ id: string; name: string }>;
+  lifecycle: Readonly<{ status: "active" | "archived"; version: number; archivedAt: string | null }>;
   metrics: Readonly<{ activeTeamMembers: number; linkedWorkspaces: number }>;
   viewerRole: TeamRole;
   members: readonly DashboardMember[];
@@ -37,6 +38,10 @@ const parseDashboard = (value: unknown): OrganizationDashboard | null => {
   if (!isRecord(value) || !isRecord(value.organization) || !isRecord(value.metrics)) return null;
   if (typeof value.organization.id !== "string" || typeof value.organization.name !== "string") return null;
   if (!Number.isInteger(value.metrics.activeTeamMembers) || !Number.isInteger(value.metrics.linkedWorkspaces)) return null;
+  if (!isRecord(value.lifecycle)
+    || !(value.lifecycle.status === "active" || value.lifecycle.status === "archived")
+    || !Number.isSafeInteger(value.lifecycle.version)
+    || !(value.lifecycle.archivedAt === null || typeof value.lifecycle.archivedAt === "string")) return null;
   if (!(value.viewerRole === "owner" || value.viewerRole === "admin" || value.viewerRole === "member")) return null;
   if (!Array.isArray(value.members) || !Array.isArray(value.activity)) return null;
   const members: DashboardMember[] = [];
@@ -72,6 +77,11 @@ const parseDashboard = (value: unknown): OrganizationDashboard | null => {
   }
   return {
     organization: { id: value.organization.id, name: value.organization.name },
+    lifecycle: {
+      status: value.lifecycle.status,
+      version: value.lifecycle.version as number,
+      archivedAt: value.lifecycle.archivedAt
+    },
     metrics: {
       activeTeamMembers: value.metrics.activeTeamMembers as number,
       linkedWorkspaces: value.metrics.linkedWorkspaces as number

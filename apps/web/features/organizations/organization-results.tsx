@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 import { Building2, RotateCw } from "lucide-react";
 import { Button } from "@workspace/ui";
-import { loadMoreOrganizations } from "./organizations.actions.js";
+import { loadMoreOrganizations } from "./organizations.actions";
+import { formatOrganizationDate } from "./format-date";
 import type { OrganizationListResult, OrganizationSummary } from "./organizations.gateway.js";
 
 type OrganizationResultsProps = Readonly<{ result: OrganizationListResult; createdId?: string }>;
@@ -84,6 +85,9 @@ export const OrganizationResults = ({ result, createdId }: OrganizationResultsPr
         {organizations.map((organization) => (
           <li className="rounded-xl border bg-card p-5" id={`organization-${organization.id}`} key={organization.id}>
             <h2 className="font-medium"><a className="underline-offset-4 hover:underline" href={`/workspace/dashboard/${encodeURIComponent(organization.id)}`}>{organization.name}</a></h2>
+            {organization.status === "archived"
+              ? <p className="mt-2 text-sm font-medium text-muted-foreground">Archived{organization.archivedAt ? ` on ${formatOrganizationDate(organization.archivedAt)}` : ""}</p>
+              : null}
           </li>
         ))}
       </ul>

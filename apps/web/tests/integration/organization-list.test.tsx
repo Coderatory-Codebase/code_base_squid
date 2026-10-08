@@ -15,13 +15,13 @@ test("organization gateway requests the API server-side with the session token a
       receivedUrl = String(input);
       receivedAuthorization = new Headers(init?.headers).get("authorization");
       receivedCache = init?.cache;
-      return Response.json({ organizations: [{ id: "org-1", name: "Workspace organization" }], nextOffset: null });
+      return Response.json({ organizations: [{ id: "org-1", name: "Workspace organization", status: "active", archivedAt: null }], nextOffset: null });
     }
   });
 
   assert.deepEqual(await gateway.listOrganizations("session-token"), {
     ok: true,
-    organizations: [{ id: "org-1", name: "Workspace organization" }],
+    organizations: [{ id: "org-1", name: "Workspace organization", status: "active", archivedAt: null }],
     nextOffset: null
   });
   assert.equal(receivedUrl, "https://api.example.test/organizations");
@@ -85,18 +85,32 @@ test("successful organization results preserve gateway order", () => {
   const markup = renderToStaticMarkup(<OrganizationResults result={{
     ok: true,
     organizations: [
-      { id: "member", name: "Workspace organization" },
-      { id: "owned", name: "Owned organization" }
+      { id: "member", name: "Workspace organization", status: "active", archivedAt: null },
+      { id: "owned", name: "Owned organization", status: "active", archivedAt: null }
     ],
     nextOffset: null
   }} />);
   assert.ok(markup.indexOf("Workspace organization") < markup.indexOf("Owned organization"));
 });
 
+test("archived dates render in a stable timezone", () => {
+  const markup = renderToStaticMarkup(<OrganizationResults result={{
+    ok: true,
+    organizations: [{
+      id: "archived",
+      name: "Archived organization",
+      status: "archived",
+      archivedAt: "2026-10-07T22:30:00.000Z"
+    }],
+    nextOffset: null
+  }} />);
+  assert.match(markup, /Archived on Oct 7, 2026/);
+});
+
 test("50-organization server-rendered list stays within the rendering budget", () => {
   const result = {
     ok: true as const,
-    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}` })),
+    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}`, status: "active" as const, archivedAt: null })),
     nextOffset: 50
   };
   const durations: number[] = [];
@@ -129,7 +143,7 @@ test("organization gateway requests subsequent pages only through their validate
 test("a terminal 50-organization page renders no request control for an empty second page", () => {
   const result = {
     ok: true as const,
-    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}` })),
+    organizations: Array.from({ length: 50 }, (_, index) => ({ id: `org-${String(index)}`, name: `Organization ${String(index)}`, status: "active" as const, archivedAt: null })),
     nextOffset: null
   };
   const markup = renderToStaticMarkup(<OrganizationResults result={result} />);

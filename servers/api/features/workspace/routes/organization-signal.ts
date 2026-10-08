@@ -8,8 +8,14 @@ export type OrganizationSignalDependencies = Readonly<{
   logger: OrganizationSignalLogger;
 }>;
 
-const resolveOperation = (request: Pick<Request, "method">): "listOrganizations" | "createOrganization" => {
+const resolveOperation = (request: Pick<Request, "method" | "path">): string => {
+  if (request.method === "POST" && request.path.endsWith("/invitations/accept")) return "acceptInvitation";
+  if (request.method === "POST" && request.path.endsWith("/invitations")) return "createInvitation";
   if (request.method === "POST") return "createOrganization";
+  if (request.method === "PATCH" && request.path.endsWith("/lifecycle")) return "transitionOrganizationLifecycle";
+  if (request.method === "PATCH") return "updateMemberRole";
+  if (request.method === "DELETE") return "removeMember";
+  if (request.method === "GET" && request.path.endsWith("/dashboard")) return "getOrganizationDashboard";
   return "listOrganizations";
 };
 

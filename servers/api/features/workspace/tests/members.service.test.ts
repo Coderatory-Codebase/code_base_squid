@@ -8,6 +8,7 @@ const manager: Principal = { userId: "owner-1", email: "owner@example.test", wor
 const member: Principal = { userId: "member-1", email: "member@example.test", workspaceIds: [] };
 const dashboard = {
   organization: { id: "000000000000000000000001", name: "Northwind" },
+  lifecycle: { status: "active" as const, version: 0, archivedAt: null, archivedBy: null, deletedAt: null },
   metrics: { activeTeamMembers: 2, linkedWorkspaces: 1 },
   viewerRole: "owner" as const,
   members: [
@@ -22,6 +23,11 @@ const gatewayFor = (overrides: Partial<MembersGateway> = {}): MembersGateway => 
     ...dashboard,
     viewerRole: principal.userId === member.userId ? "member" : "owner"
   }),
+  getOrganizationLifecycle: () => Promise.resolve({
+    ownerId: manager.userId,
+    lifecycle: dashboard.lifecycle
+  }),
+  transitionOrganizationLifecycle: () => Promise.resolve(dashboard.lifecycle),
   createInvitation: async () => true,
   acceptInvitation: async () => ({ id: dashboard.organization.id, name: dashboard.organization.name }),
   updateMemberRole: async () => true,
@@ -54,6 +60,29 @@ void test("owner cannot be assigned another role or removed", async () => {
     service.removeMember(dashboard.organization.id, manager, manager.userId),
     (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 403
   );
+});
+
+void test("archived organizations reject team writes before persistence", async () => {
+  let writes = 0;
+  const service = createMembersService(gatewayFor({
+    getDashboard: () => Promise.resolve({ ...dashboard, lifecycle: { ...dashboard.lifecycle, status: "archived" } }),
+    createInvitation: () => { writes += 1; return Promise.resolve(true); },
+    updateMemberRole: () => { writes += 1; return Promise.resolve(true); },
+    removeMember: () => { writes += 1; return Promise.resolve(true); }
+  }));
+  await assert.rejects(
+    service.inviteMember(dashboard.organization.id, manager, "new@example.test", "member"),
+    (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 409
+  );
+  await assert.rejects(
+    service.updateMemberRole(dashboard.organization.id, manager, member.userId, "admin"),
+    (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 409
+  );
+  await assert.rejects(
+    service.removeMember(dashboard.organization.id, manager, member.userId),
+    (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 409
+  );
+  assert.equal(writes, 0);
 });
 
 void test("invitation stores only a token hash and expires in seven days", async () => {

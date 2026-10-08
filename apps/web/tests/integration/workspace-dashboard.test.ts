@@ -5,6 +5,7 @@ import { createDashboardGateway } from "../../features/organizations/dashboard.g
 const organizationId = "000000000000000000000061";
 const dashboardPayload = {
   organization: { id: organizationId, name: "Northwind" },
+  lifecycle: { status: "active", version: 0, archivedAt: null },
   metrics: { activeTeamMembers: 3, linkedWorkspaces: 2 },
   viewerRole: "admin",
   members: [

@@ -49,3 +49,32 @@ void test("organization request signal includes workspace metadata and outcome f
   assert.equal(typeof firstCall.context.durationMs, "number");
   assert.ok(Number(firstCall.context.durationMs) >= 0);
 });
+
+void test("organization lifecycle requests emit a correctly labeled failure signal", () => {
+  let loggedContext: Record<string, unknown> | undefined;
+  const logger = {
+    info: (_message: string, context: Record<string, unknown> = {}): void => { loggedContext = context; }
+  };
+  let onFinish: (() => void) | undefined;
+  const response = {
+    statusCode: 200,
+    once: (_event: string, handler: () => void) => { onFinish = handler; return response; }
+  };
+  const request: Pick<Request, "method" | "path" | "query"> = {
+    method: "PATCH",
+    path: "/organizations/000000000000000000000071/lifecycle",
+    query: {}
+  };
+  createOrganizationRequestSignal({ logger })(
+    request,
+    response as unknown as Pick<Response, "statusCode" | "once">,
+    () => undefined
+  );
+  response.statusCode = 403;
+  onFinish?.();
+  assert.ok(loggedContext);
+  assert.equal(loggedContext.operation, "transitionOrganizationLifecycle");
+  assert.equal(loggedContext.module, "workspace");
+  assert.equal(loggedContext.outcome, "error");
+  assert.equal(typeof loggedContext.durationMs, "number");
+});

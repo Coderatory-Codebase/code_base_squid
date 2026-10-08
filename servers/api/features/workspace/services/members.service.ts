@@ -42,6 +42,12 @@ const requireManager = (dashboard: OrganizationDashboard, userId: string): void 
   }
 };
 
+const requireActiveOrganization = (dashboard: OrganizationDashboard): void => {
+  if (dashboard.lifecycle.status !== "active") {
+    throw fail(ERROR_CODES.conflict, `${dashboard.organization.name} is archived and read-only.`, HTTP_STATUS.conflict);
+  }
+};
+
 export type MembersService = Readonly<{
   getDashboard: (organizationId: string, principal: Principal) => Promise<OrganizationDashboard>;
   inviteMember: (organizationId: string, principal: Principal, email: string, role: OrganizationRole) => Promise<Readonly<{ token: string; expiresAt: Date }>>;
@@ -55,6 +61,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
 
   inviteMember: async (organizationId, principal, email, role) => {
     const dashboard = await requireDashboard(gateway, organizationId, principal);
+    requireActiveOrganization(dashboard);
     requireManager(dashboard, principal.userId);
     const normalizedEmail = email.trim().toLowerCase();
     if (principal.email?.trim().toLowerCase() === normalizedEmail) {
@@ -91,6 +98,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
 
   updateMemberRole: async (organizationId, principal, memberId, role) => {
     const dashboard = await requireDashboard(gateway, organizationId, principal);
+    requireActiveOrganization(dashboard);
     requireManager(dashboard, principal.userId);
     if (memberId === dashboard.members.find(({ role: memberRole }) => memberRole === "owner")?.userId) {
       throw fail(ERROR_CODES.forbidden, "The organization owner role cannot be changed.", HTTP_STATUS.forbidden);
@@ -106,6 +114,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
 
   removeMember: async (organizationId, principal, memberId) => {
     const dashboard = await requireDashboard(gateway, organizationId, principal);
+    requireActiveOrganization(dashboard);
     requireManager(dashboard, principal.userId);
     if (memberId === dashboard.members.find(({ role }) => role === "owner")?.userId) {
       throw fail(ERROR_CODES.forbidden, "The organization owner cannot be removed.", HTTP_STATUS.forbidden);

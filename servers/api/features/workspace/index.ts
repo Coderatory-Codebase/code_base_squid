@@ -8,4 +8,8 @@ export { createMembersGateway } from "./db/members.gateway.js";
 export type { MembersGateway, OrganizationDashboard } from "./db/members.gateway.js";
 export { createMembersService } from "./services/members.service.js";
 export type { MembersService } from "./services/members.service.js";
+export { createOrganizationLifecycleService } from "./services/organization-lifecycle.service.js";
+export type { OrganizationLifecycleService, OrganizationLifecycleCommandResult } from "./services/organization-lifecycle.service.js";
+export { transitionOrganizationLifecycle, resolveOrganizationLifecycle } from "./domain/organization-lifecycle.js";
+export type { OrganizationLifecycle, OrganizationLifecycleAction, OrganizationLifecycleStatus } from "./domain/organization-lifecycle.js";
 export type { OrganizationRole } from "./types.js";

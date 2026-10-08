@@ -151,3 +151,125 @@ void test("expired and duplicated pending invitations cannot be accepted or issu
     createdAt: now
   }), false);
 });
+
+void test("lifecycle transitions persist atomically and block archived organization writes", async (context) => {
+  const mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
+  const mongoIntegration = createMongoDbIntegration({ uri: mongo.getUri(), logger });
+  context.after(async () => {
+    await mongoIntegration.disconnect();
+    await mongo.stop();
+  });
+  await mongoIntegration.connect();
+  await OrganizationModel.init();
+  const organizationId = "000000000000000000000033";
+  const now = new Date("2026-10-07T12:00:00.000Z");
+  await OrganizationModel.create({
+    _id: organizationId,
+    name: "Lifecycle team",
+    ownerId: "owner-3",
+    workspaceIds: [],
+    members: [{
+      userId: "member-3",
+      email: "member3@example.test",
+      role: "member",
+      joinedAt: now
+    }],
+    invitations: [],
+    activity: [],
+    deletedAt: null
+  });
+
+  const gateway = createMembersGateway();
+  const owner = { userId: "owner-3", workspaceIds: [] };
+  const invitee = { userId: "invitee-3", email: "invitee3@example.test", workspaceIds: [] };
+  const invitation = {
+    email: invitee.email,
+    role: "member" as const,
+    tokenHash: "e".repeat(64),
+    expiresAt: new Date(now.getTime() + 60_000),
+    invitedBy: owner.userId,
+    createdAt: now,
+    acceptedAt: null
+  };
+  assert.equal(await gateway.createInvitation(organizationId, owner, invitation), true);
+
+  const archived = await gateway.transitionOrganizationLifecycle(
+    organizationId,
+    owner.userId,
+    0,
+    "archive",
+    owner.userId,
+    now
+  );
+  assert.ok(archived);
+  assert.equal(archived.status, "archived");
+  assert.equal(archived.version, 1);
+  assert.equal(await gateway.transitionOrganizationLifecycle(
+    organizationId,
+    owner.userId,
+    0,
+    "restore",
+    owner.userId,
+    now
+  ), null);
+
+  const archivedDashboard = await gateway.getDashboard(organizationId, owner);
+  assert.equal(archivedDashboard?.lifecycle.status, "archived");
+  assert.equal(await gateway.createInvitation(organizationId, owner, {
+    ...invitation,
+    email: "another@example.test",
+    tokenHash: "f".repeat(64)
+  }), false);
+  assert.equal(await gateway.acceptInvitation(invitee, invitation.tokenHash, now), null);
+  assert.equal(await gateway.updateMemberRole(
+    organizationId,
+    owner.userId,
+    null,
+    "member-3",
+    "admin",
+    now,
+    "member3@example.test"
+  ), false);
+  assert.equal(await gateway.removeMember(
+    organizationId,
+    owner.userId,
+    null,
+    "member-3",
+    now,
+    "member3@example.test"
+  ), false);
+
+  const restored = await gateway.transitionOrganizationLifecycle(
+    organizationId,
+    owner.userId,
+    1,
+    "restore",
+    owner.userId,
+    new Date(now.getTime() + 1_000)
+  );
+  assert.ok(restored);
+  assert.equal(restored.status, "active");
+  assert.equal(restored.version, 2);
+  const reArchived = await gateway.transitionOrganizationLifecycle(
+    organizationId,
+    owner.userId,
+    2,
+    "archive",
+    owner.userId,
+    new Date(now.getTime() + 2_000)
+  );
+  assert.ok(reArchived);
+  assert.equal(reArchived.status, "archived");
+  const deleted = await gateway.transitionOrganizationLifecycle(
+    organizationId,
+    owner.userId,
+    3,
+    "delete",
+    owner.userId,
+    new Date(now.getTime() + 3_000)
+  );
+  assert.ok(deleted);
+  assert.equal(deleted.status, "deleted");
+  assert.equal(deleted.version, 4);
+  assert.equal(await gateway.getDashboard(organizationId, owner), null);
+});

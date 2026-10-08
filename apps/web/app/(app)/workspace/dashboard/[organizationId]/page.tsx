@@ -4,7 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import { Activity, Building2, UsersRound } from "lucide-react";
 import { PageHeader, PageShell } from "@workspace/ui";
 import { getOrganizationDashboard } from "@/features/organizations/dashboard.gateway";
+import { formatOrganizationDate } from "@/features/organizations/format-date";
 import { InviteMemberForm } from "@/features/organizations/invite-member-form";
+import { OrganizationLifecycleControls } from "@/features/organizations/organization-lifecycle-controls";
 import { removeOrganizationMember, updateOrganizationMemberRole } from "@/features/organizations/team.actions";
 
 type DashboardPageProps = Readonly<{
@@ -48,6 +50,7 @@ const WorkspaceDashboardPage = async ({ params, searchParams }: DashboardPagePro
   }
   const { dashboard } = result;
   const canManage = dashboard.viewerRole === "owner" || dashboard.viewerRole === "admin";
+  const canWriteTeam = canManage && dashboard.lifecycle.status === "active";
   return (
     <PageShell>
       <PageHeader
@@ -63,6 +66,14 @@ const WorkspaceDashboardPage = async ({ params, searchParams }: DashboardPagePro
       {teamError && errorMessages[teamError]
         ? <p aria-live="polite" className="mb-5 rounded-md border border-destructive/30 p-3 text-sm text-destructive" role="alert">{errorMessages[teamError]}</p>
         : null}
+      {dashboard.lifecycle.status === "archived"
+        ? <p className="mb-5 rounded-md border bg-muted p-3 text-sm" role="status">This organization is archived. Its workspaces and information remain readable, but changes are disabled.</p>
+        : null}
+      <OrganizationLifecycleControls
+        canManage={dashboard.viewerRole === "owner"}
+        initialLifecycle={dashboard.lifecycle}
+        organizationId={organizationId}
+      />
       <section aria-label="Organization metrics" className="mb-8 grid gap-4 sm:grid-cols-2">
         <article className="rounded-xl border bg-card p-5">
           <div className="flex items-center gap-2 text-sm text-muted-foreground"><UsersRound aria-hidden="true" className="size-4" />Active team members</div>
@@ -83,7 +94,7 @@ const WorkspaceDashboardPage = async ({ params, searchParams }: DashboardPagePro
                 <p className="font-medium">{member.email ?? "Organization owner"}</p>
                 <p className="text-sm text-muted-foreground">{member.role === "owner" ? "Owner" : member.role === "admin" ? "Admin" : "Member"}</p>
               </div>
-              {canManage && member.role !== "owner" ? (
+              {canWriteTeam && member.role !== "owner" ? (
                 <div className="flex flex-wrap items-center gap-2">
                   <form action={updateOrganizationMemberRole} className="flex items-center gap-2">
                     <input name="organizationId" type="hidden" value={organizationId} />
@@ -106,7 +117,7 @@ const WorkspaceDashboardPage = async ({ params, searchParams }: DashboardPagePro
           ))}
         </ul>
       </section>
-      {canManage ? <InviteMemberForm organizationId={organizationId} /> : null}
+      {canWriteTeam ? <InviteMemberForm organizationId={organizationId} /> : null}
       <section aria-labelledby="recent-activity-heading" className="mt-8 rounded-xl border bg-card p-6">
         <div className="flex items-center gap-2">
           <Activity aria-hidden="true" className="size-4" />
@@ -118,7 +129,7 @@ const WorkspaceDashboardPage = async ({ params, searchParams }: DashboardPagePro
               <li className="rounded-md border p-3 text-sm" key={`${event.action}-${event.createdAt}-${index}`}>
                 <p>{activityLabel[event.action] ?? "Team activity"} {event.target}{event.actorEmail ? ` by ${event.actorEmail}` : ""}</p>
                 <time className="mt-1 block text-xs text-muted-foreground" dateTime={event.createdAt}>
-                  {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(event.createdAt))}
+                  {formatOrganizationDate(event.createdAt, true)}
                 </time>
               </li>
             ))}

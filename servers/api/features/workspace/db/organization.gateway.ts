@@ -2,7 +2,7 @@ import { normalizeOrganizationId, OrganizationModel, type OrganizationDocument }
 import type { OrganizationPage, Principal } from "../types.js";
 
 export const organizationPageSize = 50;
-export type OrganizationListDocument = Pick<OrganizationDocument, "_id" | "name">;
+export type OrganizationListDocument = Pick<OrganizationDocument, "_id" | "name" | "archivedAt">;
 
 export type WorkspaceCondition = Readonly<{ workspaceIds: Readonly<{ $in: readonly string[] }> }>;
 export type MemberCondition = Readonly<{ members: Readonly<{ $elemMatch: Readonly<{ userId: string }> }> }>;
@@ -62,7 +62,8 @@ const parseOrganizationListDocuments = (value: unknown): OrganizationListDocumen
     if (typeof name !== "string") {
       throw new Error("MongoDB returned an invalid organization list document.");
     }
-    return { _id: normalizeOrganizationId(entry._id), name };
+    const archivedAt = "archivedAt" in entry && entry.archivedAt instanceof Date ? entry.archivedAt : null;
+    return { _id: normalizeOrganizationId(entry._id), name, archivedAt };
   });
 };
 
@@ -137,7 +138,7 @@ const createOrganizationQuery = (
     { workspaceIds: { $in: workspaceIds } },
     { members: { $elemMatch: { userId: principal.userId } } }
   ]);
-  query.select({ _id: 1, name: 1 });
+  query.select({ _id: 1, name: 1, archivedAt: 1 });
   query.sort({ lastUsedAt: -1, name: 1, _id: 1 });
   query.skip(offset).limit(organizationPageSize + 1);
 

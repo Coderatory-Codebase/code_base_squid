@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
+import type { InvitationActionState } from "./team.action-state";
 
 const sessionCookie = "workspace_session";
 
@@ -16,13 +17,6 @@ const getToken = async (): Promise<string> => {
 
 const apiUrl = (path: string): URL => new URL(path, createApiConfiguration(readWebEnvironment()).baseUrl);
 const dashboardPath = (organizationId: string): Route => `/workspace/dashboard/${organizationId}` as Route;
-
-export type InvitationActionState =
-  | Readonly<{ status: "idle" }>
-  | Readonly<{ status: "failure"; message: string }>
-  | Readonly<{ status: "created"; inviteUrl: string; email: string; expiresAt: string }>;
-
-export const initialInvitationActionState: InvitationActionState = { status: "idle" };
 
 export const createOrganizationInvitation = async (
   _previous: InvitationActionState,

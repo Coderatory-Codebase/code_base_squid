@@ -1,6 +1,10 @@
 import { OrganizationModel, type OrganizationActivity, type OrganizationDocument } from "../integrations/organization.model.js";
 import type { OrganizationRole } from "../types.js";
 import type { Principal } from "../../../types/index.js";
+import type {
+  OrganizationLifecycle,
+  OrganizationLifecycleAction
+} from "../domain/organization-lifecycle.js";
 
 type OrganizationQuery<T> = Readonly<{ lean: () => Readonly<{ exec: () => Promise<T> }> }>;
 type MembersModelDependency = Readonly<{
@@ -25,6 +29,7 @@ export type DashboardMember = Readonly<{
 
 export type OrganizationDashboard = Readonly<{
   organization: Readonly<{ id: string; name: string }>;
+  lifecycle: OrganizationLifecycle;
   metrics: Readonly<{ activeTeamMembers: number; linkedWorkspaces: number }>;
   viewerRole: "owner" | OrganizationRole;
   members: readonly DashboardMember[];
@@ -43,6 +48,15 @@ export type InvitationRecord = Readonly<{
 
 export type MembersGateway = Readonly<{
   getDashboard: (organizationId: string, principal: Principal) => Promise<OrganizationDashboard | null>;
+  getOrganizationLifecycle: (organizationId: string, principal: Principal) => Promise<Readonly<{ ownerId: string; lifecycle: OrganizationLifecycle }> | null>;
+  transitionOrganizationLifecycle: (
+    organizationId: string,
+    ownerId: string,
+    expectedVersion: number,
+    action: OrganizationLifecycleAction,
+    actorId: string,
+    now: Date
+  ) => Promise<OrganizationLifecycle | null>;
   createInvitation: (organizationId: string, principal: Principal, invitation: InvitationRecord) => Promise<boolean>;
   acceptInvitation: (principal: Principal, tokenHash: string, now: Date) => Promise<Readonly<{ id: string; name: string }> | null>;
   updateMemberRole: (organizationId: string, actorId: string, actorEmail: string | null, memberId: string, role: OrganizationRole, now: Date, targetLabel: string) => Promise<boolean>;
@@ -75,6 +89,13 @@ const toDashboard = (organization: OrganizationDocument, principal: Principal): 
   ];
   return {
     organization: { id: String(organization._id), name: organization.name },
+    lifecycle: {
+      status: organization.deletedAt ? "deleted" : organization.archivedAt ? "archived" : "active",
+      version: organization.lifecycleVersion ?? 0,
+      archivedAt: organization.archivedAt ?? null,
+      archivedBy: organization.archivedBy ?? null,
+      deletedAt: organization.deletedAt ?? null
+    },
     metrics: {
       activeTeamMembers: members.length,
       linkedWorkspaces: organization.workspaceIds.length
@@ -99,11 +120,69 @@ export const createMembersGateway = (): MembersGateway => ({
     return toDashboard(organization, principal);
   },
 
+  getOrganizationLifecycle: async (organizationId, principal) => {
+    const organization = await model.findOne({ _id: organizationId }).lean().exec();
+    if (!organization || !hasOrganizationAccess(organization, principal)) return null;
+    return {
+      ownerId: organization.ownerId,
+      lifecycle: {
+        status: organization.deletedAt ? "deleted" : organization.archivedAt ? "archived" : "active",
+        version: organization.lifecycleVersion ?? 0,
+        archivedAt: organization.archivedAt ?? null,
+        archivedBy: organization.archivedBy ?? null,
+        deletedAt: organization.deletedAt ?? null
+      }
+    };
+  },
+
+  transitionOrganizationLifecycle: async (organizationId, ownerId, expectedVersion, action, actorId, now) => {
+    const versionFilter = expectedVersion === 0
+      ? { $or: [{ lifecycleVersion: 0 }, { lifecycleVersion: { $exists: false } }] }
+      : { lifecycleVersion: expectedVersion };
+    const stateFilter = action === "archive"
+      ? { archivedAt: null }
+      : { archivedAt: { $ne: null } };
+    const update = action === "archive"
+      ? {
+        $set: { archivedAt: now, archivedBy: actorId },
+        $inc: { lifecycleVersion: 1 }
+      }
+      : action === "restore"
+        ? {
+          $set: { archivedAt: null, archivedBy: null },
+          $inc: { lifecycleVersion: 1 }
+        }
+        : {
+          $set: { deletedAt: now, deletedBy: actorId },
+          $inc: { lifecycleVersion: 1 }
+        };
+    const organization = await model.findOneAndUpdate(
+      {
+        _id: organizationId,
+        ownerId,
+        deletedAt: null,
+        ...versionFilter,
+        ...stateFilter
+      },
+      update,
+      { returnDocument: "after" }
+    ).lean().exec();
+    if (!organization) return null;
+    return {
+      status: organization.deletedAt ? "deleted" : organization.archivedAt ? "archived" : "active",
+      version: organization.lifecycleVersion ?? expectedVersion + 1,
+      archivedAt: organization.archivedAt ?? null,
+      archivedBy: organization.archivedBy ?? null,
+      deletedAt: organization.deletedAt ?? null
+    };
+  },
+
   createInvitation: async (organizationId, principal, invitation) => {
     await model.updateOne(
       {
         _id: organizationId,
         deletedAt: null,
+        archivedAt: null,
         $or: managerCondition(principal.userId)
       },
       {
@@ -128,6 +207,7 @@ export const createMembersGateway = (): MembersGateway => ({
       {
         _id: organizationId,
         deletedAt: null,
+        archivedAt: null,
         $or: managerCondition(principal.userId),
         ownerEmail: { $ne: invitation.email },
         members: { $not: { $elemMatch: { email: invitation.email } } },
@@ -156,6 +236,7 @@ export const createMembersGateway = (): MembersGateway => ({
     if (!email) return null;
     const candidate = await model.findOne({
       deletedAt: null,
+      archivedAt: null,
       invitations: {
         $elemMatch: {
           tokenHash,
@@ -183,6 +264,7 @@ export const createMembersGateway = (): MembersGateway => ({
       {
         _id: candidate._id,
         deletedAt: null,
+        archivedAt: null,
         ownerId: { $ne: principal.userId },
         "members.userId": { $ne: principal.userId },
         invitations: {
@@ -219,6 +301,7 @@ export const createMembersGateway = (): MembersGateway => ({
       {
         _id: organizationId,
         deletedAt: null,
+        archivedAt: null,
         ownerId: { $ne: memberId },
         $or: managerCondition(actorId),
         members: { $elemMatch: { userId: memberId } }
@@ -243,6 +326,7 @@ export const createMembersGateway = (): MembersGateway => ({
       {
         _id: organizationId,
         deletedAt: null,
+        archivedAt: null,
         ownerId: { $ne: memberId },
         $or: managerCondition(actorId),
         members: { $elemMatch: { userId: memberId } }
