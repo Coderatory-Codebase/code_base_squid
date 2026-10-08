@@ -1,0 +1,19 @@
+{
+  "name": "@workspace/fast-glob-compat",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The subset of fast-glob APIs used by workspace development tools, backed by tinyglobby.",
+  "main": "./index.cjs",
+  "exports": {
+    ".": {
+      "require": "./index.cjs",
+      "default": "./index.cjs"
+    }
+  },
+  "dependencies": {
+    "tinyglobby": "0.2.17"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

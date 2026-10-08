@@ -20,6 +20,7 @@ export const createMongoDbIntegration = ({
 }: MongoDbIntegrationDependencies): MongoDbIntegration => {
   if (!uri) {
     return Object.freeze({
+      connection: mongoose.connection,
       connect: (): Promise<void> => {
         logger.info("MongoDB connection is not configured; starting without persistence.");
         return Promise.resolve();
@@ -29,6 +30,7 @@ export const createMongoDbIntegration = ({
   }
 
   return Object.freeze({
+    connection: mongoose.connection,
     connect: async (): Promise<void> => {
       await client.connect(uri);
       logger.info("MongoDB connection established.");

@@ -1,0 +1,42 @@
+New folder/Behaviors.txt:339: new blank line at EOF.
+New folder/Cross-Cutting.txt:354: new blank line at EOF.
+New folder/Decisions.txt:31: trailing whitespace.
+[32m+[m[32mEX-02	ARC-004	Billing writes the entitlements field on workspaces — a read-only copy of its own entitlements collection. Workspace reads it and never writes it.	Adeel (Architect) — accepted in CS-8 on 2026-09-28	2027-03-28[m[41m	[m
+New folder/Deployment.txt:44: new blank line at EOF.
+New folder/Good-Architecture-principle.txt:49: trailing whitespace.
+[32m+[m[32mApplying Principles Without[m[41m [m
+New folder/Good-Architecture-principle.txt:501: trailing whitespace.
+[32m+[m[32mIntent tells you what the principle is for, so you can tell wh[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:20: trailing whitespace.
+[32m+[m[32mLens	Verdict	Owner	Stories	Share of the backlog	Extra AC	Tasks	Open gap[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:23: trailing whitespace.
+[32m+[m[32mAccepted	Platform lead	1,934[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:27: trailing whitespace.
+[32m+[m[32mAccepted	Product	1,934[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:31: trailing whitespace.
+[32m+[m[32mNeeds evidence	Design	1,312[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:35: trailing whitespace.
+[32m+[m[32mAccepted with a risk	Platform lead	744[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:39: trailing whitespace.
+[32m+[m[32mAccepted	Security	1,934[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:43: trailing whitespace.
+[32m+[m[32mAccepted	Data	1,353[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:47: trailing whitespace.
+[32m+[m[32mAccepted with a risk	Platform lead	483[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:51: trailing whitespace.
+[32m+[m[32mNeeds evidence	Platform lead	625[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:55: trailing whitespace.
+[32m+[m[32mAccepted with a risk	Platform lead	400[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:59: trailing whitespace.
+[32m+[m[32mAccepted with a risk	On-call	411[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:63: trailing whitespace.
+[32m+[m[32mAccepted	Product	181[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:67: trailing whitespace.
+[32m+[m[32mNot applicable	Product	117[m[41m	[m
+New folder/Lenses Architecture Backlog.txt:71: trailing whitespace.
+[32m+[m[32mNeeds evidence	Design	1,312[m[41m	[m
+New folder/flow.txt:46: trailing whitespace.
+[32m+[m[32m          DATABASE[m[41m [m
+New folder/module Architecture Contract.txt:361: trailing whitespace.
+[32m+[m[41m [m
+New folder/module Architecture Contract.txt:1894: new blank line at EOF.
