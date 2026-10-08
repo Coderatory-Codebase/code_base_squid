@@ -1,9 +1,9 @@
-import { Router } from "express";
+import { Router, type Router as ExpressRouter } from "express";
 import { createUserSessionsController, type UserSessionsControllerDependencies } from "../controllers/user-sessions.controller.js";
 
 export type UserSessionsRouteDependencies = UserSessionsControllerDependencies;
 
-export const createUserSessionsRoutes = (dependencies: UserSessionsRouteDependencies) => {
+export const createUserSessionsRoutes = (dependencies: UserSessionsRouteDependencies): ExpressRouter => {
   const router = Router();
   const controller = createUserSessionsController(dependencies);
   router.get("/identity/sessions", controller.list);

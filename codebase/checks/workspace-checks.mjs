@@ -5,6 +5,7 @@ import { workspaceRoots } from "../workspace/discovery.mjs";
 import { createDependencyGraph, findGraphIssues, topologicalProjectOrder } from "../graph/dependency-graph.mjs";
 import { pathExists, readJsonFile, walkFiles } from "../utilities/fs.mjs";
 import { validateArchitectureBoundaries } from "../validators/architecture-boundaries.mjs";
+import { validateModuleGovernance } from "../validators/module-governance.mjs";
 import { createExecutionPlan, listTasks } from "../execution/tasks.mjs";
 import { validateArchitectureConfiguration } from "../configuration/architecture.mjs";
 import { checkGitGovernance } from "./git-governance.mjs";
@@ -558,7 +559,8 @@ export const runWorkspaceChecks = async (workspace) => [
   ...(await checkTypeScriptArchitecture(workspace)),
   ...(await checkServerFeatureArchitecture(workspace)),
   ...(await checkPackageLocalMaintenanceScripts(workspace)),
-  ...(await validateArchitectureBoundaries(workspace))
+  ...(await validateArchitectureBoundaries(workspace)),
+  ...(await validateModuleGovernance(workspace))
 ];
 
 export const requiredProjectManifestPath = (project) => `${project.root}/${projectManifestFileName}`;

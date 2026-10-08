@@ -1,7 +1,7 @@
-import { Router } from "express";
+import { Router, type Router as ExpressRouter } from "express";
 import { createOidcSignInController, type OidcSignInControllerDependencies } from "../controllers/index.js";
 
-export const createOidcSignInRoutes = (dependencies: OidcSignInControllerDependencies) => {
+export const createOidcSignInRoutes = (dependencies: OidcSignInControllerDependencies): ExpressRouter => {
   const router = Router();
   const controller = createOidcSignInController(dependencies);
 

@@ -1,8 +1,11 @@
 import type { Model } from "mongoose";
-import type { UserProfileDocument, UserProfileQuery } from "../../../features/identity/index.js";
-import type { UserProfileUpdateResult } from "../../../features/identity/shared/models/user-profile.js";
-import type { IdentityUserRecord } from "../../../features/identity/index.js";
-import type { UserProfileQueryPort } from "../../../features/identity/index.js";
+import type {
+  IdentityUserRecord,
+  UserProfileDocument,
+  UserProfileQuery,
+  UserProfileQueryPort,
+  UserProfileUpdateResult
+} from "../../../features/identity/index.js";
 
 export const createUserProfileQueryAdapter = (users: Model<IdentityUserRecord>): UserProfileQueryPort => ({
   findOne: async (query: UserProfileQuery): Promise<UserProfileDocument | null> => {

@@ -21,3 +21,10 @@ export type {
   IdentityUserProvisioningPort,
   IdentityUserTransaction
 } from "./shared/ports/user-bootstrap.port.js";
+export type { IdentityBootstrapDependencies } from "./identity.bootstrap.js";
+export {
+  createIdentityMongoDependencies,
+  hashInvitationToken,
+  initializeIdentityMongoCollections
+} from "./integrations/index.js";
+export type { IdentityMongoDependencies } from "./integrations/index.js";

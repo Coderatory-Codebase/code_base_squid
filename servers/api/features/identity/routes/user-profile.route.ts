@@ -1,9 +1,9 @@
-import { Router } from "express";
+import { Router, type Router as ExpressRouter } from "express";
 import { createUserProfileController, createUpdateUserProfileController, type UserProfileControllerDependencies } from "../controllers/index.js";
 
 export type UserProfileRouteDependencies = UserProfileControllerDependencies;
 
-export const createUserProfileRoutes = ({ principalResolver, gateway, recordProfileSignal }: UserProfileRouteDependencies) => {
+export const createUserProfileRoutes = ({ principalResolver, gateway, recordProfileSignal }: UserProfileRouteDependencies): ExpressRouter => {
   const router = Router();
   router.get("/identity/user-profile", createUserProfileController({
     principalResolver,

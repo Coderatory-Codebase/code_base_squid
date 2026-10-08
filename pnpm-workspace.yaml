@@ -9,6 +9,12 @@ allowBuilds:
   esbuild: true
   unrs-resolver: true
 
+overrides:
+  source-map-js: 1.2.2
+  "@next/eslint-plugin-next>fast-glob": "workspace:@workspace/fast-glob-compat@*"
+  "@ts-morph/common>fast-glob": "workspace:@workspace/fast-glob-compat@*"
+  "shadcn>fast-glob": "workspace:@workspace/fast-glob-compat@*"
+
 audit:
   level: high
 
@@ -16,8 +22,3 @@ minimumReleaseAgeExclude:
   - source-map-js@1.2.2
   - sharp@0.35.5
   - '@modelcontextprotocol/sdk@1.31.0'
-
-overrides:
-  "@next/eslint-plugin-next>fast-glob": "workspace:@workspace/fast-glob-compat@*"
-  "@ts-morph/common>fast-glob": "workspace:@workspace/fast-glob-compat@*"
-  "shadcn>fast-glob": "workspace:@workspace/fast-glob-compat@*"

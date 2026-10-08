@@ -7,7 +7,7 @@
     "dev": "tsx watch server.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "test": "tsx --test features/*/*.test.ts features/*/tests/*.test.ts integrations/mongodb/*/tests/*.test.ts tests/environment.test.ts tests/http-boundaries.test.ts tests/identity-sign-in.acceptance.test.ts tests/mongodb.test.ts tests/shutdown.test.ts",
+    "test": "tsx --test features/*/*.test.ts features/*/tests/*.test.ts features/workspace/integrations/tests/*.test.ts integrations/mongodb/*/tests/*.test.ts tests/environment.test.ts tests/http-boundaries.test.ts tests/identity-sign-in.acceptance.test.ts tests/mongodb.test.ts tests/shutdown.test.ts",
     "test:identity-load": "tsx --test tests/identity-sign-in.load.test.ts tests/identity-principal.load.test.ts",
     "perf:identity-profile": "tsx scripts/seed.ts",
     "lint": "eslint \"**/*.ts\"",

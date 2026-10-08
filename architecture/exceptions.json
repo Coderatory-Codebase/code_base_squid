@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "source": "Squid story 01.4.06-S2 · EX-01 and EX-02",
+  "exceptions": [
+    {
+      "id": "EX-01",
+      "status": "open",
+      "expiresAt": "2027-09-28",
+      "collection": "outbox",
+      "owner": "shared-kernel",
+      "writers": "all-modules",
+      "operations": ["append"],
+      "relayWriter": "shared-kernel",
+      "relayFields": ["publishedAt"]
+    },
+    {
+      "id": "EX-02",
+      "status": "open",
+      "expiresAt": "2027-03-28",
+      "collection": "workspaces",
+      "owner": "workspace",
+      "writer": "billing",
+      "operations": ["update"],
+      "fields": ["entitlements"]
+    }
+  ]
+}

@@ -39,3 +39,10 @@ export type {
   UserProfileQueryPort,
   UserProfileUpdateResult
 } from "./shared/index.js";
+export {
+  createIdentityMongoDependencies,
+  hashInvitationToken,
+  initializeIdentityMongoCollections
+} from "./integrations/index.js";
+export type { IdentityMongoDependencies } from "./integrations/index.js";
+export type { IdentityBootstrapDependencies } from "./identity.bootstrap.js";

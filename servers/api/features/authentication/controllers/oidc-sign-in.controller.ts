@@ -46,7 +46,11 @@ export const createOidcSignInController = ({
   invalidatePrincipalSession = () => undefined,
   recordInvalidSignIn = () => undefined,
   recordSignInSignal = () => undefined
-}: OidcSignInControllerDependencies) => {
+}: OidcSignInControllerDependencies): Readonly<{
+  start: RequestHandler;
+  callback: RequestHandler;
+  signOut: RequestHandler;
+}> => {
   const callbackUri = (identityProvider: IdentityProvider): string =>
     `${callbackBaseUrl.replace(/\/$/, "")}/identity/callback/${identityProvider}`;
 

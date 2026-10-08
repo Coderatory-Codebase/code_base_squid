@@ -28,7 +28,10 @@ export const createUserSessionsController = ({
   principalResolver,
   manager,
   recordSessionAudit = () => undefined
-}: UserSessionsControllerDependencies) => {
+}: UserSessionsControllerDependencies): Readonly<{
+  list: RequestHandler;
+  revoke: RequestHandler;
+}> => {
   const list: RequestHandler = async (request, response, next) => {
     try {
       const resolution = await principalResolver.resolve(request.headers.cookie);
