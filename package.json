@@ -34,6 +34,11 @@
     "husky": "9.1.7",
     "lint-staged": "16.4.0"
   },
+  "overrides": {
+    "braces>micromatch>picomatch": ">=2.3.2",
+    "braces": ">=3.0.3",
+    "source-map-js": "1.2.2"
+  },
   "engines": {
     "node": ">=20.19.0"
   }

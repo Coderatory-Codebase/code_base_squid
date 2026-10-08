@@ -1,0 +1,14 @@
+{
+  "measuredAt": "2026-10-07T08:08:16.203Z",
+  "surface": "POST /organizations over loopback HTTP with isolated in-memory MongoDB",
+  "workload": {
+    "requestsPerSecond": 20,
+    "durationMs": 600000,
+    "requests": 12000
+  },
+  "completedRequests": 12000,
+  "failedRequests": 0,
+  "p95Ms": 8.03,
+  "budgetMs": 300,
+  "passed": true
+}

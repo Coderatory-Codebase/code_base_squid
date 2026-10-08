@@ -1,0 +1,14 @@
+{
+  "module": "workspace",
+  "owner": "organization",
+  "archivedData": {
+    "retention": "indefinite",
+    "reason": "Archiving is reversible and keeps organization/workspace records readable.",
+    "purgeOnArchive": false
+  },
+  "softDeletedData": {
+    "retention": "indefinite-until-ratified",
+    "purgeEnabled": false,
+    "requiredBeforePurge": "Legal, product, and on-call owners must approve a retention period and a separate purge migration."
+  }
+}

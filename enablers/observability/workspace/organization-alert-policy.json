@@ -1,0 +1,13 @@
+{
+  "module": "workspace",
+  "signal": "organization.request.signal",
+  "status": "proposed-awaiting-on-call-ratification",
+  "thresholds": {
+    "errorRate": { "comparison": ">", "valuePercent": 5, "window": "5m", "minimumRequests": 20 },
+    "requestP95": { "comparison": ">", "valueMs": 700, "window": "5m" },
+    "organizationListP95": { "comparison": ">", "valueMs": 700, "window": "5m", "operation": "listOrganizations" },
+    "organizationSetupP95": { "comparison": ">", "valueMs": 300, "window": "5m", "operation": "createOrganization" }
+  },
+  "retention": { "valueDays": 30, "scope": "organization request telemetry logs", "enforcementOwner": "central log platform", "status": "pending-platform-configuration" },
+  "approval": { "requiredFrom": "workspace on-call rotation", "approvedBy": null, "approvedAt": null }
+}
