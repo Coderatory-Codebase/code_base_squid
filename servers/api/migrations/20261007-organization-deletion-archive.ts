@@ -1,4 +1,4 @@
-import { OrganizationModel } from "../features/workspace/integrations/organization.model.js";
+import { OrganizationModel } from "../features/workspace/index.js";
 
 export const up = async (): Promise<void> => {
   await OrganizationModel.updateMany(
