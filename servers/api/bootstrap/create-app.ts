@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import { createHttpLogger, type Logger } from "@workspace/logging";
 import type { ApiConfig } from "../types/index.js";
 import { apiRuntime } from "../constants/index.js";
-import { createUserProfileRoutes, createUserSessionsRoutes, type UserProfileRouteDependencies, type UserSessionsRouteDependencies } from "../features/identity/index.js";
+import { createUserProfileRoutes, createUserSessionsRoutes, createUserInvitationRoutes, type UserProfileRouteDependencies, type UserSessionsRouteDependencies, type UserInvitationRouteDependencies } from "../features/identity/index.js";
 import { createOidcSignInRoutes, type OidcSignInControllerDependencies } from "../features/authentication/index.js";
 import { createHealthRoutes } from "../features/health/index.js";
 import { createAuthRoutes, createAuthService, readBearerToken, type AuthService } from "../features/auth/index.js";
@@ -33,6 +33,9 @@ type AppDependencies = Readonly<{
   authService?: AuthService;
   temporaryBrandingDemoReader?: TemporaryBrandingReader;
   identity?: UserProfileRouteDependencies;
+  userInvitations?: Omit<UserInvitationRouteDependencies, "principalResolver"> & Readonly<{
+    activeMembershipsFor: (userId: string) => Promise<readonly Readonly<{ workspaceId: string }>[]>;
+  }>;
   identitySessions?: UserSessionsRouteDependencies;
   authentication?: OidcSignInControllerDependencies;
 }>;
@@ -49,6 +52,7 @@ export const createApp = ({
   authService = createAuthService(),
   temporaryBrandingDemoReader,
   identity,
+  userInvitations,
   identitySessions,
   authentication
 }: AppDependencies): Express => {
@@ -84,6 +88,24 @@ export const createApp = ({
         }
       })
     : undefined;
+  const userInvitationRoutes = userInvitations
+    ? createUserInvitationRoutes({
+        ...userInvitations,
+        principalResolver: {
+          resolve: async (authorizationHeader) => {
+            const token = authorizationHeader?.match(/^Bearer\s+([A-Za-z0-9_-]{40,64})$/i)?.[1] ?? null;
+            const user = await authService.resolvePrincipal(token);
+            if (!user) return { kind: "unauthenticated" };
+            const memberships = await userInvitations.activeMembershipsFor(user.userId);
+            if (memberships.length === 0) return { kind: "no-active-workspace" };
+            if (memberships.length > 1) return { kind: "workspace-selection-required" };
+            const [membership] = memberships;
+            if (!membership) return { kind: "no-active-workspace" };
+            return { kind: "resolved", principal: { userId: user.userId, workspaceId: membership.workspaceId } };
+          }
+        }
+      })
+    : undefined;
   const featureRouters = [
     createHealthRoutes({ environment: config.environment, serviceName: apiRuntime.serviceName }),
     createAuthRoutes(authService),
@@ -109,6 +131,7 @@ export const createApp = ({
     }),
     ...(profileRoutes ? [profileRoutes] : []),
     ...(sessionRoutes ? [sessionRoutes] : []),
+    ...(userInvitationRoutes ? [userInvitationRoutes] : []),
     ...(authentication ? [createOidcSignInRoutes({
       ...authentication,
       recordInvalidSignIn: () => {

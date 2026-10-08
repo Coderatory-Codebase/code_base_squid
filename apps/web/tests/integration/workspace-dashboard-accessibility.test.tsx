@@ -9,6 +9,7 @@ test("team invitation controls have named native inputs and keyboard-operable ac
   const markup = renderToStaticMarkup(<InviteMemberForm organizationId="000000000000000000000071" />);
   assert.match(markup, /<label[^>]*for="invite-email"[^>]*>[\s\S]*Email address/);
   assert.match(markup, /id="invite-email"[^>]*required=""[^>]*type="email"[^>]*name="email"/);
+  assert.match(markup, /aria-invalid="false"/);
   assert.match(markup, /<label[^>]*for="invite-role"[^>]*>[\s\S]*Role/);
   assert.match(markup, /<button[^>]*type="submit"[^>]*>Create invite link/);
   assert.doesNotMatch(markup, /tabindex=/i);

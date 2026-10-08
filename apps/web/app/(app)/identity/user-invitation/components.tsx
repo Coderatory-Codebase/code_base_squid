@@ -1,5 +1,6 @@
 import { AlertCircle, Clock, Mail, UserPlus } from "lucide-react";
 import type { InvitationListItem } from "@/lib/api/user-invitation";
+import { InvitationActions } from "./invitation-actions";
 
 export const InvitationCard = ({ invitation }: { invitation: InvitationListItem }) => {
   const expiryDate = invitation.expiresAt.toLocaleDateString("en-US", {
@@ -24,6 +25,7 @@ export const InvitationCard = ({ invitation }: { invitation: InvitationListItem 
         <Clock aria-hidden="true" className="size-4" />
         Expires {expiryDate}
       </p>
+      <InvitationActions invitationId={invitation.id} />
     </article>
   );
 };
@@ -35,6 +37,9 @@ export const EmptyState = () => (
     <p className="mx-auto mt-2 max-w-sm text-muted-foreground">
       Invitations will appear here once they have been sent.
     </p>
+    <a className="mt-4 inline-block text-sm font-medium underline underline-offset-4" href="/workspace/organization">
+      Browse organizations
+    </a>
   </section>
 );
 

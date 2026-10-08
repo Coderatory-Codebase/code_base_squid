@@ -19,7 +19,7 @@ void test("session cookie resolver hashes the opaque token and queries active un
       revokeActiveSession: () => Promise.resolve(false),
       listActiveByUserId: () => Promise.resolve([])
     },
-    now: () => now
+    clock: { now: () => now.getTime() }
   });
 
   assert.deepEqual(await resolveSession(`${SESSION_COOKIE_NAME}=${token}`), {
@@ -27,7 +27,7 @@ void test("session cookie resolver hashes the opaque token and queries active un
     userId: "user-1"
   });
   assert.equal(receivedHash, expectedHash);
-  assert.equal(receivedTime, now);
+  assert.equal(receivedTime?.getTime(), now.getTime());
 });
 
 void test("session cookie resolver rejects absent, malformed, or duplicate cookies", async () => {
@@ -56,7 +56,7 @@ void test("active session cache is invalidated immediately on revocation and exp
   let databaseLookups = 0;
   const resolver = createSessionCookieResolver({
     cacheTtlMs: 60_000,
-    now: () => currentTime,
+    clock: { now: () => currentTime.getTime() },
     sessions: {
       findAndTouchActiveByTokenHash: () => {
         databaseLookups += 1;

@@ -22,11 +22,12 @@ const database = createMongoDbIntegration({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})
 });
-const identity = config.mongodbUri ? createIdentityRuntime(database, config) : undefined;
+const identity = config.mongodbUri ? createIdentityRuntime(database, config, logger) : undefined;
 const app = createApp({
   config,
   logger,
   ...(identity ? { identity: identity.profile } : {}),
+  ...(identity ? { userInvitations: identity.userInvitations } : {}),
   ...(identity ? { identitySessions: identity.sessionManagement } : {}),
   ...(identity?.authentication ? { authentication: identity.authentication } : {}),
   ...(config.temporaryOrganizationBrandingDemo ? { temporaryBrandingDemoReader: workspaceBrandingMongoQueries } : {})

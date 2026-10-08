@@ -42,6 +42,7 @@ test("TC-02.1.02-S1-X-accessibility supporting invitation UI renders pending, em
 
   assert.match(renderToStaticMarkup(<InvitationCard invitation={invitation} />), /omar@acme\.test/);
   assert.match(renderToStaticMarkup(<EmptyState />), /No pending invitations/);
+  assert.match(renderToStaticMarkup(<EmptyState />), /href="\/workspace\/organization"/);
   assert.match(renderToStaticMarkup(<ErrorState error={new Error("Network unavailable")} />), /Network unavailable/);
 });
 

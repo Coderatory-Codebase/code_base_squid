@@ -44,9 +44,16 @@ export interface InvitationServiceDependencies {
 
 export interface InvitationCommandResult {
   readonly invitationUrl: string;
+  readonly expiresAt: Date;
 }
 
 const hashToken = (token: string): string => createHash("sha256").update(token).digest("hex");
+
+const isPendingInvitationUniqueConflict = (error: unknown): boolean => {
+  if (typeof error !== "object" || error === null || !("code" in error) || error.code !== 11000) return false;
+  if (!("keyPattern" in error) || typeof error.keyPattern !== "object" || error.keyPattern === null) return false;
+  return "workspaceId" in error.keyPattern && "email" in error.keyPattern;
+};
 
 const createExpiry = (now: Date): Date => {
   const expiry = new Date(now);
@@ -101,11 +108,12 @@ export const createInvitationService = ({
 
     const email = parsedInput.data.email.toLowerCase();
     const token = createToken();
+    const expiresAt = createExpiry(now());
     const pendingInvitation = {
       email,
       role: parsedInput.data.role,
       tokenHash: hashToken(token),
-      expiresAt: createExpiry(now())
+      expiresAt
     };
     const existing = await gateway.findPendingByEmail(principal, email);
 
@@ -113,7 +121,16 @@ export const createInvitationService = ({
       const replacement = await gateway.replacePending(principal, email, pendingInvitation);
       if (!replacement) throw new InvitationCommandError("duplicate-invitation");
     } else {
-      await gateway.createPending(principal, pendingInvitation);
+      try {
+        await gateway.createPending(principal, pendingInvitation);
+      } catch (error: unknown) {
+        // The pending-email partial unique index is the concurrency boundary. If
+        // another invite won the insert race, replace that pending record so the
+        // earlier token becomes invalid and only one pending invitation remains.
+        if (!isPendingInvitationUniqueConflict(error)) throw error;
+        const replacement = await gateway.replacePending(principal, email, pendingInvitation);
+        if (!replacement) throw new InvitationCommandError("duplicate-invitation");
+      }
     }
 
     emitOperationSignal({
@@ -124,7 +141,7 @@ export const createInvitationService = ({
       actorId: principal.userId
     });
 
-    return Object.freeze({ invitationUrl: createInvitationUrl(token) });
+    return Object.freeze({ invitationUrl: createInvitationUrl(token), expiresAt });
   };
 
   return Object.freeze({ invite });

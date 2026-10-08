@@ -130,7 +130,7 @@ void test("AC-4 Playwright journey: Identity failure leaves the organization pag
   const webOutput: string[] = [];
   const webProcess = spawn(process.execPath, [nextCli, "dev", "--hostname", "127.0.0.1", "--port", String(webPort)], {
     cwd: webRoot,
-    env: process.env,
+    env: { ...process.env, NEXT_TEST_DIST_DIR: ".next/playwright-owner-unavailable" },
     stdio: "pipe"
   });
   webProcess.stdout?.on("data", chunk => webOutput.push(String(chunk)));

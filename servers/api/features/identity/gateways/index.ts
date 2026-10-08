@@ -1,4 +1,3 @@
-export { createUserInvitationGateway } from "./user-invitation.gateway.js";
 export { canInviteToWorkspace } from "./user-invitation.policy.js";
 export { decideInvitationAcceptance } from "./user-invitation-acceptance.domain.js";
 export { decideInvitationResend, decideInvitationRevocation } from "./user-invitation-management.domain.js";
@@ -6,6 +5,9 @@ export { invalidInvitationMessage, refuseInvalidInvitationLink } from "./user-in
 export { createInvitationOperationSignalEmitter } from "./user-invitation.telemetry.js";
 export { createInvitationService, createSecureInvitationToken, InvitationCommandError } from "./user-invitation.service.js";
 export type { UserInvitationGateway } from "./user-invitation.gateway.js";
+export type { UserInvitationScope } from "./user-invitation.gateway.js";
+export { createUserInvitationQueryService } from "./user-invitation.query.js";
+export type { InvitationListItem } from "./user-invitation.query.js";
 export type { InvitationAcceptanceResult, InvitationForAcceptance } from "./user-invitation-acceptance.domain.js";
 export type { InvitationManagementResult, ManagedInvitation } from "./user-invitation-management.domain.js";
 export type { InvitationLinkDecision } from "./user-invitation-validity.domain.js";

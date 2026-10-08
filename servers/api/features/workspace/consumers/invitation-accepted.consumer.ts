@@ -9,6 +9,7 @@ export type InvitationAcceptedEvent = Readonly<{
   eventId: string;
   workspaceId: string;
   userId: string;
+  role: string;
   guest: boolean;
 }>;
 
@@ -73,7 +74,8 @@ export const createInvitationAcceptedConsumer = (
     if (
       !isNonEmpty(event.eventId) ||
       !isNonEmpty(event.workspaceId) ||
-      !isNonEmpty(event.userId)
+      !isNonEmpty(event.userId) ||
+      !isNonEmpty(event.role)
     ) {
       const error = new Error("InvitationAccepted requires event, workspace and user identifiers.");
       dependencies.emitSignal(Object.freeze({
@@ -105,15 +107,11 @@ export const createInvitationAcceptedConsumer = (
         return result === "duplicate" ? "duplicate" : "archived";
       }
 
-      if (!isNonEmpty(workspace.defaultRole)) {
-        throw new Error("The active workspace has no configured default role.");
-      }
-
       const result = await dependencies.addMemberOnce({
         eventId: event.eventId,
         workspaceId: event.workspaceId,
         userId: event.userId,
-        role: event.guest ? "guest" : workspace.defaultRole,
+        role: event.guest ? "guest" : event.role,
         guest: event.guest
       });
       outcome = result === "applied" ? "succeeded" : result === "duplicate" ? "duplicate" : "refused";

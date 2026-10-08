@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import type { Route } from "next";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
 import type { InvitationActionState } from "./team.action-state";
+import { validateInvitationEmail } from "./team.invitation-validation";
 
 const sessionCookie = "workspace_session";
 
@@ -25,8 +26,11 @@ export const createOrganizationInvitation = async (
   const organizationId = formData.get("organizationId");
   const email = formData.get("email");
   const role = formData.get("role");
+  const validatedEmail = validateInvitationEmail(email);
+  if (!validatedEmail.ok) {
+    return { status: "failure", field: "email", message: "Enter a valid email address." };
+  }
   if (typeof organizationId !== "string" || !/^[a-f\d]{24}$/iu.test(organizationId)
-    || typeof email !== "string" || !email.trim()
     || (role !== "admin" && role !== "member")) {
     return { status: "failure", message: "Enter a valid email address and invitation role." };
   }
@@ -36,7 +40,7 @@ export const createOrganizationInvitation = async (
     response = await fetch(apiUrl(`/organizations/${organizationId}/invitations`), {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-      body: JSON.stringify({ email: email.trim(), role }),
+      body: JSON.stringify({ email: validatedEmail.email, role }),
       cache: "no-store"
     });
   } catch {
@@ -59,7 +63,8 @@ export const createOrganizationInvitation = async (
       || !("token" in payload) || typeof payload.token !== "string"
       || !/^[A-Za-z0-9_-]{40,60}$/u.test(payload.token)
       || !("expiresAt" in payload) || typeof payload.expiresAt !== "string" || !Number.isFinite(Date.parse(payload.expiresAt))
-      || !("url" in payload) || typeof payload.url !== "string") {
+      || !("url" in payload) || typeof payload.url !== "string"
+    ) {
       return { status: "failure", message: "The invitation service returned an invalid response." };
     }
     let invitationUrl: URL;
@@ -73,7 +78,64 @@ export const createOrganizationInvitation = async (
       || invitationUrl.searchParams.get("token") !== payload.token) {
       return { status: "failure", message: "The invitation service returned an invalid response." };
     }
-    return { status: "created", inviteUrl: invitationUrl.toString(), email: email.trim(), expiresAt: payload.expiresAt };
+    return { status: "created", inviteUrl: invitationUrl.toString(), email: validatedEmail.email, expiresAt: payload.expiresAt };
+  } catch {
+    return { status: "failure", message: "The invitation service returned an unreadable response." };
+  }
+};
+
+export type InvitationManagementState = Readonly<{
+  status: "idle" | "success" | "failure";
+  message?: string;
+  invitationUrl?: string;
+}>;
+
+const invitationManagementApi = async (invitationId: string, method: "DELETE" | "POST"): Promise<Response> => {
+  const token = await getToken();
+  return fetch(apiUrl(method === "DELETE"
+    ? `/identity/user-invitations/${encodeURIComponent(invitationId)}`
+    : `/identity/user-invitations/${encodeURIComponent(invitationId)}/resend`), {
+    method,
+    headers: { authorization: `Bearer ${token}` },
+    cache: "no-store"
+  });
+};
+
+export const revokeInvitationAction = async (
+  invitationId: string,
+  _previous: InvitationManagementState,
+  _formData: FormData
+): Promise<InvitationManagementState> => {
+  if (!/^[a-f\d]{24}$/iu.test(invitationId)) return { status: "failure", message: "Invalid invitation." };
+  let response: Response;
+  try { response = await invitationManagementApi(invitationId, "DELETE"); }
+  catch { return { status: "failure", message: "The invitation service could not be reached." }; }
+  if (response.status === 401) redirect("/sign-in");
+  if (!response.ok) return { status: "failure", message: "This invitation could not be revoked." };
+  revalidatePath("/identity/user-invitation");
+  return { status: "success", message: "Invitation revoked." };
+};
+
+export const resendInvitationAction = async (
+  invitationId: string,
+  _previous: InvitationManagementState,
+  _formData: FormData
+): Promise<InvitationManagementState> => {
+  if (!/^[a-f\d]{24}$/iu.test(invitationId)) return { status: "failure", message: "Invalid invitation." };
+  let response: Response;
+  try { response = await invitationManagementApi(invitationId, "POST"); }
+  catch { return { status: "failure", message: "The invitation service could not be reached." }; }
+  if (response.status === 401) redirect("/sign-in");
+  if (!response.ok) return { status: "failure", message: "This invitation could not be resent." };
+  try {
+    const payload: unknown = await response.json();
+    if (typeof payload !== "object" || payload === null || !("invitationUrl" in payload)
+      || typeof payload.invitationUrl !== "string" || !("expiresAt" in payload)
+      || typeof payload.expiresAt !== "string" || !Number.isFinite(Date.parse(payload.expiresAt))) {
+      return { status: "failure", message: "The invitation service returned an invalid response." };
+    }
+    revalidatePath("/identity/user-invitation");
+    return { status: "success", message: "Invitation renewed. Copy the new link; the previous link no longer works.", invitationUrl: payload.invitationUrl };
   } catch {
     return { status: "failure", message: "The invitation service returned an unreadable response." };
   }

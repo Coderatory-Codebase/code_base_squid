@@ -78,7 +78,7 @@ precedence when reporting actual implementation coverage.
 | Task | Codebase evidence | Status against exported DoD |
 | --- | --- | --- |
 | T1 — scoped gateway query | Gateway appends `workspaceId` and `deletedAt: null` last; model has scoped list indexes; pending replacements update the existing invitation. | Partial: no real-Mongo cross-tenant test, explain-plan proof, or confirmed collection allow-list/migration evidence. |
-| T2 — Server Component view | Invitation page plus loading/empty/error components exist; server-only fetch boundary has no client fetch/domain import. | Partial: page calls an API list endpoint that API bootstrap does not register; empty state has no resolving action; no real gateway-backed server render. |
+| T2 — Server Component view | Invitation page plus loading/empty/error components exist; server-only fetch boundary has no client fetch/domain import. | Partial: API list route and empty-state action are now composed with a policy-bound scoped query; no multi-workspace selector or real Mongo-backed server render yet. |
 | T3 — AC automation | Existing fake-gateway service tests are named AC1–AC6; markup test checks live region/retry link. | Not complete: required test methods and red→green proof are absent. See `02.1.02-S1-T3.md`. |
 | T4 — telemetry | Feature-owned structured success/refusal signal and supporting unit tests exist. | Partial: no HTTP composition, dashboard, threshold, or dashboard evidence. |
 | T5 — view budget | Official load placeholders record missing Docker/k6/route prerequisites. | Blocked: no seeded 200-request measurement or dated serving-index evidence. |

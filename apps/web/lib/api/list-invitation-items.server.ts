@@ -1,4 +1,5 @@
 import "server-only";
+import { cookies } from "next/headers";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
 import {
   createInvitationListQuery,
@@ -8,9 +9,13 @@ import {
 } from "./user-invitation";
 
 const requestInvitationList: InvitationListRequest = async (url) => {
+  const sessionToken = (await cookies()).get("workspace_session")?.value;
   const response = await fetch(url, {
     cache: "no-store",
-    headers: { accept: "application/json" }
+    headers: {
+      accept: "application/json",
+      ...(sessionToken ? { authorization: `Bearer ${sessionToken}` } : {})
+    }
   });
 
   if (!response.ok) {

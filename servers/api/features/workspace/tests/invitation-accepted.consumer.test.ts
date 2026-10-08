@@ -26,22 +26,22 @@ void test("InvitationAccepted creates one scoped member, applies roles, and reco
   ]);
 
   const consumer = createWorkspaceInvitationAcceptedConsumer({ logger });
-  const invitation = { eventId: "event-a1", workspaceId: "workspace-a", userId: "user-1", guest: false } as const;
+  const invitation = { eventId: "event-a1", workspaceId: "workspace-a", userId: "user-1", role: "designer", guest: false } as const;
   const acceptanceStartedAt = performance.now();
   assert.equal(await consumer.consume(invitation), "applied");
   assert.ok(performance.now() - acceptanceStartedAt < 5_000, "accepted invitation must be applied within 5 seconds");
   assert.equal(await consumer.consume(invitation), "duplicate");
   assert.equal(await consumer.consume({
-    eventId: "event-a2", workspaceId: "workspace-a", userId: "user-2", guest: true
+    eventId: "event-a2", workspaceId: "workspace-a", userId: "user-2", role: "ignored-for-guests", guest: true
   }), "applied");
   assert.equal(await consumer.consume({
-    eventId: "event-b1", workspaceId: "workspace-b", userId: "user-3", guest: false
+    eventId: "event-b1", workspaceId: "workspace-b", userId: "user-3", role: "reviewer", guest: false
   }), "applied");
   assert.equal(await consumer.consume({
-    eventId: "event-c1", workspaceId: "workspace-archived", userId: "user-4", guest: false
+    eventId: "event-c1", workspaceId: "workspace-archived", userId: "user-4", role: "member", guest: false
   }), "archived");
   assert.equal(await consumer.consume({
-    eventId: "event-c1", workspaceId: "workspace-archived", userId: "user-4", guest: false
+    eventId: "event-c1", workspaceId: "workspace-archived", userId: "user-4", role: "member", guest: false
   }), "duplicate");
 
   const [workspaceA, workspaceB, archived] = await Promise.all([
@@ -53,7 +53,7 @@ void test("InvitationAccepted creates one scoped member, applies roles, and reco
   assert.ok(workspaceB);
   assert.ok(archived);
   assert.deepEqual(workspaceA.members.map(({ userId, role, guest }) => ({ userId, role, guest })), [
-    { userId: "user-1", role: "editor", guest: false },
+    { userId: "user-1", role: "designer", guest: false },
     { userId: "user-2", role: "guest", guest: true }
   ]);
   assert.deepEqual(workspaceA.appliedEventIds, ["event-a1", "event-a2"]);

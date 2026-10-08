@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createUserInvitationGateway } from "../gateways/index.js";
-import { UserInvitationModel } from "../models/index.js";
+import { createUserInvitationGateway, UserInvitationModel } from "../integrations/index.js";
 import type { Principal } from "../types/index.js";
 
 const captured = <T>(value: T | null, message: string): T => {

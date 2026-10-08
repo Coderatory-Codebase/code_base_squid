@@ -44,7 +44,20 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps): Rea
           <input name="organizationId" type="hidden" value={organizationId} />
           <label className="grid gap-2 text-sm font-medium" htmlFor="invite-email">
             Email address
-            <input autoComplete="email" className="h-10 rounded-md border bg-background px-3 font-normal" id="invite-email" maxLength={254} name="email" required type="email" />
+            <input
+              aria-describedby={state.status === "failure" && state.field === "email" ? "invite-email-error" : undefined}
+              aria-invalid={state.status === "failure" && state.field === "email"}
+              autoComplete="email"
+              className="h-10 rounded-md border bg-background px-3 font-normal"
+              id="invite-email"
+              maxLength={254}
+              name="email"
+              required
+              type="email"
+            />
+            {state.status === "failure" && state.field === "email"
+              ? <span className="text-sm text-destructive" id="invite-email-error" role="alert">{state.message}</span>
+              : null}
           </label>
           <label className="grid gap-2 text-sm font-medium" htmlFor="invite-role">
             Role
@@ -58,7 +71,9 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps): Rea
           </button>
         </form>
       )}
-      {state.status === "failure" ? <p aria-live="polite" className="text-sm text-destructive" role="alert">{state.message}</p> : null}
+      {state.status === "failure" && state.field !== "email"
+        ? <p aria-live="polite" className="text-sm text-destructive" role="alert">{state.message}</p>
+        : null}
     </section>
   );
 };

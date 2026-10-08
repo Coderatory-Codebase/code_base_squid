@@ -29,7 +29,7 @@ export const createWorkspaceMembershipQueryAdapter = (connection: Connection): W
   const model = createWorkspaceMembershipModel(connection);
   return {
     activeMembershipsFor: async (userId) => {
-      const memberships = await model.aggregate<{ workspaceId: string }>([
+      const memberships = await model.aggregate<{ workspaceId: string; role: string; guest: boolean }>([
         { $match: { userId, status: "ACTIVE" } },
         {
           $lookup: {
@@ -55,10 +55,10 @@ export const createWorkspaceMembershipQueryAdapter = (connection: Connection): W
           }
         },
         { $match: { "organization.0": { $exists: true } } },
-        { $project: { _id: 0, workspaceId: 1 } }
+        { $project: { _id: 0, workspaceId: 1, role: 1, guest: 1 } }
       ]).exec();
 
-      return memberships.map(({ workspaceId }) => ({ workspaceId }));
+      return memberships.map(({ workspaceId, role, guest }) => ({ workspaceId, role, guest }));
     }
   };
 };
