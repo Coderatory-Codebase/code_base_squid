@@ -1,0 +1,60 @@
+{
+  "measuredAt": "2026-10-07T14:52:35.633Z",
+  "surface": "GET /workspace/organization-settings over loopback HTTP with isolated in-memory MongoDB",
+  "dataset": {
+    "workspaceOrganizations": 200,
+    "returnedSettingsPerRequest": 200,
+    "requests": 200
+  },
+  "latencyMs": {
+    "p50": 47.85,
+    "p95": 90.55,
+    "p99": 134.35
+  },
+  "budgetMs": 700,
+  "passed": true,
+  "requiredIndex": "workspace_settings_live_cover",
+  "indexesUsed": [
+    "workspace_settings_live_cover"
+  ],
+  "queryPlanner": {
+    "isCached": false,
+    "stage": "PROJECTION_COVERED",
+    "transformBy": {
+      "settings": 1,
+      "_id": 0
+    },
+    "inputStage": {
+      "stage": "IXSCAN",
+      "keyPattern": {
+        "workspaceIds": 1,
+        "settings": 1
+      },
+      "indexName": "workspace_settings_live_cover",
+      "isMultiKey": true,
+      "multiKeyPaths": {
+        "workspaceIds": [
+          "workspaceIds"
+        ],
+        "settings": []
+      },
+      "isUnique": false,
+      "isSparse": false,
+      "isPartial": true,
+      "indexVersion": 2,
+      "direction": "forward",
+      "indexBounds": {
+        "workspaceIds": [
+          "[\"organization-settings-load-test-workspace\", \"organization-settings-load-test-workspace\"]"
+        ],
+        "settings": [
+          "[MinKey, MaxKey]"
+        ]
+      }
+    }
+  },
+  "environment": {
+    "database": "MongoMemoryServer (disposable local instance)",
+    "runtime": "v24.21.0"
+  }
+}

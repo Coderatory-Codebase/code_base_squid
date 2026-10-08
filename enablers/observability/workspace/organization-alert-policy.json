@@ -1,0 +1,17 @@
+{
+  "module": "workspace",
+  "signal": "organization.request.signal",
+  "status": "proposed-awaiting-on-call-ratification",
+  "thresholds": {
+    "errorRate": { "comparison": ">", "valuePercent": 5, "window": "5m", "minimumRequests": 20 },
+    "requestP95": { "comparison": ">", "valueMs": 700, "window": "5m" },
+    "organizationListP95": { "comparison": ">", "valueMs": 700, "window": "5m", "operation": "listOrganizations" },
+    "organizationSetupP95": { "comparison": ">", "valueMs": 300, "window": "5m", "operation": "createOrganization" },
+    "organizationSettingsReadP95": { "comparison": ">", "valueMs": 700, "window": "5m", "operation": "read", "feature": "organization-settings", "status": "proposed-awaiting-on-call-ratification" },
+    "organizationSettingsUpdateP95": { "comparison": ">", "valueMs": 700, "window": "5m", "operation": "update", "feature": "organization-settings", "status": "proposed-awaiting-on-call-ratification" },
+    "organizationSettingsUpdateErrorRate": { "comparison": ">", "valuePercent": 5, "window": "5m", "minimumRequests": 20, "operation": "update", "feature": "organization-settings", "status": "proposed-awaiting-on-call-ratification" },
+    "invitationAcceptedConsumerP95": { "comparison": ">", "valueMs": 5000, "window": "5m", "operation": "consume", "feature": "invitation-accepted", "signal": "Invitation acceptance consumer signal.", "status": "proposed-awaiting-on-call-ratification" }
+  },
+  "retention": { "valueDays": 30, "scope": "organization request telemetry logs", "enforcementOwner": "central log platform", "status": "pending-platform-configuration" },
+  "approval": { "requiredFrom": "workspace on-call rotation", "approvedBy": null, "approvedAt": null }
+}

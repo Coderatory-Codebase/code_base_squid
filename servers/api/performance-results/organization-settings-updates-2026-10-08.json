@@ -1,0 +1,21 @@
+{
+  "measuredAt": "2026-10-08T12:45:59.223Z",
+  "surface": "PATCH /organizations/:organizationId/settings over loopback HTTP with isolated in-memory MongoDB",
+  "workload": {
+    "targetRequestsPerSecond": 20,
+    "successfulUpdates": 12001,
+    "elapsedMs": 600042.11,
+    "achievedRequestsPerSecond": 20
+  },
+  "latencyMs": {
+    "p50": 17.68,
+    "p95": 22.32,
+    "p99": 26.59
+  },
+  "budgetMs": 300,
+  "passed": true,
+  "environment": {
+    "database": "MongoMemoryServer (disposable local instance)",
+    "runtime": "v24.21.0"
+  }
+}

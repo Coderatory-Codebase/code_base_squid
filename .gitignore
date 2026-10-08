@@ -9,3 +9,8 @@ coverage/
 .env.*
 !.env.example
 .test-tmp-*/
+
+validate.log
+servers/api/.env
+servers/api/.env
+servers/api/.env

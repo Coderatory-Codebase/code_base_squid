@@ -1,0 +1,82 @@
+{
+  "measuredAt": "2026-10-06T13:38:36.383Z",
+  "surface": "GET /organizations over loopback HTTP with isolated in-memory MongoDB",
+  "dataset": {
+    "principalOrganizations": 50,
+    "requests": 200
+  },
+  "p95Ms": 9.31,
+  "budgetMs": 700,
+  "passed": true,
+  "indexesUsed": [
+    "ownerId_1",
+    "workspaceIds_1"
+  ],
+  "queryPlanner": {
+    "isCached": false,
+    "stage": "SORT",
+    "sortPattern": {
+      "lastUsedAt": -1,
+      "name": 1
+    },
+    "memLimit": 104857600,
+    "type": "simple",
+    "inputStage": {
+      "stage": "FETCH",
+      "filter": {
+        "deletedAt": {
+          "$eq": null
+        }
+      },
+      "inputStage": {
+        "stage": "OR",
+        "inputStages": [
+          {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "ownerId": 1
+            },
+            "indexName": "ownerId_1",
+            "isMultiKey": false,
+            "multiKeyPaths": {
+              "ownerId": []
+            },
+            "isUnique": false,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "ownerId": [
+                "[\"budget-owner\", \"budget-owner\"]"
+              ]
+            }
+          },
+          {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "workspaceIds": 1
+            },
+            "indexName": "workspaceIds_1",
+            "isMultiKey": true,
+            "multiKeyPaths": {
+              "workspaceIds": [
+                "workspaceIds"
+              ]
+            },
+            "isUnique": false,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "workspaceIds": [
+                "[\"workspace-budget\", \"workspace-budget\"]"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

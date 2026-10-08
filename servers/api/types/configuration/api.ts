@@ -7,5 +7,6 @@ export type ApiConfig = Readonly<{
   port: number;
   webOrigin: string;
   mongodbUri?: string;
+  redisUrl?: string;
   logLevel: LogLevel;
 }>;
