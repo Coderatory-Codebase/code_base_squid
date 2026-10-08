@@ -73,6 +73,14 @@ GIT GOVERNANCE RECONCILIATION: 2026-09-18
 - The security scanner reconciliation passes a clean managed TruffleHog scan, normalized JSON output, aggregate validation, checksum, cached-binary integrity, and version enforcement, a generated-credential integration test, 71 control-plane tests, all 17 workspace tests, lint, strict type checking, and every production build.
 - Git governance contract tests cover valid, invalid, malformed, missing-subject, and breaking Conventional Commits; staged-only processing and command failure; hook thinness; workspace ESLint routing; immutable CI actions; pull request structure; CODEOWNERS; and the versioned ruleset policy. Repository-wide validation remains the authoritative CI path.
 
+### Organization profile target-volume measurement — 2026-10-02
+
+- Seed mechanism: `servers/api/features/workspace/tests/workspace-profile.acceptance.integration.test.ts` generates 100 workspace documents and, for each workspace, 200 distinct member IDs, user documents, and active membership documents. The test helpers insert 20,000 members and 20,000 memberships into a MongoDB memory replica set. There is no separate `scripts/seed.ts`.
+- Measurement command: from `servers/api`, run `.\node_modules\.bin\tsx.CMD --test features\workspace\tests\workspace-profile.acceptance.integration.test.ts`. Each T5 case independently seeds the full target volume and times exactly 200 sequential HTTP organization-profile opens through the API route, including response JSON consumption.
+- TC-01.1.02-S1-5: observed test measurement 2026-10-02 23:00:39 PDT (2026-10-03T06:00:39.730Z); p95 16.78 ms; 100 workspaces; 200 members per workspace; 200 opens; budget p95 <= 700 ms; PASS.
+- TC-01.1.02-S1-X-performance: observed test measurement 2026-10-02 23:00:43 PDT (2026-10-03T06:00:43.308Z); p95 13.22 ms; 100 workspaces; 200 members per workspace; 200 opens; budget p95 <= 700 ms; PASS.
+- The workspace query plan used `orgId_1_deletedAt_1_status_1`; the membership query plan used `userId_1_workspaceId_1_status_1_deletedAt_1`. Both plans verified `IXSCAN` with no collection scan. The measured budget was met; no query, index, or budget change was required.
+
 ## Deferred
 
 - A required live MongoDB connection, feature repositories, models, and live-provider integration coverage remain deferred until a persistence-backed feature exists.

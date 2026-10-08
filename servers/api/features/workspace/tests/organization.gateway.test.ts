@@ -84,7 +84,7 @@ void test("gateway scopes by ownership or membership and excludes deleted organi
   assert.equal(calls.includes("where:workspaceIds"), false);
   assert.equal(capturedOffset, 100);
   assert.equal(capturedLimit, 51);
-  assert.deepEqual(capturedProjection, { _id: 1, name: 1 });
+  assert.deepEqual(capturedProjection, { _id: 1, name: 1, archivedAt: 1 });
 });
 void test("persists organization operations and enforces tenant isolation in last-used order", async (context): Promise<void> => {
   const mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });

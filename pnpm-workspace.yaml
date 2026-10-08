@@ -11,6 +11,11 @@ allowBuilds:
   msgpackr-extract: false
   unrs-resolver: true
 
+overrides:
+  source-map-js: "1.2.2"
+  sharp: "0.35.5"
+  "@modelcontextprotocol/sdk": "1.31.0"
+
 audit:
   level: high
   # GHSA-vfj7-8cjw-p6xm: dev tooling only; remove this temporary waiver by 2026-11-03.
@@ -23,6 +28,3 @@ minimumReleaseAgeExclude:
 
 patchedDependencies:
   braces@3.0.3: patches/braces@3.0.3.patch
-
-overrides:
-  '@modelcontextprotocol/sdk': '^1.31.0'

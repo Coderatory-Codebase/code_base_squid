@@ -1,19 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { systemClock } from "@workspace/kernel";
 import { createMembersService } from "../services/members.service.js";
 import type { MembersGateway } from "../db/members.gateway.js";
 import type { Principal } from "../../../types/index.js";
 
+const fixtureDate = new Date("2026-01-01T00:00:00.000Z");
 const manager: Principal = { userId: "owner-1", email: "owner@example.test", workspaceIds: [] };
 const member: Principal = { userId: "member-1", email: "member@example.test", workspaceIds: [] };
 const dashboard = {
   organization: { id: "000000000000000000000001", name: "Northwind" },
+  lifecycle: { status: "active" as const, version: 0, archivedAt: null, archivedBy: null, deletedAt: null },
   metrics: { activeTeamMembers: 2, linkedWorkspaces: 1 },
   viewerRole: "owner" as const,
   members: [
     { userId: manager.userId, email: manager.email ?? null, role: "owner" as const, joinedAt: null },
-    { userId: "member-1", email: member.email ?? null, role: "member" as const, joinedAt: new Date(systemClock.now()) }
+    { userId: "member-1", email: member.email ?? null, role: "member" as const, joinedAt: fixtureDate }
   ],
   activity: []
 };
@@ -23,6 +24,11 @@ const gatewayFor = (overrides: Partial<MembersGateway> = {}): MembersGateway => 
     ...dashboard,
     viewerRole: principal.userId === member.userId ? "member" : "owner"
   }),
+  getOrganizationLifecycle: () => Promise.resolve({
+    ownerId: manager.userId,
+    lifecycle: dashboard.lifecycle
+  }),
+  transitionOrganizationLifecycle: () => Promise.resolve(dashboard.lifecycle),
   createInvitation: () => Promise.resolve(true),
   acceptInvitation: () => Promise.resolve({ id: dashboard.organization.id, name: dashboard.organization.name }),
   updateMemberRole: () => Promise.resolve(true),
@@ -55,6 +61,29 @@ void test("owner cannot be assigned another role or removed", async () => {
     service.removeMember(dashboard.organization.id, manager, manager.userId),
     (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 403
   );
+});
+
+void test("archived organizations reject team writes before persistence", async () => {
+  let writes = 0;
+  const service = createMembersService(gatewayFor({
+    getDashboard: () => Promise.resolve({ ...dashboard, lifecycle: { ...dashboard.lifecycle, status: "archived" } }),
+    createInvitation: () => { writes += 1; return Promise.resolve(true); },
+    updateMemberRole: () => { writes += 1; return Promise.resolve(true); },
+    removeMember: () => { writes += 1; return Promise.resolve(true); }
+  }));
+  await assert.rejects(
+    service.inviteMember(dashboard.organization.id, manager, "new@example.test", "member"),
+    (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 409
+  );
+  await assert.rejects(
+    service.updateMemberRole(dashboard.organization.id, manager, member.userId, "admin"),
+    (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 409
+  );
+  await assert.rejects(
+    service.removeMember(dashboard.organization.id, manager, member.userId),
+    (error: unknown) => typeof error === "object" && error !== null && "status" in error && error.status === 409
+  );
+  assert.equal(writes, 0);
 });
 
 void test("invitation stores only a token hash and expires in seven days", async () => {

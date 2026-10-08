@@ -79,11 +79,11 @@ export const createScopedHandle =
     if (!workspaceId) {
       // The repo's error boundary recognises plain application-error objects.
       
-      throw createApplicationError({
+      throw Object.assign(new Error(ERROR_MESSAGES.workspaceRequired), createApplicationError({
         code: ERROR_CODES.workspaceRequired,
         message: ERROR_MESSAGES.workspaceRequired,
         status: HTTP_STATUS.badRequest
-      });
+      }));
     }
 
     // Workspace and soft-delete predicates go LAST so a caller filter cannot override them.

@@ -4,9 +4,11 @@ import type { Logger } from "@workspace/logging";
 import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../../../constants/index.js";
 import { createApplicationError } from "../../../errors/index.js";
 import { createOrganizationRbacMiddleware } from "../../../middleware/rbac.middleware.js";
+import { createMembersGateway } from "../db/members.gateway.js";
 import { createOrganizationGateway, type OrganizationGateway } from "../db/organization.gateway.js";
 import { createOrganizationController, type PrincipalResolver } from "../controllers/organization.controller.js";
 import { createMembersController } from "../controllers/members.controller.js";
+import { createOrganizationLifecycleController } from "../controllers/organization-lifecycle.controller.js";
 import { createOrganizationRequestSignal } from "./organization-signal.js";
 import { createOrganizationService } from "../services/organization.service.js";
 import { createMembersService, type MembersService } from "../services/members.service.js";
@@ -16,6 +18,8 @@ import {
 } from "../controllers/organization-settings.controller.js";
 import { createOrganizationSettingsUpdateController } from "../controllers/organization-settings-update.controller.js";
 import { createOrganizationSettingsUpdater, type OrganizationSettingsUpdater } from "../services/organization-settings.service.js";
+import { createOrganizationLifecycleService } from "../services/organization-lifecycle.service.js";
+import type { OrganizationLifecycleService } from "../services/organization-lifecycle.service.js";
 
 const parseBody = (schema: z.ZodType) => (request: Request, _response: Response, next: NextFunction): void => {
   const parsed = schema.safeParse(request.body);
@@ -37,6 +41,7 @@ export const createOrganizationRoutes = ({
   membersService,
   settingsReader,
   settingsUpdater,
+  lifecycleService,
   webOrigin,
   logger = {
     info: () => undefined,
@@ -48,6 +53,7 @@ export const createOrganizationRoutes = ({
   membersService?: MembersService;
   settingsReader?: OrganizationSettingsReader;
   settingsUpdater?: OrganizationSettingsUpdater;
+  lifecycleService?: OrganizationLifecycleService;
   resolvePrincipal: PrincipalResolver;
   webOrigin: string;
   logger?: Pick<Logger, "info" | "warn" | "error">;
@@ -66,6 +72,10 @@ export const createOrganizationRoutes = ({
   });
   const organizationSettingsUpdateController = createOrganizationSettingsUpdateController({
     updater: settingsUpdater ?? createOrganizationSettingsUpdater(),
+    resolvePrincipal
+  });
+  const lifecycleController = createOrganizationLifecycleController({
+    service: lifecycleService ?? createOrganizationLifecycleService(createMembersGateway()),
     resolvePrincipal
   });
   const requireManager = createOrganizationRbacMiddleware({
@@ -90,6 +100,10 @@ export const createOrganizationRoutes = ({
       message: "At least one organization setting must be provided."
     })
   }).strict();
+  const lifecycleSchema = z.object({
+    action: z.enum(["archive", "restore", "delete"]),
+    expectedVersion: z.number().int().nonnegative().max(1_000_000_000)
+  });
 
   router.use("/organizations", createOrganizationRequestSignal({ logger }));
   router.get("/workspace/organization-settings", organizationSettingsController);
@@ -97,6 +111,7 @@ export const createOrganizationRoutes = ({
   router.get("/organizations", organizationController);
   router.post("/organizations", parseBody(z.object({ name: z.string().trim().min(1).max(80) })), organizationController);
   router.get("/organizations/:organizationId/dashboard", membersController.getDashboard);
+  router.patch("/organizations/:organizationId/lifecycle", parseBody(lifecycleSchema), lifecycleController);
   router.post("/organizations/:organizationId/invitations", parseBody(invitationSchema), requireManager, membersController.createInvitation);
   router.post("/organizations/invitations/accept", parseBody(acceptInvitationSchema), membersController.acceptInvitation);
   router.patch("/organizations/:organizationId/members/:memberId", parseBody(roleSchema), requireManager, membersController.updateMemberRole);

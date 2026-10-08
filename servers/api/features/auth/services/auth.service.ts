@@ -37,16 +37,20 @@ export type AuthService = Readonly<{
   signOut: (token: string | null) => Promise<void>;
 }>;
 
-export const createAuthService = (gateway: AuthGateway = createAuthGateway(), clock: Clock = systemClock): AuthService => ({
+export const createAuthService = (
+  gateway: AuthGateway = createAuthGateway(),
+  clock: Clock = systemClock
+): AuthService => ({
   signIn: async (email, password) => {
     const user = await gateway.findUserByEmail(email.trim().toLowerCase());
     const passwordMatches = await verifyPassword(password, user ? user.passwordHash : await dummyPasswordHash);
     if (!user || !passwordMatches) {
-      throw createApplicationError({
+      const error = createApplicationError({
         code: ERROR_CODES.unauthorized,
         message: "Email or password is incorrect.",
         status: HTTP_STATUS.unauthorized
-      }) as Error;
+      });
+      throw Object.assign(new Error(error.message), error);
     }
 
     const token = randomBytes(32).toString("base64url");

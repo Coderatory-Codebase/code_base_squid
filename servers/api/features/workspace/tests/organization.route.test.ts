@@ -7,6 +7,7 @@ import type { ApiConfig } from "../../../types/index.js";
 import type { OrganizationGateway } from "../db/organization.gateway.js";
 import type { MembersService } from "../services/members.service.js";
 import type { OrganizationSettingsReader } from "../controllers/organization-settings.controller.js";
+import type { OrganizationLifecycleService } from "../services/organization-lifecycle.service.js";
 import type { Principal } from "../types.js";
 
 const logger: Logger = { info: () => undefined, warn: () => undefined, error: () => undefined };
@@ -25,6 +26,7 @@ const startApi = async (
     gateway: OrganizationGateway;
     membersService?: MembersService;
     settingsReader?: OrganizationSettingsReader;
+    lifecycleService?: OrganizationLifecycleService;
     authenticated?: boolean;
     logger?: Logger;
   }>
@@ -37,6 +39,7 @@ const startApi = async (
       organizationGateway: options.gateway,
       ...(options.membersService ? { membersService: options.membersService } : {}),
       ...(options.settingsReader ? { organizationSettingsReader: options.settingsReader } : {}),
+      ...(options.lifecycleService ? { lifecycleService: options.lifecycleService } : {}),
       resolvePrincipal: () => options.authenticated === false ? null : principal
     }),
     config,
@@ -141,7 +144,7 @@ void test("organization query returns a validated page for an authenticated prin
   const response = await fetch(`${url}?offset=50`);
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
-    organizations: [{ id: "organization-1", name: "Member organization" }],
+    organizations: [{ id: "organization-1", name: "Member organization", status: "active", archivedAt: null }],
     nextOffset: null
   });
 });
@@ -242,6 +245,7 @@ void test("member role is denied invitation creation with HTTP 403 before mutati
   const membersService: MembersService = {
     getDashboard: () => Promise.resolve({
       organization: { id: "000000000000000000000041", name: "Member organization" },
+      lifecycle: { status: "active", version: 0, archivedAt: null, archivedBy: null, deletedAt: null },
       metrics: { activeTeamMembers: 2, linkedWorkspaces: 0 },
       viewerRole: "member",
       members: [],
@@ -279,6 +283,7 @@ void test("admin role can create an invitation link", async (context) => {
   const membersService: MembersService = {
     getDashboard: () => Promise.resolve({
       organization: { id: "000000000000000000000042", name: "Admin organization" },
+      lifecycle: { status: "active", version: 0, archivedAt: null, archivedBy: null, deletedAt: null },
       metrics: { activeTeamMembers: 2, linkedWorkspaces: 0 },
       viewerRole: "admin",
       members: [],
@@ -320,4 +325,113 @@ void test("admin role can create an invitation link", async (context) => {
   assert.equal(roleResponse.status, 204);
   assert.equal(removeResponse.status, 204);
   assert.deepEqual(mutations, ["role:member-2:admin", "remove:member-2"]);
+});
+
+void test("organization lifecycle route validates requests and returns transition results", async (context) => {
+  const calls: Array<Readonly<{ organizationId: string; actor: Principal; action: "archive" | "restore" | "delete"; version: number }>> = [];
+  const lifecycleService: OrganizationLifecycleService = {
+    transition: (organizationId, actor, action, version) => {
+      calls.push({ organizationId, actor, action, version });
+      if (action !== "archive" || version !== 0) {
+        return Promise.resolve({
+          ok: false,
+          code: "conflict",
+          message: "The organization changed while this request was being saved. Review its current state.",
+          current: {
+            status: "archived",
+            version: 1,
+            archivedAt: new Date("2026-10-07T12:00:00.000Z"),
+            archivedBy: principal.userId,
+            deletedAt: null
+          }
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        lifecycle: {
+          status: "archived",
+          version: 1,
+          archivedAt: new Date("2026-10-07T12:00:00.000Z"),
+          archivedBy: principal.userId,
+          deletedAt: null
+        }
+      });
+    }
+  };
+  const root = await startApi(context, {
+    gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })),
+    lifecycleService
+  });
+  const endpoint = `${root}/000000000000000000000071/lifecycle`;
+  const headers = { "content-type": "application/json" };
+
+  for (const body of [
+    { action: "purge", expectedVersion: 0 },
+    { action: "archive", expectedVersion: -1 },
+    { action: "archive", expectedVersion: 0.5 }
+  ]) {
+    const response = await fetch(endpoint, { method: "PATCH", headers, body: JSON.stringify(body) });
+    assert.equal(response.status, 400);
+  }
+  assert.equal(calls.length, 0);
+
+  const archived = await fetch(endpoint, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ action: "archive", expectedVersion: 0 })
+  });
+  assert.equal(archived.status, 200);
+  assert.deepEqual(await archived.json(), {
+    lifecycle: {
+      status: "archived",
+      version: 1,
+      archivedAt: "2026-10-07T12:00:00.000Z",
+      archivedBy: principal.userId,
+      deletedAt: null
+    }
+  });
+
+  const conflict = await fetch(endpoint, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ action: "restore", expectedVersion: 0 })
+  });
+  assert.equal(conflict.status, 409);
+  assert.deepEqual(await conflict.json(), {
+    error: { code: "conflict", message: "The organization changed while this request was being saved. Review its current state." },
+    current: {
+      status: "archived",
+      version: 1,
+      archivedAt: "2026-10-07T12:00:00.000Z",
+      archivedBy: principal.userId,
+      deletedAt: null
+    }
+  });
+  assert.deepEqual(calls.map(({ action, version }) => [action, version]), [["archive", 0], ["restore", 0]]);
+});
+
+void test("organization lifecycle route requires an authenticated principal", async (context) => {
+  let transitionCalls = 0;
+  const lifecycleService: OrganizationLifecycleService = {
+    transition: () => {
+      transitionCalls += 1;
+      return Promise.resolve({
+        ok: false,
+        code: "forbidden",
+        message: "Only the organization owner can change its lifecycle."
+      });
+    }
+  };
+  const root = await startApi(context, {
+    authenticated: false,
+    gateway: gatewayFor(() => Promise.resolve({ organizations: [], nextOffset: null })),
+    lifecycleService
+  });
+  const response = await fetch(`${root}/000000000000000000000071/lifecycle`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "archive", expectedVersion: 0 })
+  });
+  assert.equal(response.status, 401);
+  assert.equal(transitionCalls, 0);
 });

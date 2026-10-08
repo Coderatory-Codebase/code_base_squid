@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createScopedHandle, type RawCollection, type ScopedDocument } from "../index.js";
-import { systemClock } from "@workspace/kernel";
 
 type Task = ScopedDocument & { readonly title: string };
 
@@ -32,27 +31,27 @@ const createFake = (rows: Task[]) => {
 
 void test("TC-1: sirf pehle workspace ka task milta hai", async () => {
   const { collection } = createFake(seed());
-  const handle = createScopedHandle({ collection, clock: systemClock })({ workspaceId: "w1" });
+  const handle = createScopedHandle({ collection })({ workspaceId: "w1" });
   assert.deepEqual((await handle.find()).map((task) => task._id), ["t1"]);
 });
 
 void test("caller ka filter workspace predicate override nahi kar sakta", async () => {
   const { collection } = createFake(seed());
-  const handle = createScopedHandle({ collection, clock: systemClock })({ workspaceId: "w1" });
+  const handle = createScopedHandle({ collection })({ workspaceId: "w1" });
   assert.deepEqual((await handle.find({ workspaceId: "w2" })).map((task) => task._id), ["t1"]);
 });
 
 void test("TC-2: workspace ke bagair query se pehle throw", () => {
   const { collection, state } = createFake(seed());
-  assert.throws(() => createScopedHandle({ collection, clock: systemClock })({}), { code: "WORKSPACE_REQUIRED" });
-  assert.throws(() => createScopedHandle({ collection, clock: systemClock })({ workspaceId: null }));
+  assert.throws(() => createScopedHandle({ collection })({}), { code: "WORKSPACE_REQUIRED" });
+  assert.throws(() => createScopedHandle({ collection })({ workspaceId: null }));
   assert.equal(state.calls, 0);
 });
 
 void test("TC-3: stale version par conflict aur stored task unchanged", async () => {
   const rows = seed();
   const { collection } = createFake(rows);
-  const handle = createScopedHandle({ collection, clock: systemClock })({ workspaceId: "w1" });
+  const handle = createScopedHandle({ collection })({ workspaceId: "w1" });
   assert.equal((await handle.update("t1", 1, { title: "Someone else" })).status, "ok");
   const result = await handle.update("t1", 1, { title: "Mine" });
   assert.equal(result.status, "conflict");

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "modules": {
+    "workspace": [
+      "organizationProfiles"
+    ]
+  }
+}

@@ -3,6 +3,7 @@
 import { useActionState, useState, type ReactElement } from "react";
 import { createOrganizationInvitation } from "./team.actions";
 import { initialInvitationActionState } from "./team.action-state";
+import { formatOrganizationDate } from "./format-date";
 
 type InviteMemberFormProps = Readonly<{ organizationId: string }>;
 
@@ -27,7 +28,7 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps): Rea
       </div>
       {state.status === "created" ? (
         <div aria-live="polite" className="grid gap-3" role="status">
-          <p>Invitation created for {state.email}. Expires {new Date(state.expiresAt).toLocaleDateString()}.</p>
+          <p>Invitation created for {state.email}. Expires {formatOrganizationDate(state.expiresAt)}.</p>
           <label className="grid gap-2 text-sm font-medium" htmlFor="invitation-link">
             Secure invitation link
             <input className="h-10 min-w-0 rounded-md border bg-background px-3 font-normal" id="invitation-link" readOnly value={state.inviteUrl} />

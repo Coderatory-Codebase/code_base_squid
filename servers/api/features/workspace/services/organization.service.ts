@@ -1,10 +1,10 @@
 import type { OrganizationGateway } from "../db/organization.gateway.js";
-import type { OrganizationPage, OrganizationSummary, Principal } from "../types.js";
+import type { OrganizationListSummary, OrganizationPage, OrganizationSummary, Principal } from "../types.js";
 import { createOrganizationCommandBus } from "../commands/organization.command.js";
 import { decideOrganizationCreation } from "../policies/organization.policy.js";
 
 export type OrganizationService = Readonly<{
-  listOrganizations: (principal: Principal, offset: number) => Promise<OrganizationPage<OrganizationSummary>>;
+  listOrganizations: (principal: Principal, offset: number) => Promise<OrganizationPage<OrganizationListSummary>>;
   createOrganization: (principal: Principal, name: string) => Promise<OrganizationSummary>;
 }>;
 
@@ -17,7 +17,12 @@ export const createOrganizationService = (gateway: OrganizationGateway): Organiz
       }
       const page = await gateway.listOrganizationsForPrincipal(principal, offset);
       return {
-        organizations: page.organizations.map((organization) => ({ id: String(organization._id), name: organization.name })),
+        organizations: page.organizations.map((organization) => ({
+          id: String(organization._id),
+          name: organization.name,
+          status: organization.archivedAt ? "archived" : "active",
+          archivedAt: organization.archivedAt ?? null
+        })),
         nextOffset: page.nextOffset
       };
     },

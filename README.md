@@ -25,7 +25,6 @@ GitHub Actions validation passed for [PR #5](https://github.com/Coderatory-Codeb
 See the [Task 2 acceptance review](.project/TASK-2-ACCEPTANCE.md) for test coverage and remaining Definition of Done items.
 
 See the [Story 3 acceptance review](.project/STORY-3-ACCEPTANCE.md) for the dashboard, RBAC, invitation-security, accessibility, and performance evidence.
-
 ## Squid integration notes
 
 ### Kernel scoped collection handle (`servers/api/kernel/gateway`)
@@ -37,8 +36,10 @@ See the [Story 3 acceptance review](.project/STORY-3-ACCEPTANCE.md) for the dash
 - Deferred: Mongo adapter for `RawCollection`, policy-binding check, collection allow-list, and kernel 409 mapping in the service layer.
 
 ### Tenant isolation proof (PACK-TENANT)
-
 - `servers/api/integrations/mongodb/scoped-collection.ts`: Mongo implementation of the kernel `RawCollection` port.
 - `servers/api/integrations/mongodb/tests/pack-tenant.test.ts`: replica-set test proving cross-tenant reads/writes are blocked and missing workspace scope makes zero driver calls.
 - `mongodb-memory-server` build scripts are explicitly governed by `pnpm-workspace.yaml`; the Mongo binary downloads on first test run.
-- Deferred: collection allow-list, policy-binding check, and CI cache for the Mongo binary.
+- `integrations/mongodb/scoped-collection.ts`: Mongo implementation of the kernel `RawCollection` port.
+- `integrations/mongodb/tests/pack-tenant.test.ts`: replica-set test (mongodb-memory-server) proving cross-tenant reads/writes are blocked and no-workspace calls make zero driver calls.
+- `mongodb-memory-server` build script is explicitly declined in `pnpm-workspace.yaml` (`allowBuilds: false`); the mongod binary downloads on first test run.
+- Deferred: collection allow-list, policy-binding check, CI cache for the mongod binary.

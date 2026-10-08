@@ -1,9 +1,9 @@
+import { systemClock, type Clock } from "@workspace/kernel";
 import { normalizeOrganizationId, OrganizationModel, type OrganizationDocument } from "../integrations/organization.model.js";
-import { systemClock } from "@workspace/kernel";
 import type { OrganizationPage, Principal } from "../types.js";
 
 export const organizationPageSize = 50;
-export type OrganizationListDocument = Pick<OrganizationDocument, "_id" | "name">;
+export type OrganizationListDocument = Pick<OrganizationDocument, "_id" | "name" | "archivedAt">;
 
 export type WorkspaceCondition = Readonly<{ workspaceIds: Readonly<{ $in: readonly string[] }> }>;
 export type MemberCondition = Readonly<{ members: Readonly<{ $elemMatch: Readonly<{ userId: string }> }> }>;
@@ -57,7 +57,8 @@ const parseOrganizationListDocuments = (value: unknown): OrganizationListDocumen
     if (typeof name !== "string") {
       throw new Error("MongoDB returned an invalid organization list document.");
     }
-    return { _id: normalizeOrganizationId(entry._id), name };
+    const archivedAt = "archivedAt" in entry && entry.archivedAt instanceof Date ? entry.archivedAt : null;
+    return { _id: normalizeOrganizationId(entry._id), name, archivedAt };
   });
 };
 
@@ -117,7 +118,6 @@ const createOrganizationModelDependency = (
       await findOneAndUpdate({ ...filter }, { ...update }, { ...options })
   };
 };
-
 const createOrganizationQuery = (
   model: OrganizationModelDependency,
   principal: Principal,
@@ -131,7 +131,7 @@ const createOrganizationQuery = (
     { workspaceIds: { $in: workspaceIds } },
     { members: { $elemMatch: { userId: principal.userId } } }
   ]);
-  query.select({ _id: 1, name: 1 });
+  query.select({ _id: 1, name: 1, archivedAt: 1 });
   query.sort({ lastUsedAt: -1, name: 1, _id: 1 });
   query.skip(offset).limit(organizationPageSize + 1);
   return query;
@@ -139,8 +139,7 @@ const createOrganizationQuery = (
 
 export const buildOrganizationQueryForPrincipal = (principal: Principal, offset = 0): OrganizationQuery =>
   createOrganizationQuery(createOrganizationModelDependency(OrganizationModel), principal, offset);
-
-export type OrganizationGatewayDependencies = Readonly<{ model?: OrganizationModelDependency }>;
+export type OrganizationGatewayDependencies = Readonly<{ model?: OrganizationModelDependency; clock?: Clock }>;
 
 export type OrganizationGateway = Readonly<{
   listOrganizationsForPrincipal: (principal: Principal, offset: number) => Promise<OrganizationPage<OrganizationListDocument>>;
@@ -149,7 +148,8 @@ export type OrganizationGateway = Readonly<{
 }>;
 
 export const createOrganizationGateway = ({
-  model = createOrganizationModelDependency(OrganizationModel)
+  model = createOrganizationModelDependency(OrganizationModel),
+  clock = systemClock
 }: OrganizationGatewayDependencies = {}): OrganizationGateway => {
   const listOrganizationsForPrincipal = async (
     principal: Principal,
@@ -173,7 +173,7 @@ export const createOrganizationGateway = ({
       ownerId: principal.userId,
       ...(principal.email ? { ownerEmail: principal.email } : {}),
       workspaceIds: [],
-      lastUsedAt: new Date(systemClock.now()),
+      lastUsedAt: new Date(clock.now()),
       deletedAt: null,
       settings: {}
     });

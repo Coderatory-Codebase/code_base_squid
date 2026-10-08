@@ -5,7 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@modelcontextprotocol/sdk': ^1.31.0
+  source-map-js: 1.2.2
+  sharp: 0.35.5
+  '@modelcontextprotocol/sdk': 1.31.0
 
 patchedDependencies:
   braces@3.0.3: 9b2e5449ccd577208e690a8dd78f2db2597550589b86704585fb299c04566c2a
@@ -32,6 +34,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@workspace/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -40,7 +45,7 @@ importers:
         version: 1.46.0(react@19.3.0)
       next:
         specifier: 16.3.8
-        version: 16.3.8(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@22.20.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 16.3.8(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@22.20.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -51,6 +56,9 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
+      '@playwright/test':
+        specifier: ^1.63.0
+        version: 1.63.0
       '@tailwindcss/postcss':
         specifier: ^4.3.3
         version: 4.3.3
@@ -1194,8 +1202,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@modelcontextprotocol/sdk@1.32.1':
-    resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
+  '@modelcontextprotocol/sdk@1.31.0':
+    resolution: {integrity: sha512-UvTMgnNlnIBO/22ob2RcVGDlcvOslQs8T59+FTGdA0L27a39fdGF/EDETNtDVK4DZGpwomlsYpRdA8UXcVL/pw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -1320,6 +1328,11 @@ packages:
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
+
+  '@playwright/test@1.63.0':
+    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   '@radix-ui/number@1.1.3':
     resolution: {integrity: sha512-Road2bidD0uu/1BGDOWNdPI06g0lIRy6IF9GZcIrDK2KGItfor8IQwQa+yM2ERgHM1MmHxaxpTzk0/Jp42lNfA==}
@@ -2654,9 +2667,6 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  caniuse-lite@1.0.30001813:
-    resolution: {integrity: sha512-zfjJo4rM0+fUomGDBW/xcDjhIwz/210DGvip2MAMDZ8KHcRPnOHmEgHPZP0UHlZoxr8fYKVJOqcORhYQcG4FKQ==}
-
   caniuse-lite@1.0.30001814:
     resolution: {integrity: sha512-/Uaf1lAzr59XcMpW0o96WoEfr+VXK2OX4U9AgFoiSHsVJ4HppnIFUjtYzsyDH2+tgANaQb2/oxYGwCPapN1FpA==}
 
@@ -3366,8 +3376,8 @@ packages:
   flatted@3.4.4:
     resolution: {integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==}
 
-  follow-redirects@1.16.0:
-    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
+  follow-redirects@1.16.1:
+    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -4486,6 +4496,16 @@ packages:
   pkg-up@3.1.0:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
+
+  playwright-core@1.63.0:
+    resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.63.0:
+    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -6039,7 +6059,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@modelcontextprotocol/sdk@1.32.1(supports-color@7.2.0)(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.31.0(supports-color@7.2.0)(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 2.1.1(hono@4.13.8)
       ajv: 8.20.0
@@ -6138,6 +6158,10 @@ snapshots:
   '@nolyfill/is-core-module@1.0.39': {}
 
   '@pinojs/redact@0.4.0': {}
+
+  '@playwright/test@1.63.0':
+    dependencies:
+      playwright: 1.63.0
 
   '@radix-ui/number@1.1.3': {}
 
@@ -7460,7 +7484,7 @@ snapshots:
   browserslist@4.29.0:
     dependencies:
       baseline-browser-mapping: 2.11.26
-      caniuse-lite: 1.0.30001813
+      caniuse-lite: 1.0.30001814
       electron-to-chromium: 1.5.430
       node-releases: 2.0.55
       update-browserslist-db: 1.3.3(browserslist@4.29.0)
@@ -7503,8 +7527,6 @@ snapshots:
   callsites@3.1.0: {}
 
   camelcase@6.3.0: {}
-
-  caniuse-lite@1.0.30001813: {}
 
   caniuse-lite@1.0.30001814: {}
 
@@ -8393,7 +8415,7 @@ snapshots:
 
   flatted@3.4.4: {}
 
-  follow-redirects@1.16.0(debug@4.4.3(supports-color@7.2.0)):
+  follow-redirects@1.16.1(debug@4.4.3(supports-color@7.2.0)):
     optionalDependencies:
       debug: 4.4.3(supports-color@7.2.0)
 
@@ -9085,7 +9107,7 @@ snapshots:
       camelcase: 6.3.0
       debug: 4.4.3(supports-color@7.2.0)
       find-cache-dir: 3.3.2
-      follow-redirects: 1.16.0(debug@4.4.3(supports-color@7.2.0))
+      follow-redirects: 1.16.1(debug@4.4.3(supports-color@7.2.0))
       https-proxy-agent: 7.0.6(supports-color@7.2.0)
       mongodb: 7.5.0(socks@2.8.10)
       new-find-package-json: 2.0.0(supports-color@7.2.0)
@@ -9212,7 +9234,7 @@ snapshots:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
-  next@16.3.8(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@22.20.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  next@16.3.8(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@22.20.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       '@next/env': 16.3.8
       '@swc/helpers': 0.5.23
@@ -9231,6 +9253,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.3.8
       '@next/swc-win32-arm64-msvc': 16.3.8
       '@next/swc-win32-x64-msvc': 16.3.8
+      '@playwright/test': 1.63.0
       sharp: 0.35.5(@types/node@22.20.3)
     transitivePeerDependencies:
       - '@babel/core'
@@ -9483,6 +9506,12 @@ snapshots:
   pkg-up@3.1.0:
     dependencies:
       find-up: 3.0.0
+
+  playwright-core@1.63.0: {}
+
+  playwright@1.63.0:
+    dependencies:
+      playwright-core: 1.63.0
 
   possible-typed-array-names@1.1.0: {}
 
@@ -9822,7 +9851,7 @@ snapshots:
       '@babel/plugin-transform-typescript': 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)
       '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)
       '@dotenvx/dotenvx': 1.75.1
-      '@modelcontextprotocol/sdk': 1.32.1(supports-color@7.2.0)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.31.0(supports-color@7.2.0)(zod@3.25.76)
       '@types/validate-npm-package-name': 4.0.2
       browserslist: 4.29.0
       commander: 14.0.3

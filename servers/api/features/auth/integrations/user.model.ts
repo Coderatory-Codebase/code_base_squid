@@ -7,6 +7,12 @@ export type UserDocument = Readonly<{
   workspaceIds: readonly string[];
 }>;
 
+export const normalizeUserId = (value: unknown): string => {
+  if (typeof value === "string") return value;
+  if (value instanceof mongoose.Types.ObjectId) return value.toHexString();
+  throw new Error("MongoDB returned an invalid user identifier.");
+};
+
 const userSchema = new Schema<UserDocument>(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },

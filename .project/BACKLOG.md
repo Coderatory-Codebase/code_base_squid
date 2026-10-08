@@ -63,6 +63,23 @@ Repository implementation is in place; database-backed performance evidence and 
 
 See `.project/STORY-5-ACCEPTANCE.md` for the endpoint contract, test evidence, and remaining Definition of Done items.
 
+## Story 6 — organization lifecycle
+
+Organization archive, restore, and soft-delete flows are implemented at the organization boundary. A first-class Workspace write surface is absent, so lifecycle enforcement for downstream workspace writes and cross-instance timing remain blocked; soft-deleted data is intentionally retained pending an approved retention period.
+
+- [x] Add an explicit lifecycle state machine, owner-only policy, and version-checked atomic persistence.
+- [x] Expose authenticated lifecycle transitions and return current state on version conflicts.
+- [x] Keep archived organizations readable while blocking team-management writes; keep soft-deleted organizations out of list and dashboard reads.
+- [x] Add owner lifecycle controls with confirmation, optimistic state feedback, and accessible status announcements.
+- [x] Record indefinite archive/soft-delete retention and require a separate approved purge migration before data removal.
+- [x] Add lifecycle domain/service, HTTP route, and accessibility checks; include the accessibility check in the standard web test command.
+- [x] Verify Mongo-backed version conflicts, archive write guards, restore, and soft-delete transitions with the isolated lifecycle gateway test.
+- [ ] Run fresh full repository validation/CI. A wider members-gateway run also hit a MongoMemoryServer startup timeout in an unrelated existing test; the focused lifecycle persistence test passed.
+- [ ] Add lifecycle checks to the browser keyboard/screen-reader walkthrough and obtain independent engineer approval.
+- [ ] Add the missing Workspace model/write boundary before claiming archived-parent enforcement or cross-instance transition timing.
+
+See `.project/STORY-6-ACCEPTANCE.md` for the implemented contract, local evidence, and infrastructure-dependent acceptance items.
+
 Repository-complete evidence:
 
 - Web dashboard/accessibility checks: 5/5 passed in the focused run.

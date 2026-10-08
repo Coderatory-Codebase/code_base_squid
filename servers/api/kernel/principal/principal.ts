@@ -90,7 +90,7 @@ const isResolvedPrincipal = (value: unknown): value is ResolvedPrincipal =>
 
 /** The repo's error boundary recognises plain application-error objects, not Error instances. */
 const fail = (error: ReturnType<typeof createApplicationError>): never => {
-  throw error;
+  throw Object.assign(new Error(error.message), error);
 };
 
 const unauthenticated = (): never =>

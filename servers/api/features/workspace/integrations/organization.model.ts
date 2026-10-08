@@ -50,6 +50,12 @@ export type OrganizationDocument = Readonly<{
   lastUsedAt: Date;
   deletedAt: Date | null;
   version?: number;
+  status?: "ACTIVE" | "ARCHIVED" | "DELETION_SCHEDULED" | "DELETED";
+  deletionScheduledFor?: Date;
+  deletedBy?: string | null;
+  archivedAt?: Date | null;
+  archivedBy?: string | null;
+  lifecycleVersion?: number;
   members?: readonly OrganizationMember[];
   invitations?: readonly OrganizationInvitation[];
   activity?: readonly OrganizationActivity[];
@@ -108,6 +114,12 @@ const organizationSchema = new Schema<OrganizationDocument>(
     // Deletion is soft: retain the organization row and keep it out of live settings reads.
     deletedAt: { type: Date, default: null },
     version: { type: Number, required: true, default: 1, min: 1 },
+    status: { type: String, enum: ["ACTIVE", "ARCHIVED", "DELETION_SCHEDULED", "DELETED"] },
+    deletionScheduledFor: { type: Date },
+    deletedBy: { type: String, default: null },
+    archivedAt: { type: Date, default: null },
+    archivedBy: { type: String, default: null },
+    lifecycleVersion: { type: Number, required: true, default: 0, min: 0 },
     members: { type: [memberSchema], default: [] },
     invitations: { type: [invitationSchema], default: [] },
     activity: { type: [activitySchema], default: [] },
@@ -140,6 +152,14 @@ organizationSchema.index(
     name: "workspace_settings_live_cover",
     partialFilterExpression: { deletedAt: null }
   }
+);
+organizationSchema.index(
+  { ownerId: 1, deletedAt: 1, archivedAt: 1, lifecycleVersion: 1 },
+  { name: "owner_lifecycle_version" }
+);
+organizationSchema.index(
+  { workspaceIds: 1, deletedAt: 1, archivedAt: 1, updatedAt: 1 },
+  { name: "workspace_lifecycle_view" }
 );
 organizationSchema.index(
   { ownerId: 1, settings: 1, _id: 1, version: 1, name: 1 },

@@ -1,13 +1,7 @@
 import { SessionModel } from "../integrations/session.model.js";
-import { UserModel } from "../integrations/user.model.js";
+import { normalizeUserId, UserModel } from "../integrations/user.model.js";
 
-type ObjectIdLike = Readonly<{ toHexString: () => string }>;
-type UserRecord = Readonly<{
-  _id: string | ObjectIdLike;
-  email: string;
-  passwordHash: string;
-  workspaceIds: readonly string[];
-}>;
+type UserRecord = Readonly<{ _id: unknown; email: string; passwordHash: string; workspaceIds: readonly string[] }>;
 type Query = Readonly<{ lean: <T>() => Promise<T> }>;
 type UserModelDependency = Readonly<{
   findOne: (filter: Readonly<Record<string, unknown>>) => Query;
@@ -33,9 +27,6 @@ export type AuthUser = Readonly<{
 
 export type AuthSession = Readonly<{ sessionId: string; tokenHash: string; userId: string; expiresAt: Date }>;
 
-const normalizeUserId = (id: UserRecord["_id"]): string =>
-  typeof id === "string" ? id : id.toHexString();
-
 export type AuthGateway = Readonly<{
   findUserByEmail: (email: string) => Promise<AuthUser | null>;
   findUserById: (id: string) => Promise<AuthUser | null>;
@@ -49,7 +40,12 @@ export const createAuthGateway = (): AuthGateway => {
   const users = UserModel as unknown as UserModelDependency;
   const sessions = SessionModel as unknown as SessionModelDependency;
   const mapUser = (user: UserRecord | null): AuthUser | null => user
-    ? { id: normalizeUserId(user._id), email: user.email, passwordHash: user.passwordHash, workspaceIds: user.workspaceIds }
+    ? {
+      id: normalizeUserId(user._id),
+      email: user.email,
+      passwordHash: user.passwordHash,
+      workspaceIds: user.workspaceIds
+    }
     : null;
   return {
     findUserByEmail: async (email) => mapUser(await users.findOne({ email }).lean<UserRecord | null>()),

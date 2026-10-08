@@ -1,6 +1,6 @@
 import { createApiConfiguration, readWebEnvironment } from "@/config";
 
-export type OrganizationSummary = Readonly<{ id: string; name: string }>;
+export type OrganizationSummary = Readonly<{ id: string; name: string; status: "active" | "archived"; archivedAt: string | null }>;
 export type OrganizationPage = Readonly<{
   organizations: readonly OrganizationSummary[];
   nextOffset: number | null;
@@ -20,7 +20,11 @@ const parseOrganizationPage = (value: unknown): OrganizationPage | null => {
   const organizations: OrganizationSummary[] = [];
   for (const item of value.organizations) {
     if (typeof item !== "object" || item === null || !("id" in item) || typeof item.id !== "string" || !("name" in item) || typeof item.name !== "string") return null;
-    organizations.push({ id: item.id, name: item.name });
+    const status = "status" in item ? item.status : "active";
+    const archivedAt = "archivedAt" in item ? item.archivedAt : null;
+    if (!(status === "active" || status === "archived")
+      || !(archivedAt === null || typeof archivedAt === "string")) return null;
+    organizations.push({ id: item.id, name: item.name, status, archivedAt });
   }
   if (organizations.length > 50) return null;
   return { organizations, nextOffset: value.nextOffset };

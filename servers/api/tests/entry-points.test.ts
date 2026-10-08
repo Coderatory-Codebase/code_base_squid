@@ -18,14 +18,18 @@ const PRINCIPAL_ENTRY_POINTS: ReadonlyArray<EntryPoint> = [
   "POST /organizations/:organizationId/invitations",
   "POST /organizations/invitations/accept",
   "PATCH /organizations/:organizationId/members/:memberId",
-  "DELETE /organizations/:organizationId/members/:memberId"
+  "DELETE /organizations/:organizationId/members/:memberId",
+  "GET /workspace/organization-profile/:organizationId",
 ];
 
 /**
  * Routes that dispatch a command. Each one needs its command listed in
  * WAVE_1_COMMANDS in kernel/tests/pack-policy.test.ts.
  */
-const COMMAND_ENTRY_POINTS: ReadonlyArray<EntryPoint> = ["PATCH /organizations/:organizationId/settings"];
+const COMMAND_ENTRY_POINTS: ReadonlyArray<EntryPoint> = [
+  "PATCH /organizations/:organizationId/settings",
+  "PATCH /organizations/:organizationId/lifecycle"
+];
 
 const logger: Logger = {
   info: () => undefined,
@@ -96,7 +100,12 @@ void describe("PACK-POLICY: entry point inventory", () => {
   });
 
   void it("a route cannot be both public and a command entry point", () => {
-    const overlap = PUBLIC_ENTRY_POINTS.filter((route) => COMMAND_ENTRY_POINTS.includes(route));
+    const overlap = [
+      ...PUBLIC_ENTRY_POINTS.filter((route) => COMMAND_ENTRY_POINTS.includes(route)),
+      ...PRINCIPAL_ENTRY_POINTS.filter((route) =>
+        PUBLIC_ENTRY_POINTS.includes(route) || COMMAND_ENTRY_POINTS.includes(route)
+      )
+    ];
     assert.deepEqual(overlap, []);
   });
 

@@ -6,7 +6,7 @@ import { createApp, createServer, createShutdown } from "./bootstrap/index.js";
 import { createApiConfig, readApiEnvironment } from "./config/index.js";
 import { apiRuntime, outboxRuntime } from "./constants/index.js";
 import { createOutboxRelayRunner } from "./features/outbox/index.js";
-import { createMongoDbIntegration } from "./integrations/index.js";
+import { createMongoDbIntegration, workspaceBrandingMongoQueries } from "./integrations/index.js";
 
 const config = createApiConfig(readApiEnvironment());
 const logger = createLogger({
@@ -18,7 +18,11 @@ const database = createMongoDbIntegration({
   logger,
   ...(config.mongodbUri ? { uri: config.mongodbUri } : {})
 });
-const app = createApp({ config, logger });
+const app = createApp({
+  config,
+  logger,
+  ...(config.temporaryOrganizationBrandingDemo ? { temporaryBrandingDemoReader: workspaceBrandingMongoQueries } : {})
+});
 const server = createServer({ app, config, logger });
 const relay = createOutboxRelayRunner({
   ...(config.mongodbUri && config.redisUrl ? { redisUrl: config.redisUrl } : {}),
