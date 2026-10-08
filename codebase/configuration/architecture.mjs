@@ -171,6 +171,9 @@ export const validateArchitectureConfiguration = (architecture) => {
         || !Array.isArray(boundary?.categories) || !Array.isArray(boundary?.rootExports)) {
         issues.push({ level: "error", message: "Each module boundary requires project, root, categories, and rootExports fields." });
       }
+      if (boundary?.rootFiles !== undefined && (!Array.isArray(boundary.rootFiles) || boundary.rootFiles.some((file) => typeof file !== "string"))) {
+        issues.push({ level: "error", message: "Module boundary rootFiles must be an array of source filenames." });
+      }
     }
   }
   const packageManagement = architecture.packageManagement;

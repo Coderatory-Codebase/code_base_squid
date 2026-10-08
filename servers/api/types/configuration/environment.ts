@@ -8,6 +8,7 @@ export type ValidatedApiEnvironment = Readonly<{
   API_HOST: string;
   API_PORT: number;
   WEB_ORIGIN: string;
+  LOG_FORMAT?: "json" | "pretty" | undefined;
   MONGODB_URI?: string | undefined;
   REDIS_URL?: string | undefined;
   TEMP_ORG_BRANDING_DEMO_ENABLED?: "true" | undefined;
@@ -15,5 +16,12 @@ export type ValidatedApiEnvironment = Readonly<{
   TEMP_ORG_BRANDING_DEMO_PASSWORD?: string | undefined;
   TEMP_ORG_BRANDING_DEMO_WORKSPACE_ID?: string | undefined;
   TEMP_ORG_BRANDING_DEMO_SESSION_SECRET?: string | undefined;
+  OIDC_CALLBACK_BASE_URL?: string | undefined;
+  OIDC_FLOW_COOKIE_KEY?: string | undefined;
+  GOOGLE_OIDC_CLIENT_ID?: string | undefined;
+  GOOGLE_OIDC_CLIENT_SECRET?: string | undefined;
+  MICROSOFT_OIDC_ISSUER?: string | undefined;
+  MICROSOFT_OIDC_CLIENT_ID?: string | undefined;
+  MICROSOFT_OIDC_CLIENT_SECRET?: string | undefined;
   LOG_LEVEL: LogLevel;
 }>;

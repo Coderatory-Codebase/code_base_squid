@@ -6,6 +6,7 @@ export type MongoClient = Readonly<{
 }>;
 
 export type MongoDbIntegration = Readonly<{
+  connection: Connection;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
 }>;

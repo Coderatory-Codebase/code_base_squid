@@ -7,8 +7,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "pnpm run build",
-    "test": "tsx --test tests/kernel.test.ts",
-    "lint": "eslint \"{src,tests}/**/*.ts\"",
+    "test": "tsx --test tests/*.test.ts",
+    "check:contracts": "tsx scripts/check-event-contract-compatibility.ts",
+    "lint": "eslint \"{src,tests,scripts}/**/*.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": { "ulid": "^3.0.2" },

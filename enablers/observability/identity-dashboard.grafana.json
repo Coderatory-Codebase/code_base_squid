@@ -1,0 +1,76 @@
+{
+  "__inputs": [{ "name": "DS_LOKI", "label": "Loki", "description": "Grafana Cloud Loki datasource", "type": "datasource", "pluginId": "loki", "pluginName": "Loki" }],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "description": "Successful Identity sign-in completions in the selected time range.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+      "targets": [{ "expr": "sum(count_over_time({module=\"identity\",event=\"identity.sign_in.completion\",outcome=\"success\"} | json | workspaceId=~\"${workspaceId}\" [$__range]))", "queryType": "range", "refId": "A" }],
+      "title": "Sign-ins succeeded",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "description": "Sign-in callback completions that returned an operational error.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+      "targets": [{ "expr": "sum(count_over_time({module=\"identity\",event=\"identity.sign_in.completion\",outcome=\"error\"} | json | workspaceId=~\"${workspaceId}\" [$__range]))", "queryType": "range", "refId": "A" }],
+      "title": "Sign-in errors",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "description": "Invalid, expired, or unverifiable callbacks. These happen before a workspace is known.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+      "targets": [{ "expr": "sum(count_over_time({module=\"identity\",event=\"identity.sign_in.failed\"}[$__range]))", "queryType": "range", "refId": "A" }],
+      "title": "Sign-in verification failures",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "description": "Profile gateway results split by success, not found, and operational error.",
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [{ "expr": "sum by (outcome) (count_over_time({module=\"identity\",event=\"identity.user_profile.gateway_query\"} | json | workspaceId=~\"${workspaceId}\" [$__interval]))", "legendFormat": "{{outcome}}", "queryType": "range", "refId": "A" }],
+      "title": "Profile query outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "description": "95th percentile callback completion duration. Values above the approved 300 ms threshold are highlighted red. Provider round-trip is excluded by the API signal contract.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 300 }] }, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [{ "expr": "quantile_over_time(0.95, {module=\"identity\",event=\"identity.sign_in.completion\",outcome=~\"success|error\"} | json | workspaceId=~\"${workspaceId}\" | unwrap durationMs [$__range])", "legendFormat": "p95", "queryType": "range", "refId": "A" }],
+      "title": "Sign-in completion p95",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["identity", "squid"],
+  "templating": { "list": [{ "current": { "selected": true, "text": "All", "value": ".*" }, "description": "Filter using workspaceId without indexing it as a Loki label.", "hide": 0, "label": "Workspace ID (regex)", "name": "workspaceId", "options": [{ "selected": true, "text": "All", "value": ".*" }], "query": ".*", "type": "textbox" }] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Identity · Sign-in and Profile",
+  "uid": "identity-signin-profile",
+  "version": 1
+}

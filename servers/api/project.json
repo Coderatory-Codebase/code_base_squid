@@ -6,7 +6,7 @@
   "externalDependencies": ["bullmq", "dotenv", "express", "ioredis", "mongoose", "mongodb-memory-server", "zod"],
   "capabilities": ["http-api", "health", "mongodb-integration", "outbox-relay", "organization-dashboard", "team-management"],
   "tasks": {
-    "dev": { "command": "pnpm run dev", "environment": ["API_HOST", "API_PORT", "WEB_ORIGIN", "MONGODB_URI", "REDIS_URL"], "cache": false },
+    "dev": { "command": "pnpm run dev", "environment": ["API_HOST", "API_PORT", "WEB_ORIGIN", "MONGODB_URI", "REDIS_URL", "LOG_FORMAT", "OIDC_CALLBACK_BASE_URL"], "cache": false },
     "seed:preview": { "command": "pnpm run seed:preview", "environment": ["MONGODB_URI", "PREVIEW_USER_EMAIL", "PREVIEW_USER_PASSWORD", "PREVIEW_WORKSPACE_ID"], "cache": false },
     "measure:organization-budget": { "command": "pnpm run measure:organization-budget", "cache": false },
     "measure:organization-settings-budget": { "command": "pnpm run measure:organization-settings-budget", "cache": false },

@@ -2,6 +2,8 @@ import express, { type Express } from "express";
 import { createHttpLogger, type Logger } from "@workspace/logging";
 import type { ApiConfig } from "../types/index.js";
 import { apiRuntime } from "../constants/index.js";
+import { createUserProfileRoutes, createUserSessionsRoutes, type UserProfileRouteDependencies, type UserSessionsRouteDependencies } from "../features/identity/index.js";
+import { createOidcSignInRoutes, type OidcSignInControllerDependencies } from "../features/authentication/index.js";
 import { createHealthRoutes } from "../features/health/index.js";
 import { createAuthRoutes, createAuthService, readBearerToken, type AuthService } from "../features/auth/index.js";
 import {
@@ -30,6 +32,9 @@ type AppDependencies = Readonly<{
   organizationSettingsUpdater?: OrganizationSettingsUpdater;
   authService?: AuthService;
   temporaryBrandingDemoReader?: TemporaryBrandingReader;
+  identity?: UserProfileRouteDependencies;
+  identitySessions?: UserSessionsRouteDependencies;
+  authentication?: OidcSignInControllerDependencies;
 }>;
 
 export const createApp = ({
@@ -42,7 +47,10 @@ export const createApp = ({
   organizationSettingsReader,
   organizationSettingsUpdater,
   authService = createAuthService(),
-  temporaryBrandingDemoReader
+  temporaryBrandingDemoReader,
+  identity,
+  identitySessions,
+  authentication
 }: AppDependencies): Express => {
   const app = express();
   app.disable("x-powered-by");
@@ -57,11 +65,27 @@ export const createApp = ({
     ? resolvePrincipal(request)
     : authService.resolvePrincipal(readBearerToken(request));
   const users = createReadableCollection<{ _id: string; displayName?: string }>("users", ["_id"]);
+  const profileRoutes = identity
+    ? createUserProfileRoutes({
+        ...identity,
+        recordProfileSignal: (signal) => {
+          identity.recordProfileSignal?.(signal);
+          const write = signal.outcome === "error" ? logger.error : logger.info;
+          write("Identity user profile gateway query.", signal);
+        }
+      })
+    : undefined;
+  const sessionRoutes = identitySessions
+    ? createUserSessionsRoutes({
+        ...identitySessions,
+        recordSessionAudit: (event) => {
+          identitySessions.recordSessionAudit?.(event);
+          logger.warn("Identity session revocation attempted.", event);
+        }
+      })
+    : undefined;
   const featureRouters = [
-    createHealthRoutes({
-      environment: config.environment,
-      serviceName: apiRuntime.serviceName
-    }),
+    createHealthRoutes({ environment: config.environment, serviceName: apiRuntime.serviceName }),
     createAuthRoutes(authService),
     createOrganizationRoutes({
       webOrigin: config.webOrigin,
@@ -82,27 +106,38 @@ export const createApp = ({
       }),
       resolveWorkspacePrincipal: request => authenticatedPrincipal(request),
       logger
-    })
+    }),
+    ...(profileRoutes ? [profileRoutes] : []),
+    ...(sessionRoutes ? [sessionRoutes] : []),
+    ...(authentication ? [createOidcSignInRoutes({
+      ...authentication,
+      recordInvalidSignIn: () => {
+        authentication.recordInvalidSignIn?.();
+        logger.warn("Identity sign-in verification failed.", {
+          event: "identity.sign_in.failed",
+          module: "identity",
+          increment: 1
+        });
+      },
+      recordSignInSignal: (signal) => {
+        authentication.recordSignInSignal?.(signal);
+        const write = signal.outcome === "error" ? logger.error : logger.info;
+        write("Identity sign-in callback completed.", signal);
+      }
+    })] : [])
   ];
-
   if (config.temporaryOrganizationBrandingDemo) {
-    if (!temporaryBrandingDemoReader) {
-      throw new Error("Temporary organization-branding demo auth requires its workspace reader.");
-    }
+    if (!temporaryBrandingDemoReader) throw new Error("Temporary organization-branding demo auth requires its workspace reader.");
     featureRouters.push(createTemporaryOrganizationBrandingRoutes({
       config: config.temporaryOrganizationBrandingDemo,
       reader: temporaryBrandingDemoReader,
       emitReadSignal: signal => {
         const context = { ...signal };
-        if (signal.outcome === "error" || !signal.withinBudget) {
-          logger.warn("Organization branding read signal.", context);
-        } else {
-          logger.info("Organization branding read signal.", context);
-        }
+        if (signal.outcome === "error" || !signal.withinBudget) logger.warn("Organization branding read signal.", context);
+        else logger.info("Organization branding read signal.", context);
       }
     }));
   }
-
   for (const featureRouter of featureRouters) app.use(featureRouter);
   app.use(createNotFoundHandler());
   app.use(createErrorHandler({ logger }));

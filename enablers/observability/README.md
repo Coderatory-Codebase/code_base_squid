@@ -37,3 +37,7 @@ the story's 700 ms budget; it excludes tenant and organization identifiers. Inve
 five-minute p95 above 700 ms or an error rate above 1% with at least 100 reads. Check API
 and MongoDB availability, then inspect the scoped query and index plan. No metrics exporter
 or dashboard is provisioned here yet; the event is available to the configured log pipeline.
+
+The Identity module's current structured-log panels and available filters are documented
+in [identity-dashboard.md](./identity-dashboard.md). This is a repository dashboard
+specification; a deployed dashboard provider has not been configured.

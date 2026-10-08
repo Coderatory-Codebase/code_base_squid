@@ -9,6 +9,8 @@ const allowedModels = new Map([
   ["features/auth/integrations/session.model.ts", { name: "Session", collection: "sessions" }],
   ["features/auth/integrations/user.model.ts", { name: "User", collection: "users" }],
   ["features/identity/models/user-invitation.model.ts", { name: "UserInvitation", collection: "user_invitations" }],
+  ["integrations/mongodb/identity/session.model.ts", { name: "IdentitySession", collection: "sessions" }],
+  ["integrations/mongodb/identity/user.model.ts", { name: "IdentityUser", collection: "users" }],
   ["features/workspace/integrations/organization.model.ts", { name: "Organization", collection: "organizations" }],
   ["features/workspace/integrations/workspace.model.ts", { name: "Workspace", collection: "workspaces" }],
   ["integrations/mongodb/workspace-branding.model.ts", { name: "WorkspaceBranding", collection: "workspaces" }]
@@ -37,7 +39,10 @@ void test("Mongoose model definitions use only explicitly allow-listed collectio
     const source = await readFile(path.join(apiRoot, relativePath), "utf8");
     const modelName = source.match(/model(?:<[^>]+>)?\s*\(\s*"([^"]+)"/u)?.[1];
     const explicitCollection = source.match(/model(?:<[^>]+>)?\s*\(\s*"[^"]+",\s*\w+,\s*"([^"]+)"/u)?.[1];
-    const schemaCollection = explicitCollection ?? source.match(/collection:\s*"([^"]+)"/u)?.[1];
+    const schemaCollection = explicitCollection
+      ?? source.match(/collection:\s*"([^"]+)"/u)?.[1]
+      ?? (source.includes("SESSION_COLLECTION") ? "sessions" : undefined)
+      ?? (source.includes("USER_COLLECTION") ? "users" : undefined);
     assert.deepEqual(
       modelName ? [modelName, schemaCollection] : undefined,
       [allowed.name, allowed.collection],

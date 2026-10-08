@@ -122,7 +122,8 @@ export const validateArchitectureBoundaries = async (workspace) => {
     const moduleFiles = await walkFiles(moduleRoot, { ignoredDirectories });
     for (const file of moduleFiles) {
       const relative = toPosixPath(path.relative(moduleRoot, file));
-      if (!relative.includes("/") && sourceExtensions.has(path.extname(file)) && relative !== "index.ts") {
+      if (!relative.includes("/") && sourceExtensions.has(path.extname(file)) && relative !== "index.ts"
+        && !(boundary.rootFiles ?? []).includes(relative)) {
         findings.push(localIssue(workspace.root, file, "module-dumping-ground", `categorized module ${boundary.root} may only expose source from its root index.ts.`));
       }
     }

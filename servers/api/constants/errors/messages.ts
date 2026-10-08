@@ -13,5 +13,13 @@ export const ERROR_MESSAGES = Object.freeze({
   principalUnavailable: "Identity or workspace data is temporarily unavailable. Retry the request.",
   notFound: "Resource not found.",
   conflict: "The resource conflicts with the current state.",
-  serviceUnavailable: "Service unavailable."
+  serviceUnavailable: "Service unavailable.",
+  noActiveWorkspace: "No active workspace is available for this account.",
+  workspaceSelectionRequired: "Select an active workspace before viewing this profile.",
+  userProfileNotFound: "The user profile could not be found.",
+  invalidSignIn: "Sign-in was cancelled or its token was invalid. Sign in again.",
+  providerUnavailable: "The identity provider is unavailable. Try again.",
+  accountClosed: "This account is closed. Contact your organization administrator.",
+  profileUpdateForbidden: "You can only update your own profile.",
+  sessionNotFound: "The session could not be found."
 } as const);

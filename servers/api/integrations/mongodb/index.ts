@@ -28,3 +28,7 @@ export {
   percentile95,
   runOrganizationBrandingBudgetMeasurement
 } from "./workspace-branding-budget.js";
+export { createIdentityUserModel, createSessionModel, createSessionQueryAdapter, createUserProfileQueryAdapter } from "./identity/index.js";
+export { createWorkspaceMembershipQueryAdapter } from "./workspace/index.js";
+export { createMongoSignInTransactionRunner } from "./sign-in-transaction.adapter.js";
+export { createMongoTestConnection } from "./testing.connection.js";

@@ -238,9 +238,10 @@
     { "project": "api", "root": "types", "categories": ["configuration"], "rootExports": ["configuration"] },
     { "project": "api", "root": "features/health", "categories": ["controllers", "routes", "services"], "rootExports": ["routes"] },
     { "project": "api", "root": "kernel", "categories": ["bus", "gateway", "principal"], "rootExports": ["bus", "gateway", "principal"] },
-    { "project": "api", "root": "features/identity", "categories": ["gateways", "models", "types"], "rootExports": ["gateways", "types"] },
+    { "project": "api", "root": "features/identity", "categories": ["gateways", "models", "types"], "rootExports": ["gateways", "types"], "rootFiles": ["identity.bootstrap.ts", "public.ts", "sessions.ts", "sign-in.ts"] },
     { "project": "types", "root": "src", "categories": ["api"], "rootExports": ["api"] },
     { "project": "types", "root": "src/api", "categories": ["environment", "errors", "health", "organization-profile"], "rootExports": ["environment", "errors", "health", "organization-profile"] },
+    { "project": "kernel", "root": "src", "categories": ["events"], "rootExports": ["events"], "rootFiles": ["clock.ts", "id.ts"] },
     { "project": "ui", "root": "src", "categories": ["components", "compositions", "hooks", "primitives", "utilities"], "rootExports": ["components", "compositions", "hooks", "primitives"] }
   ],
   "contractOwnership": {

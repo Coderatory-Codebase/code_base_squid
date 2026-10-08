@@ -1,13 +1,14 @@
 {
   "name": "kernel",
   "type": "package",
-  "description": "Reusable runtime primitives: ULID generation and an injectable clock.",
+  "description": "Reusable runtime primitives and versioned event contracts.",
   "internalDependencies": ["eslint-config", "tsconfig"],
   "externalDependencies": ["ulid"],
-  "capabilities": ["id-generation", "clock"],
+  "capabilities": ["id-generation", "clock", "shared-kernel", "event-contracts"],
   "tasks": {
     "build": { "command": "pnpm run build", "outputs": ["dist"], "cache": true },
     "test": { "command": "pnpm test", "cache": false },
+    "check:contracts": { "command": "pnpm run check:contracts", "cache": false },
     "lint": { "command": "pnpm run lint", "cache": false },
     "typecheck": { "command": "pnpm run typecheck", "cache": false }
   }

@@ -25,6 +25,23 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Test module-boundary acceptance cases
+        run: node --test codebase/validators/module-governance.acceptance.test.mjs
+      - name: Test recorded-exception acceptance cases
+        run: node --test codebase/validators/module-governance.s2.acceptance.test.mjs
+      - name: Check published event-contract compatibility
+        working-directory: packages/kernel
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          snapshot=contracts/event-schemas.snapshot.json
+          baseline="$RUNNER_TEMP/event-schemas-baseline.json"
+          if git cat-file -e "$BASE_SHA:packages/kernel/$snapshot" 2>/dev/null; then
+            git show "$BASE_SHA:packages/kernel/$snapshot" > "$baseline"
+          else
+            cp "$snapshot" "$baseline"
+          fi
+          pnpm run check:contracts -- --baseline "$baseline"
       - name: Validate pull request commits
         if: github.event_name == 'pull_request'
         env:

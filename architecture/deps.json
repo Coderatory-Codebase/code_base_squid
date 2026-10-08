@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "source": "Squid Architecture Baseline v1.3 · L2 Modules",
+  "featureRoot": "features",
+  "sharedKernel": {
+    "id": "shared-kernel",
+    "packageRoot": "packages/kernel"
+  },
+  "foundationDependencies": ["shared-kernel"],
+  "modules": [
+    { "id": "identity", "name": "Identity", "dependsOn": [] },
+    { "id": "workspace", "name": "Workspace", "dependsOn": ["identity", "access"] },
+    { "id": "access", "name": "Access", "dependsOn": ["identity"] },
+    { "id": "hierarchy", "name": "Hierarchy", "dependsOn": ["workspace", "access"] },
+    { "id": "work", "name": "Work", "dependsOn": ["hierarchy", "access", "fields", "workspace", "identity"] },
+    { "id": "fields", "name": "Fields", "dependsOn": ["hierarchy", "workspace"] },
+    { "id": "views", "name": "Views", "dependsOn": ["work", "fields", "access", "identity", "workspace", "scheduling", "collaboration", "whiteboards"] },
+    { "id": "planning", "name": "Planning", "dependsOn": ["work"] },
+    { "id": "docs", "name": "Docs", "dependsOn": ["hierarchy", "access"] },
+    { "id": "whiteboards", "name": "Whiteboards", "dependsOn": ["hierarchy", "access"] },
+    { "id": "chat", "name": "Chat", "dependsOn": ["workspace", "access"] },
+    { "id": "collaboration", "name": "Collaboration", "dependsOn": ["work", "docs", "access"] },
+    { "id": "notifications", "name": "Notifications", "dependsOn": ["collaboration", "work"] },
+    { "id": "time", "name": "Time", "dependsOn": ["work"] },
+    { "id": "scheduling", "name": "Scheduling", "dependsOn": ["work"] },
+    { "id": "automation", "name": "Automation", "dependsOn": ["work", "notifications"] },
+    { "id": "forms", "name": "Forms", "dependsOn": ["work", "fields"] },
+    { "id": "reporting", "name": "Reporting", "dependsOn": ["work", "time", "planning"] },
+    { "id": "search", "name": "Search", "dependsOn": ["work", "docs", "chat", "files"] },
+    { "id": "files", "name": "Files", "dependsOn": ["access"] },
+    { "id": "templates", "name": "Templates", "dependsOn": ["hierarchy", "work", "docs", "views"] },
+    { "id": "integrations", "name": "Integrations", "dependsOn": ["workspace", "automation"] },
+    { "id": "ai", "name": "AI", "dependsOn": ["work", "docs", "search"] },
+    { "id": "administration", "name": "Administration", "dependsOn": ["workspace", "access"] },
+    { "id": "billing", "name": "Billing", "dependsOn": ["workspace"] },
+    { "id": "shared-kernel", "name": "Shared Kernel", "dependsOn": [] },
+    { "id": "business-context", "name": "Business context", "dependsOn": ["identity", "workspace"], "status": "deferred" }
+  ]
+}

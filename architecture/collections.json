@@ -1,0 +1,342 @@
+{
+  "version": 1,
+  "source": "Squid Architecture Baseline v1.3 · Data design",
+  "collections": [
+    {
+      "name": "workspaces",
+      "owner": "workspace"
+    },
+    {
+      "name": "users",
+      "owner": "identity"
+    },
+    {
+      "name": "memberships",
+      "owner": "workspace"
+    },
+    {
+      "name": "grants",
+      "owner": "access"
+    },
+    {
+      "name": "spaces",
+      "owner": "hierarchy"
+    },
+    {
+      "name": "folders",
+      "owner": "hierarchy"
+    },
+    {
+      "name": "lists",
+      "owner": "hierarchy"
+    },
+    {
+      "name": "tasks",
+      "owner": "work"
+    },
+    {
+      "name": "task_links",
+      "owner": "work"
+    },
+    {
+      "name": "field_defs",
+      "owner": "fields"
+    },
+    {
+      "name": "view_specs",
+      "owner": "views"
+    },
+    {
+      "name": "documents",
+      "owner": "docs"
+    },
+    {
+      "name": "doc_updates",
+      "owner": "docs"
+    },
+    {
+      "name": "boards",
+      "owner": "whiteboards"
+    },
+    {
+      "name": "board_updates",
+      "owner": "whiteboards"
+    },
+    {
+      "name": "messages",
+      "owner": "chat"
+    },
+    {
+      "name": "comments",
+      "owner": "collaboration"
+    },
+    {
+      "name": "notifications",
+      "owner": "notifications"
+    },
+    {
+      "name": "time_entries",
+      "owner": "time"
+    },
+    {
+      "name": "automation_rules",
+      "owner": "automation"
+    },
+    {
+      "name": "outbox",
+      "owner": "shared-kernel"
+    },
+    {
+      "name": "search_projections",
+      "owner": "search"
+    },
+    {
+      "name": "rollups",
+      "owner": "reporting"
+    },
+    {
+      "name": "attachments",
+      "owner": "files"
+    },
+    {
+      "name": "audit_log",
+      "owner": "administration"
+    },
+    {
+      "name": "sessions",
+      "owner": "identity"
+    },
+    {
+      "name": "invitations",
+      "owner": "identity"
+    },
+    {
+      "name": "user_invitations",
+      "owner": "identity"
+    },
+    {
+      "name": "teams",
+      "owner": "identity"
+    },
+    {
+      "name": "organizations",
+      "owner": "workspace"
+    },
+    {
+      "name": "roles",
+      "owner": "access"
+    },
+    {
+      "name": "access_requests",
+      "owner": "access"
+    },
+    {
+      "name": "favorites",
+      "owner": "hierarchy"
+    },
+    {
+      "name": "recent_items",
+      "owner": "hierarchy"
+    },
+    {
+      "name": "workflow_defs",
+      "owner": "work"
+    },
+    {
+      "name": "channels",
+      "owner": "chat"
+    },
+    {
+      "name": "channel_reads",
+      "owner": "chat"
+    },
+    {
+      "name": "mentions",
+      "owner": "collaboration"
+    },
+    {
+      "name": "watchers",
+      "owner": "collaboration"
+    },
+    {
+      "name": "activity",
+      "owner": "collaboration"
+    },
+    {
+      "name": "notification_preferences",
+      "owner": "notifications"
+    },
+    {
+      "name": "timesheets",
+      "owner": "time"
+    },
+    {
+      "name": "time_budgets",
+      "owner": "time"
+    },
+    {
+      "name": "calendars",
+      "owner": "scheduling"
+    },
+    {
+      "name": "events",
+      "owner": "scheduling"
+    },
+    {
+      "name": "calendar_sync_links",
+      "owner": "scheduling"
+    },
+    {
+      "name": "projects",
+      "owner": "planning"
+    },
+    {
+      "name": "portfolios",
+      "owner": "planning"
+    },
+    {
+      "name": "goals",
+      "owner": "planning"
+    },
+    {
+      "name": "automation_runs",
+      "owner": "automation"
+    },
+    {
+      "name": "forms",
+      "owner": "forms"
+    },
+    {
+      "name": "form_submissions",
+      "owner": "forms"
+    },
+    {
+      "name": "dashboards",
+      "owner": "reporting"
+    },
+    {
+      "name": "report_definitions",
+      "owner": "reporting"
+    },
+    {
+      "name": "attachment_versions",
+      "owner": "files"
+    },
+    {
+      "name": "upload_sessions",
+      "owner": "files"
+    },
+    {
+      "name": "file_links",
+      "owner": "files"
+    },
+    {
+      "name": "templates",
+      "owner": "templates"
+    },
+    {
+      "name": "template_applications",
+      "owner": "templates"
+    },
+    {
+      "name": "integration_connections",
+      "owner": "integrations"
+    },
+    {
+      "name": "integration_secrets",
+      "owner": "integrations"
+    },
+    {
+      "name": "webhook_endpoints",
+      "owner": "integrations"
+    },
+    {
+      "name": "integration_exchanges",
+      "owner": "integrations"
+    },
+    {
+      "name": "marketplace_listings",
+      "owner": "integrations"
+    },
+    {
+      "name": "ai_generations",
+      "owner": "ai"
+    },
+    {
+      "name": "ai_quotas",
+      "owner": "ai"
+    },
+    {
+      "name": "prompt_templates",
+      "owner": "ai"
+    },
+    {
+      "name": "security_settings",
+      "owner": "administration"
+    },
+    {
+      "name": "api_keys",
+      "owner": "administration"
+    },
+    {
+      "name": "api_usage",
+      "owner": "administration"
+    },
+    {
+      "name": "data_exports",
+      "owner": "administration"
+    },
+    {
+      "name": "plans",
+      "owner": "billing"
+    },
+    {
+      "name": "subscriptions",
+      "owner": "billing"
+    },
+    {
+      "name": "entitlements",
+      "owner": "billing"
+    },
+    {
+      "name": "invoices",
+      "owner": "billing"
+    },
+    {
+      "name": "usage_records",
+      "owner": "billing"
+    },
+    {
+      "name": "billing_events",
+      "owner": "billing"
+    },
+    {
+      "name": "workspace_members",
+      "owner": "identity"
+    },
+    {
+      "name": "purge_ledger",
+      "owner": "workspace"
+    },
+    {
+      "name": "access_log",
+      "owner": "access"
+    },
+    {
+      "name": "task_counters",
+      "owner": "work"
+    },
+    {
+      "name": "resource_policies",
+      "owner": "access"
+    },
+    {
+      "name": "view_positions",
+      "owner": "views"
+    },
+    {
+      "name": "user_profiles",
+      "owner": "identity"
+    }
+  ]
+}

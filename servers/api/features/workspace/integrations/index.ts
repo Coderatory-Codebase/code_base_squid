@@ -7,3 +7,8 @@ export {
   organizationProfileWorkspaceIndexOptions
 } from "./organization-profile.schema.js";
 export type { OrganizationProfileDocument, OrganizationWorkspaceState } from "./organization-profile.schema.js";
+export {
+  createWorkspaceMongoDependencies,
+  createWorkspaceTransaction
+} from "./workspace.mongo.js";
+export type { WorkspaceMongoDependencies, WorkspaceMongoSession } from "./workspace.mongo.js";
