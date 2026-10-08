@@ -10,6 +10,8 @@ export type OrganizationDocument = Readonly<{
   workspaceIds: readonly string[];
   lastUsedAt: Date;
   deletedAt: Date | null;
+  status?: "ACTIVE" | "ARCHIVED" | "DELETION_SCHEDULED" | "DELETED";
+  deletionScheduledFor?: Date;
   deletedBy?: string | null;
   archivedAt?: Date | null;
   archivedBy?: string | null;
@@ -17,6 +19,7 @@ export type OrganizationDocument = Readonly<{
   members?: readonly OrganizationMember[];
   invitations?: readonly OrganizationInvitation[];
   activity?: readonly OrganizationActivity[];
+  settings?: Readonly<Record<string, unknown>>;
 }>;
 
 export const normalizeOrganizationId = (value: unknown): string => {
@@ -89,6 +92,8 @@ const organizationSchema = new Schema<OrganizationDocument>(
     ownerEmail: { type: String, lowercase: true, trim: true },
     workspaceIds: { type: [String], required: true, index: true },
     lastUsedAt: { type: Date, required: true, default: () => new Date() },
+    status: { type: String, enum: ["ACTIVE", "ARCHIVED", "DELETION_SCHEDULED", "DELETED"] },
+    deletionScheduledFor: { type: Date },
     deletedAt: { type: Date, default: null },
     deletedBy: { type: String, default: null },
     archivedAt: { type: Date, default: null },
@@ -96,7 +101,12 @@ const organizationSchema = new Schema<OrganizationDocument>(
     lifecycleVersion: { type: Number, required: true, default: 0, min: 0 },
     members: { type: [memberSchema], default: [] },
     invitations: { type: [invitationSchema], default: [] },
-    activity: { type: [activitySchema], default: [] }
+    activity: { type: [activitySchema], default: [] },
+    settings: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: () => ({})
+    }
   },
   { timestamps: true }
 );
@@ -123,7 +133,11 @@ organizationSchema.index(
   { workspaceIds: 1, deletedAt: 1, archivedAt: 1, updatedAt: 1 },
   { name: "workspace_lifecycle_view" }
 );
+organizationSchema.index(
+  { workspaceIds: 1, settings: 1 },
+  { name: "workspace_settings_live_cover", partialFilterExpression: { deletedAt: null } }
+);
 
 export const OrganizationModel =
-  mongoose.models.Organization ??
+  (mongoose.models.Organization as mongoose.Model<OrganizationDocument> | undefined) ??
   mongoose.model<OrganizationDocument>("Organization", organizationSchema, "organizations");

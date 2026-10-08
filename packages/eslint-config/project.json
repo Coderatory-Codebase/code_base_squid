@@ -5,5 +5,7 @@
   "internalDependencies": [],
   "externalDependencies": ["@eslint/js", "eslint", "eslint-config-next", "globals", "typescript-eslint"],
   "capabilities": ["eslint-configuration"],
-  "tasks": {}
+  "tasks": {
+    "test": { "command": "pnpm test", "cache": false }
+  }
 }

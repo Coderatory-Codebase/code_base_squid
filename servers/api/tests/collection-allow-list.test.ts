@@ -8,7 +8,9 @@ const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const allowedModels = new Map([
   ["features/auth/integrations/session.model.ts", { name: "Session", collection: "sessions" }],
   ["features/auth/integrations/user.model.ts", { name: "User", collection: "users" }],
-  ["features/workspace/integrations/organization.model.ts", { name: "Organization", collection: "organizations" }]
+  ["features/identity/models/user-invitation.model.ts", { name: "UserInvitation", collection: "user_invitations" }],
+  ["features/workspace/integrations/organization.model.ts", { name: "Organization", collection: "organizations" }],
+  ["integrations/mongodb/workspace-branding.model.ts", { name: "WorkspaceBranding", collection: "workspaces" }]
 ]);
 
 const findModelFiles = async (directory: string): Promise<readonly string[]> => {
@@ -32,7 +34,7 @@ void test("Mongoose model definitions use only explicitly allow-listed collectio
 
   for (const [relativePath, allowed] of allowedModels) {
     const source = await readFile(path.join(apiRoot, relativePath), "utf8");
-    const modelDefinition = source.match(/mongoose\.model(?:<[^>]+>)?\("([^"]+)",\s*\w+,\s*"([^"]+)"\)/u);
+    const modelDefinition = source.match(/(?:mongoose\.)?model(?:<[^>]+>)?\(\s*"([^"]+)",\s*\w+,\s*"([^"]+)"\s*\)/u);
     assert.deepEqual(modelDefinition?.slice(1), [allowed.name, allowed.collection], relativePath);
   }
 });

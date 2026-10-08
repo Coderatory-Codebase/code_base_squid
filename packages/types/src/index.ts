@@ -3,5 +3,10 @@ export type {
   ApiErrorCode,
   ApiErrorDetails,
   ApiErrorResponse,
-  ApiHealthResponse
+  ApiHealthResponse,
+  ApiOrganizationState,
+  ApiOrganizationWorkspaceState,
+  ApiOrganizationWorkspace,
+  ApiOrganizationProfile,
+  ApiOrganizationProfileResponse
 } from "./api/index.js";

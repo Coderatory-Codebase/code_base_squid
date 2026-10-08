@@ -1,6 +1,6 @@
 import type { ApplicationError } from "./types.js";
 
-type ApplicationErrorInput = Omit<ApplicationError, "kind" | "name" | "stack">;
+type ApplicationErrorInput = Pick<ApplicationError, "code" | "message" | "status" | "details">;
 
 export const createApplicationError = (input: ApplicationErrorInput): ApplicationError => {
   const error = new Error(input.message);
