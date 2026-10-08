@@ -34,9 +34,11 @@ for (const [message, valid] of [
 test("lint-staged selects staged supported files and propagates command failures", async (context) => {
   const root = await mkdtemp(path.join(process.cwd(), ".lint-staged-governance-"));
   context.after(() => rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }));
+  const globalConfigPath = path.join(root, "global.gitconfig");
+  await writeFile(globalConfigPath, "", "utf8");
   const gitEnv = {
     ...process.env,
-    GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null",
+    GIT_CONFIG_GLOBAL: globalConfigPath,
     GIT_CONFIG_NOSYSTEM: "1",
     HOME: root,
     XDG_CONFIG_HOME: root
@@ -53,10 +55,11 @@ if (files.some((file) => path.basename(file) === "blocked.txt")) process.exit(7)
   await writeFile(configPath, "module.exports = { \"*.txt\": \"node task.mjs\" };\n", "utf8");
   await writeFile(path.join(root, "supported.txt"), "staged\n", "utf8");
   await writeFile(path.join(root, "irrelevant.md"), "unstaged\n", "utf8");
-  assert.equal(run("git", ["init"], { cwd: root, env: gitEnv }).status, 0);
+  const initialized = run("git", ["init"], { cwd: root, env: gitEnv });
+  assert.equal(initialized.status, 0, initialized.stderr || initialized.stdout || "git init did not succeed.");
   assert.equal(run("git", ["add", "supported.txt"], { cwd: root, env: gitEnv }).status, 0);
 
-  const selected = run(process.execPath, [lintStagedCli, "--cwd", root, "--config", configPath], { env: gitEnv });
+  const selected = run(process.execPath, [lintStagedCli, "--cwd", root, "--config", configPath, "--no-stash"], { env: gitEnv });
   assert.equal(selected.status, 0, `${selected.stdout}\n${selected.stderr}`);
   const processed = await readFile(commandLog, "utf8");
   assert.match(processed, /supported\.txt/);
@@ -64,6 +67,6 @@ if (files.some((file) => path.basename(file) === "blocked.txt")) process.exit(7)
 
   await writeFile(path.join(root, "blocked.txt"), "staged and rejected\n", "utf8");
   assert.equal(run("git", ["add", "blocked.txt"], { cwd: root, env: gitEnv }).status, 0);
-  const blocked = run(process.execPath, [lintStagedCli, "--cwd", root, "--config", configPath], { env: gitEnv });
+  const blocked = run(process.execPath, [lintStagedCli, "--cwd", root, "--config", configPath, "--no-stash"], { env: gitEnv });
   assert.notEqual(blocked.status, 0);
 });

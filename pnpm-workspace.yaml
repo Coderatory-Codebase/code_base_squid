@@ -7,7 +7,22 @@ packages:
 
 allowBuilds:
   esbuild: true
+  mongodb-memory-server: true
+  msgpackr-extract: false
   unrs-resolver: true
 
 audit:
   level: high
+  # GHSA-vfj7-8cjw-p6xm: dev tooling only; remove this temporary waiver by 2026-11-03.
+  ignore:
+    - GHSA-vfj7-8cjw-p6xm
+
+minimumReleaseAgeExclude:
+  - braces@3.0.4
+  - source-map-js@1.2.2
+
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
+
+overrides:
+  '@modelcontextprotocol/sdk': '^1.31.0'

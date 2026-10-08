@@ -177,6 +177,12 @@
       "mayBypassPolicy": false
     }
   },
+  "qualityAttributes": {
+    "organizationList": { "principalOrganizationsAtLeast": 50, "p95BudgetMs": 700, "requestCount": 200, "requiredIndex": "workspaceIds_1", "measurementCommand": "pnpm --filter @workspace/api measure:organization-budget", "measurementArtifact": "servers/api/performance-results/organization-list-<date>.json" },
+    "organizationSettingsView": { "workspaceOrganizations": 200, "p95BudgetMs": 700, "requestCount": 200, "requiredIndex": "workspace_settings_live_cover", "measurementCommand": "pnpm --filter @workspace/api measure:organization-settings-budget", "measurementArtifact": "servers/api/performance-results/organization-settings-<date>.json" },
+    "organizationSetup": { "requestsPerSecond": 20, "durationMs": 600000, "p95BudgetMs": 300, "measurementCommand": "pnpm --filter @workspace/api measure:organization-setup-budget", "measurementArtifact": "servers/api/performance-results/organization-setup-<date>.json" },
+    "workspaceDashboard": { "activeTeamMembers": 21, "recentActivityEvents": 10, "requestCount": 200, "p95BudgetMs": 700, "payloadBudgetBytes": 102400, "measurementCommand": "pnpm --filter @workspace/api measure:workspace-dashboard-budget", "measurementArtifact": "servers/api/performance-results/workspace-dashboard-<date>.json" }
+  },
   "integrations": {
     "serverDirectory": "integrations",
     "externalImplementationPackages": ["mongoose", "redis", "stripe"]
@@ -186,7 +192,7 @@
     "packageManagerVersion": "11.19.0",
     "workspaceFile": "pnpm-workspace.yaml",
     "workspacePatterns": ["apps/*", "servers/*", "packages/*", "prebuilt/*", "prebuilt/*/*"],
-    "allowedBuildDependencies": ["esbuild", "unrs-resolver"],
+    "allowedBuildDependencies": ["esbuild", "mongodb-memory-server", "unrs-resolver"],
     "lockfile": "pnpm-lock.yaml",
     "forbiddenLockfiles": ["package-lock.json", "yarn.lock"],
     "internalDependencyProtocol": "workspace:"
@@ -227,10 +233,12 @@
   "moduleBoundaries": [
     { "project": "web", "root": "features/workspace-foundation", "categories": ["components"], "rootExports": ["components"] },
     { "project": "web", "root": "types", "categories": ["configuration", "routing"], "rootExports": ["configuration", "routing"] },
-    { "project": "api", "root": "integrations", "categories": ["mongodb"], "rootExports": ["mongodb"] },
+    { "project": "api", "root": "integrations", "categories": ["mongodb", "redis"], "rootExports": ["mongodb", "redis"] },
     { "project": "api", "root": "constants", "categories": ["errors", "http", "runtime"], "rootExports": ["errors", "http", "runtime"] },
     { "project": "api", "root": "types", "categories": ["configuration"], "rootExports": ["configuration"] },
     { "project": "api", "root": "features/health", "categories": ["controllers", "routes", "services"], "rootExports": ["routes"] },
+    { "project": "api", "root": "kernel", "categories": ["bus", "gateway", "principal"], "rootExports": ["bus", "gateway", "principal"] },
+    { "project": "api", "root": "features/identity", "categories": ["gateways", "models", "types"], "rootExports": ["gateways", "types"] },
     { "project": "types", "root": "src", "categories": ["api"], "rootExports": ["api"] },
     { "project": "types", "root": "src/api", "categories": ["environment", "errors", "health"], "rootExports": ["environment", "errors", "health"] },
     { "project": "ui", "root": "src", "categories": ["components", "compositions", "hooks", "primitives", "utilities"], "rootExports": ["components", "compositions", "hooks", "primitives"] }
