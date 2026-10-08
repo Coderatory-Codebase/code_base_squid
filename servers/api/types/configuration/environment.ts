@@ -17,5 +17,11 @@ export type ValidatedApiEnvironment = Readonly<{
   MICROSOFT_OIDC_ISSUER?: string | undefined;
   MICROSOFT_OIDC_CLIENT_ID?: string | undefined;
   MICROSOFT_OIDC_CLIENT_SECRET?: string | undefined;
+  REDIS_URL?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_ENABLED?: "true" | undefined;
+  TEMP_ORG_BRANDING_DEMO_EMAIL?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_PASSWORD?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_WORKSPACE_ID?: string | undefined;
+  TEMP_ORG_BRANDING_DEMO_SESSION_SECRET?: string | undefined;
   LOG_LEVEL: LogLevel;
 }>;

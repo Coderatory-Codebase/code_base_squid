@@ -1,12 +1,14 @@
 import type { ReactElement } from "react";
-import { KeyRound } from "lucide-react";
+import { KeyRound, LogIn } from "lucide-react";
 import { Button, PageHeader, PageShell } from "@workspace/ui";
 import { createApiConfiguration, readWebEnvironment } from "@/config";
+import { signIn } from "@/features/auth/auth.actions";
 
 type SignInPageProps = Readonly<{
   searchParams: Promise<Readonly<{
     error?: string | readonly string[];
     invitationToken?: string | readonly string[];
+    returnTo?: string | readonly string[];
   }>>;
 }>;
 
@@ -31,6 +33,7 @@ const SignInPage = async ({ searchParams }: SignInPageProps): Promise<ReactEleme
   const parameters = await searchParams;
   const errorCode = typeof parameters.error === "string" ? parameters.error : undefined;
   const invitationToken = typeof parameters.invitationToken === "string" ? parameters.invitationToken : undefined;
+  const returnTo = typeof parameters.returnTo === "string" ? parameters.returnTo : undefined;
   const error = errorCode ? signInErrors[errorCode] : undefined;
   const api = createApiConfiguration(readWebEnvironment());
   const apiBaseUrl = api.baseUrl.replace(/\/$/, "");
@@ -64,6 +67,20 @@ const SignInPage = async ({ searchParams }: SignInPageProps): Promise<ReactEleme
         <p className="pt-2 text-sm leading-6 text-muted-foreground">
           Squid does not store a separate password. Your provider verifies your identity.
         </p>
+      </section>
+      <section aria-label="Password sign-in" className="mt-8 max-w-md">
+        <PageHeader
+          description="Use your workspace credentials if your administrator provided them."
+          eyebrow="Workspace"
+          icon={<LogIn aria-hidden="true" className="size-5" />}
+          title="Sign in with email"
+        />
+        <form action={signIn} className="mt-4 grid gap-4 rounded-xl border bg-card p-6">
+          {returnTo?.startsWith("/workspace/invitations/accept?token=") ? <input name="returnTo" type="hidden" value={returnTo} /> : null}
+          <label className="grid gap-2 text-sm font-medium" htmlFor="email">Email<input autoComplete="email" className="h-10 rounded-md border bg-background px-3 font-normal" id="email" name="email" required type="email" /></label>
+          <label className="grid gap-2 text-sm font-medium" htmlFor="password">Password<input autoComplete="current-password" className="h-10 rounded-md border bg-background px-3 font-normal" id="password" name="password" required type="password" /></label>
+          <Button type="submit">Sign in</Button>
+        </form>
       </section>
     </PageShell>
   );

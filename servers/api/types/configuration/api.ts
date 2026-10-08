@@ -21,5 +21,12 @@ export type ApiConfig = Readonly<{
   logFormat: "json" | "pretty";
   mongodbUri?: string;
   oidc?: OidcApiConfiguration;
+  redisUrl?: string;
+  temporaryOrganizationBrandingDemo?: Readonly<{
+    email: string;
+    password: string;
+    workspaceId: string;
+    sessionSecret: string;
+  }>;
   logLevel: LogLevel;
 }>;

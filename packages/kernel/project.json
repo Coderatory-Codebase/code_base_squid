@@ -1,10 +1,10 @@
 {
   "name": "kernel",
   "type": "package",
-  "description": "Shared in-process kernel contracts and foundational functions.",
+  "description": "Reusable runtime primitives and shared in-process kernel contracts.",
   "internalDependencies": ["eslint-config", "tsconfig"],
-  "externalDependencies": [],
-  "capabilities": ["shared-kernel", "event-contracts"],
+  "externalDependencies": ["ulid"],
+  "capabilities": ["shared-kernel", "event-contracts", "id-generation", "clock"],
   "tasks": {
     "build": { "command": "pnpm run build", "outputs": ["dist"], "cache": true },
     "test": { "command": "pnpm test", "cache": false },

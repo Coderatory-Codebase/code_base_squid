@@ -13,5 +13,15 @@ export const ERROR_CODES = Object.freeze({
   accountClosed: "account_closed",
   conflict: "conflict",
   profileUpdateForbidden: "profile_update_forbidden",
-  sessionNotFound: "session_not_found"
+  sessionNotFound: "session_not_found",
+  unauthorized: "unauthorized",
+  forbidden: "forbidden",
+  notFound: "not_found",
+  workspaceRequired: "WORKSPACE_REQUIRED",
+  versionConflict: "VERSION_CONFLICT",
+  policyDecisionRequired: "policy_decision_required",
+  policyDenied: "policy_denied",
+  policyUnavailable: "policy_unavailable",
+  principalUnavailable: "principal_unavailable",
+  serviceUnavailable: "service_unavailable"
 } as const satisfies Readonly<Record<string, ApiErrorCode>>);

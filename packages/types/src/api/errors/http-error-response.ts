@@ -11,7 +11,17 @@ export type ApiErrorCode =
   | "account_closed"
   | "conflict"
   | "profile_update_forbidden"
-  | "session_not_found";
+  | "session_not_found"
+  | "unauthorized"
+  | "not_found"
+  | "service_unavailable"
+  | "WORKSPACE_REQUIRED"
+  | "VERSION_CONFLICT"
+  | "policy_decision_required"
+  | "policy_denied"
+  | "policy_unavailable"
+  | "forbidden"
+  | "principal_unavailable";
 
 export type ApiErrorDetails = Readonly<Record<string, unknown>> | readonly unknown[];
 

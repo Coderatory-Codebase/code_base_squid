@@ -15,6 +15,12 @@ export const apiEnvironmentSchema = z.object({
   MICROSOFT_OIDC_ISSUER: z.url().optional(),
   MICROSOFT_OIDC_CLIENT_ID: z.string().min(1).optional(),
   MICROSOFT_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
+  REDIS_URL: z.string().min(1).optional(),
+  TEMP_ORG_BRANDING_DEMO_ENABLED: z.literal("true").optional(),
+  TEMP_ORG_BRANDING_DEMO_EMAIL: z.email().optional(),
+  TEMP_ORG_BRANDING_DEMO_PASSWORD: z.string().min(16).optional(),
+  TEMP_ORG_BRANDING_DEMO_WORKSPACE_ID: z.string().min(1).optional(),
+  TEMP_ORG_BRANDING_DEMO_SESSION_SECRET: z.string().min(32).optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
 }).superRefine((environment, context) => {
   const googleConfigured = Boolean(environment.GOOGLE_OIDC_CLIENT_ID || environment.GOOGLE_OIDC_CLIENT_SECRET);
@@ -57,6 +63,26 @@ export const apiEnvironmentSchema = z.object({
         path: ["OIDC_FLOW_COOKIE_KEY"],
         message: "OIDC flow cookie key must be a base64url-encoded 32-byte key."
       });
+    }
+  }
+  const demoValues = [
+    environment.TEMP_ORG_BRANDING_DEMO_EMAIL,
+    environment.TEMP_ORG_BRANDING_DEMO_PASSWORD,
+    environment.TEMP_ORG_BRANDING_DEMO_WORKSPACE_ID,
+    environment.TEMP_ORG_BRANDING_DEMO_SESSION_SECRET
+  ];
+  if (!environment.TEMP_ORG_BRANDING_DEMO_ENABLED && demoValues.some((value) => value !== undefined)) {
+    context.addIssue({ code: "custom", path: ["TEMP_ORG_BRANDING_DEMO_ENABLED"], message: "Set the explicit enable flag when configuring temporary branding demo auth." });
+  }
+  if (environment.TEMP_ORG_BRANDING_DEMO_ENABLED) {
+    if (environment.NODE_ENV !== "development") {
+      context.addIssue({ code: "custom", path: ["TEMP_ORG_BRANDING_DEMO_ENABLED"], message: "Temporary branding demo auth is development-only." });
+    }
+    if (!environment.MONGODB_URI) {
+      context.addIssue({ code: "custom", path: ["MONGODB_URI"], message: "MongoDB is required for temporary branding demo auth." });
+    }
+    if (demoValues.some((value) => value === undefined)) {
+      context.addIssue({ code: "custom", path: ["TEMP_ORG_BRANDING_DEMO_EMAIL"], message: "Configure the demo email, password, trusted workspace ID and session secret together." });
     }
   }
 }) satisfies z.ZodType<ValidatedApiEnvironment>;

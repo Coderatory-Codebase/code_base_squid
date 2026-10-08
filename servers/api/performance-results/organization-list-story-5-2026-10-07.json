@@ -1,0 +1,152 @@
+{
+  "measuredAt": "2026-10-07T11:52:54.561Z",
+  "surface": "GET /organizations over loopback HTTP with isolated in-memory MongoDB",
+  "dataset": {
+    "principalOrganizations": 500,
+    "pageSize": 50,
+    "renderedOrganizations": 50,
+    "requests": 200
+  },
+  "p95Ms": 8.91,
+  "budgetMs": 700,
+  "passed": true,
+  "indexesUsed": [
+    "member_list_page",
+    "owner_list_page"
+  ],
+  "queryPlanner": {
+    "isCached": false,
+    "stage": "LIMIT",
+    "limitAmount": 51,
+    "inputStage": {
+      "stage": "PROJECTION_SIMPLE",
+      "transformBy": {
+        "_id": 1,
+        "name": 1
+      },
+      "inputStage": {
+        "stage": "SORT_MERGE",
+        "sortPattern": {
+          "lastUsedAt": -1,
+          "name": 1,
+          "_id": 1
+        },
+        "inputStages": [
+          {
+            "stage": "FETCH",
+            "filter": {
+              "deletedAt": {
+                "$eq": null
+              }
+            },
+            "inputStage": {
+              "stage": "IXSCAN",
+              "keyPattern": {
+                "ownerId": 1,
+                "deletedAt": 1,
+                "lastUsedAt": -1,
+                "name": 1,
+                "_id": 1
+              },
+              "indexName": "owner_list_page",
+              "isMultiKey": false,
+              "multiKeyPaths": {
+                "ownerId": [],
+                "deletedAt": [],
+                "lastUsedAt": [],
+                "name": [],
+                "_id": []
+              },
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": 2,
+              "direction": "forward",
+              "indexBounds": {
+                "ownerId": [
+                  "[\"budget-owner\", \"budget-owner\"]"
+                ],
+                "deletedAt": [
+                  "[null, null]"
+                ],
+                "lastUsedAt": [
+                  "[MaxKey, MinKey]"
+                ],
+                "name": [
+                  "[MinKey, MaxKey]"
+                ],
+                "_id": [
+                  "[MinKey, MaxKey]"
+                ]
+              }
+            }
+          },
+          {
+            "stage": "FETCH",
+            "filter": {
+              "$and": [
+                {
+                  "members": {
+                    "$elemMatch": {
+                      "userId": {
+                        "$eq": "budget-owner"
+                      }
+                    }
+                  }
+                },
+                {
+                  "deletedAt": {
+                    "$eq": null
+                  }
+                }
+              ]
+            },
+            "inputStage": {
+              "stage": "IXSCAN",
+              "keyPattern": {
+                "members.userId": 1,
+                "deletedAt": 1,
+                "lastUsedAt": -1,
+                "name": 1,
+                "_id": 1
+              },
+              "indexName": "member_list_page",
+              "isMultiKey": true,
+              "multiKeyPaths": {
+                "members.userId": [
+                  "members"
+                ],
+                "deletedAt": [],
+                "lastUsedAt": [],
+                "name": [],
+                "_id": []
+              },
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": 2,
+              "direction": "forward",
+              "indexBounds": {
+                "members.userId": [
+                  "[\"budget-owner\", \"budget-owner\"]"
+                ],
+                "deletedAt": [
+                  "[null, null]"
+                ],
+                "lastUsedAt": [
+                  "[MaxKey, MinKey]"
+                ],
+                "name": [
+                  "[MinKey, MaxKey]"
+                ],
+                "_id": [
+                  "[MinKey, MaxKey]"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

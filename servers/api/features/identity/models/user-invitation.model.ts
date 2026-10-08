@@ -56,5 +56,6 @@ userInvitationSchema.index(
 
 export const UserInvitationModel = model<UserInvitationDocument>(
   "UserInvitation",
-  userInvitationSchema
+  userInvitationSchema,
+  "user_invitations"
 );

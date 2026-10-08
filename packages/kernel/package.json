@@ -12,11 +12,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "pnpm run build",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test tests/*.test.ts tests/kernel.test.ts",
     "check:contracts": "tsx scripts/check-event-contract-compatibility.ts",
     "lint": "eslint \"{src,tests,scripts}/**/*.ts\"",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": { "ulid": "^3.0.2" },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
     "@workspace/tsconfig": "workspace:*",
