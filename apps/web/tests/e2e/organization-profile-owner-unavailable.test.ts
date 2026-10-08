@@ -51,8 +51,8 @@ const stopProcess = async (child: ChildProcess): Promise<void> => {
 };
 
 const waitForWeb = async (child: ChildProcess, port: number): Promise<void> => {
-  const deadline = Date.now() + 60_000;
-  while (Date.now() < deadline) {
+  const deadline = performance.now() + 60_000;
+  while (performance.now() < deadline) {
     if (child.exitCode !== null) throw new Error(`Next.js exited before startup (code ${child.exitCode})`);
     try {
       await new Promise<void>((resolve, reject) => {

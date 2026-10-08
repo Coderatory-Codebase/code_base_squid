@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { createHash } from "node:crypto";
 import { createLogger } from "@workspace/logging";
+import { systemClock } from "@workspace/kernel";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
 import { OrganizationModel } from "../features/workspace/index.js";
 
@@ -53,7 +54,7 @@ const seed = async (): Promise<void> => {
       );
     }
 
-    const now = new Date();
+    const now = new Date(systemClock.now());
     const operations = Array.from({ length: targetVolume }, (_, index) => {
       const ordinal = String(index + 1).padStart(6, "0");
       const name = `${seedNamePrefix}${ordinal}`;

@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { systemClock } from "@workspace/kernel";
 
 export type OrganizationDocument = Readonly<{
   _id: string;
@@ -15,7 +16,7 @@ const organizationSchema = new Schema<OrganizationDocument>(
     name: { type: String, required: true, minlength: 1, maxlength: 80 },
     ownerId: { type: String, required: true, index: true },
     workspaceIds: { type: [String], required: true, index: true },
-    lastUsedAt: { type: Date, required: true, default: () => new Date() },
+    lastUsedAt: { type: Date, required: true, default: () => new Date(systemClock.now()) },
     // Deletion is soft: retain the organization row and keep it out of live settings reads.
     deletedAt: { type: Date, default: null },
     settings: {

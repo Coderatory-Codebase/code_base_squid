@@ -1,4 +1,5 @@
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
+import { systemClock } from "@workspace/kernel";
 
 const sessionLifetimeSeconds = 4 * 60 * 60;
 
@@ -26,7 +27,7 @@ export const credentialsMatch = (
 
 export const createTemporaryBrandingDemoToken = (
   config: TemporaryBrandingDemoConfig,
-  nowSeconds = Math.floor(Date.now() / 1000)
+  nowSeconds = Math.floor(systemClock.now() / 1000)
 ): string => {
   const payload = Buffer.from(JSON.stringify({
     email: config.email.trim().toLocaleLowerCase("en-US"),
@@ -41,7 +42,7 @@ export const createTemporaryBrandingDemoToken = (
 export const readTemporaryBrandingDemoToken = (
   token: string,
   sessionSecret: string,
-  nowSeconds = Math.floor(Date.now() / 1000)
+  nowSeconds = Math.floor(systemClock.now() / 1000)
 ): TemporaryBrandingDemoPrincipal | null => {
   const [payload, suppliedSignature, ...extraParts] = token.split(".");
   if (!payload || !suppliedSignature || extraParts.length > 0) return null;

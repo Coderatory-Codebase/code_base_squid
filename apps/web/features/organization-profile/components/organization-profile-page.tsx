@@ -3,7 +3,7 @@ import { Building2, CircleAlert, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import type { ApiOrganizationProfileResponse } from "@workspace/types";
 import { MessageState, PageHeader, PageShell } from "@workspace/ui";
-import { OrganizationWorkspaces } from "./organization-workspaces.js";
+import { OrganizationWorkspaces } from "./organization-workspaces";
 
 type OrganizationProfilePageProps = Readonly<{
   profile: ApiOrganizationProfileResponse;

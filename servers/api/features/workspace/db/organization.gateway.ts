@@ -84,7 +84,7 @@ const createOrganizationQuery = (
   model: OrganizationModelDependency,
   principal: Principal
 ): OrganizationQuery => {
-  const workspaceIds = [...principal.workspaceIds];
+  const workspaceIds = [...(principal.workspaceIds ?? [])];
 
   const query = model.find();
   query.where("deletedAt").equals(null);

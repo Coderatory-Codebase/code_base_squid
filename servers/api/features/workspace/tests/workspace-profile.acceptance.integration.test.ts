@@ -21,6 +21,7 @@ import {
 import { createWorkspaceRoutes } from "../index.js";
 import { createWorkspaceRepository } from "../workspace.repository.js";
 import type { Logger } from "@workspace/logging";
+import { systemClock } from "@workspace/kernel";
 
 let mongoUri = process.env.TEST_MONGODB_URI;
 let memoryReplicaSet: MongoMemoryReplSet | undefined;
@@ -180,7 +181,7 @@ const measureOrganizationProfileAtTargetVolume = async (testCase: string): Promi
       "membership count query should use the workspace and user index"
     );
 
-    const measuredAt = new Date().toISOString();
+    const measuredAt = new Date(systemClock.now()).toISOString();
     console.info(
       `${testCase} measuredAt=${measuredAt}; p95=${p95Milliseconds.toFixed(2)}ms; requests=200; ` +
       "workspaces=100; membersPerWorkspace=200; memberships=20000; " +
@@ -268,7 +269,7 @@ runWithMongo("AC-3: archived workspace remains visible and suspended memberships
   const activeMemberIds = Array.from({ length: 10 }, () => generateTestId());
   const suspendedMemberIds = Array.from({ length: 2 }, () => generateTestId());
 
-  await insertTestDocuments("organizations", [{ _id: orgId, name: "Acme Design", ownerId, createdAt: new Date(), status: "ACTIVE" }]);
+  await insertTestDocuments("organizations", [{ _id: orgId, name: "Acme Design", ownerId, createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" }]);
   await insertTestDocuments("workspaces", [
     { _id: archivedWorkspaceId, orgId, name: "Old site", status: "ARCHIVED" },
     { _id: studioWorkspaceId, orgId, name: "Studio", status: "ACTIVE" }
@@ -297,7 +298,7 @@ runWithMongo("AC-2: a member receives only the workspace with active membership"
   const memberId = generateTestId();
   const studioId = generateTestId();
   const opsId = generateTestId();
-  await insertTestDocuments("organizations", [{ _id: orgId, name: "Acme Design", ownerId, createdAt: new Date(), status: "ACTIVE" }]);
+  await insertTestDocuments("organizations", [{ _id: orgId, name: "Acme Design", ownerId, createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" }]);
   await insertTestDocuments("workspaces", [
     { _id: studioId, orgId, name: "Studio", status: "ACTIVE" },
     { _id: opsId, orgId, name: "Ops", status: "ACTIVE" }

@@ -96,7 +96,7 @@ void test("findOrganizationProfile: returns profile for active member", async ()
 
   fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE" });
   fakes.membershipsList.push({ _id: "m1", workspaceId, userId, status: "ACTIVE" });
-  const createdAt = new Date();
+  const createdAt = new Date("2026-10-06T12:00:00.000Z");
   fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: userId, createdAt, status: "ACTIVE" });
 
   const profile = await repo.findOrganizationProfile({ userId }, orgId);
@@ -121,7 +121,7 @@ void test("AC-1: owner sees every organization workspace even without workspace 
   const ownerId = generateTestId();
   const studioId = generateTestId();
   const opsId = generateTestId();
-  fakes.organizationsList.push({ _id: orgId, name: "Acme Design", ownerId, createdAt: new Date(), status: "ACTIVE" });
+  fakes.organizationsList.push({ _id: orgId, name: "Acme Design", ownerId, createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" });
   fakes.workspacesList.push(
     { _id: studioId, orgId, name: "Studio", status: "ACTIVE" },
     { _id: opsId, orgId, name: "Ops", status: "ACTIVE" }
@@ -152,7 +152,7 @@ void test("AC-2: member sees only workspaces where their membership is active", 
   const memberId = generateTestId();
   const studioId = generateTestId();
   const opsId = generateTestId();
-  fakes.organizationsList.push({ _id: orgId, name: "Acme Design", ownerId: generateTestId(), createdAt: new Date(), status: "ACTIVE" });
+  fakes.organizationsList.push({ _id: orgId, name: "Acme Design", ownerId: generateTestId(), createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" });
   fakes.workspacesList.push(
     { _id: studioId, orgId, name: "Studio", status: "ACTIVE" },
     { _id: opsId, orgId, name: "Ops", status: "ACTIVE" }
@@ -178,7 +178,7 @@ void test("AC-4 fault injection: identity lookup failure preserves profile with 
   const workspaceId = generateTestId();
   fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE" });
   fakes.membershipsList.push({ _id: "m1", workspaceId, userId, status: "ACTIVE" });
-  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: generateTestId(), createdAt: new Date(), status: "ACTIVE" });
+  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: generateTestId(), createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" });
   const profile = await repo.findOrganizationProfile({ userId }, orgId);
   assert.ok(profile);
   assert.equal(profile.ownerUnavailable, true);
@@ -200,8 +200,8 @@ void test("findOrganizationProfile: handles scheduled deletion state", async () 
 
   fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE" });
   fakes.membershipsList.push({ _id: "m1", workspaceId, userId, status: "ACTIVE" });
-  const effectiveOn = new Date();
-  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: userId, createdAt: new Date(), status: "DELETION_SCHEDULED", deletionScheduledFor: effectiveOn });
+  const effectiveOn = new Date("2026-11-20T00:00:00.000Z");
+  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: userId, createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "DELETION_SCHEDULED", deletionScheduledFor: effectiveOn });
 
   const profile = await repo.findOrganizationProfile({ userId }, orgId);
   assert.ok(profile);
@@ -222,7 +222,7 @@ void test("findOrganizationProfile: non-member returns null", async () => {
   const workspaceId = generateTestId();
 
   fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE" });
-  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: generateTestId(), createdAt: new Date(), status: "ACTIVE" });
+  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: generateTestId(), createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" });
 
   const profile = await repo.findOrganizationProfile({ userId }, orgId);
   assert.equal(profile, null);
@@ -296,7 +296,7 @@ void test("findOrganizationProfile: DELETED organization returns null", async ()
 
   fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE" });
   fakes.membershipsList.push({ _id: "m1", workspaceId, userId, status: "ACTIVE" });
-  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: userId, createdAt: new Date(), status: "DELETED" });
+  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: userId, createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "DELETED" });
 
   const profile = await repo.findOrganizationProfile({ userId }, orgId);
   assert.equal(profile, null);
@@ -313,9 +313,9 @@ void test("findOrganizationProfile: soft-deleted workspace and membership cannot
   const orgId = generateTestId();
   const userId = generateTestId();
   const workspaceId = generateTestId();
-  fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE", deletedAt: new Date() });
-  fakes.membershipsList.push({ _id: "m1", workspaceId, userId, status: "ACTIVE", deletedAt: new Date() });
-  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: generateTestId(), createdAt: new Date(), status: "ACTIVE" });
+  fakes.workspacesList.push({ _id: workspaceId, orgId, name: "Studio", status: "ACTIVE", deletedAt: new Date("2026-10-06T12:00:00.000Z") });
+  fakes.membershipsList.push({ _id: "m1", workspaceId, userId, status: "ACTIVE", deletedAt: new Date("2026-10-06T12:00:00.000Z") });
+  fakes.organizationsList.push({ _id: orgId, name: "Test Org", ownerId: generateTestId(), createdAt: new Date("2026-10-06T12:00:00.000Z"), status: "ACTIVE" });
   assert.equal(await repo.findOrganizationProfile({ userId }, orgId), null);
   assert.equal(fakes.calls.organizations, 1);
 });

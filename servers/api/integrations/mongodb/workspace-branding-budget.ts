@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import mongoose from "mongoose";
+import { systemClock } from "@workspace/kernel";
 import {
   ORGANIZATION_BRANDING_LIST_INDEX_NAME,
   WorkspaceBrandingModel
@@ -94,7 +95,7 @@ export const runOrganizationBrandingBudgetMeasurement = async (
 
     const p95Ms = Number(percentile95(samples).toFixed(2));
     return Object.freeze({
-      measuredAt: new Date().toISOString(),
+      measuredAt: new Date(systemClock.now()).toISOString(),
       workspaceOrganizations: ORGANIZATION_BRANDING_TARGET_VOLUME,
       requests: ORGANIZATION_BRANDING_MEASURED_REQUESTS,
       p95Ms,

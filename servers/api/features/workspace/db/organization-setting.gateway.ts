@@ -57,9 +57,10 @@ const isWorkspaceSetupRule = (value: unknown): value is "owner only" | "any memb
   value === "owner only" || value === "any member";
 
 export const buildOrganizationSettingsQueryFor = (principal: Principal) => {
+  const workspaceIds = principal.workspaceIds ?? [];
   const query = OrganizationModel.find();
   query.where("deletedAt").equals(null);
-  query.where("workspaceIds").in([...principal.workspaceIds]);
+  query.where("workspaceIds").in([...workspaceIds]);
 
   return query.select({ settings: 1, _id: 0 });
 };
@@ -85,7 +86,7 @@ export const settingsOf = async (
     logger.info("Organization settings read completed.", {
       module: "workspace",
       feature: "organization-settings",
-      workspaceIds: [...principal.workspaceIds],
+      workspaceIds: [...(principal.workspaceIds ?? [])],
       outcome: "success",
       durationMs: performance.now() - startedAt,
     });

@@ -9,6 +9,11 @@ type EntryPoint = string;
 /** Routes that are intentionally open: no principal, no command, no policy decision. */
 const PUBLIC_ENTRY_POINTS: ReadonlyArray<EntryPoint> = ["GET /health"];
 
+/** Authenticated reads that enforce a resolved principal and feature-level scope. */
+const PROTECTED_READ_ENTRY_POINTS: ReadonlyArray<EntryPoint> = [
+  "GET /workspace/organization-profile/:organizationId"
+];
+
 /**
  * Routes that dispatch a command. Each one needs its command listed in
  * WAVE_1_COMMANDS in kernel/tests/pack-policy.test.ts.
@@ -68,23 +73,31 @@ void describe("PACK-POLICY: entry point inventory", () => {
   });
 
   void it("every registered route is declared public or as a command entry point", () => {
-    const declared = new Set([...PUBLIC_ENTRY_POINTS, ...COMMAND_ENTRY_POINTS]);
+    const declared = new Set([...PUBLIC_ENTRY_POINTS, ...PROTECTED_READ_ENTRY_POINTS, ...COMMAND_ENTRY_POINTS]);
     const undeclared = registeredRoutes().filter((route) => !declared.has(route));
     assert.deepEqual(
       undeclared,
       [],
-      "undeclared entry point: add it to PUBLIC_ENTRY_POINTS, or route it through the command bus and add it to COMMAND_ENTRY_POINTS"
+      "undeclared entry point: classify it as public, a protected read, or a command"
     );
   });
 
   void it("every declared entry point is really registered", () => {
     const registered = new Set(registeredRoutes());
-    const stale = [...PUBLIC_ENTRY_POINTS, ...COMMAND_ENTRY_POINTS].filter((route) => !registered.has(route));
+    const stale = [...PUBLIC_ENTRY_POINTS, ...PROTECTED_READ_ENTRY_POINTS, ...COMMAND_ENTRY_POINTS]
+      .filter((route) => !registered.has(route));
     assert.deepEqual(stale, []);
   });
 
   void it("a route cannot be both public and a command entry point", () => {
     const overlap = PUBLIC_ENTRY_POINTS.filter((route) => COMMAND_ENTRY_POINTS.includes(route));
+    assert.deepEqual(overlap, []);
+  });
+
+  void it("a protected read is not classified as public or a command", () => {
+    const overlap = PROTECTED_READ_ENTRY_POINTS.filter((route) =>
+      PUBLIC_ENTRY_POINTS.includes(route) || COMMAND_ENTRY_POINTS.includes(route)
+    );
     assert.deepEqual(overlap, []);
   });
 });
