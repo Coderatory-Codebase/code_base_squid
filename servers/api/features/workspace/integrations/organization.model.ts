@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import type { Types as MongooseTypes } from "mongoose";
+import { systemClock } from "@workspace/kernel";
 import type { OrganizationRole } from "../types.js";
 
 export type OrganizationDocument = Readonly<{
@@ -91,7 +92,7 @@ const organizationSchema = new Schema<OrganizationDocument>(
     ownerId: { type: String, required: true, index: true },
     ownerEmail: { type: String, lowercase: true, trim: true },
     workspaceIds: { type: [String], required: true, index: true },
-    lastUsedAt: { type: Date, required: true, default: () => new Date() },
+    lastUsedAt: { type: Date, required: true, default: () => new Date(systemClock.now()) },
     status: { type: String, enum: ["ACTIVE", "ARCHIVED", "DELETION_SCHEDULED", "DELETED"] },
     deletionScheduledFor: { type: Date },
     deletedAt: { type: Date, default: null },

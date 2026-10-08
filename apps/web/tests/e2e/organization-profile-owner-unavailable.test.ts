@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
 import { spawn, type ChildProcess } from "node:child_process";
 import { createConnection, type Socket } from "node:net";
+import { performance } from "node:perf_hooks";
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -51,8 +52,8 @@ const stopProcess = async (child: ChildProcess): Promise<void> => {
 };
 
 const waitForWeb = async (child: ChildProcess, port: number): Promise<void> => {
-  const deadline = Date.now() + 60_000;
-  while (Date.now() < deadline) {
+  const deadline = performance.now() + 60_000;
+  while (performance.now() < deadline) {
     if (child.exitCode !== null) throw new Error(`Next.js exited before startup (code ${child.exitCode})`);
     try {
       await new Promise<void>((resolve, reject) => {

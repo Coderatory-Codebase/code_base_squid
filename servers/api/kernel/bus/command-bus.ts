@@ -65,7 +65,7 @@ const isDecision = (value: unknown): value is PolicyDecision =>
 
 /** The repo's error boundary recognises plain application-error objects, not Error instances. */
 const fail = (error: ReturnType<typeof createApplicationError>): never => {
-  throw error;
+  throw Object.assign(new Error(error.message), error);
 };
 
 const policyUnavailable = (): never =>

@@ -7,6 +7,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { createApp, createServer } from "../bootstrap/index.js";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
 import { buildOrganizationQueryForPrincipal, organizationPageSize, OrganizationModel } from "../features/workspace/index.js";
+import { systemClock } from "@workspace/kernel";
 
 const budgetMs = 700;
 const requests = 200;
@@ -60,9 +61,9 @@ const measureOrganizationBudget = async (): Promise<void> => {
         userId: principal.userId,
         email: "budget-owner@example.test",
         role: "member",
-        joinedAt: new Date(Date.now() - index * 60_000)
+        joinedAt: new Date(systemClock.now() - index * 60_000)
       }],
-      lastUsedAt: new Date(Date.now() - index * 60_000),
+      lastUsedAt: new Date(systemClock.now() - index * 60_000),
       deletedAt: null
     })));
 
@@ -93,7 +94,7 @@ const measureOrganizationBudget = async (): Promise<void> => {
     const p95Ms = Number((durations[Math.ceil(durations.length * 0.95) - 1] ?? 0).toFixed(2));
     const passed = p95Ms < budgetMs && usesMemberIndex;
     const result = {
-      measuredAt: new Date().toISOString(),
+      measuredAt: new Date(systemClock.now()).toISOString(),
       surface: "GET /organizations over loopback HTTP with isolated in-memory MongoDB",
       dataset: { principalOrganizations: targetOrganizationCount, pageSize, renderedOrganizations: pageSize, requests },
       p95Ms,

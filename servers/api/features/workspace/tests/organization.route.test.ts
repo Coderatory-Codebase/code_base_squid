@@ -56,7 +56,7 @@ const gatewayFor = (query: OrganizationGateway["listOrganizationsForPrincipal"])
     name,
     ownerId: principal.userId,
     workspaceIds: [],
-    lastUsedAt: new Date(),
+    lastUsedAt: new Date("2026-01-01T00:00:00.000Z"),
     deletedAt: null
   }),
   upsertPreviewOrganization: () => Promise.resolve()
@@ -204,7 +204,7 @@ void test("member role is denied invitation creation with HTTP 403 before mutati
     }),
     inviteMember: () => {
       mutationCalls += 1;
-      return Promise.resolve({ token: "a".repeat(43), expiresAt: new Date() });
+      return Promise.resolve({ token: "a".repeat(43), expiresAt: new Date("2026-01-01T00:00:00.000Z") });
     },
     acceptInvitation: () => Promise.resolve({ id: "000000000000000000000041", name: "Member organization" }),
     updateMemberRole: () => { mutationCalls += 1; return Promise.resolve(); },

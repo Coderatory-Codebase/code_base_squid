@@ -19,7 +19,7 @@ export const OrganizationLifecycleControls = ({ organizationId, initialLifecycle
     if (action === "delete" && !window.confirm("Soft-delete this archived organization? It will no longer appear in organization lists.")) return;
     const previous = lifecycle;
     const optimistic: LifecycleState = action === "archive"
-      ? { status: "archived", version: previous.version + 1, archivedAt: new Date().toISOString() }
+      ? { status: "archived", version: previous.version + 1, archivedAt: new Date(performance.timeOrigin + performance.now()).toISOString() }
       : action === "restore"
         ? { status: "active", version: previous.version + 1, archivedAt: null }
         : { status: "deleted", version: previous.version + 1, archivedAt: previous.archivedAt };

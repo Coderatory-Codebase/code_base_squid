@@ -7,6 +7,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { createApp, createServer } from "../bootstrap/index.js";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
 import { OrganizationModel } from "../features/workspace/index.js";
+import { systemClock } from "@workspace/kernel";
 
 const budgetMs = 700;
 const payloadBudgetBytes = 100 * 1024;
@@ -50,14 +51,14 @@ const measureWorkspaceDashboardBudget = async (): Promise<void> => {
         userId: `dashboard-member-${String(index)}`,
         email: `member-${String(index)}@example.test`,
         role: index % 5 === 0 ? "admin" : "member",
-        joinedAt: new Date(Date.now() - index * 1_000)
+        joinedAt: new Date(systemClock.now() - index * 1_000)
       })),
       invitations: [],
       activity: Array.from({ length: activityCount }, (_, index) => ({
         actorId: principal.userId,
         action: "member_role_changed",
         target: `dashboard-member-${String(index)}`,
-        createdAt: new Date(Date.now() - index * 60_000)
+        createdAt: new Date(systemClock.now() - index * 60_000)
       })),
       deletedAt: null
     });
@@ -87,7 +88,7 @@ const measureWorkspaceDashboardBudget = async (): Promise<void> => {
     const p95Ms = Number((durations[Math.ceil(durations.length * 0.95) - 1] ?? 0).toFixed(2));
     const passed = p95Ms < budgetMs && payloadBytes <= payloadBudgetBytes;
     const result = {
-      measuredAt: new Date().toISOString(),
+      measuredAt: new Date(systemClock.now()).toISOString(),
       surface: "GET /organizations/:organizationId/dashboard over loopback with isolated in-memory MongoDB",
       dataset: { activeTeamMembers: memberCount + 1, linkedWorkspaces: 10, recentActivityEvents: 10, requests },
       p95Ms,

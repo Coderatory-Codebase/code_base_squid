@@ -17,7 +17,7 @@ const principal: Principal = { userId: "member-1", workspaceIds: ["workspace-1"]
 void test("sign-in session authenticates organization queries and sign-out revokes access", async (context: TestContext) => {
   let activeToken = "preview-session-token-0123456789012345678901234567890123";
   const authService: AuthService = {
-    signIn: () => Promise.resolve({ token: activeToken, expiresAt: new Date(Date.now() + 60_000) }),
+    signIn: () => Promise.resolve({ token: activeToken, expiresAt: new Date("2030-01-01T00:01:00.000Z") }),
     resolvePrincipal: (token) => Promise.resolve(token === activeToken ? principal : null),
     signOut: (token) => {
       if (token === activeToken) activeToken = "";

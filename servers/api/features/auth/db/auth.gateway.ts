@@ -1,7 +1,8 @@
 import { SessionModel } from "../integrations/session.model.js";
 import { UserModel } from "../integrations/user.model.js";
+import type { Types as MongooseTypes } from "mongoose";
 
-type UserRecord = Readonly<{ _id: string; email: string; passwordHash: string; workspaceIds: readonly string[] }>;
+type UserRecord = Readonly<{ _id: string | MongooseTypes.ObjectId; email: string; passwordHash: string; workspaceIds: readonly string[] }>;
 type Query = Readonly<{ lean: <T>() => Promise<T> }>;
 type UserModelDependency = Readonly<{
   findOne: (filter: Readonly<Record<string, unknown>>) => Query;
@@ -40,7 +41,12 @@ export const createAuthGateway = (): AuthGateway => {
   const users = UserModel as unknown as UserModelDependency;
   const sessions = SessionModel as unknown as SessionModelDependency;
   const mapUser = (user: UserRecord | null): AuthUser | null => user
-    ? { id: String(user._id), email: user.email, passwordHash: user.passwordHash, workspaceIds: user.workspaceIds }
+    ? {
+      id: typeof user._id === "string" ? user._id : user._id.toHexString(),
+      email: user.email,
+      passwordHash: user.passwordHash,
+      workspaceIds: user.workspaceIds
+    }
     : null;
   return {
     findUserByEmail: async (email) => mapUser(await users.findOne({ email }).lean<UserRecord | null>()),

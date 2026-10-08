@@ -6,6 +6,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { createApp, createServer } from "../bootstrap/index.js";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
 import { OrganizationModel } from "../features/workspace/index.js";
+import { systemClock } from "@workspace/kernel";
 
 const requestRatePerSecond = 20;
 const durationMs = 10 * 60 * 1000;
@@ -82,7 +83,7 @@ const measureOrganizationSetupBudget = async (): Promise<void> => {
     const p95Ms = Number((durations[Math.ceil(durations.length * 0.95) - 1] ?? 0).toFixed(2));
     const passed = failedRequests === 0 && durations.length === requestCount && p95Ms < budgetMs;
     const result = {
-      measuredAt: new Date().toISOString(),
+      measuredAt: new Date(systemClock.now()).toISOString(),
       surface: "POST /organizations over loopback HTTP with isolated in-memory MongoDB",
       workload: { requestsPerSecond: requestRatePerSecond, durationMs, requests: requestCount },
       completedRequests: durations.length,

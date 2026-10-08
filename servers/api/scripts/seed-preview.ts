@@ -2,6 +2,7 @@ import "dotenv/config";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
 import { createAuthGateway, hashPassword } from "../features/auth/index.js";
 import { createOrganizationGateway } from "../features/workspace/index.js";
+import { systemClock } from "@workspace/kernel";
 
 const requiredEnvironment = (name: string): string => {
   const value = process.env[name];
@@ -23,7 +24,7 @@ const seedPreview = async (): Promise<void> => {
     const passwordHash = await hashPassword(password);
     const user = await createAuthGateway().upsertUser(email, passwordHash, [workspaceId]);
     const organizationGateway = createOrganizationGateway();
-    const lastUsedAt = new Date();
+    const lastUsedAt = new Date(systemClock.now());
     const ownedLastUsedAt = new Date(lastUsedAt.getTime() - 24 * 60 * 60 * 1_000);
     await organizationGateway.upsertPreviewOrganization("0000000000000000000000a1", {
       name: "Owned organization", ownerId: user.id, workspaceIds: [], lastUsedAt: ownedLastUsedAt, deletedAt: null

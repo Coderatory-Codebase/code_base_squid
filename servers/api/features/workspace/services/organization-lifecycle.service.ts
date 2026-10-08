@@ -1,3 +1,4 @@
+import { systemClock, type Clock } from "@workspace/kernel";
 import type { Principal } from "../../../types/index.js";
 import type { MembersGateway } from "../db/members.gateway.js";
 import {
@@ -22,7 +23,8 @@ export type OrganizationLifecycleService = Readonly<{
 }>;
 
 export const createOrganizationLifecycleService = (
-  gateway: MembersGateway
+  gateway: MembersGateway,
+  clock: Clock = systemClock
 ): OrganizationLifecycleService => ({
   transition: async (organizationId, principal, action, expectedVersion) => {
     const record = await gateway.getOrganizationLifecycle(organizationId, principal);
@@ -33,7 +35,7 @@ export const createOrganizationLifecycleService = (
       return { ok: false, code: "forbidden", message: "Only the organization owner can change its lifecycle." };
     }
 
-    const now = new Date();
+    const now = new Date(clock.now());
     const proposed = transitionOrganizationLifecycle(record.lifecycle, action, expectedVersion, principal.userId, now);
     if (!proposed.ok) return { ok: false, ...proposed.error };
 

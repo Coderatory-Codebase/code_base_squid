@@ -1,5 +1,6 @@
 import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../../constants/index.js";
 import { createApplicationError } from "../../errors/index.js";
+import { systemClock, type Clock } from "@workspace/kernel";
 
 export type WorkspaceContext = {
   readonly workspaceId?: string | null;
@@ -67,7 +68,10 @@ const withoutProtectedFields = (patch: Filter): Filter =>
 const conflict: MutationResult = { status: "conflict", code: ERROR_CODES.versionConflict };
 
 export const createScopedHandle =
-  <T extends ScopedDocument>({ collection }: { readonly collection: RawCollection<T> }) =>
+  <T extends ScopedDocument>({ collection, clock = systemClock }: {
+    readonly collection: RawCollection<T>;
+    readonly clock?: Clock;
+  }) =>
   (context: WorkspaceContext): ScopedHandle<T> => {
     const { workspaceId } = context;
 
@@ -75,11 +79,11 @@ export const createScopedHandle =
     if (!workspaceId) {
       // The repo's error boundary recognises plain application-error objects.
       
-      throw createApplicationError({
+      throw Object.assign(new Error(ERROR_MESSAGES.workspaceRequired), createApplicationError({
         code: ERROR_CODES.workspaceRequired,
         message: ERROR_MESSAGES.workspaceRequired,
         status: HTTP_STATUS.badRequest
-      });
+      }));
     }
 
     // Workspace and soft-delete predicates go LAST so a caller filter cannot override them.
@@ -121,7 +125,7 @@ export const createScopedHandle =
         mutate(scoped({ _id: id, version: expectedVersion }), withoutProtectedFields(patch)),
       softDelete: (id, expectedVersion, cause) =>
         mutate(scoped({ _id: id, version: expectedVersion }), {
-          deletedAt: new Date(),
+          deletedAt: new Date(clock.now()),
           deletedCause: cause
         }),
       restorePath

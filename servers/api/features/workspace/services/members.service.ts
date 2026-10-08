@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createApplicationError } from "../../../errors/index.js";
+import { systemClock, type Clock } from "@workspace/kernel";
 import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../../../constants/index.js";
 import type { Principal } from "../../../types/index.js";
 import type { OrganizationRole } from "../types.js";
@@ -56,7 +57,10 @@ export type MembersService = Readonly<{
   removeMember: (organizationId: string, principal: Principal, memberId: string) => Promise<void>;
 }>;
 
-export const createMembersService = (gateway: MembersGateway = createMembersGateway()): MembersService => ({
+export const createMembersService = (
+  gateway: MembersGateway = createMembersGateway(),
+  clock: Clock = systemClock
+): MembersService => ({
   getDashboard: async (organizationId, principal) => await requireDashboard(gateway, organizationId, principal),
 
   inviteMember: async (organizationId, principal, email, role) => {
@@ -68,7 +72,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
       throw fail(ERROR_CODES.conflict, "You already have access to this organization.", HTTP_STATUS.conflict);
     }
     const token = randomBytes(32).toString("base64url");
-    const createdAt = new Date();
+    const createdAt = new Date(clock.now());
     const expiresAt = new Date(createdAt.getTime() + invitationLifetimeMs);
     const saved = await gateway.createInvitation(organizationId, principal, {
       email: normalizedEmail,
@@ -89,7 +93,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
     if (!/^[A-Za-z0-9_-]{40,60}$/u.test(token)) {
       throw fail(ERROR_CODES.notFound, "This invitation is invalid or has expired.", HTTP_STATUS.notFound);
     }
-    const organization = await gateway.acceptInvitation(principal, hashInvitationToken(token), new Date());
+    const organization = await gateway.acceptInvitation(principal, hashInvitationToken(token), new Date(clock.now()));
     if (!organization) {
       throw fail(ERROR_CODES.notFound, "This invitation is invalid, expired, already used, or belongs to another email address.", HTTP_STATUS.notFound);
     }
@@ -107,7 +111,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
       throw fail(ERROR_CODES.notFound, "The organization member was not found.", HTTP_STATUS.notFound);
     }
     const targetLabel = dashboard.members.find(({ userId }) => userId === memberId)?.email ?? memberId;
-    if (!await gateway.updateMemberRole(organizationId, principal.userId, principal.email ?? null, memberId, role, new Date(), targetLabel)) {
+    if (!await gateway.updateMemberRole(organizationId, principal.userId, principal.email ?? null, memberId, role, new Date(clock.now()), targetLabel)) {
       throw fail(ERROR_CODES.forbidden, ERROR_MESSAGES.forbidden, HTTP_STATUS.forbidden);
     }
   },
@@ -123,7 +127,7 @@ export const createMembersService = (gateway: MembersGateway = createMembersGate
       throw fail(ERROR_CODES.notFound, "The organization member was not found.", HTTP_STATUS.notFound);
     }
     const targetLabel = dashboard.members.find(({ userId }) => userId === memberId)?.email ?? memberId;
-    if (!await gateway.removeMember(organizationId, principal.userId, principal.email ?? null, memberId, new Date(), targetLabel)) {
+    if (!await gateway.removeMember(organizationId, principal.userId, principal.email ?? null, memberId, new Date(clock.now()), targetLabel)) {
       throw fail(ERROR_CODES.forbidden, ERROR_MESSAGES.forbidden, HTTP_STATUS.forbidden);
     }
   }

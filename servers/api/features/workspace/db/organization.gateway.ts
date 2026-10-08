@@ -1,3 +1,4 @@
+import { systemClock, type Clock } from "@workspace/kernel";
 import { normalizeOrganizationId, OrganizationModel, type OrganizationDocument } from "../integrations/organization.model.js";
 import type { OrganizationPage, Principal } from "../types.js";
 
@@ -149,6 +150,7 @@ export const buildOrganizationQueryForPrincipal = (principal: Principal, offset 
   createOrganizationQuery(createOrganizationModelDependency(OrganizationModel), principal, offset);
 export type OrganizationGatewayDependencies = Readonly<{
   model?: OrganizationModelDependency;
+  clock?: Clock;
 }>;
 
 export type OrganizationGateway = Readonly<{
@@ -158,7 +160,8 @@ export type OrganizationGateway = Readonly<{
 }>;
 
 export const createOrganizationGateway = ({
-  model = createOrganizationModelDependency(OrganizationModel)
+  model = createOrganizationModelDependency(OrganizationModel),
+  clock = systemClock
 }: OrganizationGatewayDependencies = {}): OrganizationGateway => {
   const listOrganizationsForPrincipal = async (
     principal: Principal,
@@ -183,7 +186,7 @@ export const createOrganizationGateway = ({
       ownerId: principal.userId,
       ...(principal.email ? { ownerEmail: principal.email } : {}),
       workspaceIds: [],
-      lastUsedAt: new Date(),
+      lastUsedAt: new Date(clock.now()),
       deletedAt: null
     });
   };

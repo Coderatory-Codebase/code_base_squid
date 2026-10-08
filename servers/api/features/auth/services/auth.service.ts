@@ -3,6 +3,7 @@ import { promisify } from "node:util";
 import type { Principal } from "../../../types/index.js";
 import { createApplicationError } from "../../../errors/index.js";
 import { ERROR_CODES, HTTP_STATUS } from "../../../constants/index.js";
+import { systemClock, type Clock } from "@workspace/kernel";
 import { createAuthGateway, type AuthGateway } from "../db/auth.gateway.js";
 
 const scrypt = promisify(scryptCallback);
@@ -36,26 +37,30 @@ export type AuthService = Readonly<{
   signOut: (token: string | null) => Promise<void>;
 }>;
 
-export const createAuthService = (gateway: AuthGateway = createAuthGateway()): AuthService => ({
+export const createAuthService = (
+  gateway: AuthGateway = createAuthGateway(),
+  clock: Clock = systemClock
+): AuthService => ({
   signIn: async (email, password) => {
     const user = await gateway.findUserByEmail(email.trim().toLowerCase());
     const passwordMatches = await verifyPassword(password, user ? user.passwordHash : await dummyPasswordHash);
     if (!user || !passwordMatches) {
-      throw createApplicationError({
+      const error = createApplicationError({
         code: ERROR_CODES.unauthorized,
         message: "Email or password is incorrect.",
         status: HTTP_STATUS.unauthorized
-      }) as Error;
+      });
+      throw Object.assign(new Error(error.message), error);
     }
 
     const token = randomBytes(32).toString("base64url");
-    const expiresAt = new Date(Date.now() + sessionLifetimeMs);
+    const expiresAt = new Date(clock.now() + sessionLifetimeMs);
     await gateway.createSession({ sessionId: randomBytes(16).toString("hex"), tokenHash: hashToken(token), userId: user.id, expiresAt });
     return { token, expiresAt };
   },
   resolvePrincipal: async (token) => {
     if (!token) return null;
-    const session = await gateway.findActiveSession(hashToken(token), new Date());
+    const session = await gateway.findActiveSession(hashToken(token), new Date(clock.now()));
     if (!session) return null;
     const user = await gateway.findUserById(session.userId);
     return user ? { userId: user.id, email: user.email, workspaceIds: user.workspaceIds } : null;

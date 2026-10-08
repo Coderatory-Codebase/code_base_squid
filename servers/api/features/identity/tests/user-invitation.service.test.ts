@@ -10,6 +10,8 @@ import {
 } from "../gateways/index.js";
 import type { PendingInvitationInput, Principal } from "../types/index.js";
 
+const fixtureDate = new Date("2030-01-01T00:00:00.000Z");
+
 const admin: Principal = Object.freeze({
   userId: "lena",
   workspaceId: "design",
@@ -46,9 +48,9 @@ const createGateway = (existingPending = false): Readonly<{
           tokenHash: "a".repeat(64),
           status: "pending" as const,
           role: "member",
-          expiresAt: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
+          expiresAt: fixtureDate,
+          createdAt: fixtureDate,
+          updatedAt: fixtureDate
         })
         : null);
     },
@@ -59,8 +61,8 @@ const createGateway = (existingPending = false): Readonly<{
         workspaceId: "design",
         invitedBy: "lena",
         status: "pending" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
         ...input
       }));
     },
@@ -71,8 +73,8 @@ const createGateway = (existingPending = false): Readonly<{
         workspaceId: "design",
         invitedBy: "lena",
         status: "pending" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
         ...input
       }));
     }

@@ -48,9 +48,9 @@ void test("Workspace Repository MongoDB Integration", async () => {
     const otherWorkspaceId = generateTestId();
 
     await insertTestDocuments("organizations", [
-      { _id: orgId, name: "Integration Org", ownerId: userId, createdAt: new Date(), status: "ACTIVE" },
-      { _id: otherOrgId, name: "Other Org", ownerId: otherUserId, createdAt: new Date(), status: "ACTIVE" },
-      { _id: generateTestId(), name: "Deleted Org", ownerId: userId, createdAt: new Date(), status: "DELETED" }
+      { _id: orgId, name: "Integration Org", ownerId: userId, createdAt: new Date("2026-01-01T00:00:00.000Z"), status: "ACTIVE" },
+      { _id: otherOrgId, name: "Other Org", ownerId: otherUserId, createdAt: new Date("2026-01-01T00:00:00.000Z"), status: "ACTIVE" },
+      { _id: generateTestId(), name: "Deleted Org", ownerId: userId, createdAt: new Date("2026-01-01T00:00:00.000Z"), status: "DELETED" }
     ]);
 
     await insertTestDocuments("workspaces", [

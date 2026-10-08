@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { createLogger } from "@workspace/logging";
 import { createMongoDbIntegration } from "../integrations/mongodb/index.js";
 import { OrganizationModel } from "../features/workspace/index.js";
+import { systemClock } from "@workspace/kernel";
 
 const getArgument = (name: string): string | undefined => {
   const index = process.argv.indexOf(name);
@@ -53,7 +54,7 @@ const seed = async (): Promise<void> => {
       );
     }
 
-    const now = new Date();
+    const now = new Date(systemClock.now());
     const operations = Array.from({ length: targetVolume }, (_, index) => {
       const ordinal = String(index + 1).padStart(6, "0");
       const name = `${seedNamePrefix}${ordinal}`;

@@ -4,6 +4,7 @@ import { createMembersService } from "../services/members.service.js";
 import type { MembersGateway } from "../db/members.gateway.js";
 import type { Principal } from "../../../types/index.js";
 
+const fixtureDate = new Date("2026-01-01T00:00:00.000Z");
 const manager: Principal = { userId: "owner-1", email: "owner@example.test", workspaceIds: [] };
 const member: Principal = { userId: "member-1", email: "member@example.test", workspaceIds: [] };
 const dashboard = {
@@ -13,13 +14,13 @@ const dashboard = {
   viewerRole: "owner" as const,
   members: [
     { userId: manager.userId, email: manager.email ?? null, role: "owner" as const, joinedAt: null },
-    { userId: "member-1", email: member.email ?? null, role: "member" as const, joinedAt: new Date() }
+    { userId: "member-1", email: member.email ?? null, role: "member" as const, joinedAt: fixtureDate }
   ],
   activity: []
 };
 
 const gatewayFor = (overrides: Partial<MembersGateway> = {}): MembersGateway => ({
-  getDashboard: async (_organizationId, principal) => ({
+  getDashboard: (_organizationId, principal) => Promise.resolve({
     ...dashboard,
     viewerRole: principal.userId === member.userId ? "member" : "owner"
   }),
@@ -28,19 +29,19 @@ const gatewayFor = (overrides: Partial<MembersGateway> = {}): MembersGateway => 
     lifecycle: dashboard.lifecycle
   }),
   transitionOrganizationLifecycle: () => Promise.resolve(dashboard.lifecycle),
-  createInvitation: async () => true,
-  acceptInvitation: async () => ({ id: dashboard.organization.id, name: dashboard.organization.name }),
-  updateMemberRole: async () => true,
-  removeMember: async () => true,
+  createInvitation: () => Promise.resolve(true),
+  acceptInvitation: () => Promise.resolve({ id: dashboard.organization.id, name: dashboard.organization.name }),
+  updateMemberRole: () => Promise.resolve(true),
+  removeMember: () => Promise.resolve(true),
   ...overrides
 });
 
 void test("only owners and admins can invite members", async () => {
   let invitationWrites = 0;
   const service = createMembersService(gatewayFor({
-    createInvitation: async () => {
+    createInvitation: () => {
       invitationWrites += 1;
-      return true;
+      return Promise.resolve(true);
     }
   }));
   await assert.rejects(
@@ -88,9 +89,9 @@ void test("archived organizations reject team writes before persistence", async 
 void test("invitation stores only a token hash and expires in seven days", async () => {
   let received: Parameters<MembersGateway["createInvitation"]>[2] | undefined;
   const service = createMembersService(gatewayFor({
-    createInvitation: async (_organizationId, _principal, invitation) => {
+    createInvitation: (_organizationId, _principal, invitation) => {
       received = invitation;
-      return true;
+      return Promise.resolve(true);
     }
   }));
   const created = await service.inviteMember(dashboard.organization.id, manager, "New@Example.Test", "admin");
@@ -105,9 +106,9 @@ void test("invitation stores only a token hash and expires in seven days", async
 void test("malformed invitation tokens are rejected before reaching persistence", async () => {
   let acceptanceCalls = 0;
   const service = createMembersService(gatewayFor({
-    acceptInvitation: async () => {
+    acceptInvitation: () => {
       acceptanceCalls += 1;
-      return null;
+      return Promise.resolve(null);
     }
   }));
   await assert.rejects(

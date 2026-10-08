@@ -148,7 +148,7 @@ void test("persists organization operations and enforces tenant isolation in las
       name: `Unrelated organization ${String(index)}`,
       ownerId: `unrelated-user-${String(index)}`,
       workspaceIds: [`workspace-unrelated-${String(index)}`],
-      lastUsedAt: new Date(),
+      lastUsedAt: new Date("2026-01-01T00:00:00.000Z"),
       deletedAt: null
     }))
   );
