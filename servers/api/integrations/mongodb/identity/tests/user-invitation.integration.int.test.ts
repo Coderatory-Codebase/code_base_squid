@@ -8,7 +8,7 @@ import {
   InvitationCommandError,
   UserInvitationModel
 } from "../../../../features/identity/index.js";
-import type { Principal } from "../../../../features/identity/index.js";
+import type { InvitationPrincipal } from "../../../../features/identity/index.js";
 
 const now = new Date("2030-01-01T00:00:00.000Z");
 const firstToken = "A".repeat(43);
@@ -17,13 +17,13 @@ const testMongoUri = process.env.TEST_MONGODB_URI;
 const integrationSkip = testMongoUri
   ? false
   : "Set TEST_MONGODB_URI to an isolated MongoDB test database to run invitation integration cases.";
-const admin: Principal = Object.freeze({
+const admin: InvitationPrincipal = Object.freeze({
   userId: "admin-1",
   workspaceId: "workspace-1",
   role: "admin",
   permissions: ["workspace:invite"]
 });
-const otherWorkspace: Principal = Object.freeze({ ...admin, workspaceId: "workspace-2" });
+const otherWorkspace: InvitationPrincipal = Object.freeze({ ...admin, workspaceId: "workspace-2" });
 before(async () => {
   if (!testMongoUri) return;
   await mongoose.connect(testMongoUri, { dbName: `identity-invitations-${randomUUID()}` });
@@ -107,7 +107,7 @@ void test("TC-02.1.02-S1-5 AC-5 rejects an invalid address without a Mongo write
 
 void test("TC-02.1.02-S1-X-data scopes real Mongo reads and excludes soft-deleted records", { skip: integrationSkip }, async () => {
   await clearInvitations();
-  await UserInvitationModel.create([
+  await UserInvitationModel.insertMany([
     { workspaceId: admin.workspaceId, email: "live@example.test", invitedBy: admin.userId, tokenHash: tokenHash("live-token"), status: "pending", role: "member", expiresAt: new Date("2030-01-08T00:00:00.000Z"), deletedAt: null },
     { workspaceId: admin.workspaceId, email: "deleted@example.test", invitedBy: admin.userId, tokenHash: tokenHash("deleted-token"), status: "pending", role: "member", expiresAt: new Date("2030-01-08T00:00:00.000Z"), deletedAt: now },
     { workspaceId: otherWorkspace.workspaceId, email: "other@example.test", invitedBy: admin.userId, tokenHash: tokenHash("other-token"), status: "pending", role: "member", expiresAt: new Date("2030-01-08T00:00:00.000Z"), deletedAt: null }

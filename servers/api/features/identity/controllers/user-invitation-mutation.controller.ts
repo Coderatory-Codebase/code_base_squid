@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { z } from "zod";
 import type { Principal } from "../../../kernel/index.js";
 import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../../../constants/index.js";
@@ -22,15 +22,6 @@ export type UserInvitationMutationDependencies = Readonly<{
   resend: (principal: Principal, invitationId: string) => Promise<Readonly<{ invitationUrl: string; expiresAt: Date }>>;
 }>;
 
-type MutationRequest = Readonly<{
-  method: string;
-  headers: Readonly<{ authorization?: string }>;
-  params: Readonly<Record<string, string | undefined>>;
-  body?: unknown;
-}>;
-type MutationResponse = Readonly<{ status: (code: number) => MutationResponse; json: (body: unknown) => unknown }>;
-type MutationNext = (error?: unknown) => void;
-
 const invitationSchema = z.object({ email: z.email().max(254), role: z.enum(["admin", "member"]) }).strict();
 const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/iu);
 
@@ -39,7 +30,7 @@ const fail = (input: Parameters<typeof createApplicationError>[0]): Error =>
 
 export const createUserInvitationMutationController =
   ({ principalResolver, invite, revoke, resend }: UserInvitationMutationDependencies): RequestHandler =>
-    async (request: MutationRequest, response: MutationResponse, next: MutationNext): Promise<void> => {
+    async (request: Request, response: Response, next: NextFunction): Promise<void> => {
       try {
         const resolved = await principalResolver.resolve(request.headers.authorization);
         if (resolved.kind !== "resolved") {

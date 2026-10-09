@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { z } from "zod";
 import type { Principal as KernelPrincipal } from "../../../kernel/index.js";
 import { ERROR_CODES, ERROR_MESSAGES, HTTP_STATUS } from "../../../constants/index.js";
@@ -27,18 +27,8 @@ const principalError = (kind: "unauthenticated" | "no-active-workspace" | "works
     status: kind === "unauthenticated" ? HTTP_STATUS.unauthorized : kind === "no-active-workspace" ? HTTP_STATUS.forbidden : HTTP_STATUS.conflict
   });
 
-type InvitationListRequest = Readonly<{
-  headers: Readonly<{ authorization?: string }>;
-  query: Readonly<Record<string, unknown>>;
-}>;
-type InvitationListResponse = Readonly<{
-  status: (code: number) => InvitationListResponse;
-  json: (body: unknown) => unknown;
-}>;
-type InvitationListNext = (error?: unknown) => void;
-
 export const createUserInvitationListController = ({ principalResolver, list }: UserInvitationListControllerDependencies): RequestHandler => {
-  const handler = async (request: InvitationListRequest, response: InvitationListResponse, next: InvitationListNext): Promise<void> => {
+  const handler = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     try {
       const resolution = await principalResolver.resolve(request.headers.authorization);
       if (resolution.kind !== "resolved") {
